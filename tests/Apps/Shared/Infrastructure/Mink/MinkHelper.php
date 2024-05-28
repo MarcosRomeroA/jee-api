@@ -13,6 +13,8 @@ final readonly class MinkHelper
 
     public function sendRequest(string $method, string $url, array $optionalParams = []): Crawler
     {
+        $this->resetRequestStuff();
+
         $defaultOptionalParams = [
             'parameters' => [],
             'files' => [],
@@ -23,7 +25,7 @@ final readonly class MinkHelper
 
         $optionalParams = array_merge($defaultOptionalParams, $optionalParams);
 
-        $crawler = $this->getClient()->request(
+        return $this->getClient()->request(
             $method,
             $url,
             $optionalParams['parameters'],
@@ -32,10 +34,6 @@ final readonly class MinkHelper
             $optionalParams['content'],
             $optionalParams['changeHistory']
         );
-
-        $this->resetRequestStuff();
-
-        return $crawler;
     }
 
     public function getResponse(): string

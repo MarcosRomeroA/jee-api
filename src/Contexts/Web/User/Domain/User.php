@@ -2,17 +2,17 @@
 
 namespace App\Contexts\Web\User\Domain;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
-use App\Contexts\Web\User\Domain\CustomTypes\UserId;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 class User extends AggregateRoot
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'user_id', length: 36)]
-    protected UserId $id;
+    #[ORM\Column]
+    protected ?int $id;
 
     #[ORM\Column(length: 200)]
     private string $firstname;
