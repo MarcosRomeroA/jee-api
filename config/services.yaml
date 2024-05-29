@@ -9,3 +9,43 @@ services:
         resource: '../src/'
         exclude:
             - '../src/Kernel.php'
+
+    App\Contexts\Shared\Infrastructure\Symfony\ExceptionListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'kernel.exception' }
+
+    # Configure
+    _instanceof:
+        App\Contexts\Shared\Domain\CQRS\Event\DomainEventSubscriber:
+            tags: [ 'app.domain_event_subscriber' ]
+
+        App\Contexts\Shared\Domain\CQRS\Command\CommandHandler:
+            tags: [ 'app.command_handler' ]
+
+        App\Contexts\Shared\Domain\CQRS\Query\QueryHandler:
+            tags: [ 'app.query_handler' ]
+
+    #Tagging
+    App\Contexts\Shared\Infrastructure\CQRS\Event\InMemory\InMemorySymfonyEventBus:
+        arguments: [ !tagged app.domain_event_subscriber ]
+        lazy: true
+
+    App\Contexts\Shared\Infrastructure\CQRS\Event\DomainEventMapping:
+        arguments: [ !tagged app.domain_event_subscriber ]
+
+    App\Contexts\Shared\Infrastructure\CQRS\Event\DomainEventSubscriberLocator:
+        arguments: [ !tagged app.domain_event_subscriber ]
+
+    App\Contexts\Shared\Infrastructure\Symfony\AddJsonBodyToRequestListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+
+    # -- APP DEFINITIONS --
+    # Command/Query Handlers
+    App\Contexts\Shared\Infrastructure\CQRS\Command\InMemorySymfonyCommandBus:
+        arguments: [ !tagged app.command_handler ]
+
+    App\Contexts\Shared\Infrastructure\CQRS\Query\InMemorySymfonyQueryBus:
+        arguments: [ !tagged app.query_handler ]
+
+    App\Contexts\Shared\Domain\CQRS\Event\EventBus: '@App\Contexts\Shared\Infrastructure\CQRS\Event\InMemory\InMemorySymfonyEventBus'

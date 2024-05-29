@@ -2,7 +2,17 @@
 
 namespace App\Contexts\Web\User\Domain\ValueObject;
 
-class UsernameValue
-{
+use App\Contexts\Shared\Domain\ValueObject\StringValueObject;
+use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Embeddable]
+class UsernameValue extends StringValueObject
+{
+    #[ORM\Column(name:'username', type: 'string', length: 50)]
+    protected string $value;
+
+    public function __construct(string $value)
+    {
+        parent::__construct($value);
+    }
 }

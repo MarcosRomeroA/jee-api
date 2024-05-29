@@ -1,0 +1,4 @@
+create_user:
+  path: /user
+  controller: App\Apps\Web\User\CreateUserController
+  methods: [ POST ]

@@ -1,0 +1,3 @@
+api:
+  resource: './routes/web/*'
+  prefix: '/api'

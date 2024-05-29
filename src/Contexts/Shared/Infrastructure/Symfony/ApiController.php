@@ -10,6 +10,7 @@ use App\Contexts\Shared\Domain\CQRS\Query\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+
 use function Lambdish\Phunctional\each;
 
 abstract class ApiController extends AbstractController
@@ -17,16 +18,9 @@ abstract class ApiController extends AbstractController
     public function __construct(
         protected QueryBus                 $queryBus,
         protected CommandBus               $commandBus,
-        ApiExceptionsHttpStatusCodeMapping $exceptionHandler
     )
     {
-        each(
-            fn(int $httpCode, string $exceptionClass) => $exceptionHandler->register($exceptionClass, $httpCode),
-            $this->exceptions()
-        );
     }
-
-    abstract protected function exceptions(): array;
 
     protected function ask(Query $query): ?Response
     {

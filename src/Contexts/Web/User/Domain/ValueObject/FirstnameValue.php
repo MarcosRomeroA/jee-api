@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Embeddable]
 class FirstnameValue extends StringValueObject
 {
-    #[ORM\Column(name:'firstname', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name:'firstname', type: 'string', length: 255)]
     protected string $value;
 
     public function __construct(string $value)

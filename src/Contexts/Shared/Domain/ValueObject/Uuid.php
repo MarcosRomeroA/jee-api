@@ -2,6 +2,7 @@
 
 namespace App\Contexts\Shared\Domain\ValueObject;
 
+use App\Contexts\Shared\Domain\Exception\InvalidUuidException;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid as RamseyUuid;
 use Stringable;
@@ -36,7 +37,7 @@ class Uuid implements Stringable
     private function ensureIsValidUuid(string $id): void
     {
         if (!RamseyUuid::isValid($id)) {
-            throw new InvalidArgumentException(sprintf('<%s> does not allow the value <%s>.', static::class, $id));
+            throw new InvalidUuidException(sprintf('Uuid does not allow the value <%s>.',  $id));
         }
     }
 }

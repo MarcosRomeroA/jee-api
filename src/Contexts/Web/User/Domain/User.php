@@ -6,7 +6,10 @@ use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
 use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\Nullable;
+use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
 use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
+use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
+use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Embedded;
 
@@ -19,17 +22,17 @@ class User extends AggregateRoot
     #[ORM\Column(type: 'uuid', length: 36)]
     private Uuid $id;
 
-    #[Nullable]
     #[Embedded(class: FirstnameValue::class, columnPrefix: false)]
-    private ?FirstnameValue $firstname;
+    private FirstnameValue $firstname;
 
-    #[ORM\Column(length: 200, nullable: true)]
-    private ?string $lastname;
+    #[Nullable]
+    #[Embedded(class: LastnameValue::class, columnPrefix: false)]
+    private ?LastnameValue $lastname;
 
-    #[ORM\Column(length: 50)]
-    private string $username;
+    #[Embedded(class: UsernameValue::class, columnPrefix: false)]
+    private UsernameValue $username;
 
-    #[ORM\Column(length: 200)]
+    #[Embedded(class: EmailValue::class, columnPrefix: false)]
     private string $email;
 
     #[ORM\Column(length: 200)]
