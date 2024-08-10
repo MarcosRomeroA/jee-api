@@ -2,13 +2,13 @@
 
 namespace App\Contexts\Web\User\Domain\ValueObject;
 
-use App\Contexts\Shared\Domain\ValueObject\StringValueObject;
+use App\Contexts\Shared\Domain\ValueObject\EmailValueObject;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Embeddable]
-class EmailValue extends StringValueObject
+class EmailValue extends EmailValueObject
 {
-    #[ORM\Column(name:'email', type: 'string', length: 255)]
+    #[ORM\Column(name:'email', type: 'string', length: 255, unique: true)]
     protected string $value;
 
     public function __construct(string $value)

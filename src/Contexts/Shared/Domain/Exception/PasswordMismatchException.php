@@ -9,9 +9,10 @@ class PasswordMismatchException extends ApiException
 {
     public function __construct(
         string $message = "Passwords do not match.",
-        int $statusCode  = Response::HTTP_BAD_REQUEST,
+        string $uniqueCode = "password_mismatch_exception",
+        int $statusCode = Response::HTTP_BAD_REQUEST,
     )
     {
-        parent::__construct($message, $statusCode);
+        parent::__construct($message, $uniqueCode, $statusCode);
     }
 }

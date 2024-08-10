@@ -7,8 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidUuidException extends ApiException
 {
-    public function __construct(string $message = "Invalid Uuid", int $statusCode = Response::HTTP_BAD_REQUEST)
+    public function __construct(
+        string $message = "Invalid Uuid",
+        string $uniqueCode = "invalid_uuid_exception",
+        int $statusCode = Response::HTTP_BAD_REQUEST
+    )
     {
-        parent::__construct($message, $statusCode);
+        parent::__construct($message, $uniqueCode, $statusCode);
     }
 }

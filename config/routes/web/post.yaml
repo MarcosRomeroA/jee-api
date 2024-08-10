@@ -1,0 +1,23 @@
+create_post:
+  path: /post
+  controller: App\Apps\Web\Post\Create\CreatePostController
+  methods: [ POST ]
+  defaults: { auth: true }
+
+find_post:
+  path: /post/{id}
+  controller: App\Apps\Web\Post\Find\FindPostController
+  methods: [ GET ]
+  defaults: { auth: true }
+
+search_posts:
+  path: /posts
+  controller: App\Apps\Web\Post\Search\SearchPostsController
+  methods: [ GET ]
+  defaults: { auth: true }
+
+add_comment:
+  path: /post/{id}/comment
+  controller: App\Apps\Web\Post\AddComment\AddCommentPostController
+  methods: [ POST ]
+  defaults: { auth: true }

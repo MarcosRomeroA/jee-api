@@ -2,41 +2,64 @@
 
 namespace App\Contexts\Shared\Infrastructure\Symfony;
 
+use App\Contexts\Shared\Domain\Exception\ValidationException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 class ExceptionListener
 {
+    public function __construct(private LoggerInterface $logger)
+    {
+    }
+
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
 
-        // Default values
+        // TODO: Improve this to handle async commands and queries
+        if ($exception instanceof HandlerFailedException ) {
+            $exception = $exception->getPrevious();
+        }
+
         $statusCode = 500;
         $message = 'An unexpected error occurred';
         $errorCode = 'unexpected_error';
 
-        if ($exception instanceof HttpExceptionInterface) {
+        $this->logger->critical($exception->getMessage());
+
+        if ($exception instanceof ValidationException) {
             $statusCode = $exception->getStatusCode();
             $message = $exception->getMessage();
-            $errorCode = $this->generateErrorCode($exception);
+            $errorCode = $exception->getUniqueCode();
+            $errors = $exception->getErrors();
+        }
+        else if ($exception instanceof ApiException)
+        {
+            $statusCode = $exception->getStatusCode();
+            $message = $exception->getMessage();
+            $errorCode = $exception->getUniqueCode();
         }
 
-        $response = new JsonResponse([
+        $result = [
             'status' => $statusCode,
             'message' => $message,
             'code' => $errorCode,
-        ]);
+        ];
+
+        if (!empty($errors)){
+            $result['errors'] = $errors;
+        }
+
+        if ($_ENV['APP_ENV'] === 'dev') {
+            $result['dev_error_message'] = $exception->getMessage();
+        }
+
+        $response = new JsonResponse($result);
 
         $response->setStatusCode($statusCode);
 
         $event->setResponse($response);
-    }
-
-    private function generateErrorCode(\Throwable $exception): string
-    {
-        $className = (new \ReflectionClass($exception))->getShortName();
-        return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $className));
     }
 }

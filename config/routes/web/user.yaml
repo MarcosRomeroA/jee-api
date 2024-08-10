@@ -1,4 +1,10 @@
 create_user:
   path: /user
-  controller: App\Apps\Web\User\CreateUserController
+  controller: App\Apps\Web\User\Create\CreateUserController
   methods: [ POST ]
+
+find_user:
+  path: /user/{id}
+  controller: App\Apps\Web\User\Find\FindUserController
+  methods: [ GET ]
+  defaults: { auth: true }

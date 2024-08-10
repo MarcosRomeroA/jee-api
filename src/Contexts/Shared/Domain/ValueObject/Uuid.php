@@ -3,7 +3,6 @@
 namespace App\Contexts\Shared\Domain\ValueObject;
 
 use App\Contexts\Shared\Domain\Exception\InvalidUuidException;
-use InvalidArgumentException;
 use Ramsey\Uuid\Uuid as RamseyUuid;
 use Stringable;
 

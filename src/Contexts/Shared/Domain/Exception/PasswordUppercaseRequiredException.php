@@ -2,10 +2,19 @@
 
 namespace App\Contexts\Shared\Domain\Exception;
 
-class PasswordUppercaseRequiredException extends \Exception
+use App\Contexts\Shared\Infrastructure\Symfony\ApiException;
+use Symfony\Component\HttpFoundation\Response;
+
+class PasswordUppercaseRequiredException extends ApiException
 {
-    public function __construct(string $message = "password_uppercase_required_exception")
+    public function __construct(
+        int $minUppercase,
+        string $message = "Password minimum uppercase letter <%d> required.",
+        string $uniqueCode = "password_uppercase_required_exception",
+        string $statusCode = Response::HTTP_BAD_REQUEST
+    )
     {
-        parent::__construct($message);
+        $message = sprintf($message, $minUppercase);
+        parent::__construct($message, $uniqueCode, $statusCode);
     }
 }

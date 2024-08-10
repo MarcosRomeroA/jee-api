@@ -1,0 +1,63 @@
+<?php declare(strict_types=1);
+
+namespace App\Contexts\Web\Post\Domain;
+
+use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
+use App\Contexts\Shared\Domain\Traits\Timestamps;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
+use App\Contexts\Web\Post\Domain\ValueObject\CommentValue;
+use App\Contexts\Web\User\Domain\User;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Embedded;
+
+#[ContainsNullableEmbeddable]
+#[ORM\Entity(repositoryClass: CommentRepository::class)]
+class Comment extends AggregateRoot
+{
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', length: 36)]
+    private Uuid $id;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    private User $user;
+
+    #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: 'comments')]
+    private Post $post;
+
+    #[Embedded(class: CommentValue::class, columnPrefix: false)]
+    private CommentValue $comment;
+
+    use Timestamps;
+
+    public function __construct(
+        Uuid $id,
+        CommentValue $comment,
+    )
+    {
+        $this->id = $id;
+        $this->comment = $comment;
+    }
+
+    public static function create(
+        Uuid $id,
+        CommentValue $comment,
+        User $user,
+    ): self
+    {
+        $comment = new self($id, $comment);
+        $comment->user = $user;
+        return $comment;
+    }
+
+    public function getId(): Uuid
+    {
+        return $this->id;
+    }
+
+    public function setPost(Post $post): void
+    {
+        $this->post = $post;
+    }
+
+}

@@ -2,19 +2,24 @@
 
 namespace App\Contexts\Shared\Infrastructure\Symfony;
 
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 abstract class ApiException extends HttpException
 {
+    private string $uniqueCode;
+
     public function __construct(
-        string $message = "unexpected_error",
-        int $statusCode  = Response::HTTP_BAD_REQUEST,
-        \Exception $previous = null,
-        array $headers = [],
-        int $code = 0
+        string $message,
+        string $uniqueCode,
+        int $statusCode,
     )
     {
-        parent::__construct($statusCode, $message, $previous, $headers, $code);
+        $this->uniqueCode = $uniqueCode;
+        parent::__construct($statusCode, $message);
+    }
+
+    public function getUniqueCode(): string
+    {
+        return $this->uniqueCode;
     }
 }

@@ -11,8 +11,14 @@ use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
 
-class CreateUserCommandHandler implements CommandHandler
+final readonly class CreateUserCommandHandler implements CommandHandler
 {
+    public function __construct(
+        private UserCreator $creator,
+    )
+    {
+    }
+
     /**
      * @throws PasswordMismatchException
      */
@@ -23,6 +29,13 @@ class CreateUserCommandHandler implements CommandHandler
         $lastname = new LastnameValue($command->lastname);
         $email = new EmailValue($command->email);
         $username = new UsernameValue($command->username);
-        $password = new PasswordValue($command->password, $command->confirmationPassword);
+
+        if ($command->password !== $command->confirmationPassword) {
+            throw new PasswordMismatchException();
+        }
+
+        $password = new PasswordValue($command->password);
+
+        $this->creator->__invoke($id, $firstname, $lastname, $username, $email, $password);
     }
 }

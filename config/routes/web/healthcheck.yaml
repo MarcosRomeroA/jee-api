@@ -1,4 +1,4 @@
-get_healthcheck:
+healthcheck:
   path: /healthcheck
   controller: App\Apps\Web\HealthCheck\HealthCheckGetController
   methods: [ GET ]

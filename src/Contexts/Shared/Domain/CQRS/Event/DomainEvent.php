@@ -2,48 +2,56 @@
 
 namespace App\Contexts\Shared\Domain\CQRS\Event;
 
-use Jee\Contexts\Shared\Domain\Utils;
-use Jee\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Shared\Domain\Utils;
 use DateTimeImmutable;
 
 abstract class DomainEvent
 {
     private string $eventId;
     private string $occurredOn;
+    private array $body;
 
-    public function __construct(private Uuid|int|string|null$aggregateId, ?string $eventId = null, ?string $occurredOn = null)
+    public function __construct(private Uuid $aggregateId, ?array $body = [], ?string $eventId = null, ?string $occurredOn = null)
     {
-        $this->eventId    = $eventId ?: Uuid::random()->value();
+        $this->eventId = $eventId ?: Uuid::random()->value();
         $this->occurredOn = $occurredOn ?: Utils::dateToString(new DateTimeImmutable());
+        $this->body = $body;
     }
 
     abstract public static function fromPrimitives(
-        string|int $aggregateId,
-        array $body,
-        string $eventId,
-        string $occurredOn
+        Uuid $aggregateId,
+        ?array $body,
+        ?string $eventId,
+        ?string $occurredOn
     ): self;
 
     abstract public static function eventName(): string;
 
     abstract public function toPrimitives(): array;
 
-    public function aggregateId(): Uuid|string|int
+    public function getAggregateId(): Uuid
     {
         return $this->aggregateId;
     }
 
-    public function eventId(): string
+    public function getEventId(): string
     {
         return $this->eventId;
     }
 
-    public function occurredOn(): string
+    public function getOccurredOn(): string
     {
         return $this->occurredOn;
     }
-    public function setAggregateId(int $value): void
+
+    public function getBody(): array
     {
-        $this->aggregateId= $value;
+        return $this->body;
+    }
+
+    public function setAggregateId(Uuid $value): void
+    {
+        $this->aggregateId = $value;
     }
 }

@@ -1,0 +1,19 @@
+<?php declare(strict_types=1);
+
+namespace App\Contexts\Web\Post\Domain\ValueObject;
+
+use App\Contexts\Shared\Domain\ValueObject\StringValueObject;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Embeddable]
+class CommentValue extends StringValueObject
+{
+    #[ORM\Column(name:'comment', type: 'text', length: 512)]
+    protected string $value;
+
+    public function __construct(string $value)
+    {
+        $this->limitedToLength(512);
+        parent::__construct($value);
+    }
+}
