@@ -13,7 +13,7 @@ class CommentValue extends StringValueObject
 
     public function __construct(string $value)
     {
-        $this->limitedToLength(512);
         parent::__construct($value);
+        $this->limitedToLength(512);
     }
 }

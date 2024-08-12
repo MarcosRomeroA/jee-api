@@ -16,8 +16,14 @@ search_posts:
   methods: [ GET ]
   defaults: { auth: true }
 
-add_comment:
+add_post_comment:
   path: /post/{id}/comment
-  controller: App\Apps\Web\Post\AddComment\AddCommentPostController
-  methods: [ POST ]
+  controller: App\Apps\Web\Post\AddPostComment\AddPostCommentController
+  methods: [ PUT ]
+  defaults: { auth: true }
+
+search_post_comments:
+  path: /post/{id}/comments
+  controller: App\Apps\Web\Post\SearchPostComments\SearchPostCommentsController
+  methods: [ GET ]
   defaults: { auth: true }

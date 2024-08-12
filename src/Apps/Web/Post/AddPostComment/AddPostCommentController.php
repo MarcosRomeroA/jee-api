@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace App\Apps\Web\Post\AddComment;
+namespace App\Apps\Web\Post\AddPostComment;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
 use App\Contexts\Web\Post\Application\AddComment\AddCommentPostCommand;
 use Symfony\Component\HttpFoundation\Response;
 
-class AddCommentPostController extends ApiController
+class AddPostCommentController extends ApiController
 {
     public function __invoke(
-        AddCommentPostRequest $request,
-        string $postId,
+        AddPostCommentRequest $request,
+        string $id,
         string $sessionId
     ): Response
     {
         $command = new AddCommentPostCommand(
-            $postId,
+            $id,
             $sessionId,
-            $request->id,
-            $request->comment,
+            $request->commentId,
+            $request->commentBody,
         );
 
         $this->commandBus->dispatch($command);

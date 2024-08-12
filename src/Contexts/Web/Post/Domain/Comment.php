@@ -4,6 +4,8 @@ namespace App\Contexts\Web\Post\Domain;
 
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\Traits\Timestamps;
+use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
+use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
 use App\Contexts\Web\Post\Domain\ValueObject\CommentValue;
@@ -37,6 +39,8 @@ class Comment extends AggregateRoot
     {
         $this->id = $id;
         $this->comment = $comment;
+        $this->createdAt = new CreatedAtValue();
+        $this->updatedAt = new UpdatedAtValue($this->createdAt->value());
     }
 
     public static function create(
@@ -55,9 +59,18 @@ class Comment extends AggregateRoot
         return $this->id;
     }
 
+    public function getComment(): CommentValue
+    {
+        return $this->comment;
+    }
+
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
     public function setPost(Post $post): void
     {
         $this->post = $post;
     }
-
 }

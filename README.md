@@ -3,18 +3,19 @@
 </h1>
 
 <p align="center">
-    Red Social para jugadores de videojuegos E-Sports, formacion de equipos, creacion de torneos y primer
+    Es una Red Social para jugadores de videojuegos E-Sports, formacion de equipos, creacion de torneos y primer
     contacto profesional.
 </p>
 
 Requerimientos
 ---------------
 
-* PHP 8.2
-* PHP extension PDO-MYSQL y MYSQL
+* PHP 8.3
+* PHP extensions: mysql, pdo-mysql, amqp
 * Requerimientos usuales en aplicaciones [symfony](https://symfony.com/doc/current/setup.html#symfony-tech-requirements)
 * Composer, Latest 2.x
-* MYSQL 8
+* MariaDB 11
+* Rabbitmq
 
 Instalación
 --------------

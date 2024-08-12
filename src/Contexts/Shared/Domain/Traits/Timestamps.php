@@ -19,4 +19,19 @@ trait Timestamps
     #[Nullable]
     #[Embedded(class: DeletedAtValue::class, columnPrefix: false)]
     private ?DeletedAtValue $deletedAt;
+
+    public function getCreatedAt(): CreatedAtValue
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): UpdatedAtValue
+    {
+        return $this->updatedAt;
+    }
+
+    public function getDeletedAt(): ?DeletedAtValue
+    {
+        return $this->deletedAt;
+    }
 }
