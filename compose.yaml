@@ -9,7 +9,7 @@ services:
       - .:/var/www/html
       - ./docker/apache/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
     ports:
-      - "8000:80"
+      - "8000:8081"
 
   mariadb:
     container_name: jee_mariadb
@@ -18,7 +18,6 @@ services:
     environment:
       MARIADB_DATABASE: jee
       MARIADB_ROOT_PASSWORD: root
-      APACHE_PORT: 8090
     ports:
       - "3336:3306"
 

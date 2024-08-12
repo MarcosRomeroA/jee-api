@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y \
 # Habilitar el módulo de reescritura de Apache
 RUN a2enmod rewrite
 
+# Cambiar el puerto en el que Apache escucha
+RUN sed -i 's/Listen 80/Listen 8081/' /etc/apache2/ports.conf
+
 # Instalar Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
@@ -28,7 +31,7 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Exponer el puerto 80 para Apache
-EXPOSE 80
+EXPOSE 8081
 
 # Configurar el script de entrada como el comando de inicio
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
