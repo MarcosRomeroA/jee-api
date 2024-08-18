@@ -6,10 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - .:/var/www/html
       - ./docker/apache/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
-    ports:
-      - "8000:8081"
+    depends_on:
+      - mariadb
 
   mariadb:
     container_name: jee_mariadb
@@ -18,17 +17,16 @@ services:
     environment:
       MARIADB_DATABASE: jee
       MARIADB_ROOT_PASSWORD: root
-    ports:
-      - "3336:3306"
+    volumes:
+      - ./data/mariadb:/var/lib/mysql
 
   nginx-proxy-manager:
     container_name: jee_npm
     image: 'docker.io/jc21/nginx-proxy-manager:latest'
     restart: unless-stopped
-    ports:
-      - '80:80'
-      - '81:81'
-      - '443:443'
     volumes:
       - ./data/npm:/data
       - ./data/letsencrypt:/etc/letsencrypt
+
+  # añadir tailscale
+  # añadir s3

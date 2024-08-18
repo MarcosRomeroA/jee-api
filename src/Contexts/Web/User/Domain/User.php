@@ -70,6 +70,36 @@ class User extends AggregateRoot
         return $user;
     }
 
+    public function update(
+        FirstnameValue $firstname,
+        LastnameValue $lastname,
+        UsernameValue $username,
+        EmailValue $email,
+    ): self {
+        $this->firstname = $firstname;
+        $this->lastname = $lastname;
+        $this->username = $username;
+        $this->email = $email;
+
+        $this->record(new UserUpdatedDomainEvent(
+            $this->id
+        ));
+
+        return $this;
+    }
+
+    public function updatePassword(
+        PasswordValue $password,
+    ): self {
+        $this->password = $password;
+
+        $this->record(new UserPasswordUpdatedDomainEvent(
+            $this->id
+        ));
+
+        return $this;
+    }
+
     public function getId(): Uuid
     {
         return $this->id;

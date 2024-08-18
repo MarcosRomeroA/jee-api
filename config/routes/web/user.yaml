@@ -8,3 +8,20 @@ find_user:
   controller: App\Apps\Web\User\Find\FindUserController
   methods: [ GET ]
   defaults: { auth: true }
+
+update_user:
+  path: /user/{id}
+  controller: App\Apps\Web\User\Update\UpdateUserController
+  methods: [ PUT ]
+  defaults: { auth: true }
+
+update_user_password:
+  path: /user/password/{id}
+  controller: App\Apps\Web\User\UpdatePassword\UpdateUserPasswordController
+  methods: [ PUT ]
+  defaults: { auth: true }
+
+user_restore:
+  path: /user/restore/{id}
+  controller: App\Apps\Web\User\RestorePassword\RestoreUserPasswordController
+  methods: [ PUT ]

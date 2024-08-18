@@ -17,6 +17,9 @@ RUN sed -i 's/Listen 80/Listen 8081/' /etc/apache2/ports.conf
 # Instalar Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
+# Copiar vhost
+COPY ./docker/apache/vhost.conf /etc/apache2/sites-enabled/000-default.conf
+
 # Copiar los archivos del proyecto Symfony al contenedor
 COPY . /var/www/html
 
@@ -30,7 +33,7 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 # Dar permisos de ejecución al script de entrada
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Exponer el puerto 80 para Apache
+# Exponer el puerto 8081 para Apache
 EXPOSE 8081
 
 # Configurar el script de entrada como el comando de inicio
