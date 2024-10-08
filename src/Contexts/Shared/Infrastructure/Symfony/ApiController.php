@@ -45,6 +45,11 @@ abstract class ApiController extends AbstractController
         return new SymfonyResponse('', $code);
     }
 
+    function successCreatedResponse() : SymfonyResponse
+    {
+        return new SymfonyResponse('', SymfonyResponse::HTTP_CREATED);
+    }
+
     function collectionResponse(mixed $message, $code = 200) : JsonResponse
     {
         return new JsonResponse($message->toArray(), $code);

@@ -11,7 +11,7 @@ final readonly class CreatePostCommandHandler implements CommandHandler
 {
     public function __construct(
         private PostCreator $creator,
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
     )
     {
     }
@@ -21,6 +21,6 @@ final readonly class CreatePostCommandHandler implements CommandHandler
         $id = new Uuid($command->id);
         $body = new BodyValue($command->body);
         $user = $this->userRepository->findById(new Uuid($command->userId));
-        $this->creator->__invoke($id, $body, $user);
+        $this->creator->__invoke($id, $body, $command->imageTempPath, $user);
     }
 }

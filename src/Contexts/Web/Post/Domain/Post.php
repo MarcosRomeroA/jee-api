@@ -34,17 +34,22 @@ class Post extends AggregateRoot
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['persist', 'remove'])]
     private ?Collection $comments;
 
+    #[ORM\Column(type: 'string', nullable: true)]
+    private string $image;
+
     use Timestamps;
 
     public function __construct(
         Uuid $id,
         BodyValue $body,
         User $user,
+        string $image,
     )
     {
         $this->id = $id;
         $this->body = $body;
         $this->user = $user;
+        $this->image = $image;
         $this->createdAt = new CreatedAtValue();
         $this->updatedAt = new UpdatedAtValue($this->createdAt->value());
         $this->comments = new ArrayCollection();
@@ -53,10 +58,11 @@ class Post extends AggregateRoot
     public static function create(
         Uuid $id,
         BodyValue $body,
-        User $user
+        User $user,
+        string $image
     ): self
     {
-        $post = new self($id, $body, $user);
+        $post = new self($id, $body, $user, $image);
 
         $post->record(new PostCreatedDomainEvent(
             $id
@@ -78,6 +84,11 @@ class Post extends AggregateRoot
     public function getCreatedAt(): CreatedAtValue
     {
         return $this->createdAt;
+    }
+
+    public function getImage(): string
+    {
+        return $this->image;
     }
 
     public function addComment(Comment $comment): self

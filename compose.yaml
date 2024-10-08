@@ -5,20 +5,26 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: unless-stopped
     volumes:
       - ./docker/apache/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
     depends_on:
       - mariadb
+      - minio
+    networks:
+      - internal
 
   mariadb:
     container_name: jee_mariadb
     image: mariadb:11.4.2
-    restart: always
+    restart: unless-stopped
     environment:
       MARIADB_DATABASE: jee
       MARIADB_ROOT_PASSWORD: root
     volumes:
       - ./data/mariadb:/var/lib/mysql
+    networks:
+      - internal
 
   nginx-proxy-manager:
     container_name: jee_npm
@@ -27,6 +33,26 @@ services:
     volumes:
       - ./data/npm:/data
       - ./data/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - symfony
+      - mariadb
+      - minio
+    networks:
+      - internal
 
+  minio:
+    container_name: jee_minio
+    image: minio/minio
+    restart: unless-stopped
+    volumes:
+      - ./data/minio:/data
+    environment:
+      MINIO_ROOT_USER: minio_user
+      MINIO_ROOT_PASSWORD: secure_minio_password
+    command: server --console-address ":9001" /data
+    networks:
+      - internal
   # añadir tailscale
-  # añadir s3
+
+networks:
+  internal:
