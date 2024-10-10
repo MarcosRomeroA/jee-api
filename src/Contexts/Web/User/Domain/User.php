@@ -8,6 +8,7 @@ use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
 use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
+use App\Contexts\Web\User\Domain\ValueObject\ProfileImageValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Embedded;
@@ -34,6 +35,9 @@ class User extends AggregateRoot
 
     #[Embedded(class: PasswordValue::class, columnPrefix: false)]
     private PasswordValue $password;
+
+    #[Embedded(class: ProfileImageValue::class, columnPrefix: false)]
+    private ProfileImageValue $profileImage;
 
     public function __construct(
         Uuid $id,
@@ -128,5 +132,15 @@ class User extends AggregateRoot
     public function getPassword(): PasswordValue
     {
         return $this->password;
+    }
+
+    public function getProfileImage(): ProfileImageValue
+    {
+        return $this->profileImage;
+    }
+
+    public function setProfileImage(ProfileImageValue $profileImage): void
+    {
+        $this->profileImage = $profileImage;
     }
 }

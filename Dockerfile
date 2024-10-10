@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install xml \
     && docker-php-ext-install pdo pdo_mysql
 
+# Estable la zona horaria
+ENV TZ=${TZ}
+
 # Habilitar el módulo de reescritura de Apache
 RUN a2enmod rewrite
 

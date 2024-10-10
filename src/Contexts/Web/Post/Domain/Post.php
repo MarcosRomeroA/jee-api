@@ -37,6 +37,8 @@ class Post extends AggregateRoot
     #[ORM\Column(type: 'string', nullable: true)]
     private string $image;
 
+    private string $imageUrl;
+
     use Timestamps;
 
     public function __construct(
@@ -111,5 +113,15 @@ class Post extends AggregateRoot
     public function getComments(): Collection
     {
         return $this->comments;
+    }
+
+    public function getImageUrl(): string
+    {
+        return $this->imageUrl;
+    }
+
+    public function setImageUrl(string $imageUrl): void
+    {
+        $this->imageUrl = $imageUrl;
     }
 }

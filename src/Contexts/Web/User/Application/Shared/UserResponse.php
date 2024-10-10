@@ -12,19 +12,21 @@ final class UserResponse extends Response
         public readonly string $firstname,
         public readonly string $lastname,
         public readonly string $username,
-        public readonly string $email
+        public readonly string $email,
+        public readonly string $profileImage,
     )
     {
     }
 
-    public static function fromEntity(User $user): self
+    public static function fromEntity(User $user, string $profileImage): self
     {
         return new self(
             $user->getId()->value(),
             $user->getFirstname()->value(),
             $user->getLastname()->value(),
             $user->getUsername()->value(),
-            $user->getEmail()->value()
+            $user->getEmail()->value(),
+            $profileImage
         );
     }
 

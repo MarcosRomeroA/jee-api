@@ -26,8 +26,8 @@ user_restore:
   controller: App\Apps\Web\User\RestorePassword\RestoreUserPasswordController
   methods: [ PUT ]
 
-update_profile_photo:
-  path: /user/profile-photo/{id}
+update_profile_image:
+  path: /user/profile-image/{id}
   controller: App\Apps\Web\User\UpdateProfilePhoto\UpdateUserProfilePhotoController
   methods: [ POST ]
   defaults: { auth: true }

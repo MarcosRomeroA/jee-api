@@ -9,4 +9,6 @@ interface FileManager {
     public function upload(string $tempPath, string $context, string $filename): void;
 
     public function download(string $context, string $filename): string;
+
+    public function generateTemporaryUrl(string $context, string $filename): string;
 }

@@ -16,6 +16,9 @@ class MysqlPostRepository extends DoctrineRepository implements PostRepository
         $this->persistAndFlush($post);
     }
 
+    /**
+     * @return array<Post>
+     */
     public function searchAll(): array
     {
         return $this->repository(Post::class)->findAll();

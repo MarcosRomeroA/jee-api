@@ -4,11 +4,14 @@ namespace App\Contexts\Web\User\Application\UpdateProfilePhoto;
 
 use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\User\Domain\UserRepository;
+use App\Contexts\Web\User\Domain\ValueObject\ProfileImageValue;
 
 final readonly class UserProfilePhotoUpdater
 {
     public function __construct(
-        private FileManager $fileManager
+        private FileManager $fileManager,
+        private UserRepository $repository,
     )
     {
     }
@@ -18,5 +21,8 @@ final readonly class UserProfilePhotoUpdater
         $extension = pathinfo($imagePath, PATHINFO_EXTENSION);
         $filename = uniqid().'.'.$extension;
         $this->fileManager->upload($imagePath, 'user/profile', $filename);
+        $user = $this->repository->findById($id);
+        $user->setProfileImage(new ProfileImageValue($filename));
+        $this->repository->save($user);
     }
 }

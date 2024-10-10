@@ -10,6 +10,7 @@ final class PostResponse extends Response
     public function __construct(
         public readonly string $id,
         public readonly string $body,
+        public readonly string $imageUrl,
         public readonly string $createdAt,
     )
     {
@@ -20,6 +21,7 @@ final class PostResponse extends Response
         return new self(
             $post->getId()->value(),
             $post->getBody()->value(),
+            $post->getImageUrl(),
             $post->getCreatedAt()->value()->format('Y-m-d H:i:s')
         );
     }

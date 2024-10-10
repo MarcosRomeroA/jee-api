@@ -9,7 +9,9 @@ use League\Flysystem\FilesystemOperator;
 
 final readonly class AwsS3FileManager implements FileManager
 {
-    public function __construct(private FilesystemOperator $defaultStorage)
+    public function __construct(
+        private FilesystemOperator $defaultStorage,
+    )
     {
     }
 
@@ -40,5 +42,14 @@ final readonly class AwsS3FileManager implements FileManager
         catch (FilesystemException){
             throw new UnableToReadFileException();
         }
+    }
+
+    public function generateTemporaryUrl(string $context, string $filename): string
+    {
+        $path = $context . '/' . $filename;
+
+        $expiresInSeconds = $_ENV['AWS_EXPIRE_DURATION'];
+
+        return $this->defaultStorage->temporaryUrl($path, (new \DateTime())->modify("+$expiresInSeconds seconds"));
     }
 }
