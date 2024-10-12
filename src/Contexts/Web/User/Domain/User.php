@@ -54,6 +54,7 @@ class User extends AggregateRoot
         $this->username = $username;
         $this->email = $email;
         $this->password = $password;
+        $this->profileImage = new ProfileImageValue("");
     }
 
     public static function create(
