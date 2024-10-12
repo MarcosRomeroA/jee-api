@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Embeddable]
 class ProfileImageValue extends StringValueObject
 {
-    #[ORM\Column(name:'profile_image', type: 'string', length: 255)]
+    #[ORM\Column(name:'profile_image', type: 'string', length: 255, options: ['default' => ''])]
     protected string $value;
 
     public function __construct(string $value)
