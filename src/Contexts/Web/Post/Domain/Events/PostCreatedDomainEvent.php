@@ -8,10 +8,12 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 class PostCreatedDomainEvent extends DomainEvent
 {
     public function __construct(
-        Uuid $id
+        Uuid $id,
+        array $resources
     )
     {
-        parent::__construct($id);
+        $body['resources'] = $resources;
+        parent::__construct($id, $body);
     }
 
     public static function eventName(): string
@@ -26,13 +28,14 @@ class PostCreatedDomainEvent extends DomainEvent
         ?string $occurredOn
     ): DomainEvent
     {
-        return new self($aggregateId);
+        return new self($aggregateId, $body['resources']);
     }
 
     public function toPrimitives(): array
     {
         return [
             'id' => $this->getAggregateId(),
+            'resources' => $this->body['resources'],
         ];
     }
 }

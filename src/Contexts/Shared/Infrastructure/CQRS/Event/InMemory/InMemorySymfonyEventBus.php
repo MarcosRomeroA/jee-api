@@ -10,7 +10,6 @@ use Symfony\Component\Messenger\Handler\HandlersLocator;
 use Symfony\Component\Messenger\MessageBus;
 use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
 
-
 class InMemorySymfonyEventBus implements EventBus
 {
     private readonly MessageBus $bus;

@@ -21,6 +21,6 @@ final readonly class CreatePostCommandHandler implements CommandHandler
         $id = new Uuid($command->id);
         $body = new BodyValue($command->body);
         $user = $this->userRepository->findById(new Uuid($command->userId));
-        $this->creator->__invoke($id, $body, $command->imageTempPath, $user);
+        $this->creator->__invoke($id, $body, $user, $command->resources);
     }
 }

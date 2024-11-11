@@ -34,10 +34,10 @@ class Post extends AggregateRoot
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['persist', 'remove'])]
     private ?Collection $comments;
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private string $image;
+    #[ORM\OneToMany(targetEntity: PostResource::class, mappedBy: 'post', cascade: ['persist', 'remove'])]
+    private ?Collection $resources;
 
-    private string $imageUrl;
+    private array $resourceUrls;
 
     use Timestamps;
 
@@ -45,29 +45,29 @@ class Post extends AggregateRoot
         Uuid $id,
         BodyValue $body,
         User $user,
-        string $image,
     )
     {
         $this->id = $id;
         $this->body = $body;
         $this->user = $user;
-        $this->image = $image;
         $this->createdAt = new CreatedAtValue();
         $this->updatedAt = new UpdatedAtValue($this->createdAt->value());
         $this->comments = new ArrayCollection();
+        $this->resources = new ArrayCollection();
     }
 
     public static function create(
         Uuid $id,
         BodyValue $body,
         User $user,
-        string $image
+        array $resources
     ): self
     {
-        $post = new self($id, $body, $user, $image);
+        $post = new self($id, $body, $user);
 
         $post->record(new PostCreatedDomainEvent(
-            $id
+            $id,
+            $resources
         ));
 
         return $post;
@@ -88,11 +88,6 @@ class Post extends AggregateRoot
         return $this->createdAt;
     }
 
-    public function getImage(): string
-    {
-        return $this->image;
-    }
-
     public function addComment(Comment $comment): self
     {
         if (!$this->comments->contains($comment)) {
@@ -107,21 +102,21 @@ class Post extends AggregateRoot
         return $this;
     }
 
+    public function addResource(PostResource $postResource): self
+    {
+        if (!$this->resources->contains($postResource)) {
+            $this->resources[] = $postResource;
+            $postResource->setPost($this);
+        }
+
+        return $this;
+    }
+
     /**
      * @return Collection<Comment>
      */
     public function getComments(): Collection
     {
         return $this->comments;
-    }
-
-    public function getImageUrl(): string
-    {
-        return $this->imageUrl;
-    }
-
-    public function setImageUrl(string $imageUrl): void
-    {
-        $this->imageUrl = $imageUrl;
     }
 }

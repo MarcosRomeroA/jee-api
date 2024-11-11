@@ -10,6 +10,8 @@ use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
 use App\Contexts\Web\User\Domain\ValueObject\ProfileImageValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Embedded;
 
@@ -39,6 +41,17 @@ class User extends AggregateRoot
     #[Embedded(class: ProfileImageValue::class, columnPrefix: false)]
     private ProfileImageValue $profileImage;
 
+    /**
+     * @var ArrayCollection<Follow>
+     */
+    #[ORM\OneToMany(targetEntity: Follow::class, mappedBy: "follower", cascade: ["persist", "remove"])]
+    private Collection $following;
+
+    /**
+     * @var ArrayCollection<Follow>
+     */
+    #[ORM\OneToMany(targetEntity: Follow::class, mappedBy: "followed", cascade: ["persist", "remove"])]
+    private Collection $followers;
     public function __construct(
         Uuid $id,
         FirstnameValue $firstname,
@@ -48,6 +61,8 @@ class User extends AggregateRoot
         PasswordValue $password,
     )
     {
+        $this->following = new ArrayCollection();
+        $this->followers = new ArrayCollection();
         $this->id = $id;
         $this->firstname = $firstname;
         $this->lastname = $lastname;
@@ -143,5 +158,36 @@ class User extends AggregateRoot
     public function setProfileImage(ProfileImageValue $profileImage): void
     {
         $this->profileImage = $profileImage;
+    }
+
+    public function getFollowings(): Collection
+    {
+        return $this->following;
+    }
+
+    public function getFollowers(): Collection
+    {
+        return $this->followers;
+    }
+
+    public function follow(Follow $follow): void
+    {
+        foreach ($this->following as $following) {
+            if ($following->getFollowed() === $follow->getFollowed()) {
+                return;
+            }
+        }
+
+        $this->following->add($follow);
+    }
+
+    public function unfollow(Follow $follow): void
+    {
+        foreach ($this->following as $following) {
+            if ($following->getFollowed() === $follow->getFollowed()) {
+                $this->following->removeElement($following);
+                return;
+            }
+        }
     }
 }

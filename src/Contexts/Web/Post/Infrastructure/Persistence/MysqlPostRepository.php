@@ -3,17 +3,24 @@
 namespace App\Contexts\Web\Post\Infrastructure\Persistence;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\DoctrineRepository;
 use App\Contexts\Web\Post\Domain\Exception\PostNotFoundException;
 use App\Contexts\Web\Post\Domain\Post;
 use App\Contexts\Web\Post\Domain\PostRepository;
 use App\Contexts\Web\User\Domain\User;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
-class MysqlPostRepository extends DoctrineRepository implements PostRepository
+final class MysqlPostRepository extends ServiceEntityRepository implements PostRepository
 {
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Post::class);
+    }
+
     public function save(Post $post): void
     {
-        $this->persistAndFlush($post);
+        $this->getEntityManager()->persist($post);
+        $this->getEntityManager()->flush();
     }
 
     /**
@@ -21,17 +28,17 @@ class MysqlPostRepository extends DoctrineRepository implements PostRepository
      */
     public function searchAll(): array
     {
-        return $this->repository(Post::class)->findAll();
+        return $this->findAll();
     }
 
     public function findByUser(User $user): User
     {
-        return $this->repository(Post::class)->findBy(['user' => $user]);
+        return $this->findBy(['user' => $user]);
     }
 
     public function findById(Uuid $id): Post
     {
-        $user = $this->repository(Post::class)->findOneBy(['id' => $id]);
+        $user = $this->findOneBy(['id' => $id]);
 
         if (!$user) {
             throw new PostNotFoundException();

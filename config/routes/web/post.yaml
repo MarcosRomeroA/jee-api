@@ -1,7 +1,7 @@
 create_post:
-  path: /post
+  path: /post/{id}
   controller: App\Apps\Web\Post\Create\CreatePostController
-  methods: [ POST ]
+  methods: [ PUT ]
   defaults: { auth: true }
 
 find_post:
@@ -22,8 +22,20 @@ add_post_comment:
   methods: [ PUT ]
   defaults: { auth: true }
 
+#like:
+#  path: /post/{id}/like
+#  controller: App\Apps\Web\Post\Like\LikePostController
+#  methods: [ PUT ]
+#  defaults: { auth: true }
+
 search_post_comments:
   path: /post/{id}/comments
   controller: App\Apps\Web\Post\SearchPostComments\SearchPostCommentsController
   methods: [ GET ]
+  defaults: { auth: true }
+
+add_post_temporary_resource:
+  path: /post/{id}/temporary-resource
+  controller: App\Apps\Web\Post\AddPostTempResource\AddPostTemporaryResourceController
+  methods: [ POST ]
   defaults: { auth: true }

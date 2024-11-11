@@ -10,7 +10,7 @@ abstract class DomainEvent
 {
     private string $eventId;
     private string $occurredOn;
-    private array $body;
+    protected array $body;
 
     public function __construct(private Uuid $aggregateId, ?array $body = [], ?string $eventId = null, ?string $occurredOn = null)
     {

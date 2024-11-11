@@ -6,7 +6,6 @@ services:
       - ./docker/apache/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
     ports:
       - "8200:8081"
-    user: "1000:1000"
 
   mariadb:
     ports:

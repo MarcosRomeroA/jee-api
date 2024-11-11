@@ -2,6 +2,7 @@
 
 namespace App\Apps\Web\User\UpdateProfilePhoto;
 
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
 use App\Contexts\Web\User\Application\UpdateProfilePhoto\UpdateUserProfilePhotoCommand;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -16,8 +17,7 @@ final class UpdateUserProfilePhotoController extends ApiController
         /** @var UploadedFile $profilePhoto */
         $profilePhoto = $request->files->get('image');
 
-        // Crear un nombre de archivo único
-        $fileName = uniqid() . '.' . $profilePhoto->getClientOriginalExtension();
+        $fileName = Uuid::random() . '.' . $profilePhoto->getClientOriginalExtension();
         $uploads_dir = $this->getParameter('kernel.project_dir') . '/var/tmp';
 
         $profilePhoto->move($uploads_dir, $fileName);

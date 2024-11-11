@@ -22,7 +22,7 @@ update_user_password:
   defaults: { auth: true }
 
 user_restore:
-  path: /user/restore/{id}
+  path: /user/{id}/restore
   controller: App\Apps\Web\User\RestorePassword\RestoreUserPasswordController
   methods: [ PUT ]
 
@@ -30,4 +30,22 @@ update_profile_image:
   path: /user/profile-image/{id}
   controller: App\Apps\Web\User\UpdateProfilePhoto\UpdateUserProfilePhotoController
   methods: [ POST ]
+  defaults: { auth: true }
+
+follow:
+  path: /user/{id}/follow
+  controller: App\Apps\Web\User\Follow\FollowUserController
+  methods: [ PUT ]
+  defaults: { auth: true }
+
+followings:
+  path: /user/{id}/followings
+  controller: App\Apps\Web\User\Followings\UserFollowingsController
+  methods: [ GET ]
+  defaults: { auth: true }
+
+followers:
+  path: /user/{id}/followers
+  controller: App\Apps\Web\User\Followers\UserFollowersController
+  methods: [ GET ]
   defaults: { auth: true }

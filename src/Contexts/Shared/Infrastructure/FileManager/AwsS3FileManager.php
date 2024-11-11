@@ -4,6 +4,8 @@ namespace App\Contexts\Shared\Infrastructure\FileManager;
 
 use App\Contexts\Shared\Domain\Exception\UnableToReadFileException;
 use App\Contexts\Shared\Domain\FileManager\FileManager;
+use GuzzleHttp\Psr7\CachingStream;
+use GuzzleHttp\Psr7\Utils;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 
@@ -18,18 +20,34 @@ final readonly class AwsS3FileManager implements FileManager
     /**
      * @throws FilesystemException
      */
-    public function upload(string $tempPath, string $context, string $filename): void
+    public function upload(string $tempPath, string $context, string $filename, $checksum = null): void
     {
-        $path = $context . '/' . $filename;
-        $stream = fopen($tempPath, 'r');
+        $localPath = $tempPath . '/' . $filename;
 
+        if (!is_file($localPath)) {
+            throw new \Exception("La ruta proporcionada no es un archivo: $localPath");
+        }
+
+        $tempStream = fopen('php://temp', 'w+');
+        $sourceStream = fopen($localPath, 'r');
+        stream_copy_to_stream($sourceStream, $tempStream);
+        rewind($tempStream); // Rebobina el flujo temporal
+
+        $config = [];
+        if ($checksum) {
+            $config['ContentMD5'] = $checksum;
+        }
+
+        // Sube el archivo a S3 usando la ruta en S3 ($path) y el flujo temporal
         $this->defaultStorage->writeStream(
-            $path,
-            $stream
+            $context . '/' . $filename,
+            $tempStream,
+            $config
         );
 
-        if (is_resource($stream))
-            fclose($stream);
+        // Cierra los recursos abiertos
+        fclose($sourceStream);
+        fclose($tempStream);
     }
 
 

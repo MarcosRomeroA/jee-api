@@ -32,7 +32,7 @@ abstract class ApiController extends AbstractController
         $this->commandBus->dispatch($command);
     }
 
-    function successResponse(mixed $message, int $code = SymfonyResponse::HTTP_OK) : JsonResponse
+    public function successResponse(mixed $message, int $code = SymfonyResponse::HTTP_OK) : JsonResponse
     {
         if(is_object($message))
             $message = $message->toArray();
@@ -40,17 +40,17 @@ abstract class ApiController extends AbstractController
         return new JsonResponse(['data'=> $message], $code);
     }
 
-    function successEmptyResponse(int $code = SymfonyResponse::HTTP_OK) : SymfonyResponse
+    public function successEmptyResponse(int $code = SymfonyResponse::HTTP_OK) : SymfonyResponse
     {
         return new SymfonyResponse('', $code);
     }
 
-    function successCreatedResponse() : SymfonyResponse
+    public function successCreatedResponse() : SymfonyResponse
     {
         return new SymfonyResponse('', SymfonyResponse::HTTP_CREATED);
     }
 
-    function collectionResponse(mixed $message, $code = 200) : JsonResponse
+    public function collectionResponse(mixed $message, $code = 200) : JsonResponse
     {
         return new JsonResponse($message->toArray(), $code);
     }

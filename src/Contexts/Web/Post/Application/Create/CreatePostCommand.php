@@ -9,7 +9,7 @@ final readonly class CreatePostCommand implements Command
     public function __construct(
         public string $id,
         public string $body,
-        public string $imageTempPath,
+        public array $resources,
         public string $userId,
     )
     {
