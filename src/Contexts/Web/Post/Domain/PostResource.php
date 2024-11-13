@@ -94,4 +94,19 @@ class PostResource
     {
         $this->post = $post;
     }
+
+    public function getFilename(): string
+    {
+        return $this->filename;
+    }
+
+    public function getId(): Uuid
+    {
+        return $this->id;
+    }
+
+    public function getResourceType(): int
+    {
+        return $this->resourceType;
+    }
 }

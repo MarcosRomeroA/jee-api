@@ -22,11 +22,10 @@ final readonly class UserFollower
         $follower = $this->userRepository->findById($userId);
         $followed = $this->userRepository->findById($userToFollowId);
 
-        $follow = new Follow();
-        $follow->setFollowed($followed);
-        $follow->setFollower($follower);
+        $follow = new Follow($follower, $followed);
 
         $follower->follow($follow);
+
         $this->userRepository->save($follower);
     }
 }

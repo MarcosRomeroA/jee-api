@@ -119,4 +119,22 @@ class Post extends AggregateRoot
     {
         return $this->comments;
     }
+
+    public function setResourceUrls(array $resourceUrls): void
+    {
+        $this->resourceUrls = $resourceUrls;
+    }
+
+    public function getResourceUrls(): array
+    {
+        return $this->resourceUrls;
+    }
+
+    /**
+     * @return Collection<PostResource>|null
+     */
+    public function getResources(): ?Collection
+    {
+        return $this->resources;
+    }
 }

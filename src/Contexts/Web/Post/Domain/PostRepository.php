@@ -17,4 +17,9 @@ interface PostRepository
     public function findByUser(User $user): User;
 
     public function findById(Uuid $id): Post;
+
+    /**
+     * @return array<Post>
+     */
+    public function searchFeed(Uuid $userId): array;
 }

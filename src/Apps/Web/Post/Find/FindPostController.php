@@ -6,7 +6,7 @@ use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
 use App\Contexts\Web\Post\Application\Find\FindPostQuery;
 use Symfony\Component\HttpFoundation\Response;
 
-class FindPostController extends ApiController
+final class FindPostController extends ApiController
 {
     public function __invoke(string $id): Response
     {

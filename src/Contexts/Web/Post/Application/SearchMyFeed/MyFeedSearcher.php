@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace App\Contexts\Web\Post\Application\Search;
+namespace App\Contexts\Web\Post\Application\SearchMyFeed;
 
-use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
 use App\Contexts\Shared\Domain\FileManager\FileManager;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Application\Shared\PostCollectionResponse;
 use App\Contexts\Web\Post\Domain\PostRepository;
 use App\Contexts\Web\Post\Domain\PostResource;
 use Exception;
 
-final readonly class PostSearcher implements QueryHandler
+final readonly class MyFeedSearcher
 {
     public function __construct(
         private PostRepository $repository,
-        private FileManager $fileManager
+        private FileManager $fileManager,
     )
     {
     }
@@ -21,9 +21,9 @@ final readonly class PostSearcher implements QueryHandler
     /**
      * @throws Exception
      */
-    public function __invoke(): PostCollectionResponse
+    public function __invoke(Uuid $userId): PostCollectionResponse
     {
-        $posts = $this->repository->searchAll();
+        $posts = $this->repository->searchFeed($userId);
 
         $resources = [];
 
@@ -33,7 +33,7 @@ final readonly class PostSearcher implements QueryHandler
                     'id' => $postResource->getId()->value(),
                     'type' => PostResource::getResourceTypeFromId($postResource->getResourceType()),
                     'url' => $this->fileManager->generateTemporaryUrl
-                        ('post/'.$post->getId().'/'.PostResource::getResourceTypeFromId(
+                    ('post/'.$post->getId().'/'.PostResource::getResourceTypeFromId(
                             $postResource->getResourceType()
                         ),
                         $postResource->getFilename()

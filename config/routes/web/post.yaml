@@ -34,8 +34,14 @@ search_post_comments:
   methods: [ GET ]
   defaults: { auth: true }
 
-add_post_temporary_resource:
-  path: /post/{id}/temporary-resource
+add_resource:
+  path: /post/{id}/resource
   controller: App\Apps\Web\Post\AddPostTempResource\AddPostTemporaryResourceController
   methods: [ POST ]
+  defaults: { auth: true }
+
+my_feed:
+  path: /my-feed
+  controller: App\Apps\Web\Post\SearchMyFeed\SearchMyFeedController
+  methods: [ GET ]
   defaults: { auth: true }

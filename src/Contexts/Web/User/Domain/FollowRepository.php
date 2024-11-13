@@ -4,5 +4,5 @@ namespace App\Contexts\Web\User\Domain;
 
 interface FollowRepository
 {
-
+    public function findByFollowerAndFollowed(User $follower, User $followed): ?Follow;
 }

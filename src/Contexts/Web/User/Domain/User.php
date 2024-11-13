@@ -181,13 +181,13 @@ class User extends AggregateRoot
         $this->following->add($follow);
     }
 
-    public function unfollow(Follow $follow): void
+    public function getFollowedRelation(User $user): ?Follow
     {
         foreach ($this->following as $following) {
-            if ($following->getFollowed() === $follow->getFollowed()) {
-                $this->following->removeElement($following);
-                return;
+            if ($following->getFollowed() === $user) {
+                return $following;
             }
         }
+        return null;
     }
 }

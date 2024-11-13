@@ -46,4 +46,17 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
 
         return $user;
     }
+
+    public function searchFeed(Uuid $userId): array
+    {
+        $dql = $this
+            ->createQueryBuilder('p')
+            ->innerJoin('p.user', 'u')
+            ->innerJoin('u.followers', 'f')
+            ->where( 'f.follower = :userId')
+            ->setParameter('userId', $userId)
+            ->getQuery();
+
+        return $dql->getResult();
+    }
 }

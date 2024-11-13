@@ -38,6 +38,12 @@ follow:
   methods: [ PUT ]
   defaults: { auth: true }
 
+unfollow:
+  path: /user/{id}/unfollow
+  controller: App\Apps\Web\User\Unfollow\UnfollowUserController
+  methods: [ PUT ]
+  defaults: { auth: true }
+
 followings:
   path: /user/{id}/followings
   controller: App\Apps\Web\User\Followings\UserFollowingsController
