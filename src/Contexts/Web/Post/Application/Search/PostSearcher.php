@@ -4,16 +4,16 @@ namespace App\Contexts\Web\Post\Application\Search;
 
 use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
 use App\Contexts\Shared\Domain\FileManager\FileManager;
+use App\Contexts\Web\Post\Application\Shared\GetPostResources;
 use App\Contexts\Web\Post\Application\Shared\PostCollectionResponse;
 use App\Contexts\Web\Post\Domain\PostRepository;
-use App\Contexts\Web\Post\Domain\PostResource;
 use Exception;
 
 final readonly class PostSearcher implements QueryHandler
 {
     public function __construct(
         private PostRepository $repository,
-        private FileManager $fileManager
+        private GetPostResources $getPostResources
     )
     {
     }
@@ -25,23 +25,9 @@ final readonly class PostSearcher implements QueryHandler
     {
         $posts = $this->repository->searchAll();
 
-        $resources = [];
 
         foreach ($posts as $post) {
-            foreach ($post->getResources() as $postResource) {
-                $resources[] = [
-                    'id' => $postResource->getId()->value(),
-                    'type' => PostResource::getResourceTypeFromId($postResource->getResourceType()),
-                    'url' => $this->fileManager->generateTemporaryUrl
-                        ('post/'.$post->getId().'/'.PostResource::getResourceTypeFromId(
-                            $postResource->getResourceType()
-                        ),
-                        $postResource->getFilename()
-                    ),
-                ];
-            }
-
-            $post->setResourceUrls($resources);
+            $post->setResourceUrls($this->getPostResources->__invoke($post));
         }
 
         return new PostCollectionResponse($posts);

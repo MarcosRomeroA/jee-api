@@ -3,8 +3,8 @@
 namespace App\Contexts\Web\Post\Application\Search;
 
 use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
-use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Application\Shared\PostCollectionResponse;
+use Exception;
 
 final readonly class SearchPostQueryHandler implements QueryHandler
 {
@@ -14,9 +14,12 @@ final readonly class SearchPostQueryHandler implements QueryHandler
     {
     }
 
+    /**
+     * @throws Exception
+     */
     public function __invoke(SearchPostQuery $query): PostCollectionResponse
     {
-        $criteria = $query->criteria; // TODO: PostCriteria
+        //$criteria = $query->criteria; // TODO: PostCriteria
 
         return $this->searcher->__invoke();
     }

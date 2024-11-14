@@ -16,13 +16,13 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-final class PostResourceUploaderSubscriber implements DomainEventSubscriber
+final readonly class PostResourceUploaderSubscriber implements DomainEventSubscriber
 {
     public function __construct(
-        private LoggerInterface $logger,
-        private readonly KernelInterface $kernel,
-        private readonly FileManager $fileManager,
-        private readonly PostRepository $postRepository,
+        private LoggerInterface        $logger,
+        private KernelInterface        $kernel,
+        private FileManager            $fileManager,
+        private PostRepository         $postRepository,
         private EntityManagerInterface $entityManager
 
     )

@@ -15,7 +15,6 @@ final readonly class JwtAuthMiddleware
     {
     }
 
-
     public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
