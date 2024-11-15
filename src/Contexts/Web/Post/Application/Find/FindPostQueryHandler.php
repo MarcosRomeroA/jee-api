@@ -5,15 +5,19 @@ namespace App\Contexts\Web\Post\Application\Find;
 use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Application\Shared\PostResponse;
+use Exception;
 
-class FindPostQueryHandler implements QueryHandler
+final readonly class FindPostQueryHandler implements QueryHandler
 {
     public function __construct(
-        private readonly PostFinder $finder
+        private PostFinder $finder
     )
     {
     }
 
+    /**
+     * @throws Exception
+     */
     public function __invoke(FindPostQuery $query): PostResponse
     {
         $id = new Uuid($query->id);

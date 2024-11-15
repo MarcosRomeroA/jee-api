@@ -6,7 +6,7 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Application\Shared\GetPostResources;
 use App\Contexts\Web\Post\Application\Shared\PostResponse;
 use App\Contexts\Web\Post\Domain\PostRepository;
-use App\Contexts\Web\Post\Domain\PostResource;
+use Exception;
 
 final readonly class PostFinder
 {
@@ -18,7 +18,7 @@ final readonly class PostFinder
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function __invoke(Uuid $id): PostResponse
     {

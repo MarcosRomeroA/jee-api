@@ -22,5 +22,12 @@ exec:
 logs:
 	@docker compose logs -f
 
-cc:
+clean-cache:
+	@rm -rf var/cache
 	@docker compose exec symfony php bin/console cache:clear
+
+deploy:
+	make stop
+	make build
+	make start
+	make clean-cache
