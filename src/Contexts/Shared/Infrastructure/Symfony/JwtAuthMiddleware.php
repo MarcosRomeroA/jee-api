@@ -36,18 +36,13 @@ final readonly class JwtAuthMiddleware
 
     public function verify(string $bearer): array
     {
-        $this->jwtGenerator->verify($bearer);
+        try {
+            $this->jwtGenerator->verify($bearer);
 
-        $payload = $this->jwtGenerator->decode($bearer);
-
-        if(isset($payload['exp']) && isset($payload['iat']) )
-        {
-            if( $payload['exp'] <= time() )
-            {
-                throw new ExpiredTokenException();
-            }
+        }catch (\Exception $e){
+            throw new ExpiredTokenException();
         }
 
-        return $payload;
+        return $this->jwtGenerator->decode($bearer);
     }
 }

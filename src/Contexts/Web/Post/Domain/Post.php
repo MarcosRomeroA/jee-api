@@ -137,4 +137,9 @@ class Post extends AggregateRoot
     {
         return $this->resources;
     }
+
+    public function getUser(): User
+    {
+        return $this->user;
+    }
 }

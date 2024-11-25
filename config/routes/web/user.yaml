@@ -10,7 +10,7 @@ find_user:
   defaults: { auth: true }
 
 update_user:
-  path: /user/{id}
+  path: /user
   controller: App\Apps\Web\User\Update\UpdateUserController
   methods: [ PUT ]
   defaults: { auth: true }
@@ -27,7 +27,7 @@ user_restore:
   methods: [ PUT ]
 
 update_profile_image:
-  path: /user/profile-image/{id}
+  path: /user-profile-image
   controller: App\Apps\Web\User\UpdateProfilePhoto\UpdateUserProfilePhotoController
   methods: [ POST ]
   defaults: { auth: true }

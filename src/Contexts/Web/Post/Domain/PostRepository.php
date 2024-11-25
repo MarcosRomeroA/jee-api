@@ -22,4 +22,6 @@ interface PostRepository
      * @return array<Post>
      */
     public function searchFeed(Uuid $userId): array;
+
+    public function checkIsPostExists(Uuid $id): void;
 }

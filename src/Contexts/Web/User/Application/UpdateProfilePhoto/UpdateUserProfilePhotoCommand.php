@@ -9,6 +9,7 @@ final readonly class UpdateUserProfilePhotoCommand implements Command
     public function __construct(
         public string $id,
         public string $imageTempPath,
+        public string $filename
     )
     {
     }

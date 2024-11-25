@@ -25,6 +25,8 @@ final readonly class PostCreator
         array $resources
     ): void
     {
+        $this->repository->checkIsPostExists($id);
+
         $post = Post::create($id, $body, $user, $resources);
 
         $this->repository->save($post);

@@ -8,10 +8,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UpdateUserController extends ApiController
 {
-    public function __invoke(UpdateUserRequest $request, string $id): Response
+    public function __invoke(UpdateUserRequest $request, string $sessionId): Response
     {
         $command = new UpdateUserCommand(
-            $id,
+            $sessionId,
             $request->firstname,
             $request->lastname,
             $request->username,

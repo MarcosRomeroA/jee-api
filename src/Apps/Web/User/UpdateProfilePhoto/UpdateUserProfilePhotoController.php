@@ -12,19 +12,20 @@ use Symfony\Component\HttpFoundation\Response;
 final class UpdateUserProfilePhotoController extends ApiController
 {
 
-    public function __invoke(Request $request, string $id): Response
+    public function __invoke(Request $request, string $sessionId): Response
     {
         /** @var UploadedFile $profilePhoto */
         $profilePhoto = $request->files->get('image');
 
-        $fileName = Uuid::random() . '.' . $profilePhoto->getClientOriginalExtension();
-        $uploads_dir = $this->getParameter('kernel.project_dir') . '/var/tmp';
-
-        $profilePhoto->move($uploads_dir, $fileName);
+        $filename = Uuid::random() . '.' . $profilePhoto->getClientOriginalExtension();
+        $tempFolder = '/var/tmp/resource/'.(new \DateTimeImmutable())->format('Ymd').'/profile';
+        $uploadDir = $this->getParameter('kernel.project_dir') . $tempFolder;
+        $profilePhoto->move($uploadDir, $filename);
 
         $command = new UpdateUserProfilePhotoCommand(
-            $id,
-            $uploads_dir . '/' . $fileName
+            $sessionId,
+            $uploadDir,
+            $filename
         );
 
         $this->commandBus->dispatch($command);

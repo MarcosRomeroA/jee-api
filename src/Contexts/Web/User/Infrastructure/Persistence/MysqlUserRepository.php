@@ -3,9 +3,13 @@
 namespace App\Contexts\Web\User\Infrastructure\Persistence;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\User\Domain\Exception\EmailAlreadyExistsException;
+use App\Contexts\Web\User\Domain\Exception\UsernameAlreadyExistsException;
 use App\Contexts\Web\User\Domain\Exception\UserNotFoundException;
 use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\User\Domain\UserRepository;
+use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
+use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -47,5 +51,23 @@ class MysqlUserRepository extends ServiceEntityRepository implements UserReposit
         }
 
         return $user;
+    }
+
+    public function checkIfUsernameExists(UsernameValue $username): void
+    {
+        $user = $this->findOneBy(['username.value' => $username->value()]);
+
+        if ($user) {
+            throw new UsernameAlreadyExistsException();
+        }
+    }
+
+    public function checkIfEmailExists(EmailValue $email): void
+    {
+        $user = $this->findOneBy(['email.value' => $email->value()]);
+
+        if ($user) {
+            throw new EmailAlreadyExistsException();
+        }
     }
 }

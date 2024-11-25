@@ -17,6 +17,6 @@ final readonly class UpdateUserProfilePhotoCommandHandler implements CommandHand
     {
         $id = new Uuid($command->id);
 
-        $this->updater->__invoke($id, $command->imageTempPath);
+        $this->updater->__invoke($id, $command->imageTempPath, $command->filename);
     }
 }

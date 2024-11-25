@@ -3,6 +3,7 @@
 namespace App\Contexts\Web\Post\Infrastructure\Persistence;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Post\Domain\Exception\PostAlreadyExistsException;
 use App\Contexts\Web\Post\Domain\Exception\PostNotFoundException;
 use App\Contexts\Web\Post\Domain\Post;
 use App\Contexts\Web\Post\Domain\PostRepository;
@@ -38,13 +39,13 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
 
     public function findById(Uuid $id): Post
     {
-        $user = $this->findOneBy(['id' => $id]);
+        $post = $this->findOneBy(['id' => $id]);
 
-        if (!$user) {
+        if (!$post) {
             throw new PostNotFoundException();
         }
 
-        return $user;
+        return $post;
     }
 
     public function searchFeed(Uuid $userId): array
@@ -52,11 +53,21 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
         $dql = $this
             ->createQueryBuilder('p')
             ->innerJoin('p.user', 'u')
-            ->innerJoin('u.followers', 'f')
+            ->leftJoin('u.followers', 'f')
             ->where( 'f.follower = :userId')
+            ->orWhere('u.id = :userId')
             ->setParameter('userId', $userId)
             ->getQuery();
 
         return $dql->getResult();
+    }
+
+    public function checkIsPostExists(Uuid $id): void
+    {
+        $post = $this->findOneBy(['id' => $id]);
+
+        if ($post) {
+            throw new PostAlreadyExistsException();
+        }
     }
 }

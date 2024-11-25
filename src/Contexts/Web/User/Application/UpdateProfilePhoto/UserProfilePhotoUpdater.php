@@ -16,12 +16,10 @@ final readonly class UserProfilePhotoUpdater
     {
     }
 
-    public function __invoke(Uuid $id, string $imagePath): void
+    public function __invoke(Uuid $userId, string $imagePath, string $filename): void
     {
-        $extension = pathinfo($imagePath, PATHINFO_EXTENSION);
-        $filename = uniqid().'.'.$extension;
         $this->fileManager->upload($imagePath, 'user/profile', $filename);
-        $user = $this->repository->findById($id);
+        $user = $this->repository->findById($userId);
         $user->setProfileImage(new ProfileImageValue($filename));
         $this->repository->save($user);
     }

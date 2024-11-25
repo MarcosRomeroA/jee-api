@@ -2,6 +2,7 @@
 
 namespace App\Contexts\Shared\Infrastructure\Symfony;
 
+use App\Contexts\Shared\Domain\Exception\UnauthorizedException;
 use App\Contexts\Shared\Domain\Exception\ValidationException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;

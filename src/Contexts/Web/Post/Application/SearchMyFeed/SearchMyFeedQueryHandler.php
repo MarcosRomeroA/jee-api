@@ -5,6 +5,7 @@ namespace App\Contexts\Web\Post\Application\SearchMyFeed;
 use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Application\Shared\PostCollectionResponse;
+use Exception;
 
 final readonly class SearchMyFeedQueryHandler implements QueryHandler
 {
@@ -14,6 +15,9 @@ final readonly class SearchMyFeedQueryHandler implements QueryHandler
     {
     }
 
+    /**
+     * @throws Exception
+     */
     public function __invoke(SearchMyFeedQuery $query): PostCollectionResponse
     {
         $userId = new Uuid($query->id);
