@@ -1,23 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace App\Apps\Web\Post\Create;
+namespace App\Apps\Web\Post\Dislike;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\Post\Application\Create\CreatePostCommand;
+use App\Contexts\Web\Post\Application\Dislike\DislikePostCommand;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CreatePostController extends ApiController
+class DislikePostController extends ApiController
 {
     public function __invoke(Request $request, string $id, string $sessionId): Response
     {
-        $data = $request->request->all();
-
-        $command = new CreatePostCommand(
+        $command = new DislikePostCommand(
             $id,
-            $data['body'],
-            $data['resources'],
-            $data['sharedPostId'] ?? null,
             $sessionId
         );
 

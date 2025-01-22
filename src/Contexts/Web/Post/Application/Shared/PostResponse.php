@@ -13,18 +13,25 @@ final class PostResponse extends Response
         public readonly string $username,
         public readonly array $resources,
         public readonly string $createdAt,
+        public readonly ?array $sharedPost,
     )
     {
     }
 
-    public static function fromEntity(Post $post): self
+    public static function fromEntity(Post $post, bool $hasShared = false): self
     {
+        $sharedPostResponse = null;
+        if ($post->getSharedPost() && $hasShared){
+            $sharedPostResponse = self::fromEntity($post->getSharedPost());
+        }
+
         return new self(
             $post->getId()->value(),
             $post->getBody()->value(),
             $post->getUser()->getUsername()->value(),
             $post->getResourceUrls(),
-            $post->getCreatedAt()->value()->format('Y-m-d H:i:s')
+            $post->getCreatedAt()->value()->format('Y-m-d H:i:s'),
+            $sharedPostResponse?->toArray()
         );
     }
 

@@ -23,9 +23,14 @@ final readonly class PostFinder
     public function __invoke(Uuid $id): PostResponse
     {
         $post = $this->repository->findById($id);
-
         $post->setResourceUrls($this->getPostResources->__invoke($post));
 
-        return PostResponse::fromEntity($post);
+        if ($post->getSharedPostId()){
+            $sharedPost = $this->repository->findById($post->getSharedPostId());
+            $sharedPost->setResourceUrls($this->getPostResources->__invoke($post));
+            $post->setSharedPost($sharedPost);
+        }
+
+        return PostResponse::fromEntity($post, true);
     }
 }

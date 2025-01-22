@@ -11,4 +11,6 @@ final readonly class CreatePostRequest extends BaseRequest
     public mixed $id;
     #[Assert\NotNull, Assert\Type("string")]
     public mixed $body;
+    #[Assert\Type("string")]
+    public mixed $shared_post_id;
 }

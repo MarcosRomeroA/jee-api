@@ -1,4 +1,4 @@
-dev:
+git pdev:
 	@docker compose -f compose.yaml -f compose.override.yaml up -d
 
 build-dev:

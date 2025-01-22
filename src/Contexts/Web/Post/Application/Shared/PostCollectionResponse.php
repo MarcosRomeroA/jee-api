@@ -19,7 +19,7 @@ class PostCollectionResponse extends Response
         $response = [];
 
         foreach($this->posts as $post){
-            $response[] = PostResponse::fromEntity($post);
+            $response[] = PostResponse::fromEntity($post, true);
         }
 
         return $response;

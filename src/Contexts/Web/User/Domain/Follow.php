@@ -54,7 +54,7 @@ class Follow
         return $this->followDate;
     }
 
-    public function getId(): Uuid
+    public function getId(): int
     {
         return $this->id;
     }

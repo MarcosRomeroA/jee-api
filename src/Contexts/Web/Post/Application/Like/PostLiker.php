@@ -1,0 +1,34 @@
+<?php declare(strict_types=1);
+
+namespace App\Contexts\Web\Post\Application\Like;
+
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Post\Domain\Like;
+use App\Contexts\Web\Post\Domain\PostRepository;
+use App\Contexts\Web\User\Domain\UserRepository;
+
+final readonly class PostLiker
+{
+    public function __construct(
+        private PostRepository $postRepository,
+        private UserRepository $userRepository
+    )
+    {
+    }
+
+    public function __invoke(
+        Uuid $postId,
+        Uuid $userId,
+    ): void
+    {
+        $post = $this->postRepository->findById($postId);
+
+        $user = $this->userRepository->findById($userId);
+
+        $like = Like::create($user);
+
+        $post->addLike($like);
+
+        $this->postRepository->save($post);
+    }
+}

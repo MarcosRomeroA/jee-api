@@ -22,11 +22,23 @@ add_post_comment:
   methods: [ PUT ]
   defaults: { auth: true }
 
-#like:
-#  path: /post/{id}/like
-#  controller: App\Apps\Web\Post\Like\LikePostController
-#  methods: [ PUT ]
-#  defaults: { auth: true }
+like:
+  path: /post/{id}/like
+  controller: App\Apps\Web\Post\Like\LikePostController
+  methods: [ PUT ]
+  defaults: { auth: true }
+
+dislike:
+  path: /post/{id}/dislike
+  controller: App\Apps\Web\Post\Dislike\DislikePostController
+  methods: [ PUT ]
+  defaults: { auth: true }
+
+delete:
+  path: /post/{id}/delete
+  controller: App\Apps\Web\Post\Delete\DeletePostController
+  methods: [ DELETE ]
+  defaults: { auth: true }
 
 search_post_comments:
   path: /post/{id}/comments

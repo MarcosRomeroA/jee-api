@@ -1,23 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace App\Apps\Web\Post\Create;
+namespace App\Apps\Web\Post\Like;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\Post\Application\Create\CreatePostCommand;
+use App\Contexts\Web\Post\Application\Like\LikePostCommand;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CreatePostController extends ApiController
+class LikePostController extends ApiController
 {
     public function __invoke(Request $request, string $id, string $sessionId): Response
     {
-        $data = $request->request->all();
-
-        $command = new CreatePostCommand(
+        $command = new LikePostCommand(
             $id,
-            $data['body'],
-            $data['resources'],
-            $data['sharedPostId'] ?? null,
             $sessionId
         );
 

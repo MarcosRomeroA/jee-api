@@ -8,7 +8,8 @@ use Doctrine\DBAL\Types\StringType;
 
 final class UuidType extends StringType
 {
-    private function typeClassName(): string{
+    private function typeClassName(): string
+    {
         return Uuid::class;
     }
 
@@ -19,13 +20,21 @@ final class UuidType extends StringType
 
     final public function convertToPHPValue($value, AbstractPlatform $platform): mixed
     {
+        if ($value === null) {
+            return null;
+        }
+
         $className = $this->typeClassName();
 
         return new $className($value);
     }
 
-    final public function convertToDatabaseValue($value, AbstractPlatform $platform): string
+    final public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
+        if ($value === null) {
+            return null;
+        }
+
         /** @var Uuid $value */
         return $value->value();
     }

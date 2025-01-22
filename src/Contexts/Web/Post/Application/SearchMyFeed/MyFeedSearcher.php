@@ -26,6 +26,13 @@ final readonly class MyFeedSearcher
 
         foreach ($posts as $post) {
             $post->setResourceUrls($this->getPostResources->__invoke($post));
+
+            $sharedPost = null;
+            if ($post->getSharedPostId()){
+                $sharedPost = $this->repository->findById($post->getSharedPostId());
+                $sharedPost->setResourceUrls($this->getPostResources->__invoke($post));
+                $sharedPost->setSharedPost($sharedPost);
+            }
         }
 
         return new PostCollectionResponse($posts);

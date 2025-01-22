@@ -10,6 +10,7 @@ final readonly class CreatePostCommand implements Command
         public string $id,
         public string $body,
         public array $resources,
+        public ?string $sharedPostId,
         public string $userId,
     )
     {

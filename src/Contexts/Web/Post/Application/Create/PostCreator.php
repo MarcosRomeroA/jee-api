@@ -22,12 +22,17 @@ final readonly class PostCreator
         Uuid $id,
         BodyValue $body,
         User $user,
-        array $resources
+        array $resources,
+        ?Uuid $sharedPostId,
     ): void
     {
         $this->repository->checkIsPostExists($id);
 
-        $post = Post::create($id, $body, $user, $resources);
+        if ($sharedPostId) {
+            $this->repository->findById($sharedPostId);
+        }
+
+        $post = Post::create($id, $body, $user, $resources, $sharedPostId);
 
         $this->repository->save($post);
         $this->bus->publish(...$post->pullDomainEvents());
