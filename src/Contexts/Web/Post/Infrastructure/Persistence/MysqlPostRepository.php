@@ -70,4 +70,15 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             throw new PostAlreadyExistsException();
         }
     }
+
+    public function searchByCriteria(array $criteria): array{
+        $dql = $this->createQueryBuilder('p')
+            ->innerJoin('p.user', 'u')
+            ->where('u.username.value LIKE :username')
+            ->setParameter('username', '%' . $criteria['username'] . '%')
+            ->getQuery();
+
+        return $dql->getResult();
+
+    }
 }

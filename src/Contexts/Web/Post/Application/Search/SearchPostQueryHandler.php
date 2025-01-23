@@ -19,8 +19,6 @@ final readonly class SearchPostQueryHandler implements QueryHandler
      */
     public function __invoke(SearchPostQuery $query): PostCollectionResponse
     {
-        //$criteria = $query->criteria; // TODO: PostCriteria
-
-        return $this->searcher->__invoke();
+        return $this->searcher->__invoke($query->criteria);
     }
 }

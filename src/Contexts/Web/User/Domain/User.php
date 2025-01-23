@@ -54,6 +54,7 @@ class User extends AggregateRoot
     private Collection $followers;
 
     private ?string $urlProfileImage = null;
+
     public function __construct(
         Uuid $id,
         FirstnameValue $firstname,

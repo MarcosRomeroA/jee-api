@@ -16,7 +16,7 @@ final readonly class UserFollowingsQueryHandler implements QueryHandler
 
     public function __invoke(UserFollowingsQuery $query): UseCollectionMinimalResponse
     {
-        $id = new Uuid($query->sessionId);
+        $id = new Uuid($query->id);
 
         return $this->finder->__invoke($id);
     }

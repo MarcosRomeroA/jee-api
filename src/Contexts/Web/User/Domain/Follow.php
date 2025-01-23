@@ -17,11 +17,9 @@ class Follow
     private ?int $id;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "following")]
-    #[ORM\JoinColumn(name: "follower_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
     private User $follower;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "followers")]
-    #[ORM\JoinColumn(name: "followed_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
     private User $followed;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
