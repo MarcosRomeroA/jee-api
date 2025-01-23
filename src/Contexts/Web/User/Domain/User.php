@@ -52,6 +52,8 @@ class User extends AggregateRoot
      */
     #[ORM\OneToMany(targetEntity: Follow::class, mappedBy: "followed", cascade: ["persist", "remove"])]
     private Collection $followers;
+
+    private ?string $urlProfileImage = null;
     public function __construct(
         Uuid $id,
         FirstnameValue $firstname,
@@ -189,5 +191,15 @@ class User extends AggregateRoot
             }
         }
         return null;
+    }
+
+    public function getUrlProfileImage(): ?string
+    {
+        return $this->urlProfileImage;
+    }
+
+    public function setUrlProfileImage(?string $urlProfileImage): void
+    {
+        $this->urlProfileImage = $urlProfileImage;
     }
 }

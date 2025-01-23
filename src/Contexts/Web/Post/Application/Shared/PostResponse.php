@@ -13,6 +13,7 @@ final class PostResponse extends Response
         public readonly string $username,
         public readonly array $resources,
         public readonly string $createdAt,
+        public readonly ?string $urlProfileImage,
         public readonly ?array $sharedPost,
     )
     {
@@ -31,6 +32,7 @@ final class PostResponse extends Response
             $post->getUser()->getUsername()->value(),
             $post->getResourceUrls(),
             $post->getCreatedAt()->value()->format('Y-m-d H:i:s'),
+            $post->getUser()->getUrlProfileImage(),
             $sharedPostResponse?->toArray()
         );
     }

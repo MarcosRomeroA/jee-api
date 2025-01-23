@@ -14,7 +14,8 @@ final readonly class PostSearcher implements QueryHandler
 {
     public function __construct(
         private PostRepository $repository,
-        private GetPostResources $getPostResources
+        private GetPostResources $getPostResources,
+        private FileManager $fileManager,
     )
     {
     }
@@ -29,6 +30,12 @@ final readonly class PostSearcher implements QueryHandler
 
         foreach ($posts as $post) {
             $post->setResourceUrls($this->getPostResources->__invoke($post));
+
+            if (!empty($post->getUser()->getProfileImage()->value())) {
+                $post->getUser()->setUrlProfileImage(
+                    $this->fileManager->generateTemporaryUrl('user/profile', $post->getUser()->getProfileImage()->value())
+                );
+            }
 
             $sharedPost = null;
             if ($post->getSharedPostId()){
