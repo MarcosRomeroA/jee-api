@@ -5,8 +5,6 @@ namespace App\Contexts\Shared\Infrastructure\FileManager;
 use App\Contexts\Shared\Domain\Exception\UnableToReadFileException;
 use App\Contexts\Shared\Domain\FileManager\FileManager;
 use Exception;
-use GuzzleHttp\Psr7\CachingStream;
-use GuzzleHttp\Psr7\Utils;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 
@@ -66,8 +64,12 @@ final readonly class AwsS3FileManager implements FileManager
         }
     }
 
-    public function generateTemporaryUrl(string $context, string $filename): string
+    public function generateTemporaryUrl(string $context, ?string $filename): string
     {
+        if (!$filename){
+            return '';
+        }
+
         $path = $context . '/' . $filename;
 
         $expiresInSeconds = $_ENV['AWS_EXPIRE_DURATION'];

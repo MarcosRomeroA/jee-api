@@ -12,6 +12,7 @@ class FollowResponse extends Response
         public readonly string $username,
         public readonly string $firstname,
         public readonly string $lastname,
+        public readonly string $profileImage,
     )
     {
     }
@@ -22,7 +23,8 @@ class FollowResponse extends Response
             $follow->getFollowed()->getId()->value(),
             $follow->getFollowed()->getUsername()->value(),
             $follow->getFollowed()->getFirstname()->value(),
-            $follow->getFollowed()->getLastname()->value()
+            $follow->getFollowed()->getLastname()->value(),
+            $follow->getFollowed()->getProfileImage()->value()
         );
     }
 
