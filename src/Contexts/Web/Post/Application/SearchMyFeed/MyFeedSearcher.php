@@ -38,7 +38,7 @@ final readonly class MyFeedSearcher
             $sharedPost = null;
             if ($post->getSharedPostId()){
                 $sharedPost = $this->repository->findById($post->getSharedPostId());
-                $sharedPost->setResourceUrls($this->getPostResources->__invoke($post));
+                $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
                 $post->setSharedPost($sharedPost);
             }
         }
