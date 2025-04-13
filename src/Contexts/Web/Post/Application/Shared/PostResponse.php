@@ -15,6 +15,9 @@ final class PostResponse extends Response
         public readonly string $createdAt,
         public readonly ?string $urlProfileImage,
         public readonly ?array $sharedPost,
+        public readonly ?int $likesQuantity,
+        public readonly ?int $sharesQuantity,
+        public readonly ?int $commentsQuantity
     )
     {
     }
@@ -33,7 +36,10 @@ final class PostResponse extends Response
             $post->getResourceUrls(),
             $post->getCreatedAt()->value()->format('Y-m-d H:i:s'),
             $post->getUser()->getUrlProfileImage(),
-            $sharedPostResponse?->toArray()
+            $sharedPostResponse?->toArray(),
+            count($post->getLikes()->toArray()),
+            $post->getSharesQuantity(),
+            count($post->getComments()->toArray())
         );
     }
 

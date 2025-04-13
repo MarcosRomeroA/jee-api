@@ -39,6 +39,9 @@ final readonly class PostFinder
             $post->setSharedPost($sharedPost);
         }
 
+        $sharesQuantity = $this->repository->findSharesQuantity($id);
+        $post->setSharesQuantity($sharesQuantity);
+
         return PostResponse::fromEntity($post, true);
     }
 }

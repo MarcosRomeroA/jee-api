@@ -44,7 +44,10 @@ class Post extends AggregateRoot
     private ?Collection $resources;
 
     private array $resourceUrls;
+
     private ?Post $sharedPost = null;
+
+    private ?int $sharesQuantity = null;
 
     use Timestamps;
 
@@ -192,5 +195,15 @@ class Post extends AggregateRoot
     public function getSharedPostId(): ?Uuid
     {
         return $this->sharedPostId;
+    }
+
+    public function getSharesQuantity(): ?int
+    {
+        return $this->sharesQuantity;
+    }
+
+    public function setSharesQuantity(?int $sharesQuantity): void
+    {
+        $this->sharesQuantity = $sharesQuantity;
     }
 }

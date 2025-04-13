@@ -43,6 +43,9 @@ final readonly class PostSearcher implements QueryHandler
                 $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
                 $post->setSharedPost($sharedPost);
             }
+
+            $sharesQuantity = $this->repository->findSharesQuantity($post->getId());
+            $post->setSharesQuantity($sharesQuantity);
         }
 
         return new PostCollectionResponse($posts);

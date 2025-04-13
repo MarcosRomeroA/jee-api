@@ -81,4 +81,15 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
         return $dql->getResult();
 
     }
+
+    public function findSharesQuantity(Uuid $id): int
+    {
+        $dql = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.sharedPostId = :id')
+            ->setParameter('id', $id)
+            ->getQuery();
+
+        return (int) $dql->getSingleScalarResult();
+    }
 }
