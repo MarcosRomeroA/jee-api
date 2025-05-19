@@ -4,7 +4,7 @@ namespace App\Contexts\Web\User\Application\Followings;
 
 use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\User\Application\Shared\UseCollectionMinimalResponse;
+use App\Contexts\Web\User\Application\Shared\UserCollectionMinimalResponse;
 
 final readonly class UserFollowingsQueryHandler implements QueryHandler
 {
@@ -14,7 +14,7 @@ final readonly class UserFollowingsQueryHandler implements QueryHandler
     {
     }
 
-    public function __invoke(UserFollowingsQuery $query): UseCollectionMinimalResponse
+    public function __invoke(UserFollowingsQuery $query): UserCollectionMinimalResponse
     {
         $id = new Uuid($query->id);
 

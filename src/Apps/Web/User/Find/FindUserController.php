@@ -6,7 +6,7 @@ use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
 use App\Contexts\Web\User\Application\Find\FindUserQuery;
 use Symfony\Component\HttpFoundation\Response;
 
-class FindUserController extends ApiController
+final class FindUserController extends ApiController
 {
     public function __invoke(string $id): Response
     {

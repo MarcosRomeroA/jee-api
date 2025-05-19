@@ -4,7 +4,7 @@ namespace App\Contexts\Web\User\Application\Shared;
 
 use App\Contexts\Shared\Domain\CQRS\Query\Response;
 
-class UseCollectionMinimalResponse extends Response
+class UserCollectionMinimalResponse extends Response
 {
     /**
      * @param array<FollowResponse> $follows

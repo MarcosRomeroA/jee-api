@@ -70,4 +70,29 @@ class MysqlUserRepository extends ServiceEntityRepository implements UserReposit
             throw new EmailAlreadyExistsException();
         }
     }
+
+    /**
+     * @param array $criteria
+     * @return array<User>
+     */
+    public function searchByCriteria(array $criteria): array
+    {
+         $dql = $this->createQueryBuilder('u')
+            ->where('u.username.value LIKE :username')
+            ->setParameter('username', '%' . $criteria['username'] . '%')
+            ->getQuery();
+
+        return $dql->getResult();
+    }
+
+    public function findByUsername(UsernameValue $username): User
+    {
+        $user = $this->findOneBy(['username.value' => $username->value()]);
+
+        if (!$user) {
+            throw new UserNotFoundException();
+        }
+
+        return $user;
+    }
 }

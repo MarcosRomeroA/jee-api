@@ -6,7 +6,7 @@ use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\User\Application\Shared\FollowCollectionResponse;
 use App\Contexts\Web\User\Application\Shared\FollowResponse;
-use App\Contexts\Web\User\Application\Shared\UseCollectionMinimalResponse;
+use App\Contexts\Web\User\Application\Shared\UserCollectionMinimalResponse;
 use App\Contexts\Web\User\Domain\UserRepository;
 
 final readonly class UserFollowersFinder
@@ -18,7 +18,7 @@ final readonly class UserFollowersFinder
     {
     }
 
-    public function __invoke(Uuid $id): UseCollectionMinimalResponse
+    public function __invoke(Uuid $id): UserCollectionMinimalResponse
     {
         $user = $this->userRepository->findById($id);
 
@@ -39,6 +39,6 @@ final readonly class UserFollowersFinder
             );
         }
 
-        return new UseCollectionMinimalResponse($response);
+        return new UserCollectionMinimalResponse($response);
     }
 }

@@ -13,6 +13,13 @@ interface UserRepository
     public function findByEmail(string $email): User;
     public function findById(Uuid $id): User;
     public function checkIfUsernameExists(UsernameValue $username): void;
-
     public function checkIfEmailExists(EmailValue $email): void;
+
+    /**
+     * @param array $criteria
+     * @return array<User>
+     */
+    public function searchByCriteria(array $criteria): array;
+
+    public function findByUsername(UsernameValue $username): User;
 }

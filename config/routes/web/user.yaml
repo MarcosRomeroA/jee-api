@@ -9,6 +9,18 @@ find_user:
   methods: [ GET ]
   defaults: { auth: true }
 
+find_user_by_username:
+  path: /user/by-username/{username}
+  controller: App\Apps\Web\User\FindByUsername\FindUserByUsernameController
+  methods: [ GET ]
+  defaults: { auth: true }
+
+search_users:
+  path: /users
+  controller: App\Apps\Web\User\Search\SearchUsersController
+  methods: [ GET ]
+  defaults: { auth: true }
+
 update_user:
   path: /user
   controller: App\Apps\Web\User\Update\UpdateUserController
