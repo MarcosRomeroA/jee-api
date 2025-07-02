@@ -29,6 +29,9 @@ COPY ./docker/apache/vhost.conf /etc/apache2/sites-enabled/000-default.conf
 # Copiar los archivos del proyecto Symfony al contenedor
 COPY . /var/www/html
 
+# Instalar dependencias de composer
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
 RUN chown -R www-data:www-data /var/www/html/var \
     && chmod -R 755 /var/www/html/var
 
