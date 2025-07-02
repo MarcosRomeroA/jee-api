@@ -38,6 +38,7 @@ final readonly class UserAuthenticator
         ], true);
 
         return new LoginUserResponse(
+            $user->getId()->value(),
             $token,
             $refreshToken
         );

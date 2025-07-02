@@ -20,4 +20,9 @@ class UpdatedAtValue extends DatetimeValueObject
     {
         return $this->value;
     }
+
+    public static function now(): self
+    {
+        return new self(new DateTime());
+    }
 }

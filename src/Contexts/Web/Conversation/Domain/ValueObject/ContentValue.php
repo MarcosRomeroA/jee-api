@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Contexts\Web\Message\Domain\ValueObject;
+namespace App\Contexts\Web\Conversation\Domain\ValueObject;
 
 use App\Contexts\Shared\Domain\ValueObject\StringValueObject;
 use Doctrine\ORM\Mapping as ORM;

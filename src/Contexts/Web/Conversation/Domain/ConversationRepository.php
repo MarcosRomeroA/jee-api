@@ -6,5 +6,13 @@ use App\Contexts\Web\User\Domain\User;
 
 interface ConversationRepository
 {
-    public function searchConversation(User $user1, User $user2): ?Conversation;
+    public function searchConversationByParticipantUsers(User $user1, User $user2): ?Conversation;
+
+    /**
+     * @param User $user
+     * @return array<Conversation>
+     */
+    public function searchConversations(User $user): array;
+
+    public function save(Conversation $conversation): void;
 }

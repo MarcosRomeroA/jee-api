@@ -6,7 +6,7 @@ use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
 use App\Contexts\Web\User\Application\Shared\UserResponse;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
 
-class FindUserByUsernameQueryHandler implements QueryHandler
+final readonly class FindUserByUsernameQueryHandler implements QueryHandler
 {
     public function __construct(
         private UserByUsernameFinder $finder

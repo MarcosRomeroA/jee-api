@@ -7,6 +7,7 @@ use App\Contexts\Shared\Domain\CQRS\Query\Response;
 final class LoginUserResponse extends Response
 {
     public function __construct(
+        public string $id,
         public string $token,
         public string $refreshToken
     )

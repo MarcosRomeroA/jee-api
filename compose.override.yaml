@@ -42,4 +42,6 @@ services:
     profiles:
       - disabled
 
-    # añadir tailscale
+  mercure:
+    ports:
+      - "9090:80"

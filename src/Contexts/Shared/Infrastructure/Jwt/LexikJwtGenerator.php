@@ -64,4 +64,9 @@ readonly class LexikJwtGenerator implements JwtGenerator
             throw new JWTDecodeException($e->getMessage());
         }
     }
+
+    public function createWithSecret(array $body): string
+    {
+        return $this->jwtEncoder->encode($body);
+    }
 }

@@ -13,6 +13,7 @@ services:
     depends_on:
       - mariadb
       - minio
+      - mercure
     networks:
       - internal
 
@@ -56,6 +57,30 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server --console-address ":9001" /data
+    networks:
+      - internal
+
+  mercure:
+    container_name: jee_mercure
+    image: dunglas/mercure
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: ':80'
+      MERCURE_PUBLISHER_JWT_KEY: "${MERCURE_JWT_SECRET}"
+      MERCURE_SUBSCRIBER_JWT_KEY: "${MERCURE_JWT_SECRET}"
+      MERCURE_EXTRA_DIRECTIVES: |
+        cors_origins *
+    command: /usr/bin/caddy run --config /etc/caddy/dev.Caddyfile
+    healthcheck:
+      test: ["CMD", "curl", "-f", "${MERCURE_PUBLIC_URL}/healthz"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    ports:
+      - "9090:80"
+    volumes:
+      - ./data/mercure/data:/data
+      - ./data/mercure/config:/config
     networks:
       - internal
 
