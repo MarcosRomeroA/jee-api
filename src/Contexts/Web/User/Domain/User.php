@@ -4,6 +4,9 @@ namespace App\Contexts\Web\User\Domain;
 
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\User\Domain\Events\UserCreatedDomainEvent;
+use App\Contexts\Web\User\Domain\Events\UserPasswordUpdatedDomainEvent;
+use App\Contexts\Web\User\Domain\Events\UserUpdatedDomainEvent;
 use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
 use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
@@ -173,7 +176,7 @@ class User extends AggregateRoot
         return $this->followers;
     }
 
-    public function follow(Follow $follow): void
+    public function addFollow(Follow $follow): void
     {
         foreach ($this->following as $following) {
             if ($following->getFollowed() === $follow->getFollowed()) {

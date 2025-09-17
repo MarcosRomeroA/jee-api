@@ -3,6 +3,7 @@
 namespace App\Contexts\Web\Conversation\Domain;
 
 use App\Contexts\Web\User\Domain\User;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
 
 interface ConversationRepository
 {
@@ -15,4 +16,10 @@ interface ConversationRepository
     public function searchConversations(User $user): array;
 
     public function save(Conversation $conversation): void;
+
+    /**
+     * @param Uuid $id
+     * @return Conversation
+     */
+    public function findByIdOrFail(Uuid $id): Conversation;
 }

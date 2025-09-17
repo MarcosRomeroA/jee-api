@@ -17,13 +17,13 @@ final class MessageResponse extends Response
     {
     }
 
-    public static function fromEntity(Message $message, string $userId): self
+    public static function fromEntity(Message $message, string $sessionUserId): self
     {
         return new self(
             $message->getId()->value(),
             $message->getContent()->value(),
             $message->getUser()->getUsername()->value(),
-            $message->getUser()->getId()->value() === $userId,
+            $message->getUser()->getId()->value() === $sessionUserId,
             $message->getCreatedAt()->value()->format('c'),
         );
     }

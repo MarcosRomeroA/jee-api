@@ -2,18 +2,19 @@
 
 namespace App\Contexts\Web\Conversation\Infrastructure;
 
-use App\Contexts\Web\Conversation\Domain\Conversation;
-use App\Contexts\Web\Conversation\Domain\Message;
-use App\Contexts\Web\Conversation\Domain\MessageRepository;
-use App\Contexts\Web\User\Domain\User;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Conversation\Domain\Message;
+use App\Contexts\Web\Conversation\Domain\Conversation;
+use App\Contexts\Web\Conversation\Domain\MessageRepository;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Contexts\Web\Conversation\Domain\Exception\MessageNotFoundException;
 
 /**
  * @method Message|null find($id, $lockMode = null, $lockVersion = null)
  * @method Message|null findOneBy(array $criteria, array $orderBy = null)
  * @method Message[]    findAll()
- * @method Message[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Message[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)       
  */
 class MysqlMessageRepository extends ServiceEntityRepository implements MessageRepository
 {
@@ -26,6 +27,17 @@ class MysqlMessageRepository extends ServiceEntityRepository implements MessageR
     {
         $this->getEntityManager()->persist($message);
         $this->getEntityManager()->flush();
+    }
+
+    public function findByIdOrFail(Uuid $id): Message
+    {
+        $message = $this->find($id->value());
+        
+        if (!$message) {
+            throw new MessageNotFoundException();
+        }
+        
+        return $message;
     }
 
     public function searchMessages(Conversation $conversation): array

@@ -2,15 +2,16 @@
 
 namespace App\Contexts\Web\Conversation\Domain;
 
-use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
-use App\Contexts\Shared\Domain\Traits\Timestamps;
-use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
-use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
-use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Conversation\Domain\ValueObject\ContentValue;
-use App\Contexts\Web\User\Domain\User;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Embedded;
+use App\Contexts\Web\User\Domain\User;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Shared\Domain\Traits\Timestamps;
+use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
+use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
+use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
+use App\Contexts\Web\Conversation\Domain\ValueObject\ContentValue;
+use App\Contexts\Web\Conversation\Domain\Events\MessageCreatedEvent;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 class Message extends AggregateRoot
@@ -47,7 +48,15 @@ class Message extends AggregateRoot
 
     public static function create(Uuid $id, Conversation $conversation, User $user, ContentValue $content): self
     {
-        return new self($id, $conversation, $user, $content);
+        $message = new self($id, $conversation, $user, $content);
+        
+        $message->record(new MessageCreatedEvent(
+            $message->getId(),
+            $conversation->getId(),
+            $user->getId()
+        ));
+
+        return $message;
     }
 
     public function getCreatedAt(): CreatedAtValue

@@ -4,14 +4,130 @@ namespace App\Contexts\Web\Notification\Domain;
 
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Conversation\Domain\Message;
+use App\Contexts\Web\User\Domain\User;
+use App\Contexts\Web\Post\Domain\Post;
+use App\Contexts\Web\Notification\Domain\Event\NotificationCreatedEvent;
+use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
 class Notification extends AggregateRoot
 {
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', length: 36)]
     private Uuid $id;
 
-    private string $message;
+    #[ORM\ManyToOne(targetEntity: NotificationType::class)]
+    private NotificationType $notificationType;
 
-    private string $isNotificationRead;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    private User $user;
 
-    private string $createdAt;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    private User $userToNotify;
+
+    #[ORM\ManyToOne(targetEntity: Post::class)]
+    private ?Post $post = null;
+
+    #[ORM\ManyToOne(targetEntity: Message::class)]
+    private ?Message $message = null;
+
+    #[ORM\Column(type: 'datetime')]
+    private \DateTime $createdAt;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTime $readAt = null;
+
+    public function __construct(
+        Uuid $id,
+        NotificationType $notificationType,
+        User $userToNotify,
+        ?User $user,
+        ?Post $post,
+        ?Message $message
+    )
+    {
+        $this->id = $id;
+        $this->notificationType = $notificationType;
+        $this->userToNotify = $userToNotify;
+        $this->user = $user;
+        $this->post = $post;
+        $this->message = $message;
+        $this->createdAt = new \DateTime();
+    }
+
+    public static function create(
+        Uuid $id,
+        NotificationType $notificationType,
+        User $userToNotify,
+        ?User $user = null,
+        ?Post $post = null,
+        ?Message $message = null
+    ): self
+    {
+        $notification = new self($id, $notificationType, $userToNotify, $user, $post, $message);
+        
+        $notification->record(new NotificationCreatedEvent(
+            $notification->getId()->value(),
+            $notificationType->getName(),
+            $userToNotify->getId()->value(),
+            $user?->getId()?->value(),
+            $post?->getId()?->value(),
+            $message?->getId()?->value()
+        ));
+
+        return $notification;
+    }
+
+    public function markAsRead(): void
+    {
+        if ($this->readAt === null) {
+            $this->readAt = new \DateTime();
+        }
+    }
+
+    public function getId(): Uuid
+    {
+        return $this->id;
+    }
+
+    public function getNotificationType(): NotificationType
+    {
+        return $this->notificationType;
+    }
+
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    public function getPost(): ?Post
+    {
+        return $this->post;
+    }
+
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function getReadAt(): ?\DateTime
+    {
+        return $this->readAt;
+    }
+
+    public function getIsRead(): bool
+    {
+        return $this->readAt !== null;
+    }
+
+    public function getMessage(): ?Message
+    {
+        return $this->message;
+    }
+
+    public function getUserToNotify(): User
+    {
+        return $this->userToNotify;
+    }
 }

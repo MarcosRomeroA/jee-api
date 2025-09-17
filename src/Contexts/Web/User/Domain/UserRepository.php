@@ -11,7 +11,15 @@ interface UserRepository
     public function save(User $user): void;
     public function searchAll(): array;
     public function findByEmail(string $email): User;
+
+    /**
+     * @param Uuid $id
+     * @return User
+     * 
+     * @throws UserNotFoundException
+     */
     public function findById(Uuid $id): User;
+
     public function checkIfUsernameExists(UsernameValue $username): void;
     public function checkIfEmailExists(EmailValue $email): void;
 

@@ -2,7 +2,7 @@
 
 namespace App\Contexts\Web\Conversation\Domain;
 
-use App\Contexts\Web\User\Domain\User;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
 
 interface MessageRepository
 {
@@ -13,4 +13,10 @@ interface MessageRepository
      * @return array<Message>
      */
     public function searchMessages(Conversation $conversation): array;
+
+    /**
+     * @param Uuid $id
+     * @return Message
+     */
+    public function findByIdOrFail(Uuid $id): Message;
 }

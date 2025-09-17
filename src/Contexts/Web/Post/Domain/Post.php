@@ -2,20 +2,21 @@
 
 namespace App\Contexts\Web\Post\Domain;
 
-use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
-use App\Contexts\Shared\Domain\Traits\Timestamps;
-use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
-use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
-use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
-use App\Contexts\Web\Post\Domain\Events\PostCommentedDomainEvent;
-use App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent;
-use App\Contexts\Web\Post\Domain\ValueObject\BodyValue;
-use App\Contexts\Web\User\Domain\User;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Embedded;
+use App\Contexts\Web\User\Domain\User;
+use Doctrine\Common\Collections\Collection;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use Doctrine\Common\Collections\ArrayCollection;
+use App\Contexts\Shared\Domain\Traits\Timestamps;
+use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
+use App\Contexts\Web\Post\Domain\ValueObject\BodyValue;
+use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
+use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
+use App\Contexts\Web\Post\Domain\Events\PostLikedDomainEvent;
+use App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent;
+use App\Contexts\Web\Post\Domain\Events\PostCommentedDomainEvent;
+use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
 
 #[ContainsNullableEmbeddable]
 #[ORM\Entity(repositoryClass: PostRepository::class)]
@@ -125,6 +126,10 @@ class Post extends AggregateRoot
 
         $this->likes[] = $like;
         $like->setPost($this);
+        $this->record(new PostLikedDomainEvent(
+            $this->id,
+            []
+        ));
 
         return $this;
     }
@@ -207,3 +212,4 @@ class Post extends AggregateRoot
         $this->sharesQuantity = $sharesQuantity;
     }
 }
+

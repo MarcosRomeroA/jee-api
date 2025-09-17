@@ -2,8 +2,10 @@
 
 namespace App\Contexts\Web\Conversation\Infrastructure;
 
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Conversation\Domain\Conversation;
 use App\Contexts\Web\Conversation\Domain\ConversationRepository;
+use App\Contexts\Web\Conversation\Domain\Exception\ConversationNotFoundException;
 use App\Contexts\Web\User\Domain\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -48,5 +50,20 @@ final class MysqlConversationRepository extends ServiceEntityRepository implemen
             ->setParameter('user', $user)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @param Uuid $id
+     * @return Conversation
+     */
+    public function findByIdOrFail(Uuid $id): Conversation
+    {
+        $conversation = $this->find($id);
+
+        if (!$conversation) {
+            throw new ConversationNotFoundException();
+        }
+
+        return $conversation;
     }
 }

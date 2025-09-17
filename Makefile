@@ -1,8 +1,8 @@
 dev:
-	@docker compose -f compose.yaml -f compose.override.yaml up -d
+	@docker compose -f compose.yaml -f compose.dev.yaml up -d
 
 build-dev:
-	@docker compose -f compose.yaml -f compose.override.yaml build
+	@docker compose -f compose.yaml -f compose.dev.yaml build
 
 build:
 	@docker compose -f compose.yaml build
@@ -17,7 +17,7 @@ down:
 	@docker compose down
 
 exec:
-	@docker compose exec symfony sh
+	@docker compose exec symfony bash
 
 logs:
 	@docker compose logs -f
@@ -25,6 +25,15 @@ logs:
 clean-cache:
 	@rm -rf var/cache
 	@docker compose exec symfony php bin/console cache:clear
+
+migration:
+	@docker compose exec symfony php bin/console make:migration
+
+migrate:
+	@docker compose exec symfony php bin/console doctrine:migrations:migrate
+
+empty-migration:
+	@docker compose exec symfony php bin/console doctrine:migrations:generate
 
 deploy:
 	make stop

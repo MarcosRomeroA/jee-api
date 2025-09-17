@@ -1,0 +1,6 @@
+get_notifications:
+  path: /notifications
+  controller: App\Apps\Web\Notification\SearchNotifications\SearchNotificationsController
+  methods: [ GET ]
+  defaults: { auth: true }
+

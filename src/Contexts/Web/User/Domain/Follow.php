@@ -3,13 +3,14 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Domain;
 
-use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
+use App\Contexts\Web\User\Domain\Events\FollowerCreatedDomainEvent;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: FollowRepository::class)]
 #[ORM\Table(name: "user_follow")]
-class Follow
+class Follow extends AggregateRoot
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -34,7 +35,16 @@ class Follow
 
     public static function create(User $follower, User $followed): self
     {
-        return new self($follower, $followed);
+        $follow = new self($follower, $followed);
+        
+        $follow->record(
+            new FollowerCreatedDomainEvent(
+                $follower->getId(),
+                $followed->getId()
+            )
+        );
+
+        return $follow;
     }
 
     public function getFollower(): ?User

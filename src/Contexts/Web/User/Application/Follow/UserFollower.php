@@ -2,14 +2,16 @@
 
 namespace App\Contexts\Web\User\Application\Follow;
 
-use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\User\Domain\Follow;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\User\Domain\UserRepository;
+use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 
 final readonly class UserFollower
 {
     public function __construct(
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
+        private EventBus $bus,
     )
     {
     }
@@ -22,10 +24,12 @@ final readonly class UserFollower
         $follower = $this->userRepository->findById($userId);
         $followed = $this->userRepository->findById($userToFollowId);
 
-        $follow = new Follow($follower, $followed);
+        $follow = Follow::create($follower, $followed);
 
-        $follower->follow($follow);
+        $follower->addFollow($follow);
 
         $this->userRepository->save($follower);
+
+        $this->bus->publish(...$follow->pullDomainEvents());
     }
 }
