@@ -10,7 +10,6 @@ use App\Contexts\Web\Notification\Domain\NotificationType;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Shared\Domain\CQRS\Event\DomainEventSubscriber;
 use App\Contexts\Web\Notification\Domain\NotificationRepository;
-use App\Contexts\Web\User\Domain\Events\UserCreatedDomainEvent;
 use App\Contexts\Web\Notification\Domain\NotificationTypeRepository;
 use App\Contexts\Web\User\Domain\Events\FollowerCreatedDomainEvent;
 
