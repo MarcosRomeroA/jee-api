@@ -8,7 +8,7 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 class NotificationCreatedEvent extends DomainEvent
 {
     public function __construct(
-        string $notificationId,
+        Uuid $notificationId,
         string $notificationTypeName,
         string $userIdToNotify,
         ?string $userId,
@@ -17,7 +17,7 @@ class NotificationCreatedEvent extends DomainEvent
     )
     {
         $body = [
-            'notificationId' => $notificationId,
+            'notificationId' => $notificationId->value(),
             'notificationTypeName' => $notificationTypeName,
             'userIdToNotify' => $userIdToNotify,
             'userId' => $userId,
@@ -41,7 +41,7 @@ class NotificationCreatedEvent extends DomainEvent
     ): DomainEvent
     {
         return new self(
-            $aggregateId->value(),
+            $aggregateId,
             $body['notificationTypeName'],
             $body['userIdToNotify'],
             $body['userId'],
@@ -53,7 +53,7 @@ class NotificationCreatedEvent extends DomainEvent
     public function toPrimitives(): array
     {
         return [
-            'id' => $this->getAggregateId(),
+            'id' => $this->getAggregateId()->value(),
             'notificationTypeName' => $this->body['notificationTypeName'],
             'userIdToNotify' => $this->body['userIdToNotify'],
             'userId' => $this->body['userId'],

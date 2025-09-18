@@ -16,7 +16,6 @@ use App\Contexts\Web\Notification\Domain\NotificationTypeRepository;
 readonly class MessageNotificationEventSubscriber implements DomainEventSubscriber
 {
     public function __construct(
-        private LoggerInterface $logger,
         private MessageRepository $messageRepository,
         private NotificationRepository $notificationRepository,
         private NotificationTypeRepository $notificationTypeRepository,

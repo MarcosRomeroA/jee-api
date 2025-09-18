@@ -2,6 +2,7 @@
 
 namespace App\Contexts\Web\Post\Application\Like;
 
+use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Domain\Like;
 use App\Contexts\Web\Post\Domain\PostRepository;
@@ -11,7 +12,8 @@ final readonly class PostLiker
 {
     public function __construct(
         private PostRepository $postRepository,
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
+        private EventBus $bus,
     )
     {
     }
@@ -30,5 +32,7 @@ final readonly class PostLiker
         $post->addLike($like);
 
         $this->postRepository->save($post);
+
+        $this->bus->publish(...$post->pullDomainEvents());
     }
 }

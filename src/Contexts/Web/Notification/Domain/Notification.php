@@ -21,7 +21,7 @@ class Notification extends AggregateRoot
     private NotificationType $notificationType;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    private User $user;
+    private ?User $user;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     private User $userToNotify;
@@ -68,7 +68,7 @@ class Notification extends AggregateRoot
         $notification = new self($id, $notificationType, $userToNotify, $user, $post, $message);
         
         $notification->record(new NotificationCreatedEvent(
-            $notification->getId()->value(),
+            $notification->getId(),
             $notificationType->getName(),
             $userToNotify->getId()->value(),
             $user?->getId()?->value(),
@@ -96,7 +96,7 @@ class Notification extends AggregateRoot
         return $this->notificationType;
     }
 
-    public function getUser(): User
+    public function getUser(): ?User
     {
         return $this->user;
     }

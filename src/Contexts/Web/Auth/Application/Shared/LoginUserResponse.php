@@ -8,6 +8,7 @@ final class LoginUserResponse extends Response
 {
     public function __construct(
         public string $id,
+        public string $notificationToken,
         public string $token,
         public string $refreshToken
     )

@@ -128,7 +128,9 @@ class Post extends AggregateRoot
         $like->setPost($this);
         $this->record(new PostLikedDomainEvent(
             $this->id,
-            []
+            [
+                "userLikerId" => $like->getUser()->getId()->value(),
+            ]
         ));
 
         return $this;

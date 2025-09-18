@@ -2,7 +2,7 @@
 
 namespace App\Contexts\Web\Post\Application\PostLikedNotification;
 
-use Psr\Log\LoggerInterface;
+use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Domain\PostRepository;
 use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
@@ -16,11 +16,11 @@ use App\Contexts\Web\Notification\Domain\NotificationTypeRepository;
 final readonly class PostLikedNotificationEventSubscriber implements DomainEventSubscriber
 {
     public function __construct(
-        private LoggerInterface $logger,
         private PostRepository $postRepository,
         private NotificationRepository $notificationRepository,
         private NotificationTypeRepository $notificationTypeRepository,
         private EventBus $bus,
+        private UserRepository $userRepository,
     )
     {
     }
@@ -31,13 +31,14 @@ final readonly class PostLikedNotificationEventSubscriber implements DomainEvent
 
         $notificationType = $this->notificationTypeRepository->findByName(NotificationType::POST_LIKED);
 
+        $userLiker = $this->userRepository->findById(new Uuid($event->toPrimitives()['userLikerId']));
+
         $notification = Notification::create(
             Uuid::random(),
             $notificationType,
             $post->getUser(),
-            null,
+            $userLiker,
             $post,
-            null,
         );
 
         $this->notificationRepository->save($notification);

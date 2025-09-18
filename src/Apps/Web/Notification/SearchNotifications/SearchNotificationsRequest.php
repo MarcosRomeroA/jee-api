@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Apps\Web\Notification\Search;
+namespace App\Apps\Web\Notification\SearchNotifications;
 
 use App\Contexts\Shared\Infrastructure\Symfony\BaseRequest;
 use Symfony\Component\Validator\Constraints as Assert;

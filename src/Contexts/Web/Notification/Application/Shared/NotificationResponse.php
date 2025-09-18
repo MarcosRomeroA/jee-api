@@ -21,9 +21,9 @@ final class NotificationResponse
         return new self(
             $notification->getId()->value(),
             $notification->getNotificationType()->getName(),
-            $notification->getUser()?->getId()->value(),
-            $notification->getUser()?->getUsername()->value(),
-            $notification->getPost()?->getId()->value(),
+            $notification->getUser()?->getId()?->value(),
+            $notification->getUser()?->getUsername()?->value(),
+            $notification->getPost()?->getId()?->value(),
             $notification->getMessage()?->getContent()->value(),
             $notification->getCreatedAt()->format('Y-m-d H:i:s'),
         );

@@ -34,6 +34,7 @@ class PostLikedDomainEvent extends DomainEvent
     {
         return [
             'id' => $this->getAggregateId(),
+            ...$this->body
         ];
     }
 }
