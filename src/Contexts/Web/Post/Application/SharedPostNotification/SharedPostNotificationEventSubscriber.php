@@ -36,9 +36,9 @@ readonly class SharedPostNotificationEventSubscriber implements DomainEventSubsc
         $notification = Notification::create(
             Uuid::random(),
             $notificationType,
-            $post->getUser(),
             $sharedPost->getUser(),
-            $sharedPost,
+            $post->getUser(),
+            $post,
         );
 
         $this->notificationRepository->save($notification);
