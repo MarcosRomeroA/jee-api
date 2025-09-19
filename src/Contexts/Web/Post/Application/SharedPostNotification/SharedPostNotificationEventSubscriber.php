@@ -2,7 +2,6 @@
 
 namespace App\Contexts\Web\Post\Application\SharedPostNotification;
 
-use Psr\Log\LoggerInterface;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 use App\Contexts\Web\Notification\Domain\Notification;
@@ -16,7 +15,6 @@ use App\Contexts\Web\Notification\Domain\NotificationTypeRepository;
 readonly class SharedPostNotificationEventSubscriber implements DomainEventSubscriber
 {
     public function __construct(
-        private LoggerInterface $logger,
         private PostRepository $postRepository,
         private NotificationRepository $notificationRepository,
         private NotificationTypeRepository $notificationTypeRepository,
@@ -27,9 +25,11 @@ readonly class SharedPostNotificationEventSubscriber implements DomainEventSubsc
     {
         $post = $this->postRepository->findById($event->getAggregateId());
 
-        if (!$post->getSharedPost()) {
+        if (!$post->getSharedPostId()) {
             return;
         }
+
+        $sharedPost = $this->postRepository->findById($post->getSharedPostId());
 
         $notificationType = $this->notificationTypeRepository->findByName(NotificationType::POST_SHARED);
 
@@ -37,13 +37,13 @@ readonly class SharedPostNotificationEventSubscriber implements DomainEventSubsc
             Uuid::random(),
             $notificationType,
             $post->getUser(),
-            $post->getSharedPost()->getUser(),
-            $post->getSharedPost(),
+            $sharedPost->getUser(),
+            $sharedPost,
         );
 
         $this->notificationRepository->save($notification);
 
-        $this->bus->publish(...$post->pullDomainEvents());
+        $this->bus->publish(...$notification->pullDomainEvents());
     }
 
     public static function subscribedTo(): array

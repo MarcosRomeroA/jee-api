@@ -9,7 +9,7 @@ use App\Contexts\Shared\Domain\CQRS\Event\DomainEventSubscriber;
 use App\Contexts\Web\Notification\Domain\Event\NotificationCreatedEvent;
 use App\Contexts\Web\Notification\Application\Shared\NotificationResponse;
 
-readonly class NotificationRealtimeEventSubscriber implements DomainEventSubscriber
+final readonly class NotificationRealtimeEventSubscriber implements DomainEventSubscriber
 {
     public function __construct(
         private HubInterface $hub,

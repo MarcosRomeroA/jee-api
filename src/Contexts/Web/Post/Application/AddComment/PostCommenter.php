@@ -5,9 +5,7 @@ namespace App\Contexts\Web\Post\Application\AddComment;
 use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Domain\Comment;
-use App\Contexts\Web\Post\Domain\Post;
 use App\Contexts\Web\Post\Domain\PostRepository;
-use App\Contexts\Web\Post\Domain\ValueObject\CommentValue;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class PostCommenter

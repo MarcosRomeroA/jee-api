@@ -4,7 +4,7 @@ namespace App\Contexts\Web\Post\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 
-interface CommentRepository
+interface LikeRepository
 {
-    public function findById(Uuid $id): Comment;
+    public function findById(Uuid $id): Like;
 }

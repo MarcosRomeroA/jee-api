@@ -11,7 +11,7 @@ use App\Contexts\Web\User\Domain\User;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ContainsNullableEmbeddable]
-#[ORM\Entity(repositoryClass: CommentRepository::class)]
+#[ORM\Entity(repositoryClass: LikeRepository::class)]
 #[ORM\Table(name: "post_like")]
 class Like extends AggregateRoot
 {

@@ -39,7 +39,7 @@ readonly class MessageNotificationEventSubscriber implements DomainEventSubscrib
 
         $this->notificationRepository->save($notification);
 
-        $this->bus->publish(...$message->pullDomainEvents());
+        $this->bus->publish(...$notification->pullDomainEvents());
     }
 
     public static function subscribedTo(): array

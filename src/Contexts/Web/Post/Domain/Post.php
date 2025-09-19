@@ -46,8 +46,6 @@ class Post extends AggregateRoot
 
     private array $resourceUrls;
 
-    private ?Post $sharedPost = null;
-
     private ?int $sharesQuantity = null;
 
     use Timestamps;
@@ -167,14 +165,9 @@ class Post extends AggregateRoot
         $this->resourceUrls = $resourceUrls;
     }
 
-    public function setSharedPost(Post $post): void
+    public function getSharedPostId(): ?Uuid
     {
-        $this->sharedPost = $post;
-    }
-
-    public function getSharedPost(): ?Post
-    {
-        return $this->sharedPost;
+        return $this->sharedPostId;
     }
 
     public function getResourceUrls(): array
@@ -199,11 +192,6 @@ class Post extends AggregateRoot
         return $this->likes;
     }
 
-    public function getSharedPostId(): ?Uuid
-    {
-        return $this->sharedPostId;
-    }
-
     public function getSharesQuantity(): ?int
     {
         return $this->sharesQuantity;
@@ -214,4 +202,3 @@ class Post extends AggregateRoot
         $this->sharesQuantity = $sharesQuantity;
     }
 }
-
