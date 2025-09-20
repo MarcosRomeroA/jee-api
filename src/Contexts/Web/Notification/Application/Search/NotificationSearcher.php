@@ -12,7 +12,7 @@ final readonly class NotificationSearcher
         private NotificationRepository $repository
     ) {}
 
-    public function __invoke(array $criteria): NotificationCollectionResponse
+    public function __invoke(?array $criteria): NotificationCollectionResponse
     {
         $notifications = $this->repository->searchByCriteria($criteria);
 

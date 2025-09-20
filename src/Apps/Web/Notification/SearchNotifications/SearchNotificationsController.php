@@ -10,7 +10,7 @@ final class SearchNotificationsController extends ApiController
 {
     public function __invoke(SearchNotificationsRequest $request): Response
     {
-        $criteria = $request->q;
+        $criteria = $request->q ?? null;
 
         $query = new SearchNotificationsQuery($criteria);
 

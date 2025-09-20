@@ -4,3 +4,9 @@ get_notifications:
   methods: [ GET ]
   defaults: { auth: true }
 
+mark_as_read:
+  path: /notification/{id}/mark-as-read
+  controller: App\Apps\Web\Notification\MarkAsRead\MarkAsReadController
+  methods: [ PUT ]
+  defaults: { auth: true }
+

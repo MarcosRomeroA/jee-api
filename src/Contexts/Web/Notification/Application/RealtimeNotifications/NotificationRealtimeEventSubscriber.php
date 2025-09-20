@@ -18,7 +18,7 @@ final readonly class NotificationRealtimeEventSubscriber implements DomainEventS
 
     public function __invoke(NotificationCreatedEvent $event): void
     {
-        $notification = $this->notificationRepository->findByIdOrFail($event->getAggregateId());
+        $notification = $this->notificationRepository->findById($event->getAggregateId());
 
         $update = new Update(
             $_ENV['APP_URL'].'/notification/' . $event->toPrimitives()['userIdToNotify'],

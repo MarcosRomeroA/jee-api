@@ -25,7 +25,7 @@ class MysqlNotificationRepository implements NotificationRepository
         $this->entityManager->flush();
     }
 
-    public function findByIdOrFail(Uuid $id): ?Notification
+    public function findById(Uuid $id): Notification
     {
         $notification = $this->repository->find($id);
 
@@ -81,7 +81,7 @@ class MysqlNotificationRepository implements NotificationRepository
         $this->entityManager->flush();
     }
 
-    public function searchByCriteria(array $criteria): array
+    public function searchByCriteria(?array $criteria): array
     {
         $queryBuilder = $this->repository->createQueryBuilder("n");
 

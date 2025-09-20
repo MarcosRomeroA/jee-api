@@ -3,6 +3,7 @@
 namespace App\Contexts\Web\Notification\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Notification\Domain\Exception\NotificationNotFoundException;
 use App\Contexts\Web\User\Domain\User;
 
 interface NotificationRepository
@@ -12,7 +13,7 @@ interface NotificationRepository
     /**
      * @throws NotificationNotFoundException
      */
-    public function findByIdOrFail(Uuid $id): ?Notification;
+    public function findById(Uuid $id): Notification;
 
     public function findByUser(User $user): array;
 
@@ -23,10 +24,10 @@ interface NotificationRepository
     public function markAsRead(Uuid $id): void;
 
     public function markAllAsReadForUser(User $user): void;
-    
+
     /**
-     * @param array $criteria
+     * @param array|null $criteria
      * @return array<Notification>
      */
-    public function searchByCriteria(array $criteria): array;
+    public function searchByCriteria(?array $criteria): array;
 }
