@@ -2,12 +2,8 @@ services:
 
   symfony:
     container_name: jee_symfony
-    build:
-      context: .
-      dockerfile: Dockerfile
     environment:
       - TZ=${TZ}
-    restart: unless-stopped
     volumes:
       - ./docker/apache/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
     depends_on:
@@ -15,18 +11,19 @@ services:
       - mercure
     networks:
       - internal
+    restart: unless-stopped
 
   mariadb:
     container_name: jee_mariadb
-    image: mariadb:11.4.2
-    restart: unless-stopped
+    image: lscr.io/linuxserver/mariadb:latest
     environment:
-      MARIADB_DATABASE: jee
-      MARIADB_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: jee
     volumes:
-      - jee_mariadb_data:/var/lib/mysql
+      - jee_mariadb_data:/config
     networks:
       - internal
+    restart: unless-stopped
 
   nginx-proxy-manager:
     container_name: jee_npm
