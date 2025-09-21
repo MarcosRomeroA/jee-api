@@ -42,6 +42,8 @@ abstract readonly class BaseRequest
         try{
             $request = $request->toArray();
             if ($q){
+                $q['limit'] = isset($q['limit']) ? (int)$q['limit'] : 10;
+                $q['offset'] = isset($q['offset']) ? (int)$q['offset'] : 0;
                 $request['q'] = $q;
             }
             return $request;
@@ -49,6 +51,8 @@ abstract readonly class BaseRequest
         catch (\Exception){
             $request = [];
             if ($q){
+                $q['limit'] = isset($q['limit']) ? (int)$q['limit'] : 10;
+                $q['offset'] = isset($q['offset']) ? (int)$q['offset'] : 0;
                 $request['q'] = $q;
             }
             return $request;

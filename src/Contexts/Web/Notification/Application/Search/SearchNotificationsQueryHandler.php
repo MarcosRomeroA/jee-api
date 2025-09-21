@@ -22,4 +22,3 @@ final readonly class SearchNotificationsQueryHandler implements QueryHandler
         return $this->searcher->__invoke($query->criteria);
     }
 }
-

@@ -9,5 +9,13 @@ final readonly class SearchNotificationsRequest extends BaseRequest
 {
     #[Assert\Type("array")]
     public mixed $q;
-}
 
+    #[Assert\Type("integer")]
+    #[Assert\GreaterThan(0)]
+    #[Assert\LessThanOrEqual(50)]
+    public mixed $limit;
+
+    #[Assert\Type("integer")]
+    #[Assert\GreaterThanOrEqual(0)]
+    public mixed $offset;
+}

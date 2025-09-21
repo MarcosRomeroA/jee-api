@@ -66,7 +66,7 @@ class MysqlNotificationRepository implements NotificationRepository
         }
 
         $notification->markAsRead();
-        
+
         $this->save($notification);
     }
 
@@ -87,6 +87,20 @@ class MysqlNotificationRepository implements NotificationRepository
 
         $queryBuilder->orderBy("n.createdAt", "DESC");
 
+        $limit = isset($criteria["limit"]) ? (int)$criteria["limit"] : 10 ;
+        $offset = isset($criteria["offset"]) ? (int)$criteria["offset"] : 0 ;
+
+        $queryBuilder->setMaxResults($limit)->setFirstResult($offset);
+
         return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function countByCriteria(?array $criteria): int
+    {
+        $queryBuilder = $this->repository->createQueryBuilder("n");
+        
+        $queryBuilder->select("COUNT(n.id)");
+
+        return (int) $queryBuilder->getQuery()->getSingleScalarResult();
     }
 }

@@ -27,7 +27,15 @@ interface NotificationRepository
 
     /**
      * @param array|null $criteria
+     * @param int $limit
+     * @param int $offset
      * @return array<Notification>
      */
     public function searchByCriteria(?array $criteria): array;
+
+    /**
+     * @param array|null $criteria
+     * @return int
+     */
+    public function countByCriteria(?array $criteria): int;
 }

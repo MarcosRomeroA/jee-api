@@ -21,7 +21,8 @@ final readonly class NotificationSearcher
             $response[] = NotificationResponse::fromEntity($notification);
         }
 
-        return new NotificationCollectionResponse($response);
+        $total = $this->repository->countByCriteria($criteria);
+
+        return new NotificationCollectionResponse($response, $criteria, $total);
     }
 }
-
