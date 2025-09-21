@@ -18,7 +18,7 @@ services:
 
   mariadb:
     container_name: jee_mariadb
-    image: lscr.io/linuxserver/mariadb:latest
+    image: lscr.io/linuxserver/mariadb:11.4.8
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: jee
@@ -32,7 +32,7 @@ services:
 
   nginx-proxy-manager:
     container_name: jee_npm
-    image: 'docker.io/jc21/nginx-proxy-manager:latest'
+    image: docker.io/jc21/nginx-proxy-manager:latest
     restart: unless-stopped
     ports:
       - 80:80
