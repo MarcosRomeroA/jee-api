@@ -22,6 +22,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: jee
+      MYSQL_USER: jee_user
+      MYSQL_PASSWORD: jee_password
     volumes:
       - jee_mariadb_data:/config
     networks:
