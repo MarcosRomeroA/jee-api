@@ -7,6 +7,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class SearchPostsRequest extends BaseRequest
 {
-    #[Assert\NotNull, Assert\Type("array")]
+    #[Assert\Type("array")]
     public mixed $q;
 }

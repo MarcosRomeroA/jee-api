@@ -23,9 +23,9 @@ final readonly class PostSearcher implements QueryHandler
     /**
      * @throws Exception
      */
-    public function __invoke(array $criteria): PostCollectionResponse
+    public function __invoke(?array $criteria): PostCollectionResponse
     {
-        $posts = $this->repository->searchByCriteria($criteria);
+        $posts = $criteria ? $this->repository->searchByCriteria($criteria) : $this->repository->searchAll();
 
 
         foreach ($posts as $post) {

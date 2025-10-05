@@ -48,6 +48,8 @@ class Post extends AggregateRoot
 
     private ?int $sharesQuantity = null;
 
+    private ?Post $sharedPost = null;
+
     use Timestamps;
 
     public function __construct(
@@ -200,5 +202,15 @@ class Post extends AggregateRoot
     public function setSharesQuantity(?int $sharesQuantity): void
     {
         $this->sharesQuantity = $sharesQuantity;
+    }
+
+    public function setSharedPost(Post $sharedPost): void
+    {
+        $this->sharedPost = $sharedPost;
+    }
+
+    public function getSharedPost(): ?Post
+    {
+        return $this->sharedPost;
     }
 }

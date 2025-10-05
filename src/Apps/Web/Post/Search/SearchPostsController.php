@@ -10,7 +10,7 @@ class SearchPostsController extends ApiController
 {
     public function __invoke(SearchPostsRequest $request): Response
     {
-        $criteria = $request->q;
+        $criteria = $request->q ?? null;
 
         $query = new SearchPostQuery($criteria);
 
