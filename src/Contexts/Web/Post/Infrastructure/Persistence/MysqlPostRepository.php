@@ -32,7 +32,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
         return $this->findAll();
     }
 
-    public function findByUser(User $user): User
+    public function findByUser(User $user): ?array
     {
         return $this->findBy(['user' => $user]);
     }
@@ -71,7 +71,8 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
         }
     }
 
-    public function searchByCriteria(array $criteria): array{
+    public function searchByCriteria(array $criteria): array
+    {
         $dql = $this->createQueryBuilder('p')
             ->innerJoin('p.user', 'u')
             ->where('u.username.value LIKE :username')
@@ -88,6 +89,15 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             ->select('COUNT(p.id)')
             ->where('p.sharedPostId = :id')
             ->setParameter('id', $id)
+            ->getQuery();
+
+        return (int) $dql->getSingleScalarResult();
+    }
+
+    public function countByCriteria(array $criteria): int
+    {
+        $dql = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
             ->getQuery();
 
         return (int) $dql->getSingleScalarResult();

@@ -15,7 +15,7 @@ interface UserRepository
     /**
      * @param Uuid $id
      * @return User
-     * 
+     *
      * @throws UserNotFoundException
      */
     public function findById(Uuid $id): User;
@@ -28,6 +28,12 @@ interface UserRepository
      * @return array<User>
      */
     public function searchByCriteria(array $criteria): array;
+
+    /**
+     * @param array $criteria
+     * @return int
+     */
+    public function countByCriteria(array $criteria): int;
 
     public function findByUsername(UsernameValue $username): User;
 }

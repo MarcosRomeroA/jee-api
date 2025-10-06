@@ -14,7 +14,10 @@ interface PostRepository
      */
     public function searchAll(): array;
 
-    public function findByUser(User $user): User;
+    /**
+     * @return array<Post>|null
+     */
+    public function findByUser(User $user): ?array;
 
     public function findById(Uuid $id): Post;
 
@@ -26,6 +29,8 @@ interface PostRepository
     public function checkIsPostExists(Uuid $id): void;
 
     public function searchByCriteria(array $criteria): array;
+
+    public function countByCriteria(array $criteria): int;
 
     public function findSharesQuantity(Uuid $id): int;
 }

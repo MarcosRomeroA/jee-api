@@ -28,6 +28,8 @@ final readonly class UserSearcher implements QueryHandler
             $response[] = UserResponse::fromEntity($user, $this->fileManager->generateTemporaryUrl('user/profile', $user->getProfileImage()->value()));
         }
 
-        return new UserCollectionResponse($response);
+                $total = $this->repository->countByCriteria($criteria);
+
+        return new UserCollectionResponse($response, $criteria, $total);
     }
 }

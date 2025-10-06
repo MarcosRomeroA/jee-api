@@ -83,12 +83,24 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
      */
     public function searchByCriteria(array $criteria): array
     {
-         $dql = $this->createQueryBuilder('u')
-            ->where('u.username.value LIKE :username')
-            ->setParameter('username', '%' . $criteria['username'] . '%')
-            ->getQuery();
+        $qb = $this->createQueryBuilder('u');
 
-        return $dql->getResult();
+        if (isset($criteria['username']) && $criteria['username'] !== '') {
+            $qb->andWhere('u.username.value LIKE :username')
+               ->setParameter('username', '%' . $criteria['username'] . '%');
+        }
+
+        $limit = $criteria['limit'] ?? null;
+        $offset = $criteria['offset'] ?? null;
+
+        if ($limit !== null) {
+            $qb->setMaxResults((int) $limit);
+        }
+        if ($offset !== null) {
+            $qb->setFirstResult((int) $offset);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     public function findByUsername(UsernameValue $username): User
@@ -100,5 +112,17 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
         }
 
         return $user;
+    }
+    public function countByCriteria(array $criteria): int
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)');
+
+        if (isset($criteria['username']) && $criteria['username'] !== '') {
+            $qb->andWhere('u.username.value LIKE :username')
+               ->setParameter('username', '%' . $criteria['username'] . '%');
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 }

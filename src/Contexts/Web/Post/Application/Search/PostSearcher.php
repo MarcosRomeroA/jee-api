@@ -48,6 +48,8 @@ final readonly class PostSearcher implements QueryHandler
             $post->setSharesQuantity($sharesQuantity);
         }
 
-        return new PostCollectionResponse($posts);
+        $total = $this->repository->countByCriteria($criteria ?? ["limit" => 0, "offset" => 0]);
+
+        return new PostCollectionResponse($posts, $criteria ?? ["limit" => 0, "offset" => 0], $total);
     }
 }
