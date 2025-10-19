@@ -7,7 +7,8 @@ use App\Contexts\Shared\Domain\CQRS\Query\Query;
 final class SearchMyFeedQuery implements Query
 {
     public function __construct(
-        public string $id
+        public string $id,
+        public ?array $criteria = null,
     )
     {
     }

@@ -48,21 +48,28 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
         return $post;
     }
 
-    public function searchFeed(Uuid $userId): array
+            public function searchFeed(Uuid $userId, ?array $criteria = null): array
     {
-        $dql = $this
+        $qb = $this
             ->createQueryBuilder('p')
             ->innerJoin('p.user', 'u')
             ->leftJoin('u.followers', 'f')
-            ->where( 'f.follower = :userId')
+            ->where('f.follower = :userId')
             ->orWhere('u.id = :userId')
-            ->setParameter('userId', $userId)
-            ->getQuery();
+            ->setParameter('userId', $userId);
 
-        return $dql->getResult();
+        if (!is_null($criteria)) {
+            if (isset($criteria['limit']) && (int)$criteria['limit'] > 0) {
+                $qb->setMaxResults((int)$criteria['limit']);
+            }
+            if (isset($criteria['offset']) && (int)$criteria['offset'] >= 0) {
+                $qb->setFirstResult((int)$criteria['offset']);
+            }
+        }
+
+        return $qb->getQuery()->getResult();
     }
-
-    public function checkIsPostExists(Uuid $id): void
+public function checkIsPostExists(Uuid $id): void
     {
         $post = $this->findOneBy(['id' => $id]);
 
@@ -102,4 +109,17 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
 
         return (int) $dql->getSingleScalarResult();
     }
-}
+
+    public function countFeed(Uuid $userId): int
+    {
+        $qb = $this
+            ->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->innerJoin('p.user', 'u')
+            ->leftJoin('u.followers', 'f')
+            ->where('f.follower = :userId')
+            ->orWhere('u.id = :userId')
+            ->setParameter('userId', $userId);
+
+        return (int)$qb->getQuery()->getSingleScalarResult();
+    }}

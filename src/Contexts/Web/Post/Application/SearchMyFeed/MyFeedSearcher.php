@@ -22,9 +22,9 @@ final readonly class MyFeedSearcher
     /**
      * @throws Exception
      */
-    public function __invoke(Uuid $userId): PostCollectionResponse
+    public function __invoke(Uuid $userId, ?array $criteria): PostCollectionResponse
     {
-        $posts = $this->repository->searchFeed($userId);
+        $posts = $this->repository->searchFeed($userId, $criteria);
 
         foreach ($posts as $post) {
             $post->setResourceUrls($this->getPostResources->__invoke($post));
@@ -46,6 +46,8 @@ final readonly class MyFeedSearcher
             $post->setSharesQuantity($sharesQuantity);
         }
 
-        return new PostCollectionResponse($posts);
+        $total = $this->repository->countFeed($userId);
+
+        return new PostCollectionResponse($posts, $criteria ?? ["limit" => 0, "offset" => 0], $total);
     }
 }

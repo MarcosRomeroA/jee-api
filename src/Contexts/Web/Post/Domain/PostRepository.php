@@ -24,7 +24,7 @@ interface PostRepository
     /**
      * @return array<Post>
      */
-    public function searchFeed(Uuid $userId): array;
+    public function searchFeed(Uuid $userId, ?array $criteria = null): array;
 
     public function checkIsPostExists(Uuid $id): void;
 
@@ -33,4 +33,6 @@ interface PostRepository
     public function countByCriteria(array $criteria): int;
 
     public function findSharesQuantity(Uuid $id): int;
+
+    public function countFeed(Uuid $userId): int;
 }

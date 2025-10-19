@@ -22,6 +22,6 @@ final readonly class SearchMyFeedQueryHandler implements QueryHandler
     {
         $userId = new Uuid($query->id);
 
-        return $this->searcher->__invoke($userId);
+        return $this->searcher->__invoke($userId, $query->criteria);
     }
 }

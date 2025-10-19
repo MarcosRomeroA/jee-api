@@ -8,12 +8,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class SearchMyFeedController extends ApiController
 {
-    public function __invoke(string $sessionId): Response
+    public function __invoke(SearchMyFeedRequest $request, string $sessionId): Response
     {
-        $query = new SearchMyFeedQuery($sessionId);
+        $criteria = $request->q ?? null;
+
+        $query = new SearchMyFeedQuery($sessionId, $criteria);
 
         $response = $this->queryBus->ask($query);
 
-        return $this->successResponse($response);
+        return $this->collectionResponse($response);
     }
 }
