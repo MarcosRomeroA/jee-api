@@ -1,5 +1,37 @@
 services:
 
+  traefik:
+    container_name: jee_traefik
+    image: traefik:v2.10
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@jugaenequipo.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data/letsencrypt:/letsencrypt
+    networks:
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.jugaenequipo.com`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.service=api@internal"
+
   symfony:
     container_name: jee_symfony
     build:
@@ -15,6 +47,12 @@ services:
     networks:
       - internal
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.symfony.rule=Host(`api.jugaenequipo.com`)"
+      - "traefik.http.routers.symfony.entrypoints=websecure"
+      - "traefik.http.routers.symfony.tls.certresolver=letsencrypt"
+      - "traefik.http.services.symfony.loadbalancer.server.port=80"
 
   mariadb:
     container_name: jee_mariadb
@@ -30,23 +68,6 @@ services:
       - internal
     restart: unless-stopped
 
-  nginx-proxy-manager:
-    container_name: jee_npm
-    image: docker.io/jc21/nginx-proxy-manager:latest
-    restart: unless-stopped
-    ports:
-      - 80:80
-      - 443:443
-      - 81:81
-    volumes:
-      - ./data/npm:/data
-      - ./data/letsencrypt:/etc/letsencrypt
-    depends_on:
-      - symfony
-      - mariadb
-    networks:
-      - internal
-
   mercure:
     container_name: jee_mercure
     image: dunglas/mercure
@@ -58,13 +79,17 @@ services:
       MERCURE_EXTRA_DIRECTIVES: |
         cors_origins *
     command: /usr/bin/caddy run --config /etc/caddy/dev.Caddyfile
-    ports:
-      - "9090:80"
     volumes:
       - jee_mercure_data:/data
       - jee_mercure_config:/config
     networks:
       - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mercure.rule=Host(`mercure.jugaenequipo.com`)"
+      - "traefik.http.routers.mercure.entrypoints=websecure"
+      - "traefik.http.routers.mercure.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mercure.loadbalancer.server.port=80"
 
 networks:
   internal:
