@@ -37,6 +37,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: jee_symfony:latest        # ← agregado: nombre de la imagen construida
+    pull_policy: never
     environment:
       - TZ=${TZ}
     volumes:
