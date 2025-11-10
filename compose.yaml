@@ -1,8 +1,7 @@
 services:
-
   traefik:
     container_name: jee_traefik
-    image: traefik:v2.10
+    image: docker.io/library/traefik:v2.10
     restart: unless-stopped
     command:
       - "--api.dashboard=true"
@@ -21,7 +20,8 @@ services:
       - "443:443"
       - "8080:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # 👇 En Podman, exponé el socket de Podman como docker.sock
+      - /run/podman/podman.sock:/var/run/docker.sock:ro
       - ./data/letsencrypt:/letsencrypt
     networks:
       - internal
@@ -41,6 +41,7 @@ services:
       - TZ=${TZ}
     volumes:
       - ./docker/apache/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
+      # - .:/var/www/html   # si querés bind-mount del código
     depends_on:
       - mariadb
       - mercure
@@ -70,7 +71,7 @@ services:
 
   mercure:
     container_name: jee_mercure
-    image: dunglas/mercure
+    image: docker.io/dunglas/mercure:latest
     restart: unless-stopped
     environment:
       SERVER_NAME: ':80'
