@@ -17,14 +17,15 @@ RUN a2enmod rewrite
 # COPY php.ini
 COPY ./docker/php/php.ini /usr/local/etc/php/php.ini
 
-# Cambiar el puerto en el que Apache escucha
-RUN sed -i 's/Listen 80/Listen 8081/' /etc/apache2/ports.conf
-
 # Instalar Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 # Copiar vhost
 COPY ./docker/apache/vhost.conf /etc/apache2/sites-enabled/000-default.conf
+
+# Copiar entrypoint
+COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Copiar los archivos del proyecto Symfony al contenedor
 COPY . /var/www/html
@@ -35,8 +36,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 RUN chown -R www-data:www-data /var/www/html/var \
     && chmod -R 755 /var/www/html/var
 
-# Exponer el puerto 8081 para Apache
-EXPOSE 8081
+# Exponer el puerto 80 para Apache
+EXPOSE 80
 
-# Configurar el comando de inicio
+# Configurar el entrypoint y comando de inicio
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["apache2-foreground"]

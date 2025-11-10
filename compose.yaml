@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     command:
       - "--api.dashboard=true"
+      - "--api.insecure=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
@@ -15,10 +16,10 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--log.level=INFO"
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
     volumes:
       # 👇 En Podman, exponé el socket de Podman como docker.sock
       - /run/podman/podman.sock:/var/run/docker.sock:ro
@@ -27,10 +28,15 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      # Dashboard
       - "traefik.http.routers.traefik.rule=Host(`traefik.jugaenequipo.com`)"
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
       - "traefik.http.routers.traefik.service=api@internal"
+      # Autenticación básica para el dashboard (usuario: admin, password: changeme)
+      # Genera tu propia contraseña con: echo $(htpasswd -nb admin tu_password) | sed -e s/\\$/\\$\\$/g
+      - "traefik.http.routers.traefik.middlewares=traefik-auth"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$8evjzm8z$$Yf6VlVbhXj9M9v7qHJ5xN/"
 
   symfony:
     container_name: jee_symfony
