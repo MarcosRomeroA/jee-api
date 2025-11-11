@@ -1,13 +1,15 @@
 services:
   traefik:
     container_name: jee_traefik
-    image: docker.io/library/traefik:v2.10
+    image: traefik:v3.1
     restart: unless-stopped
+    environment:
+      - DOCKER_API_VERSION=1.44
     command:
       - "--api.dashboard=true"
       - "--api.insecure=false"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
@@ -21,8 +23,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      # 👇 En Podman, exponé el socket de Podman como docker.sock
-      - /run/podman/podman.sock:/var/run/docker.sock:ro
+      - ./docker/traefik:/etc/traefik/dynamic:ro
       - ./data/letsencrypt:/letsencrypt
     networks:
       - internal
