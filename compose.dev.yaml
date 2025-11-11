@@ -3,32 +3,55 @@ services:
   symfony:
     volumes:
       - .:/var/www/html
-      - ./docker/apache/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
     ports:
-      - "8200:8081"
+      - "8200:80"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   mariadb:
     ports:
       - "3336:3306"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  traefik:
+    # Deshabilitar en desarrollo (usamos puertos directos)
+    profiles:
+      - disabled
 
   mailpit:
-    image: axllent/mailpit
-    container_name: mailpit
+    image: axllent/mailpit:latest
+    container_name: jee_mailpit
     restart: unless-stopped
     volumes:
       - ./data/mailpit:/data
     ports:
-      - 8025:8025
-      - 1025:1025
+      - "8025:8025"
+      - "1025:1025"
     environment:
       MP_DATABASE: /data/mailpit.db
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
-
-  nginx-proxy-manager:
-    profiles:
-      - disabled
+    networks:
+      - internal
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   mercure:
     ports:
       - "9090:80"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+

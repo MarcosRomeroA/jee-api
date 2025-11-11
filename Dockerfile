@@ -1,27 +1,31 @@
-FROM php:8.3-apache-bookworm
+FROM php:8.3-fpm-alpine
 
-# Instalar la extensión XML y otras extensiones necesarias
-RUN apt-get update && apt-get install -y \
+# Instalar Nginx y extensiones PHP necesarias
+RUN apk add --no-cache \
+    nginx \
     libxml2-dev \
+    libzip-dev \
     unzip \
     git \
+    bash \
     && docker-php-ext-install xml \
-    && docker-php-ext-install pdo pdo_mysql
+    && docker-php-ext-install pdo pdo_mysql \
+    && docker-php-ext-install opcache \
+    && docker-php-ext-install zip
 
-# Estable la zona horaria
+# Establecer la zona horaria
 ENV TZ=${TZ}
 
-# Habilitar el módulo de reescritura de Apache
-RUN a2enmod rewrite
-
-# COPY php.ini
+# COPY php.ini y php-fpm.conf
 COPY ./docker/php/php.ini /usr/local/etc/php/php.ini
+COPY ./docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 
-# Instalar Composer
-COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
+# Copiar configuración de Nginx (Alpine usa http.d en lugar de sites-available)
+COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./docker/nginx/default.conf /etc/nginx/http.d/default.conf
 
-# Copiar vhost
-COPY ./docker/apache/vhost.conf /etc/apache2/sites-enabled/000-default.conf
+# Instalar Composer (usar versión Alpine)
+COPY --from=composer:2.6-alpine /usr/bin/composer /usr/bin/composer
 
 # Copiar entrypoint
 COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -33,12 +37,17 @@ COPY . /var/www/html
 # Instalar dependencias de composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
+# Configurar permisos y crear directorios necesarios
 RUN chown -R www-data:www-data /var/www/html/var \
-    && chmod -R 755 /var/www/html/var
+    && chmod -R 755 /var/www/html/var \
+    && chown -R www-data:www-data /var/www/html/public \
+    && mkdir -p /var/log/nginx /run/nginx \
+    && chown -R www-data:www-data /var/log/nginx \
+    && chown -R nginx:nginx /run/nginx
 
-# Exponer el puerto 80 para Apache
+# Exponer el puerto 80 para Nginx
 EXPOSE 80
 
 # Configurar el entrypoint y comando de inicio
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["apache2-foreground"]
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]

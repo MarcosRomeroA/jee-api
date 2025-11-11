@@ -11,6 +11,6 @@ php /var/www/html/bin/console lexik:jwt:generate-keypair --skip-if-exists
 echo "Ejecutando migraciones..."
 php /var/www/html/bin/console doctrine:migrations:migrate -n
 
-# Ejecutar el comando por defecto para iniciar Apache
-echo "Iniciando Apache..."
+# Ejecutar el comando por defecto para iniciar los servicios
+echo "Iniciando PHP-FPM y Nginx..."
 exec "$@"

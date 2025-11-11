@@ -1,15 +1,13 @@
 services:
   traefik:
     container_name: jee_traefik
-    image: traefik:v3.1
+    image: traefik:v3.1-alpine
     restart: unless-stopped
-    environment:
-      - DOCKER_API_VERSION=1.44
     command:
       - "--api.dashboard=true"
       - "--api.insecure=false"
-      - "--providers.file.directory=/etc/traefik/dynamic"
-      - "--providers.file.watch=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
@@ -23,7 +21,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./docker/traefik:/etc/traefik/dynamic:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./data/letsencrypt:/letsencrypt
     networks:
       - internal
@@ -38,19 +36,20 @@ services:
       # Genera tu propia contraseña con: echo $(htpasswd -nb admin tu_password) | sed -e s/\\$/\\$\\$/g
       - "traefik.http.routers.traefik.middlewares=traefik-auth"
       - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$8evjzm8z$$Yf6VlVbhXj9M9v7qHJ5xN/"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   symfony:
     container_name: jee_symfony
     build:
       context: .
       dockerfile: Dockerfile
-    image: jee_symfony:latest        # ← agregado: nombre de la imagen construida
-    pull_policy: never
+    image: jee_symfony:latest
     environment:
       - TZ=${TZ}
-    volumes:
-      - ./docker/apache/vhost.conf:/etc/apache2/sites-enabled/000-default.conf
-      # - .:/var/www/html   # si querés bind-mount del código
     depends_on:
       - mariadb
       - mercure
@@ -63,24 +62,36 @@ services:
       - "traefik.http.routers.symfony.entrypoints=websecure"
       - "traefik.http.routers.symfony.tls.certresolver=letsencrypt"
       - "traefik.http.services.symfony.loadbalancer.server.port=80"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   mariadb:
     container_name: jee_mariadb
-    image: lscr.io/linuxserver/mariadb:11.4.8
+    image: mariadb:11.4-alpine
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: jee
       MYSQL_USER: jee_user
       MYSQL_PASSWORD: jee_password
+      TZ: ${TZ}
     volumes:
-      - jee_mariadb_data:/config
+      - jee_mariadb_data:/var/lib/mysql
     networks:
       - internal
     restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   mercure:
     container_name: jee_mercure
-    image: docker.io/dunglas/mercure:latest
+    image: dunglas/mercure:v0.16-alpine
     restart: unless-stopped
     environment:
       SERVER_NAME: ':80'
@@ -100,6 +111,11 @@ services:
       - "traefik.http.routers.mercure.entrypoints=websecure"
       - "traefik.http.routers.mercure.tls.certresolver=letsencrypt"
       - "traefik.http.services.mercure.loadbalancer.server.port=80"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   internal:

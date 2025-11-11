@@ -1,1 +1,65 @@
+# Directorios de datos
 data/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+compose.yaml
+compose.dev.yaml
+Dockerfile
+.dockerignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+var/log/
+*.log
+
+# Cache
+var/cache/
+.phpunit.result.cache
+
+# Tests
+tests/
+behat.yml
+phpunit.xml.dist
+
+# Documentation
+README.md
+*.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Backups
+*.sql
+*.sql.gz
+backup_*
+
+# Scripts de migración
+migrate-to-alpine.sh
+
+# Node modules (si usas assets)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Composer local
+vendor/bin/.phpunit/
+
+# Apache (no se usa, usamos Nginx)
+.htaccess
+public/.htaccess
+
+# Otros
+.env.local
+.env.*.local
