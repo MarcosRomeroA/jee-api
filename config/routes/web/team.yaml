@@ -1,0 +1,48 @@
+create_team:
+  path: /team
+  controller: App\Apps\Web\Team\Create\CreateTeamController
+  methods: [ POST ]
+  defaults: { auth: true }
+
+update_team:
+  path: /team/{id}
+  controller: App\Apps\Web\Team\Update\UpdateTeamController
+  methods: [ PUT ]
+  defaults: { auth: true }
+
+find_team:
+  path: /team/{id}
+  controller: App\Apps\Web\Team\Find\FindTeamController
+  methods: [ GET ]
+  defaults: { auth: true }
+
+search_my_teams:
+  path: /my-teams
+  controller: App\Apps\Web\Team\SearchMyTeams\SearchMyTeamsController
+  methods: [ GET ]
+  defaults: { auth: true }
+
+search_teams:
+  path: /teams
+  controller: App\Apps\Web\Team\SearchTeams\SearchTeamsController
+  methods: [ GET ]
+  defaults: { auth: true }
+
+delete_team:
+  path: /team/{id}
+  controller: App\Apps\Web\Team\Delete\DeleteTeamController
+  methods: [ DELETE ]
+  defaults: { auth: true }
+
+team_request_access:
+  path: /team/{teamId}/request-access
+  controller: App\Apps\Web\Team\RequestAccess\TeamRequestAccessController
+  methods: [ POST ]
+  defaults: { auth: true }
+
+team_accept_request:
+  path: /team/request/{requestId}/accept
+  controller: App\Apps\Web\Team\AcceptRequest\TeamAcceptRequestController
+  methods: [ POST ]
+  defaults: { auth: true }
+

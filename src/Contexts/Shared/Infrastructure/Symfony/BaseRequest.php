@@ -6,6 +6,7 @@ use App\Contexts\Shared\Domain\Exception\ValidationException;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract readonly class BaseRequest
@@ -13,7 +14,10 @@ abstract readonly class BaseRequest
     /**
      * @throws ReflectionException
      */
-    public function __construct(protected ValidatorInterface $validator)
+    public function __construct(
+        protected ValidatorInterface $validator,
+        protected RequestStack $requestStack
+    )
     {
         $this->populate();
         $this->validate();
@@ -36,26 +40,26 @@ abstract readonly class BaseRequest
 
     public function getRequest(): array
     {
-        $request = Request::createFromGlobals();
+        $request = $this->requestStack->getCurrentRequest() ?? Request::createFromGlobals();
         $q = $this->getCriteria($request->query->get('q'));
 
         try{
-            $request = $request->toArray();
+            $requestData = $request->toArray();
             if ($q){
                 $q['limit'] = isset($q['limit']) ? (int)$q['limit'] : 10;
                 $q['offset'] = isset($q['offset']) ? (int)$q['offset'] : 0;
-                $request['q'] = $q;
+                $requestData['q'] = $q;
             }
-            return $request;
+            return $requestData;
         }
         catch (\Exception){
-            $request = [];
+            $requestData = [];
             if ($q){
                 $q['limit'] = isset($q['limit']) ? (int)$q['limit'] : 10;
                 $q['offset'] = isset($q['offset']) ? (int)$q['offset'] : 0;
-                $request['q'] = $q;
+                $requestData['q'] = $q;
             }
-            return $request;
+            return $requestData;
         }
     }
 

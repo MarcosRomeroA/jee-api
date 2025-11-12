@@ -11,6 +11,7 @@ final readonly class JwtAuthMiddleware
 {
     public function __construct(
         private JwtGenerator $jwtGenerator,
+        private string $environment,
     )
     {
     }
@@ -20,6 +21,11 @@ final readonly class JwtAuthMiddleware
         $request = $event->getRequest();
 
         $shouldAuthenticate = $event->getRequest()->attributes->get('auth', false);
+
+        // Desactivar autenticación en entorno de test
+        if ($this->environment === 'test') {
+            return;
+        }
 
         $jwtToken = $event->getRequest()->headers->get('Authorization');
 

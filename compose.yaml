@@ -47,7 +47,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: jee_symfony:latest
     environment:
       - TZ=${TZ}
     depends_on:
@@ -70,7 +69,7 @@ services:
 
   mariadb:
     container_name: jee_mariadb
-    image: mariadb:11.4-alpine
+    image: lscr.io/linuxserver/mariadb:latest
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: jee
@@ -78,11 +77,10 @@ services:
       MYSQL_PASSWORD: jee_password
       TZ: ${TZ}
     volumes:
-      - jee_mariadb_data:/var/lib/mysql
+      - jee_mariadb_data:/config
     networks:
       - internal
     restart: unless-stopped
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     logging:
       driver: "json-file"
       options:
@@ -91,7 +89,7 @@ services:
 
   mercure:
     container_name: jee_mercure
-    image: dunglas/mercure:v0.16-alpine
+    image: dunglas/mercure:latest
     restart: unless-stopped
     environment:
       SERVER_NAME: ':80'

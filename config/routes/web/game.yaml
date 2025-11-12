@@ -1,0 +1,12 @@
+search_games:
+  path: /games
+  controller: App\Apps\Web\Game\Search\SearchGamesController
+  methods: [ GET ]
+  defaults: { auth: true }
+
+find_game:
+  path: /game/{id}
+  controller: App\Apps\Web\Game\Find\FindGameController
+  methods: [ GET ]
+  defaults: { auth: true }
+

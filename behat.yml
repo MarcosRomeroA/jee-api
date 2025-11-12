@@ -4,6 +4,7 @@ default:
             paths: [ tests/Apps/Web ]
             contexts:
                 - App\Tests\Apps\Shared\Infrastructure\Behat\ApiContext
+                - App\Tests\Apps\Web\Player\PlayerTestContext
 
     extensions:
         FriendsOfBehat\SymfonyExtension:

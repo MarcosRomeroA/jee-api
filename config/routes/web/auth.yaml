@@ -7,3 +7,13 @@ refresh_token:
   path: /refresh-token
   controller: App\Apps\Web\Auth\Refresh\GetTokenByRefreshController
   methods: [ POST ]
+
+confirm_email:
+  path: /auth/confirm-email/{token}
+  controller: App\Apps\Web\User\ConfirmEmail\ConfirmEmailController
+  methods: [ GET ]
+
+resend_email_confirmation:
+  path: /auth/resend-confirmation
+  controller: App\Apps\Web\User\ResendEmailConfirmation\ResendEmailConfirmationController
+  methods: [ POST ]

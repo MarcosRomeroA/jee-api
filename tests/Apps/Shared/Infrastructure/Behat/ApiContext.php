@@ -89,11 +89,13 @@ final class ApiContext extends RawMinkContext
     public function theResponseStatusCodeShouldBe(mixed $expectedResponseCode): void
     {
         if ($this->minkSession->getStatusCode() !== (int) $expectedResponseCode) {
+            $responseContent = $this->minkSession->getPage()->getContent();
             throw new RuntimeException(
                 sprintf(
-                    'The status code <%s> does not match the expected <%s>',
+                    "The status code <%s> does not match the expected <%s>\nResponse: %s",
                     $this->minkSession->getStatusCode(),
-                    $expectedResponseCode
+                    $expectedResponseCode,
+                    $responseContent
                 )
             );
         }
