@@ -11,12 +11,52 @@ final class ApiContext extends RawMinkContext
 {
     private $sessionHelper;
     private $request;
+    private ?string $accessToken = null;
 
     public function __construct(private readonly Session $minkSession)
     {
         // Instanciar helpers con nombres totalmente cualificados para evitar problemas
         $this->sessionHelper = new \App\Tests\Behat\Shared\Infrastructure\Mink\MinkHelper($this->minkSession);
         $this->request = new \App\Tests\Behat\Shared\Infrastructure\Mink\MinkSessionRequestHelper(new \App\Tests\Behat\Shared\Infrastructure\Mink\MinkHelper($minkSession));
+    }
+
+    /**
+     * @Given I am authenticated as :email with password :password
+     */
+    public function iAmAuthenticatedAs(string $email, string $password): void
+    {
+        $body = json_encode([
+            'email' => $email,
+            'password' => $password
+        ]);
+
+        $this->sessionHelper->sendRequest(
+            'POST',
+            $this->locatePath('/api/login'),
+            ['CONTENT_TYPE' => 'application/json'],
+            $body
+        );
+
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        // La respuesta tiene estructura {"data": {"id": "...", "token": "...", ...}}
+        if (!isset($response['data']['token'])) {
+            throw new RuntimeException(
+                sprintf('Login failed. Response: %s', $this->sessionHelper->getResponse())
+            );
+        }
+
+        $this->accessToken = $response['data']['token'];
+        $this->request->setAuthToken($this->accessToken);
+    }
+
+    /**
+     * @Given I am not authenticated
+     */
+    public function iAmNotAuthenticated(): void
+    {
+        $this->accessToken = null;
+        $this->request->setAuthToken(null);
     }
 
     /**
@@ -269,6 +309,99 @@ final class ApiContext extends RawMinkContext
             throw new RuntimeException(
                 sprintf(
                     "The value of property '%s' is '%s', but expected '%s'",
+                    $property,
+                    $actualValue,
+                    $value
+                )
+            );
+        }
+    }
+
+    /**
+     * @Then I save the :property property as :variable
+     */
+    public function iSaveThePropertyAs(string $property, string $variable): void
+    {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!is_array($response)) {
+            throw new RuntimeException('Response is not a valid JSON object');
+        }
+
+        $value = null;
+        $found = false;
+
+        // Si la propiedad está anidada dentro de "data", buscar allí primero
+        if (array_key_exists('data', $response) && is_array($response['data'])) {
+            if (array_key_exists($property, $response['data'])) {
+                $value = $response['data'][$property];
+                $found = true;
+            }
+        }
+
+        // Si no está en "data", buscar en el nivel raíz
+        if (!$found && array_key_exists($property, $response)) {
+            $value = $response[$property];
+            $found = true;
+        }
+
+        if (!$found) {
+            throw new RuntimeException(
+                sprintf(
+                    "Response does not contain property '%s'. Response: %s",
+                    $property,
+                    json_encode($response)
+                )
+            );
+        }
+
+        // Guardar el valor en una variable de contexto (podríamos usar un array estático)
+        static $savedVariables = [];
+        $savedVariables[$variable] = $value;
+    }
+
+    /**
+     * @Then the response metadata should have :property property with value :value
+     */
+    public function theResponseMetadataShouldHavePropertyWithValue(string $property, string $value): void
+    {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!is_array($response)) {
+            throw new RuntimeException('Response is not a valid JSON object');
+        }
+
+        if (!array_key_exists('metadata', $response)) {
+            throw new RuntimeException(
+                sprintf(
+                    "Response does not contain 'metadata' field. Response: %s",
+                    json_encode($response)
+                )
+            );
+        }
+
+        if (!is_array($response['metadata'])) {
+            throw new RuntimeException('The "metadata" field must be an object');
+        }
+
+        if (!array_key_exists($property, $response['metadata'])) {
+            throw new RuntimeException(
+                sprintf(
+                    "Metadata does not contain property '%s'. Response: %s",
+                    $property,
+                    json_encode($response)
+                )
+            );
+        }
+
+        $actualValue = is_string($response['metadata'][$property])
+            ? $response['metadata'][$property]
+            : json_encode($response['metadata'][$property]);
+
+        if ($actualValue !== $value) {
+            throw new RuntimeException(
+                sprintf(
+                    "The value of metadata property '%s' is '%s', but expected '%s'",
                     $property,
                     $actualValue,
                     $value

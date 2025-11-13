@@ -26,7 +26,7 @@ class TeamRequest extends AggregateRoot
     #[ORM\Column(type: 'string', length: 20)]
     private string $status;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
     public function __construct(

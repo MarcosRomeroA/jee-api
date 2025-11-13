@@ -8,11 +8,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class TeamAcceptRequestController extends ApiController
 {
-    public function __invoke(string $requestId): Response
+    public function __invoke(string $requestId, string $sessionId): Response
     {
-        $acceptedByUserId = $this->getAuthenticatedUserId();
-
-        $command = new TeamAcceptRequestCommand($requestId, $acceptedByUserId);
+        $command = new TeamAcceptRequestCommand($requestId, $sessionId);
 
         $this->commandBus->dispatch($command);
 

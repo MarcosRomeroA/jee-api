@@ -8,7 +8,11 @@ interface GameRepository
 {
     public function save(Game $game): void;
 
-    public function findById(Uuid $id): ?Game;
+    /**
+     * @param Uuid $id
+     * @return Game
+     */
+    public function findById(Uuid $id): Game;
 
     public function findAll(): array;
 

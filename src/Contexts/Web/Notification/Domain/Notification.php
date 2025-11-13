@@ -32,11 +32,11 @@ class Notification extends AggregateRoot
     #[ORM\ManyToOne(targetEntity: Message::class)]
     private ?Message $message = null;
 
-    #[ORM\Column(type: 'datetime')]
-    private \DateTime $createdAt;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTime $readAt = null;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $readAt = null;
 
     public function __construct(
         Uuid $id,
@@ -53,7 +53,7 @@ class Notification extends AggregateRoot
         $this->user = $user;
         $this->post = $post;
         $this->message = $message;
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public static function create(
@@ -82,7 +82,7 @@ class Notification extends AggregateRoot
     public function markAsRead(): void
     {
         if ($this->readAt === null) {
-            $this->readAt = new \DateTime();
+            $this->readAt = new \DateTimeImmutable();
         }
     }
 
@@ -106,12 +106,12 @@ class Notification extends AggregateRoot
         return $this->post;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getReadAt(): ?\DateTime
+    public function getReadAt(): ?\DateTimeImmutable
     {
         return $this->readAt;
     }

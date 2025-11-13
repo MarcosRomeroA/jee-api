@@ -23,7 +23,7 @@ class TournamentTeam extends AggregateRoot
     #[ORM\JoinColumn(name: 'team_id', referencedColumnName: 'id', nullable: false)]
     private Team $team;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $registeredAt;
 
     public function __construct(

@@ -23,7 +23,7 @@ class TeamPlayer extends AggregateRoot
     #[ORM\JoinColumn(name: 'player_id', referencedColumnName: 'id', nullable: false)]
     private Player $player;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $joinedAt;
 
     public function __construct(

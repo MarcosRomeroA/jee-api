@@ -29,7 +29,7 @@ final class ConversationTestContext implements Context
     public function createTestData(): void
     {
         // Crear primer usuario (el que ejecuta los tests)
-        $user1 = new User(
+        $user1 = User::create(
             new Uuid('550e8400-e29b-41d4-a716-446655440001'),
             new FirstnameValue('John'),
             new LastnameValue('Doe'),
@@ -40,7 +40,7 @@ final class ConversationTestContext implements Context
         $this->entityManager->persist($user1);
 
         // Crear segundo usuario (con quien se conversa)
-        $user2 = new User(
+        $user2 = User::create(
             new Uuid('550e8400-e29b-41d4-a716-446655440002'),
             new FirstnameValue('Jane'),
             new LastnameValue('Smith'),
@@ -56,18 +56,20 @@ final class ConversationTestContext implements Context
         );
 
         // Agregar participantes a la conversación
-        $participant1 = new Participant(
+        $participant1 = Participant::create(
             new Uuid('550e8400-e29b-41d4-a716-446655440041'),
             $conversation,
-            $user1
+            $user1,
+            true
         );
         $conversation->addParticipant($participant1);
         $this->entityManager->persist($participant1);
 
-        $participant2 = new Participant(
+        $participant2 = Participant::create(
             new Uuid('550e8400-e29b-41d4-a716-446655440042'),
             $conversation,
-            $user2
+            $user2,
+            false
         );
         $conversation->addParticipant($participant2);
         $this->entityManager->persist($participant2);

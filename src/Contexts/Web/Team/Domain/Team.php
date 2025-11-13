@@ -32,7 +32,7 @@ class Team extends AggregateRoot
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $image;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
     /**

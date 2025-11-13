@@ -10,27 +10,27 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'tournament_status')]
 class TournamentStatus extends AggregateRoot
 {
-    public const CREATED = 'created';
-    public const ACTIVE = 'active';
-    public const DELETED = 'deleted';
-    public const ARCHIVED = 'archived';
-    public const FINALIZED = 'finalized';
-    public const SUSPENDED = 'suspended';
+    public const string CREATED = 'created';
+    public const string ACTIVE = 'active';
+    public const string DELETED = 'deleted';
+    public const string ARCHIVED = 'archived';
+    public const string FINALIZED = 'finalized';
+    public const string SUSPENDED = 'suspended';
 
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 50)]
-    private string $id;
+    #[ORM\Column(type: 'uuid', length: 36)]
+    private Uuid $id;
 
     #[ORM\Column(type: 'string', length: 50)]
     private string $name;
 
-    public function __construct(string $id, string $name)
+    public function __construct(Uuid $id, string $name)
     {
         $this->id = $id;
         $this->name = $name;
     }
 
-    public function id(): string
+    public function id(): Uuid
     {
         return $this->id;
     }
@@ -42,32 +42,32 @@ class TournamentStatus extends AggregateRoot
 
     public function isActive(): bool
     {
-        return $this->id === self::ACTIVE;
+        return $this->id->value() === self::ACTIVE;
     }
 
     public function isCreated(): bool
     {
-        return $this->id === self::CREATED;
+        return $this->id->value() === self::CREATED;
     }
 
     public function isDeleted(): bool
     {
-        return $this->id === self::DELETED;
+        return $this->id->value() === self::DELETED;
     }
 
     public function isFinalized(): bool
     {
-        return $this->id === self::FINALIZED;
+        return $this->id->value() === self::FINALIZED;
     }
 
     public function isSuspended(): bool
     {
-        return $this->id === self::SUSPENDED;
+        return $this->id->value() === self::SUSPENDED;
     }
 
     public function isArchived(): bool
     {
-        return $this->id === self::ARCHIVED;
+        return $this->id->value() === self::ARCHIVED;
     }
 }
 

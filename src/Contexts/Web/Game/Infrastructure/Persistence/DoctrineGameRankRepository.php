@@ -24,7 +24,7 @@ final class DoctrineGameRankRepository extends ServiceEntityRepository implement
 
     public function findById(Uuid $id): GameRank
     {
-        $gameRank = $this->findOneBy(["id" => $id]);
+        $gameRank = $this->findOneBy(["id" => $id->value()]);
 
         if (!$gameRank) {
             throw new GameRankNotFoundException($id->value());

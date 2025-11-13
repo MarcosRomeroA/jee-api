@@ -1,12 +1,6 @@
 create_team:
-  path: /team
-  controller: App\Apps\Web\Team\Create\CreateTeamController
-  methods: [ POST ]
-  defaults: { auth: true }
-
-update_team:
   path: /team/{id}
-  controller: App\Apps\Web\Team\Update\UpdateTeamController
+  controller: App\Apps\Web\Team\Create\CreateTeamController
   methods: [ PUT ]
   defaults: { auth: true }
 

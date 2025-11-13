@@ -23,13 +23,13 @@ class EmailConfirmation extends AggregateRoot
     #[Embedded(class: EmailConfirmationToken::class, columnPrefix: false)]
     private EmailConfirmationToken $token;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $expiresAt;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $confirmedAt;
 
     public function __construct(

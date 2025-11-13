@@ -11,14 +11,14 @@ final class SearchTeamsController extends ApiController
 {
     public function __invoke(Request $request): Response
     {
-        $query = $request->query->get('q');
-        $gameId = $request->query->get('gameId');
+        $input = SearchTeamsRequest::fromHttp($request);
+        $this->validateRequest($input);
 
-        $queryObject = new SearchTeamsQuery($query, $gameId);
+        $queryObject = $input->toQuery();
 
         $teamsResponse = $this->queryBus->ask($queryObject);
 
-        return $this->successResponse($teamsResponse->toArray());
+        return $this->collectionResponse($teamsResponse);
     }
 }
 

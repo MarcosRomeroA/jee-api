@@ -26,18 +26,20 @@ final class PlayerTestContext implements Context
     {
         // Crear un usuario de prueba para los tests
         // Los juegos, roles y ranks ya existen por las migraciones
-        $user = new User(
-            new Uuid('550e8400-e29b-41d4-a716-446655440001'),
-            new FirstnameValue('John'),
-            new LastnameValue('Doe'),
-            new UsernameValue('testuser'),
-            new EmailValue('test@example.com'),
-            new PasswordValue(password_hash('password123', PASSWORD_BCRYPT))
-        );
-        
+        $userId = '550e8400-e29b-41d4-a716-446655440001';
+
         // Verificar si el usuario ya existe antes de persistir
-        $existingUser = $this->entityManager->find(User::class, $user->id()->value());
+        $existingUser = $this->entityManager->find(User::class, $userId);
         if (!$existingUser) {
+            $user = User::create(
+                new Uuid($userId),
+                new FirstnameValue('John'),
+                new LastnameValue('Doe'),
+                new UsernameValue('testuser'),
+                new EmailValue('test@example.com'),
+                new PasswordValue(password_hash('password123', PASSWORD_BCRYPT))
+            );
+
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         }

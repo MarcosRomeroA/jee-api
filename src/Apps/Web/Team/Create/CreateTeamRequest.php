@@ -19,19 +19,24 @@ final readonly class CreateTeamRequest
 
         #[Assert\NotBlank]
         #[Assert\Type("string")]
+        public string $ownerId,
+
+        #[Assert\NotBlank]
+        #[Assert\Type("string")]
         public string $name,
 
         #[Assert\Type("string")]
         public ?string $image = null,
     ) {}
 
-    public static function fromHttp(Request $request): self
+    public static function fromHttp(Request $request, string $id): self
     {
         $data = json_decode($request->getContent(), true);
 
         return new self(
-            $data['id'] ?? '',
+            $id,
             $data['gameId'] ?? '',
+            $data['ownerId'] ?? '',
             $data['name'] ?? '',
             $data['image'] ?? null
         );
@@ -42,6 +47,7 @@ final readonly class CreateTeamRequest
         return new CreateTeamCommand(
             $this->id,
             $this->gameId,
+            $this->ownerId,
             $this->name,
             $this->image
         );

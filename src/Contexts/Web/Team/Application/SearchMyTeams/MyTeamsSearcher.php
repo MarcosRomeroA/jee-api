@@ -12,9 +12,24 @@ final class MyTeamsSearcher
     ) {
     }
 
-    public function search(Uuid $userId, ?string $query = null): array
+    public function search(
+        Uuid $userId,
+        ?string $query,
+        ?Uuid $gameId,
+        int $limit,
+        int $offset
+    ): array {
+        return $this->repository->searchMyTeamsWithPagination(
+            $userId,
+            $query,
+            $gameId,
+            $limit,
+            $offset
+        );
+    }
+
+    public function count(Uuid $userId, ?string $query, ?Uuid $gameId): int
     {
-        return $this->repository->searchByUser($userId, $query);
+        return $this->repository->countMyTeams($userId, $query, $gameId);
     }
 }
-

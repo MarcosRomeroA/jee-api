@@ -8,9 +8,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class CreateTeamController extends ApiController
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(string $id, Request $request): Response
     {
-        $input = CreateTeamRequest::fromHttp($request);
+        $input = CreateTeamRequest::fromHttp($request, $id);
         $this->validateRequest($input);
 
         $command = $input->toCommand();

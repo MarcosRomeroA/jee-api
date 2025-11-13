@@ -32,11 +32,9 @@ final class AuthTestContext implements Context
             new LastnameValue('User'),
             new UsernameValue('testuser'),
             new EmailValue(self::TEST_EMAIL),
-            new PasswordValue(self::TEST_PASSWORD)
+            new PasswordValue(password_hash(self::TEST_PASSWORD, PASSWORD_BCRYPT))
         );
 
-        // Confirmar email del usuario de prueba
-        $user->confirmEmail();
 
         $this->userRepository->save($user);
     }

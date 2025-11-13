@@ -26,51 +26,81 @@ final class TeamTestContext implements Context
     /** @BeforeScenario @team */
     public function createTestData(): void
     {
-        // Crear un usuario de prueba (owner)
-        $user = new User(
-            new Uuid('550e8400-e29b-41d4-a716-446655440001'),
-            new FirstnameValue('John'),
-            new LastnameValue('Doe'),
-            new UsernameValue('testuser'),
-            new EmailValue('test@example.com'),
-            new PasswordValue(password_hash('password123', PASSWORD_BCRYPT))
-        );
-        $this->entityManager->persist($user);
+        $userId = new Uuid('550e8400-e29b-41d4-a716-446655440001');
+        $gameId = new Uuid('550e8400-e29b-41d4-a716-446655440002');
+        $teamId = new Uuid('550e8400-e29b-41d4-a716-446655440060');
 
-        // Crear un juego de prueba
-        $game = new Game(
-            new Uuid('550e8400-e29b-41d4-a716-446655440002'),
-            'League of Legends',
-            'MOBA game',
-            5,
-            5
-        );
-        $this->entityManager->persist($game);
+        // Verificar si el usuario ya existe
+        $existingUser = $this->entityManager->find(User::class, $userId);
+        if (!$existingUser) {
+            // Crear usuario de test
+            // IMPORTANTE: PasswordValue hashea automáticamente, así que pasamos el plaintext
+            $user = User::create(
+                $userId,
+                new FirstnameValue('John'),
+                new LastnameValue('Doe'),
+                new UsernameValue('testuser'),
+                new EmailValue('test@example.com'),
+                new PasswordValue('password123')
+            );
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        } else {
+            $user = $existingUser;
+        }
 
-        // Crear un equipo de prueba
+        // Verificar si el juego ya existe
+        $existingGame = $this->entityManager->find(Game::class, $gameId);
+        if (!$existingGame) {
+            $game = new Game(
+                $gameId,
+                'League of Legends',
+                'MOBA game',
+                5,
+                5
+            );
+            $this->entityManager->persist($game);
+            $this->entityManager->flush();
+        } else {
+            $game = $existingGame;
+        }
+
+        // Limpiar equipos antiguos antes de crear uno nuevo
+        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Team\Domain\Team t WHERE t.id = :teamId')
+            ->setParameter('teamId', $teamId->value())
+            ->execute();
+
+        // Crear equipo de test
         $team = new Team(
-            new Uuid('550e8400-e29b-41d4-a716-446655440060'),
+            $teamId,
             $game,
             $user,
             'Test Gaming Team',
             'https://example.com/team-image.png'
         );
         $this->entityManager->persist($team);
-
         $this->entityManager->flush();
     }
 
     /** @AfterScenario @team */
     public function cleanupTestData(): void
     {
-        // Limpiar equipos (esto también limpiará team_players por cascade)
+        // Limpiar en orden inverso respetando las claves foráneas
+
+        // 1. Limpiar team_players primero
+        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Team\Domain\TeamPlayer')->execute();
+
+        // 2. Limpiar team_requests
+        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Team\Domain\TeamRequest')->execute();
+
+        // 3. Limpiar equipos
         $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Team\Domain\Team')->execute();
 
-        // Limpiar juegos
-        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Game\Domain\Game')->execute();
+        // NO eliminamos usuarios ni games porque pueden tener otras dependencias (messages, posts, etc)
+        // Los datos de test se mantienen entre escenarios
 
-        // Limpiar usuarios
-        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\User\Domain\User')->execute();
+        $this->entityManager->flush();
+        $this->entityManager->clear();
     }
 }
 

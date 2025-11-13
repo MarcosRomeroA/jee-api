@@ -17,10 +17,6 @@ final class TeamDeleter
     {
         $team = $this->repository->findById($id);
 
-        if ($team === null) {
-            throw new TeamNotFoundException($id->value());
-        }
-
         $this->repository->delete($team);
     }
 }

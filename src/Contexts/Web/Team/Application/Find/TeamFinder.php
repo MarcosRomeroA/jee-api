@@ -3,7 +3,6 @@
 namespace App\Contexts\Web\Team\Application\Find;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Team\Domain\Exception\TeamNotFoundException;
 use App\Contexts\Web\Team\Domain\Team;
 use App\Contexts\Web\Team\Domain\TeamRepository;
 
@@ -16,13 +15,7 @@ final class TeamFinder
 
     public function find(Uuid $id): Team
     {
-        $team = $this->repository->findById($id);
-
-        if ($team === null) {
-            throw new TeamNotFoundException($id->value());
-        }
-
-        return $team;
+        return $this->repository->findById($id);
     }
 }
 

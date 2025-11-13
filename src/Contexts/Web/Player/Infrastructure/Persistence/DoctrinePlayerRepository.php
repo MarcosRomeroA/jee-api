@@ -3,6 +3,7 @@
 namespace App\Contexts\Web\Player\Infrastructure\Persistence;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Player\Domain\Exception\PlayerNotFoundException;
 use App\Contexts\Web\Player\Domain\Player;
 use App\Contexts\Web\Player\Domain\PlayerRepository;
 use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
@@ -22,9 +23,15 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
         $this->getEntityManager()->flush();
     }
 
-    public function findById(Uuid $id): ?Player
+    public function findById(Uuid $id): Player
     {
-        return $this->findOneBy(["id" => $id]);
+        $player = $this->findOneBy(["id" => $id->value()]);
+
+        if ($player === null) {
+            throw new PlayerNotFoundException($id->value());
+        }
+
+        return $player;
     }
 
     public function findByUserId(Uuid $userId): array

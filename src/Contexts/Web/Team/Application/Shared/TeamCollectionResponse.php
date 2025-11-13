@@ -10,7 +10,10 @@ final class TeamCollectionResponse extends Response
      * @param TeamResponse[] $teams
      */
     public function __construct(
-        public readonly array $teams
+        public readonly array $teams,
+        public readonly int $total = 0,
+        public readonly int $limit = 20,
+        public readonly int $offset = 0
     ) {
     }
 
@@ -24,10 +27,10 @@ final class TeamCollectionResponse extends Response
         return [
             'data' => $data,
             'metadata' => [
-                'total' => count($this->teams),
+                'total' => $this->total,
                 'count' => count($this->teams),
-                'limit' => 0,
-                'offset' => 0
+                'limit' => $this->limit,
+                'offset' => $this->offset
             ]
         ];
     }

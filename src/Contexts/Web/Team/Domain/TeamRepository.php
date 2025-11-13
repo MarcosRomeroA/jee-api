@@ -3,12 +3,13 @@
 namespace App\Contexts\Web\Team\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Game\Domain\Game;
 
 interface TeamRepository
 {
     public function save(Team $team): void;
 
-    public function findById(Uuid $id): ?Team;
+    public function findById(Uuid $id): Team;
 
     public function findByOwnerId(Uuid $ownerId): array;
 
@@ -37,4 +38,3 @@ interface TeamRepository
 
     public function countMyTeams(Uuid $userId, ?string $query, ?Uuid $gameId): int;
 }
-

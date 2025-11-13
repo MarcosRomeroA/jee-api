@@ -8,7 +8,10 @@ final readonly class SearchMyTeamsQuery implements Query
 {
     public function __construct(
         public string $ownerId,
-        public ?string $query = null
+        public ?string $query = null,
+        public ?string $gameId = null,
+        public int $limit = 20,
+        public int $offset = 0
     ) {
     }
 }

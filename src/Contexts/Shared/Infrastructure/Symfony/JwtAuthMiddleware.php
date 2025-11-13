@@ -22,11 +22,6 @@ final readonly class JwtAuthMiddleware
 
         $shouldAuthenticate = $event->getRequest()->attributes->get('auth', false);
 
-        // Desactivar autenticación en entorno de test
-        if ($this->environment === 'test') {
-            return;
-        }
-
         $jwtToken = $event->getRequest()->headers->get('Authorization');
 
         if (!$shouldAuthenticate)

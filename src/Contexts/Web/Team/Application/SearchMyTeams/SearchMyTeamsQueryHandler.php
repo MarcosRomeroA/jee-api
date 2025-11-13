@@ -7,26 +7,33 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Application\Shared\TeamCollectionResponse;
 use App\Contexts\Web\Team\Application\Shared\TeamResponse;
 
-final class SearchMyTeamsQueryHandler implements QueryHandler
+final readonly class SearchMyTeamsQueryHandler implements QueryHandler
 {
     public function __construct(
-        private readonly MyTeamsSearcher $searcher
+        private MyTeamsSearcher $searcher,
     ) {
     }
 
     public function __invoke(SearchMyTeamsQuery $query): TeamCollectionResponse
     {
+        $userId = new Uuid($query->ownerId);
+        $gameId = $query->gameId ? new Uuid($query->gameId) : null;
+
         $teams = $this->searcher->search(
-            new Uuid($query->ownerId),
-            $query->query
+            $userId,
+            $query->query,
+            $gameId,
+            $query->limit,
+            $query->offset
         );
 
-        $teamsResponse = array_map(
-            static fn($team) => TeamResponse::fromTeam($team),
-            $teams
-        );
+        $total = $this->searcher->count($userId, $query->query, $gameId);
 
-        return new TeamCollectionResponse($teamsResponse);
+        $teamsResponse = !empty($teams)
+            ? array_map(static fn($team) => TeamResponse::fromTeam($team), $teams)
+            : [];
+
+
+        return new TeamCollectionResponse($teamsResponse, $total, $query->limit, $query->offset);
     }
 }
-

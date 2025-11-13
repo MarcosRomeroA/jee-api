@@ -5,10 +5,10 @@ namespace App\Contexts\Web\Team\Application\Delete;
 use App\Contexts\Shared\Domain\CQRS\Command\CommandHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 
-final class DeleteTeamCommandHandler implements CommandHandler
+final readonly class DeleteTeamCommandHandler implements CommandHandler
 {
     public function __construct(
-        private readonly TeamDeleter $deleter
+        private TeamDeleter $deleter
     ) {
     }
 

@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class TeamRequestAccessController extends ApiController
 {
-    public function __invoke(string $teamId, Request $request): Response
+    public function __invoke(Request $request, string $teamId): Response
     {
         $input = TeamRequestAccessRequest::fromHttp($request, $teamId);
         $this->validateRequest($input);

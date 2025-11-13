@@ -3,6 +3,7 @@
 namespace App\Contexts\Web\Game\Infrastructure\Persistence;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Game\Domain\Exception\GameNotFoundException;
 use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\Game\Domain\GameRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -21,13 +22,15 @@ final class DoctrineGameRepository extends ServiceEntityRepository implements Ga
         $this->getEntityManager()->flush();
     }
 
-    public function findById(Uuid $id): ?Game
+    public function findById(Uuid $id): Game
     {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.id = :id')
-            ->setParameter('id', $id->value())
-            ->getQuery()
-            ->getOneOrNullResult();
+        $game = $this->findOneBy(['id' => $id]);
+
+        if (!$game){
+            throw new GameNotFoundException($id->value());
+        }
+
+        return $game;
     }
 
     public function findAll(): array

@@ -3,12 +3,15 @@
 namespace App\Contexts\Web\Team\Infrastructure\Persistence;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Game\Domain\Game;
+use App\Contexts\Web\Team\Domain\Exception\TeamNotFoundException;
 use App\Contexts\Web\Team\Domain\Team;
 use App\Contexts\Web\Team\Domain\TeamRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineTeamRepository extends ServiceEntityRepository implements TeamRepository
+final class MysqlTeamRepository extends ServiceEntityRepository implements TeamRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -21,9 +24,15 @@ final class DoctrineTeamRepository extends ServiceEntityRepository implements Te
         $this->getEntityManager()->flush();
     }
 
-    public function findById(Uuid $id): ?Team
+    public function findById(Uuid $id): Team
     {
-        return $this->find($id->value());
+        $team = $this->findOneBy(['id' => $id->value()]);
+
+        if (!$team) {
+            throw new TeamNotFoundException($id->value());
+        }
+
+        return $team;
     }
 
     public function findByOwnerId(Uuid $ownerId): array
@@ -69,7 +78,8 @@ final class DoctrineTeamRepository extends ServiceEntityRepository implements Te
         }
 
         if ($gameId !== null) {
-            $qb->andWhere('t.gameId = :gameId')
+            $qb->join('t.game', 'g')
+               ->andWhere('g.id = :gameId')
                ->setParameter('gameId', $gameId->value());
         }
 
@@ -84,17 +94,28 @@ final class DoctrineTeamRepository extends ServiceEntityRepository implements Te
         $qb = $this->createQueryBuilder('t')
             ->select('COUNT(t.id)');
 
+        // Hacer join solo si es necesario
+        if ($gameId !== null) {
+            $qb->join('t.game', 'g');
+        }
+
         if ($query !== null) {
             $qb->andWhere('t.name LIKE :query')
                ->setParameter('query', '%' . $query . '%');
         }
 
         if ($gameId !== null) {
-            $qb->andWhere('t.gameId = :gameId')
+            $qb->andWhere('g.id = :gameId')
                ->setParameter('gameId', $gameId->value());
         }
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        try {
+            $result = $qb->getQuery()->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            $result = 0;
+        }
+
+        return (int) $result;
     }
 
     public function searchMyTeamsWithPagination(
@@ -105,7 +126,8 @@ final class DoctrineTeamRepository extends ServiceEntityRepository implements Te
         int $offset
     ): array {
         $qb = $this->createQueryBuilder('t')
-            ->andWhere('t.ownerId = :userId')
+            ->join('t.owner', 'u')
+            ->andWhere('u.id = :userId')
             ->setParameter('userId', $userId->value());
 
         if ($query !== null) {
@@ -114,7 +136,8 @@ final class DoctrineTeamRepository extends ServiceEntityRepository implements Te
         }
 
         if ($gameId !== null) {
-            $qb->andWhere('t.gameId = :gameId')
+            $qb->join('t.game', 'g')
+               ->andWhere('g.id = :gameId')
                ->setParameter('gameId', $gameId->value());
         }
 
@@ -128,20 +151,27 @@ final class DoctrineTeamRepository extends ServiceEntityRepository implements Te
     {
         $qb = $this->createQueryBuilder('t')
             ->select('COUNT(t.id)')
-            ->andWhere('t.ownerId = :userId')
+            ->join('t.owner', 'u')
+            ->andWhere('u.id = :userId')
             ->setParameter('userId', $userId->value());
 
         if ($query !== null) {
             $qb->andWhere('t.name LIKE :query')
-               ->setParameter('query', '%' . $query . '%');
+                ->setParameter('query', '%' . $query . '%');
         }
 
         if ($gameId !== null) {
-            $qb->andWhere('t.gameId = :gameId')
+            $qb->join('t.game', 'g')
+               ->andWhere('g.id = :gameId')
                ->setParameter('gameId', $gameId->value());
         }
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        try {
+            $result = $qb->getQuery()->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            $result = 0;
+        }
+
+        return (int) $result;
     }
 }
-

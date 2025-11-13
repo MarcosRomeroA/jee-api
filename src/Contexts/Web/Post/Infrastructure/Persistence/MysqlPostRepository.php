@@ -48,7 +48,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
         return $post;
     }
 
-            public function searchFeed(Uuid $userId, ?array $criteria = null): array
+    public function searchFeed(Uuid $userId, ?array $criteria = null): array
     {
         $qb = $this
             ->createQueryBuilder('p')

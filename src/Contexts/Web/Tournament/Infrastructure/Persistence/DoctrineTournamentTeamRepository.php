@@ -46,6 +46,19 @@ final class DoctrineTournamentTeamRepository extends ServiceEntityRepository imp
             ->getResult();
     }
 
+    public function findByUserId(Uuid $userId): array
+    {
+        return $this->createQueryBuilder('tt')
+            ->select('tt')
+            ->join('tt.team', 't')
+            ->join('t.teamPlayers', 'tp')
+            ->join('tp.player', 'p')
+            ->where('p.user = :userId')
+            ->setParameter('userId', $userId->value())
+            ->getQuery()
+            ->getResult();
+    }
+
     public function delete(TournamentTeam $tournamentTeam): void
     {
         $this->getEntityManager()->remove($tournamentTeam);

@@ -27,7 +27,7 @@ final class PostTestContext implements Context
     public function createTestData(): void
     {
         // Crear un usuario de prueba
-        $user = new User(
+        $user = User::create(
             new Uuid('550e8400-e29b-41d4-a716-446655440001'),
             new FirstnameValue('John'),
             new LastnameValue('Doe'),

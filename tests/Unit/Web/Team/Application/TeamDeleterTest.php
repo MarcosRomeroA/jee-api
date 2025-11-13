@@ -48,7 +48,7 @@ final class TeamDeleterTest extends TestCase
             ->expects($this->once())
             ->method('findById')
             ->with($id)
-            ->willReturn(null);
+            ->willThrowException(new TeamNotFoundException($id->value()));
 
         $this->expectException(TeamNotFoundException::class);
 

@@ -5,10 +5,10 @@ namespace App\Contexts\Web\Team\Application\Create;
 use App\Contexts\Shared\Domain\CQRS\Command\CommandHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 
-final class CreateTeamCommandHandler implements CommandHandler
+final readonly class CreateTeamCommandHandler implements CommandHandler
 {
     public function __construct(
-        private readonly TeamCreator $creator
+        private TeamCreator $creator
     ) {
     }
 

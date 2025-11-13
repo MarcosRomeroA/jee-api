@@ -24,15 +24,9 @@ final class TeamAccessRequester
     {
         // Verificar que existe el equipo
         $team = $this->teamRepository->findById($teamId);
-        if ($team === null) {
-            throw new TeamNotFoundException($teamId->value());
-        }
 
         // Verificar que existe el jugador
         $player = $this->playerRepository->findById($playerId);
-        if ($player === null) {
-            throw new PlayerNotFoundException($playerId->value());
-        }
 
         // Verificar que no existe una solicitud pendiente
         $existingRequest = $this->teamRequestRepository->findPendingByTeamAndPlayer($teamId, $playerId);
@@ -45,7 +39,6 @@ final class TeamAccessRequester
             Uuid::random(),
             $team,
             $player,
-            'pending'
         );
 
         $this->teamRequestRepository->save($request);

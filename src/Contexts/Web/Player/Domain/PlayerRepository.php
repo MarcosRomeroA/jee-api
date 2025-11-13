@@ -9,7 +9,7 @@ interface PlayerRepository
 {
     public function save(Player $player): void;
 
-    public function findById(Uuid $id): ?Player;
+    public function findById(Uuid $id): Player;
 
     public function findByUserId(Uuid $userId): array;
 

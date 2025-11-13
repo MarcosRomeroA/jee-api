@@ -24,7 +24,7 @@ final class DoctrineGameRoleRepository extends ServiceEntityRepository implement
 
     public function findById(Uuid $id): GameRole
     {
-        $gameRole = $this->findOneBy(["id" => $id]);
+        $gameRole = $this->findOneBy(["id" => $id->value()]);
 
         if (!$gameRole) {
             throw new GameRoleNotFoundException($id->value());

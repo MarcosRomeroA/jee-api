@@ -1,0 +1,28 @@
+@user
+Feature: Follow User
+  In order to stay updated with other users
+  As an authenticated user
+  I want to follow other users
+
+  Scenario: Successfully follow a user
+    Given I send a PUT request to "/api/user/550e8400-e29b-41d4-a716-446655440002/follow" with body:
+      """
+      {}
+      """
+    Then the response status code should be 200
+    And the response should be empty
+
+  Scenario: Follow non-existent user
+    Given I send a PUT request to "/api/user/999e9999-e99b-99d9-a999-999999999999/follow" with body:
+      """
+      {}
+      """
+    Then the response status code should be 404
+
+  Scenario: Follow user with invalid id format
+    Given I send a PUT request to "/api/user/invalid-id/follow" with body:
+      """
+      {}
+      """
+    Then the response status code should be 400
+

@@ -2,19 +2,27 @@
 
 namespace App\Contexts\Web\Team\Application\SearchTeams;
 
-use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\TeamRepository;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
 
-final readonly class TeamsSearcher
+final class TeamsSearcher
 {
     public function __construct(
-        private TeamRepository $repository
+        private readonly TeamRepository $repository
     ) {
     }
 
-    public function search(?string $query = null, ?Uuid $gameId = null): array
+    public function search(
+        ?string $query,
+        ?Uuid $gameId,
+        int $limit,
+        int $offset
+    ): array {
+        return $this->repository->searchWithPagination($query, $gameId, $limit, $offset);
+    }
+
+    public function count(?string $query, ?Uuid $gameId): int
     {
-        return $this->repository->search($query, $gameId);
+        return $this->repository->countSearch($query, $gameId);
     }
 }
-
