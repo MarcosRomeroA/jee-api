@@ -26,12 +26,15 @@ final class CreatePlayerCommandHandler implements CommandHandler
 
     public function __invoke(CreatePlayerCommand $command): void
     {
+        $gameRoleIds = array_map(fn(string $id) => new Uuid($id), $command->gameRoleIds);
+        $gameRankId = $command->gameRankId !== null ? new Uuid($command->gameRankId) : null;
+
         $this->creator->create(
             new Uuid($command->id),
             new Uuid($command->userId),
             new Uuid($command->gameId),
-            new Uuid($command->gameRoleId),
-            new Uuid($command->gameRankId),
+            $gameRoleIds,
+            $gameRankId,
             new UsernameValue($command->username)
         );
     }

@@ -13,14 +13,18 @@ final class PlayerMother
         ?string $username = null,
         ?bool $verified = null
     ): Player {
-        return new Player(
+        $player = new Player(
             $id ?? Uuid::random(),
             UserMother::random(),
-            GameRoleMother::random(),
-            GameRankMother::random(),
             new UsernameValue($username ?? 'TestPlayer'),
+            GameRankMother::random(),
             $verified ?? false
         );
+        
+        // Add a default role
+        $player->addRole(GameRoleMother::random());
+        
+        return $player;
     }
 
     public static function random(): Player

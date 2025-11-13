@@ -14,11 +14,14 @@ final class UpdatePlayerCommandHandler implements CommandHandler
 
     public function __invoke(UpdatePlayerCommand $command): void
     {
+        $gameRoleIds = array_map(fn(string $id) => new Uuid($id), $command->gameRoleIds);
+        $gameRankId = $command->gameRankId !== null ? new Uuid($command->gameRankId) : null;
+
         $this->updater->update(
             new Uuid($command->id),
             $command->username,
-            new Uuid($command->gameRoleId),
-            new Uuid($command->gameRankId)
+            $gameRoleIds,
+            $gameRankId
         );
     }
 }

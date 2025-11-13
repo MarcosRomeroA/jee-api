@@ -44,12 +44,14 @@ final class PlayerCreatorTest extends TestCase
         $id = Uuid::random();
         $userId = Uuid::random();
         $gameId = Uuid::random();
-        $gameRoleId = Uuid::random();
+        $gameRoleId1 = Uuid::random();
+        $gameRoleId2 = Uuid::random();
         $gameRankId = Uuid::random();
         $username = new UsernameValue('ProGamer123');
 
         $user = UserMother::create($userId);
-        $gameRole = GameRoleMother::create($gameRoleId);
+        $gameRole1 = GameRoleMother::create($gameRoleId1);
+        $gameRole2 = GameRoleMother::create($gameRoleId2);
         $gameRank = GameRankMother::create($gameRankId);
 
         $this->userRepository
@@ -59,9 +61,9 @@ final class PlayerCreatorTest extends TestCase
             ->willReturn($user);
 
         $this->entityManager
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method('getReference')
-            ->willReturnOnConsecutiveCalls($gameRole, $gameRank);
+            ->willReturnOnConsecutiveCalls($gameRank, $gameRole1, $gameRole2);
 
         $this->playerRepository
             ->expects($this->once())
@@ -69,10 +71,11 @@ final class PlayerCreatorTest extends TestCase
             ->with($this->callback(function (Player $player) use ($id, $username) {
                 return $player->id()->equals($id)
                     && $player->username()->value() === $username->value()
-                    && $player->verified() === false;
+                    && $player->verified() === false
+                    && count($player->playerRoles()) === 2;
             }));
 
-        $this->creator->create($id, $userId, $gameId, $gameRoleId, $gameRankId, $username);
+        $this->creator->create($id, $userId, $gameId, [$gameRoleId1, $gameRoleId2], $gameRankId, $username);
     }
 
     public function testItShouldThrowExceptionWhenUserNotFound(): void
@@ -92,7 +95,7 @@ final class PlayerCreatorTest extends TestCase
 
         $this->expectException(UserNotFoundException::class);
 
-        $this->creator->create($id, $userId, $gameId, $gameRoleId, $gameRankId, $username);
+        $this->creator->create($id, $userId, $gameId, [$gameRoleId], $gameRankId, $username);
     }
 }
 

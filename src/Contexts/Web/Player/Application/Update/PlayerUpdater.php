@@ -20,32 +20,44 @@ final class PlayerUpdater
     ) {
     }
 
+    /**
+     * @param array<Uuid> $gameRoleIds
+     */
     public function update(
         Uuid $id,
         string $username,
-        Uuid $gameRoleId,
-        Uuid $gameRankId
+        array $gameRoleIds,
+        ?Uuid $gameRankId
     ): void {
         $player = $this->repository->findById($id);
         if ($player === null) {
             throw new PlayerNotFoundException($id->value());
         }
 
-        $gameRole = $this->entityManager->getReference(GameRole::class, $gameRoleId->value());
-        if ($gameRole === null) {
-            throw new GameRoleNotFoundException($gameRoleId->value());
+        // Obtener GameRank si se proporciona
+        $gameRank = null;
+        if ($gameRankId !== null) {
+            $gameRank = $this->entityManager->getReference(GameRank::class, $gameRankId->value());
+            if ($gameRank === null) {
+                throw new GameRankNotFoundException($gameRankId->value());
+            }
         }
 
-        $gameRank = $this->entityManager->getReference(GameRank::class, $gameRankId->value());
-        if ($gameRank === null) {
-            throw new GameRankNotFoundException($gameRankId->value());
-        }
-
+        // Actualizar datos básicos
         $player->update(
             new UsernameValue($username),
-            $gameRole,
             $gameRank
         );
+
+        // Actualizar roles - limpiar roles existentes y agregar los nuevos
+        $player->clearRoles();
+        foreach ($gameRoleIds as $gameRoleId) {
+            $gameRole = $this->entityManager->getReference(GameRole::class, $gameRoleId->value());
+            if ($gameRole === null) {
+                throw new GameRoleNotFoundException($gameRoleId->value());
+            }
+            $player->addRole($gameRole);
+        }
 
         $this->repository->save($player);
     }

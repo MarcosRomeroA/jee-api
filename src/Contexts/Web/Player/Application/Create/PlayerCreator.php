@@ -25,12 +25,15 @@ final class PlayerCreator
     ) {
     }
 
+    /**
+     * @param array<Uuid> $gameRoleIds
+     */
     public function create(
         Uuid $id,
         Uuid $userId,
         Uuid $gameId,
-        Uuid $gameRoleId,
-        Uuid $gameRankId,
+        array $gameRoleIds,
+        ?Uuid $gameRankId,
         UsernameValue $username
     ): void {
         // Verificar que existe el usuario
@@ -39,27 +42,32 @@ final class PlayerCreator
             throw new UserNotFoundException($userId->value());
         }
 
-        // Obtener GameRole
-        $gameRole = $this->entityManager->getReference(GameRole::class, $gameRoleId->value());
-        if ($gameRole === null) {
-            throw new GameRoleNotFoundException($gameRoleId->value());
-        }
-
-        // Obtener GameRank
-        $gameRank = $this->entityManager->getReference(GameRank::class, $gameRankId->value());
-        if ($gameRank === null) {
-            throw new GameRankNotFoundException($gameRankId->value());
+        // Obtener GameRank si se proporciona
+        $gameRank = null;
+        if ($gameRankId !== null) {
+            $gameRank = $this->entityManager->getReference(GameRank::class, $gameRankId->value());
+            if ($gameRank === null) {
+                throw new GameRankNotFoundException($gameRankId->value());
+            }
         }
 
         // Crear player sin verificar
         $player = new Player(
             $id,
             $user,
-            $gameRole,
-            $gameRank,
             $username,
+            $gameRank,
             false
         );
+
+        // Agregar roles
+        foreach ($gameRoleIds as $gameRoleId) {
+            $gameRole = $this->entityManager->getReference(GameRole::class, $gameRoleId->value());
+            if ($gameRole === null) {
+                throw new GameRoleNotFoundException($gameRoleId->value());
+            }
+            $player->addRole($gameRole);
+        }
 
         $this->playerRepository->save($player);
 

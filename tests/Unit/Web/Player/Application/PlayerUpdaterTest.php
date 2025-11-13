@@ -30,11 +30,13 @@ final class PlayerUpdaterTest extends TestCase
     {
         $id = Uuid::random();
         $newUsername = 'UpdatedGamer456';
-        $newGameRoleId = Uuid::random();
+        $newGameRoleId1 = Uuid::random();
+        $newGameRoleId2 = Uuid::random();
         $newGameRankId = Uuid::random();
 
         $player = PlayerMother::create($id);
-        $gameRole = GameRoleMother::create($newGameRoleId);
+        $gameRole1 = GameRoleMother::create($newGameRoleId1);
+        $gameRole2 = GameRoleMother::create($newGameRoleId2);
         $gameRank = GameRankMother::create($newGameRankId);
 
         $this->repository
@@ -44,16 +46,16 @@ final class PlayerUpdaterTest extends TestCase
             ->willReturn($player);
 
         $this->entityManager
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method('getReference')
-            ->willReturnOnConsecutiveCalls($gameRole, $gameRank);
+            ->willReturnOnConsecutiveCalls($gameRank, $gameRole1, $gameRole2);
 
         $this->repository
             ->expects($this->once())
             ->method('save')
             ->with($player);
 
-        $this->updater->update($id, $newUsername, $newGameRoleId, $newGameRankId);
+        $this->updater->update($id, $newUsername, [$newGameRoleId1, $newGameRoleId2], $newGameRankId);
     }
 
     public function testItShouldThrowExceptionWhenPlayerNotFound(): void
@@ -68,7 +70,7 @@ final class PlayerUpdaterTest extends TestCase
 
         $this->expectException(PlayerNotFoundException::class);
 
-        $this->updater->update($id, 'NewUsername', Uuid::random(), Uuid::random());
+        $this->updater->update($id, 'NewUsername', [Uuid::random()], Uuid::random());
     }
 }
 

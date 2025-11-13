@@ -17,28 +17,26 @@ final class PlayerTest extends TestCase
         $player = new Player(
             $id,
             UserMother::random(),
-            GameRoleMother::random(),
-            GameRankMother::random(),
             new UsernameValue($username),
+            GameRankMother::random(),
             false
         );
 
         $this->assertEquals($id, $player->id());
         $this->assertEquals($username, $player->username()->value());
         $this->assertFalse($player->verified());
+        $this->assertCount(0, $player->playerRoles()); // No roles initially
     }
 
     public function testItShouldUpdatePlayer(): void
     {
         $player = PlayerMother::create();
         $newUsername = new UsernameValue('UpdatedGamer456');
-        $newGameRole = GameRoleMother::random();
         $newGameRank = GameRankMother::random();
 
-        $player->update($newUsername, $newGameRole, $newGameRank);
+        $player->update($newUsername, $newGameRank);
 
         $this->assertEquals($newUsername->value(), $player->username()->value());
-        $this->assertEquals($newGameRole, $player->gameRole());
         $this->assertEquals($newGameRank, $player->gameRank());
     }
 
@@ -49,6 +47,53 @@ final class PlayerTest extends TestCase
         $player->verify();
 
         $this->assertTrue($player->verified());
+    }
+
+    public function testItShouldAddRole(): void
+    {
+        $player = PlayerMother::create();
+        $gameRole = GameRoleMother::random();
+
+        $player->addRole($gameRole);
+
+        $this->assertCount(2, $player->playerRoles()); // 1 from mother + 1 added
+        $this->assertContains($gameRole, $player->gameRoles());
+    }
+
+    public function testItShouldNotAddDuplicateRole(): void
+    {
+        $player = PlayerMother::create();
+        $gameRole = GameRoleMother::random();
+
+        $player->addRole($gameRole);
+        $player->addRole($gameRole); // Try to add again
+
+        $this->assertCount(2, $player->playerRoles()); // Still only 2 roles
+    }
+
+    public function testItShouldRemoveRole(): void
+    {
+        $player = PlayerMother::create();
+        $gameRole = GameRoleMother::random();
+        $player->addRole($gameRole);
+
+        $this->assertCount(2, $player->playerRoles());
+
+        $player->removeRole($gameRole);
+
+        $this->assertCount(1, $player->playerRoles());
+        $this->assertNotContains($gameRole, $player->gameRoles());
+    }
+
+    public function testItShouldClearRoles(): void
+    {
+        $player = PlayerMother::create();
+        $player->addRole(GameRoleMother::random());
+        $player->addRole(GameRoleMother::random());
+
+        $player->clearRoles();
+
+        $this->assertCount(0, $player->playerRoles());
     }
 }
 

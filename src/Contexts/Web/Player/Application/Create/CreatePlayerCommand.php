@@ -6,12 +6,15 @@ use App\Contexts\Shared\Domain\CQRS\Command\Command;
 
 final readonly class CreatePlayerCommand implements Command
 {
+    /**
+     * @param array<string> $gameRoleIds
+     */
     public function __construct(
         public string $id,
         public string $userId,
         public string $gameId,
-        public string $gameRoleId,
-        public string $gameRankId,
+        public array $gameRoleIds,
+        public ?string $gameRankId,
         public string $username
     ) {
     }
