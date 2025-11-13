@@ -13,8 +13,8 @@ final class UpdatePlayerController extends ApiController
         $command = new UpdatePlayerCommand(
             $id,
             $request->username,
-            $request->gameRoleId,
-            $request->gameRankId
+            $request->gameRoleIds,
+            $request->gameRankId ?? null
         );
 
         $this->commandBus->dispatch($command);

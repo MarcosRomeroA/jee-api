@@ -10,9 +10,38 @@ Feature: Create Player
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "userId": "550e8400-e29b-41d4-a716-446655440001",
       "gameId": "550e8400-e29b-41d4-a716-446655440002",
-      "gameRoleId": "550e8400-e29b-41d4-a716-446655440003",
+      "gameRoleIds": ["550e8400-e29b-41d4-a716-446655440003"],
       "gameRankId": "550e8400-e29b-41d4-a716-446655440004",
       "username": "ProGamer123"
+    }
+    """
+    Then the response status code should be 200
+    And the response should be empty
+
+  Scenario: Successfully create a player with multiple roles
+    Given I send a POST request to "/api/player" with body:
+    """
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440007",
+      "userId": "550e8400-e29b-41d4-a716-446655440001",
+      "gameId": "550e8400-e29b-41d4-a716-446655440002",
+      "gameRoleIds": ["550e8400-e29b-41d4-a716-446655440003", "550e8400-e29b-41d4-a716-446655440005"],
+      "gameRankId": "550e8400-e29b-41d4-a716-446655440004",
+      "username": "MultiRolePlayer"
+    }
+    """
+    Then the response status code should be 200
+    And the response should be empty
+
+  Scenario: Successfully create a player without rank
+    Given I send a POST request to "/api/player" with body:
+    """
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440008",
+      "userId": "550e8400-e29b-41d4-a716-446655440001",
+      "gameId": "550e8400-e29b-41d4-a716-446655440002",
+      "gameRoleIds": ["550e8400-e29b-41d4-a716-446655440003"],
+      "username": "NoRankPlayer"
     }
     """
     Then the response status code should be 200
@@ -35,10 +64,11 @@ Feature: Create Player
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "userId": "invalid-uuid",
       "gameId": "550e8400-e29b-41d4-a716-446655440002",
-      "gameRoleId": "550e8400-e29b-41d4-a716-446655440003",
+      "gameRoleIds": ["550e8400-e29b-41d4-a716-446655440003"],
       "gameRankId": "550e8400-e29b-41d4-a716-446655440004",
       "username": "ProGamer123"
     }
     """
     Then the response status code should be 404
+
 

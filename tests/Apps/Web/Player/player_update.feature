@@ -9,8 +9,31 @@ Feature: Update Player
     """
     {
       "username": "UpdatedGamer456",
-      "gameRoleId": "550e8400-e29b-41d4-a716-446655440005",
+      "gameRoleIds": ["550e8400-e29b-41d4-a716-446655440005"],
       "gameRankId": "550e8400-e29b-41d4-a716-446655440006"
+    }
+    """
+    Then the response status code should be 200
+    And the response should be empty
+
+  Scenario: Successfully update a player with multiple roles
+    Given I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440000" with body:
+    """
+    {
+      "username": "MultiRoleUpdated",
+      "gameRoleIds": ["550e8400-e29b-41d4-a716-446655440003", "550e8400-e29b-41d4-a716-446655440005"],
+      "gameRankId": "550e8400-e29b-41d4-a716-446655440006"
+    }
+    """
+    Then the response status code should be 200
+    And the response should be empty
+
+  Scenario: Successfully update a player without rank
+    Given I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440000" with body:
+    """
+    {
+      "username": "NoRankUpdated",
+      "gameRoleIds": ["550e8400-e29b-41d4-a716-446655440005"]
     }
     """
     Then the response status code should be 200
@@ -21,7 +44,7 @@ Feature: Update Player
     """
     {
       "username": "NonExistent",
-      "gameRoleId": "550e8400-e29b-41d4-a716-446655440005",
+      "gameRoleIds": ["550e8400-e29b-41d4-a716-446655440005"],
       "gameRankId": "550e8400-e29b-41d4-a716-446655440006"
     }
     """
@@ -35,4 +58,5 @@ Feature: Update Player
     }
     """
     Then the response status code should be 422
+
 

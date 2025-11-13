@@ -11,10 +11,10 @@ final readonly class UpdatePlayerRequest extends BaseRequest
     #[Assert\NotNull, Assert\Type("string")]
     public mixed $username;
 
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $gameRoleId;
+    #[Assert\NotNull, Assert\Type("array")]
+    public mixed $gameRoleIds;
 
-    #[Assert\NotNull, Assert\Type("string")]
+    #[Assert\Type("string")]
     public mixed $gameRankId;
 }
 

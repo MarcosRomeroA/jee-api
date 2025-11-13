@@ -16,10 +16,10 @@ final readonly class CreatePlayerRequest extends BaseRequest
     #[Assert\NotNull, Assert\Type("string")]
     public mixed $gameId;
 
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $gameRoleId;
+    #[Assert\NotNull, Assert\Type("array")]
+    public mixed $gameRoleIds;
 
-    #[Assert\NotNull, Assert\Type("string")]
+    #[Assert\Type("string")]
     public mixed $gameRankId;
 
     #[Assert\NotNull, Assert\Type("string")]

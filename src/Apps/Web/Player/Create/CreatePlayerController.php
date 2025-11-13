@@ -14,8 +14,8 @@ final class CreatePlayerController extends ApiController
             $request->id,
             $request->userId,
             $request->gameId,
-            $request->gameRoleId,
-            $request->gameRankId,
+            $request->gameRoleIds,
+            $request->gameRankId ?? null,
             $request->username
         );
 
