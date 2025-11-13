@@ -10,14 +10,15 @@ use App\Contexts\Shared\Domain\CQRS\Query\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
-
-use function Lambdish\Phunctional\each;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Contexts\Shared\Infrastructure\Symfony\Exception\ValidationException;
 
 abstract class ApiController extends AbstractController
 {
     public function __construct(
         protected QueryBus                 $queryBus,
         protected CommandBus               $commandBus,
+        protected ValidatorInterface        $validator,
     )
     {
     }
@@ -53,5 +54,19 @@ abstract class ApiController extends AbstractController
     public function collectionResponse(mixed $message, $code = 200) : JsonResponse
     {
         return new JsonResponse($message->toArray(), $code);
+    }
+
+    protected function validateRequest(object $dto): void
+    {
+        $errors = $this->validator->validate($dto);
+
+        if (count($errors) > 0) {
+            $errData = [];
+            foreach ($errors as $error) {
+                $errData[$error->getPropertyPath()][] = $error->getMessage();
+            }
+
+            throw new ValidationException($errData);
+        }
     }
 }

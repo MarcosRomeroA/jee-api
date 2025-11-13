@@ -9,4 +9,3 @@ find_game:
   controller: App\Apps\Web\Game\Find\FindGameController
   methods: [ GET ]
   defaults: { auth: true }
-

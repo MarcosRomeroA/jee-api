@@ -2,11 +2,27 @@
 
 namespace App\Apps\Web\Post\Search;
 
-use App\Contexts\Shared\Infrastructure\Symfony\BaseRequest;
+use App\Contexts\Web\Post\Application\Search\SearchPostQuery;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class SearchPostsRequest extends BaseRequest
+final readonly class SearchPostsRequest
 {
-    #[Assert\Type("array")]
-    public mixed $q;
+    public function __construct(
+        #[Assert\Type("array")]
+        public ?array $q = null,
+    ) {}
+
+    public static function fromHttp(Request $request): self
+    {
+        return new self(
+            $request->query->all('q') ?: null
+        );
+    }
+
+    public function toQuery(): SearchPostQuery
+    {
+        return new SearchPostQuery($this->q);
+    }
 }
+

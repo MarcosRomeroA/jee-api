@@ -11,10 +11,9 @@ final class FindGameController extends ApiController
     public function __invoke(string $id): Response
     {
         $query = new FindGameQuery($id);
+        $response = $this->ask($query);
 
-        $gameResponse = $this->queryBus->ask($query);
-
-        return $this->successResponse($gameResponse->toArray());
+        return $this->successResponse($response?->toArray());
     }
 }
 

@@ -26,7 +26,7 @@ class Game extends AggregateRoot
     #[ORM\Column(type: 'integer')]
     private int $maxPlayersQuantity;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
     public function __construct(
@@ -44,32 +44,32 @@ class Game extends AggregateRoot
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function id(): Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function name(): string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function description(): ?string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function minPlayersQuantity(): int
+    public function getMinPlayersQuantity(): int
     {
         return $this->minPlayersQuantity;
     }
 
-    public function maxPlayersQuantity(): int
+    public function getMaxPlayersQuantity(): int
     {
         return $this->maxPlayersQuantity;
     }
 
-    public function createdAt(): \DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

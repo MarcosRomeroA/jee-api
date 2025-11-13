@@ -3,19 +3,20 @@
 namespace App\Apps\Web\User\Search;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\User\Application\Search\SearchUsersQuery;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 final class SearchUsersController extends ApiController
 {
-    public function __invoke(SearchUsersRequest $request): Response
+    public function __invoke(Request $request): Response
     {
-        $criteria = $request->q;
+        $input = SearchUsersRequest::fromHttp($request);
+        $this->validateRequest($input);
 
-        $query = new SearchUsersQuery($criteria);
-
+        $query = $input->toQuery();
         $response = $this->queryBus->ask($query);
 
         return $this->successResponse($response);
     }
 }
+

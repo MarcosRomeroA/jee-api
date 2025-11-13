@@ -1,12 +1,6 @@
 create_player:
-  path: /player
-  controller: App\Apps\Web\Player\Create\CreatePlayerController
-  methods: [ POST ]
-  defaults: { auth: true }
-
-update_player:
   path: /player/{id}
-  controller: App\Apps\Web\Player\Update\UpdatePlayerController
+  controller: App\Apps\Web\Player\Create\CreatePlayerController
   methods: [ PUT ]
   defaults: { auth: true }
 
@@ -32,4 +26,10 @@ verify_player_rank:
   path: /player/verify-rank
   controller: App\Apps\Web\Player\VerifyRank\VerifyPlayerRankController
   methods: [ POST ]
+  defaults: { auth: true }
+
+search_my_players:
+  path: /my-players
+  controller: App\Apps\Web\Player\Search\SearchMyPlayersController
+  methods: [ GET ]
   defaults: { auth: true }

@@ -35,8 +35,8 @@ final class TournamentResponse extends Response
     {
         return new self(
             $tournament->id()->value(),
-            $tournament->game()->id()->value(),
-            $tournament->game()->name(),
+            $tournament->game()->getId()->value(),
+            $tournament->game()->getName(),
             $tournament->tournamentStatus()->id()->value(),
             $tournament->minGameRank()?->id()->value(),
             $tournament->maxGameRank()?->id()->value(),

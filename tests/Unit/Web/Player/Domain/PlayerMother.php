@@ -3,22 +3,30 @@
 namespace App\Tests\Unit\Web\Player\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Game\Domain\Game;
+use App\Contexts\Web\Game\Domain\GameRank;
+use App\Contexts\Web\Game\Domain\GameRole;
+use App\Contexts\Web\Game\Domain\Role;
 use App\Contexts\Web\Player\Domain\Player;
 use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
+use App\Contexts\Web\User\Domain\User;
 
 final class PlayerMother
 {
     public static function create(
         ?Uuid $id = null,
+        ?User $user = null,
+        ?GameRole $gameRole = null,
+        ?GameRank $gameRank = null,
         ?string $username = null,
         ?bool $verified = null
     ): Player {
         return new Player(
             $id ?? Uuid::random(),
-            UserMother::random(),
-            GameRoleMother::random(),
-            GameRankMother::random(),
-            new UsernameValue($username ?? 'TestPlayer'),
+            $user ?? UserMother::random(),
+            $gameRole ?? GameRoleMother::random(),
+            $gameRank ?? GameRankMother::random(),
+            new UsernameValue($username ?? 'testplayer' . rand(1, 1000)),
             $verified ?? false
         );
     }
@@ -30,12 +38,17 @@ final class PlayerMother
 
     public static function withUsername(string $username): Player
     {
-        return self::create(null, $username);
+        return self::create(username: $username);
     }
 
     public static function verified(): Player
     {
-        return self::create(null, null, true);
+        return self::create(verified: true);
+    }
+
+    public static function withUser(User $user): Player
+    {
+        return self::create(user: $user);
     }
 }
 

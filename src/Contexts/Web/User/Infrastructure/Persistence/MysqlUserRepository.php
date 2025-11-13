@@ -125,4 +125,9 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
 
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
+
+    public function delete(User $user): void{
+        $this->getEntityManager()->remove($user);
+        $this->getEntityManager()->flush();
+    }
 }

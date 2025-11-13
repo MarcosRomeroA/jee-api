@@ -14,6 +14,8 @@ final class UserResponse extends Response
         public readonly string $username,
         public readonly string $email,
         public readonly string $profileImage,
+        public readonly ?string $description,
+        public readonly string $createdAt,
     )
     {
     }
@@ -26,7 +28,9 @@ final class UserResponse extends Response
             $user->getLastname()->value(),
             $user->getUsername()->value(),
             $user->getEmail()->value(),
-            $profileImage
+            $profileImage,
+            $user->getDescription(),
+            $user->getCreatedAt()->format('Y-m-d\TH:i:s\Z'),
         );
     }
 

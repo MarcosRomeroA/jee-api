@@ -2,23 +2,46 @@
 
 namespace App\Contexts\Web\Game\Domain;
 
+use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Game\Domain\ValueObject\Rank\CodeValue;
-use App\Contexts\Web\Game\Domain\ValueObject\Rank\RankNameValue;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\Embedded;
 
-//#[ORM\Entity(repositoryClass: RankRepository::class)]
-//#[ORM\Table(name: 'rank')]
-class Rank
+#[ORM\Entity]
+#[ORM\Table(name: 'rank')]
+class Rank extends AggregateRoot
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', length: 36)]
     private Uuid $id;
 
-    #[Embedded(class: RankNameValue::class, columnPrefix: false)]
-    private RankNameValue $name;
+    #[ORM\Column(type: 'string', length: 100)]
+    private string $name;
 
-    #[Embedded(class: CodeValue::class, columnPrefix: false)]
-    private CodeValue $code;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $description;
+
+    public function __construct(
+        Uuid $id,
+        string $name,
+        ?string $description = null
+    ) {
+        $this->id = $id;
+        $this->name = $name;
+        $this->description = $description;
+    }
+
+    public function id(): Uuid
+    {
+        return $this->id;
+    }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
+
+    public function description(): ?string
+    {
+        return $this->description;
+    }
 }

@@ -23,7 +23,11 @@ final class DoctrineGameRepository extends ServiceEntityRepository implements Ga
 
     public function findById(Uuid $id): ?Game
     {
-        return $this->find($id->value());
+        return $this->createQueryBuilder('g')
+            ->andWhere('g.id = :id')
+            ->setParameter('id', $id->value())
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     public function findAll(): array

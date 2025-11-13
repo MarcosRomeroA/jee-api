@@ -3,30 +3,17 @@
 namespace App\Apps\Web\Tournament\Create;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\Tournament\Application\Create\CreateTournamentCommand;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 final class CreateTournamentController extends ApiController
 {
-    public function __invoke(CreateTournamentRequest $request): Response
+    public function __invoke(Request $request): Response
     {
-        $command = new CreateTournamentCommand(
-            $request->id,
-            $request->gameId,
-            $request->responsibleId,
-            $request->name,
-            $request->description,
-            $request->maxTeams,
-            $request->isOfficial,
-            $request->image,
-            $request->prize,
-            $request->region,
-            $request->startAt,
-            $request->endAt,
-            $request->minGameRankId,
-            $request->maxGameRankId
-        );
+        $input = CreateTournamentRequest::fromHttp($request);
+        $this->validateRequest($input);
 
+        $command = $input->toCommand();
         $this->commandBus->dispatch($command);
 
         return $this->successEmptyResponse();

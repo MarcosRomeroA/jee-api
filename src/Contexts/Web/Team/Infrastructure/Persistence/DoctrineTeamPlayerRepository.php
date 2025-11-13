@@ -46,6 +46,15 @@ final class DoctrineTeamPlayerRepository extends ServiceEntityRepository impleme
             ->getResult();
     }
 
+    public function findByPlayerId(Uuid $playerId): array
+    {
+        return $this->createQueryBuilder('tp')
+            ->where('tp.player = :playerId')
+            ->setParameter('playerId', $playerId->value())
+            ->getQuery()
+            ->getResult();
+    }
+
     public function delete(TeamPlayer $teamPlayer): void
     {
         $this->getEntityManager()->remove($teamPlayer);

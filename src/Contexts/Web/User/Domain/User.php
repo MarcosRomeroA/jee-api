@@ -44,6 +44,12 @@ class User extends AggregateRoot
     #[Embedded(class: ProfileImageValue::class, columnPrefix: false)]
     private ProfileImageValue $profileImage;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $createdAt;
+
     /**
      * @var ArrayCollection<Follow>
      */
@@ -76,6 +82,8 @@ class User extends AggregateRoot
         $this->email = $email;
         $this->password = $password;
         $this->profileImage = new ProfileImageValue("");
+        $this->createdAt = new \DateTimeImmutable();
+        $this->description = null;
     }
 
     public static function create(
@@ -164,6 +172,21 @@ class User extends AggregateRoot
     public function setProfileImage(ProfileImageValue $profileImage): void
     {
         $this->profileImage = $profileImage;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
     }
 
     public function getFollowings(): Collection

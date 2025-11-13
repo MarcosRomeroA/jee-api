@@ -4,6 +4,7 @@ namespace App\Contexts\Web\User\Application\Create;
 
 use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\User\Domain\Exception\UsernameAlreadyExistsException;
 use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
@@ -27,10 +28,35 @@ final readonly class UserCreator
         LastnameValue $lastname,
         UsernameValue $username,
         EmailValue $email,
-        PasswordValue $password,
+        ?PasswordValue $password,
     ): void
     {
-        $user = User::create($id, $firstname, $lastname, $username, $email, $password);
+        // Intentar obtener el usuario por id (upsert)
+        try {
+            $user = $this->userRepository->findById($id);
+
+            // Si existe, actualizar
+            $user->update($firstname, $lastname, $username, $email);
+
+            // Si viene password, actualizarla
+            if ($password !== null) {
+                $user->updatePassword($password);
+            }
+        } catch (\Throwable $e) {
+            // Si no existe, crear (password obligatoria en creación)
+            if ($password === null) {
+                throw new \InvalidArgumentException('Password is required on user creation');
+            }
+
+            // Validar que no exista otro usuario con el mismo username
+            $existingUser = $this->userRepository->findOneBy(['username.value' => $username->value()]);
+            if ($existingUser) {
+                throw new UsernameAlreadyExistsException();
+            }
+
+            $user = User::create($id, $firstname, $lastname, $username, $email, $password);
+        }
+
         $this->userRepository->save($user);
         $this->bus->publish(...$user->pullDomainEvents());
     }

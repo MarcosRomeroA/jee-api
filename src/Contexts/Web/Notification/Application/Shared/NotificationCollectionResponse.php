@@ -33,7 +33,7 @@ final class NotificationCollectionResponse extends Response
             $response['data'][] = $notification->toArray();
         }
 
-        $response['pagination'] = [
+        $response['metadata'] = [
             'limit' => $this->limit,
             'offset' => $this->offset,
             'total' => $this->total,

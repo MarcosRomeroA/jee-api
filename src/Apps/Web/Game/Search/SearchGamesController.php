@@ -11,13 +11,13 @@ final class SearchGamesController extends ApiController
 {
     public function __invoke(Request $request): Response
     {
-        $query = $request->query->get('q');
+        $q = $request->query->get('q');
 
-        $queryObject = new SearchGamesQuery($query);
+        $query = new SearchGamesQuery($q);
+        $response = $this->ask($query);
 
-        $gamesResponse = $this->queryBus->ask($queryObject);
-
-        return $this->successResponse($gamesResponse->toArray());
+        // collectionResponse ya serializa usando ->toArray()
+        return $this->collectionResponse($response);
     }
 }
 

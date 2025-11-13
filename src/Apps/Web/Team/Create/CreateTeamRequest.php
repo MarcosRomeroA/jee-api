@@ -2,24 +2,49 @@
 
 namespace App\Apps\Web\Team\Create;
 
-use App\Contexts\Shared\Infrastructure\Symfony\BaseRequest;
+use App\Contexts\Web\Team\Application\Create\CreateTeamCommand;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class CreateTeamRequest extends BaseRequest
+final readonly class CreateTeamRequest
 {
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $id;
+    public function __construct(
+        #[Assert\NotBlank]
+        #[Assert\Type("string")]
+        public string $id,
 
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $gameId;
+        #[Assert\NotBlank]
+        #[Assert\Type("string")]
+        public string $gameId,
 
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $ownerId;
+        #[Assert\NotBlank]
+        #[Assert\Type("string")]
+        public string $name,
 
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $name;
+        #[Assert\Type("string")]
+        public ?string $image = null,
+    ) {}
 
-    #[Assert\Type("string")]
-    public mixed $image;
+    public static function fromHttp(Request $request): self
+    {
+        $data = json_decode($request->getContent(), true);
+
+        return new self(
+            $data['id'] ?? '',
+            $data['gameId'] ?? '',
+            $data['name'] ?? '',
+            $data['image'] ?? null
+        );
+    }
+
+    public function toCommand(): CreateTeamCommand
+    {
+        return new CreateTeamCommand(
+            $this->id,
+            $this->gameId,
+            $this->name,
+            $this->image
+        );
+    }
 }
 

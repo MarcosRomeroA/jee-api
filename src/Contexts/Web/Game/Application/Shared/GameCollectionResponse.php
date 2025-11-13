@@ -16,10 +16,19 @@ final class GameCollectionResponse extends Response
 
     public function toArray(): array
     {
-        return array_map(
+        $data = array_map(
             static fn(GameResponse $game) => $game->toArray(),
             $this->games
         );
+
+        return [
+            'data' => $data,
+            'metadata' => [
+                'total' => count($this->games),
+                'count' => count($this->games),
+                'limit' => 0,
+                'offset' => 0
+            ]
+        ];
     }
 }
-

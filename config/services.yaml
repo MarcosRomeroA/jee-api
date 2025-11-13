@@ -14,6 +14,10 @@ services:
         tags:
             - { name: 'kernel.event_listener', event: 'kernel.exception' }
 
+    App\Contexts\Shared\Infrastructure\Symfony\EventListener\ValidationExceptionListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'kernel.exception' }
+
     App\Contexts\Shared\Infrastructure\Symfony\JwtAuthMiddleware:
         arguments:
             $environment: '%kernel.environment%'

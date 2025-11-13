@@ -38,7 +38,7 @@ class Player extends AggregateRoot
     private bool $verified;
 
     #[ORM\Column(type: 'datetime')]
-    private \DateTimeImmutable $createdAt;
+    private \DateTime $createdAt;
 
     public function __construct(
         Uuid $id,
@@ -54,8 +54,30 @@ class Player extends AggregateRoot
         $this->gameRank = $gameRank;
         $this->username = $username;
         $this->verified = $verified;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new \DateTime();
     }
+
+    public static function create(
+        Uuid $id,
+        User $user,
+        GameRole $gameRole,
+        GameRank $gameRank,
+        UsernameValue $username,
+        bool $verified = false
+    ): self {
+        return new self($id, $user, $gameRole, $gameRank, $username, $verified);
+    }
+
+    public function update(
+        UsernameValue $username,
+        GameRole $gameRole,
+        GameRank $gameRank
+    ): void {
+        $this->username = $username;
+        $this->gameRole = $gameRole;
+        $this->gameRank = $gameRank;
+    }
+
 
     public function id(): Uuid
     {
@@ -87,19 +109,9 @@ class Player extends AggregateRoot
         return $this->verified;
     }
 
-    public function createdAt(): \DateTimeImmutable
+    public function createdAt(): \DateTime
     {
         return $this->createdAt;
-    }
-
-    public function update(
-        UsernameValue $username,
-        GameRole $gameRole,
-        GameRank $gameRank
-    ): void {
-        $this->username = $username;
-        $this->gameRole = $gameRole;
-        $this->gameRank = $gameRank;
     }
 
     public function verify(): void
@@ -107,4 +119,3 @@ class Player extends AggregateRoot
         $this->verified = true;
     }
 }
-

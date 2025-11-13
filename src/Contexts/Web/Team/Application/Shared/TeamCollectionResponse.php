@@ -16,10 +16,20 @@ final class TeamCollectionResponse extends Response
 
     public function toArray(): array
     {
-        return array_map(
+        $data = array_map(
             static fn(TeamResponse $team) => $team->toArray(),
             $this->teams
         );
+
+        return [
+            'data' => $data,
+            'metadata' => [
+                'total' => count($this->teams),
+                'count' => count($this->teams),
+                'limit' => 0,
+                'offset' => 0
+            ]
+        ];
     }
 }
 

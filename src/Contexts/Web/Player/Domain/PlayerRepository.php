@@ -3,6 +3,7 @@
 namespace App\Contexts\Web\Player\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
 
 interface PlayerRepository
 {
@@ -28,5 +29,19 @@ interface PlayerRepository
     ): array;
 
     public function countSearch(?string $query, ?Uuid $gameId): int;
-}
 
+    public function searchMineWithPagination(
+        ?string $query,
+        Uuid $userId,
+        int $limit,
+        int $offset
+    ): array;
+
+    public function countMine(?string $query, Uuid $userId): int;
+
+    public function existsByUserIdAndUsernameAndGameId(
+        Uuid $userId,
+        UsernameValue $username,
+        Uuid $gameId
+    ): bool;
+}

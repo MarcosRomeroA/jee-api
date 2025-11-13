@@ -21,8 +21,8 @@ final class TeamResponse extends Response
     {
         return new self(
             $team->id()->value(),
-            $team->game()->id()->value(),
-            $team->game()->name(),
+            $team->game()->getId()->value(),
+            $team->game()->getName(),
             $team->name(),
             $team->image(),
             $team->createdAt()->format(\DateTimeInterface::ATOM)

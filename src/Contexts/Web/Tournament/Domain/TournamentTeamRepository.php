@@ -10,6 +10,6 @@ interface TournamentTeamRepository
     public function findById(Uuid $id): ?TournamentTeam;
     public function findByTournamentAndTeam(Uuid $tournamentId, Uuid $teamId): ?TournamentTeam;
     public function findByTournament(Uuid $tournamentId): array;
+    public function findByUserId(Uuid $userId): array;
     public function delete(TournamentTeam $tournamentTeam): void;
 }
-

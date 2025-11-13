@@ -4,6 +4,7 @@ namespace App\Contexts\Web\Auth\Application\RefreshToken;
 
 use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
 use App\Contexts\Shared\Domain\Jwt\JwtGenerator;
+use App\Contexts\Shared\Infrastructure\Jwt\MercureJwtGenerator;
 use App\Contexts\Web\Auth\Application\Shared\LoginUserResponse;
 use App\Contexts\Web\Auth\Domain\Exception\TokenIsNotRefreshTokenException;
 
@@ -31,6 +32,13 @@ readonly class GetTokenByRefreshQueryHandler implements QueryHandler
             "id" => $userId,
         ], true);
 
-        return new LoginUserResponse($token, $refreshToken);
+        $notificationToken = MercureJwtGenerator::create($_ENV['APP_URL'].'/notification/'.$userId);
+
+        return new LoginUserResponse(
+            $userId,
+            $notificationToken,
+            $token,
+            $refreshToken
+        );
     }
 }

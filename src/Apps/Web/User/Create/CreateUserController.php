@@ -3,23 +3,17 @@
 namespace App\Apps\Web\User\Create;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\User\Application\Create\CreateUserCommand;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 final class CreateUserController extends ApiController
 {
-    public function __invoke(CreateUserRequest $request): Response
+    public function __invoke(Request $request, string $id): Response
     {
-        $command = new CreateUserCommand(
-            $request->id,
-            $request->firstname,
-            $request->lastname,
-            $request->username,
-            $request->email,
-            $request->password,
-            $request->confirmationPassword,
-        );
+        $input = CreateUserRequest::fromHttp($request, $id);
+        $this->validateRequest($input);
 
+        $command = $input->toCommand();
         $this->commandBus->dispatch($command);
 
         return $this->successEmptyResponse();

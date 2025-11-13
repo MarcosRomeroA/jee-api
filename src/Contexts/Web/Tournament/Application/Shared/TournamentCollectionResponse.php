@@ -16,10 +16,20 @@ final class TournamentCollectionResponse extends Response
 
     public function toArray(): array
     {
-        return array_map(
+        $data = array_map(
             static fn(TournamentResponse $tournament) => $tournament->toArray(),
             $this->tournaments
         );
+
+        return [
+            'data' => $data,
+            'metadata' => [
+                'total' => count($this->tournaments),
+                'count' => count($this->tournaments),
+                'limit' => 0,
+                'offset' => 0
+            ]
+        ];
     }
 }
 

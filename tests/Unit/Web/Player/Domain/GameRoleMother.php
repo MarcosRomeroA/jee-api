@@ -3,26 +3,22 @@
 namespace App\Tests\Unit\Web\Player\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\Game\Domain\GameRole;
+use App\Contexts\Web\Game\Domain\Role;
 
 final class GameRoleMother
 {
-    public static function create(?Uuid $id = null): GameRole
-    {
-        $gameRoleId = $id ?? Uuid::random();
-
-        // Usar reflexión para crear un GameRole sin necesidad de la base de datos
-        $gameRole = new class($gameRoleId) extends GameRole {
-            public function __construct(Uuid $id)
-            {
-                $reflection = new \ReflectionClass(GameRole::class);
-                $idProperty = $reflection->getProperty('id');
-                $idProperty->setAccessible(true);
-                $idProperty->setValue($this, $id);
-            }
-        };
-
-        return $gameRole;
+    public static function create(
+        ?Uuid $id = null,
+        ?Role $role = null,
+        ?Game $game = null
+    ): GameRole {
+        return new GameRole(
+            $id ?? Uuid::random(),
+            $role ?? RoleMother::random(),
+            $game ?? GameMother::random()
+        );
     }
 
     public static function random(): GameRole

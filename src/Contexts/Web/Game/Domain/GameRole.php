@@ -6,7 +6,7 @@ use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: GameRoleRepository::class)]
 #[ORM\Table(name: 'game_role')]
 class GameRole extends AggregateRoot
 {

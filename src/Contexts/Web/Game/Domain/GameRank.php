@@ -6,7 +6,7 @@ use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: GameRankRepository::class)]
 #[ORM\Table(name: 'game_rank')]
 class GameRank extends AggregateRoot
 {
@@ -18,8 +18,9 @@ class GameRank extends AggregateRoot
     #[ORM\JoinColumn(name: 'game_id', referencedColumnName: 'id', nullable: false)]
     private Game $game;
 
-    #[ORM\Column(type: 'string', length: 100)]
-    private string $name;
+    #[ORM\ManyToOne(targetEntity: Rank::class)]
+    #[ORM\JoinColumn(name: 'rank_id', referencedColumnName: 'id', nullable: false)]
+    private Rank $rank;
 
     #[ORM\Column(type: 'integer')]
     private int $level;
@@ -27,12 +28,12 @@ class GameRank extends AggregateRoot
     public function __construct(
         Uuid $id,
         Game $game,
-        string $name,
+        Rank $rank,
         int $level
     ) {
         $this->id = $id;
         $this->game = $game;
-        $this->name = $name;
+        $this->rank = $rank;
         $this->level = $level;
     }
 
@@ -46,9 +47,9 @@ class GameRank extends AggregateRoot
         return $this->game;
     }
 
-    public function name(): string
+    public function rank(): Rank
     {
-        return $this->name;
+        return $this->rank;
     }
 
     public function level(): int

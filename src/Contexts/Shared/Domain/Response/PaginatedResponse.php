@@ -2,13 +2,15 @@
 
 namespace App\Contexts\Shared\Domain\Response;
 
-final readonly class PaginatedResponse
+use App\Contexts\Shared\Domain\CQRS\Query\Response;
+
+final class PaginatedResponse extends Response
 {
     private function __construct(
-        private array $data,
-        private int $currentPage,
-        private int $totalItems,
-        private int $itemsPerPage
+        private readonly array $data,
+        private readonly int $currentPage,
+        private readonly int $totalItems,
+        private readonly int $itemsPerPage
     ) {}
 
     public static function create(
@@ -30,15 +32,6 @@ final readonly class PaginatedResponse
         return $this->currentPage;
     }
 
-    public function totalPages(): int
-    {
-        if ($this->itemsPerPage === 0) {
-            return 0;
-        }
-
-        return (int) ceil($this->totalItems / $this->itemsPerPage);
-    }
-
     public function totalItems(): int
     {
         return $this->totalItems;
@@ -47,6 +40,15 @@ final readonly class PaginatedResponse
     public function itemsPerPage(): int
     {
         return $this->itemsPerPage;
+    }
+
+    public function totalPages(): int
+    {
+        if ($this->itemsPerPage === 0) {
+            return 0;
+        }
+
+        return (int) ceil($this->totalItems / $this->itemsPerPage);
     }
 
     public function hasNextPage(): bool
@@ -61,15 +63,15 @@ final readonly class PaginatedResponse
 
     public function toArray(): array
     {
+        $offset = ($this->currentPage - 1) * $this->itemsPerPage;
+
         return [
             'data' => $this->data,
-            'pagination' => [
-                'currentPage' => $this->currentPage,
-                'totalPages' => $this->totalPages(),
-                'totalItems' => $this->totalItems,
-                'itemsPerPage' => $this->itemsPerPage,
-                'hasNextPage' => $this->hasNextPage(),
-                'hasPreviousPage' => $this->hasPreviousPage(),
+            'metadata' => [
+                'limit' => $this->itemsPerPage,
+                'offset' => $offset,
+                'total' => $this->totalItems,
+                'count' => count($this->data),
             ],
         ];
     }

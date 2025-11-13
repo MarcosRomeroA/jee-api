@@ -20,32 +20,16 @@ final class SearchMatchesController extends ApiController
     #[Route('/api/tournament/{tournamentId}/matches', name: 'search_matches', methods: ['GET'])]
     public function __invoke(string $tournamentId, Request $request): Response
     {
-        $round = $request->query->get('round');
+        $input = SearchMatchesRequest::fromHttp($request, $tournamentId);
+        $this->validateRequest($input);
 
-        $matches = $round !== null
-            ? $this->matchesSearcher->searchByTournamentAndRound(new Uuid($tournamentId), (int) $round)
-            : $this->matchesSearcher->searchByTournament(new Uuid($tournamentId));
+        $matches = $input->round !== null
+            ? $this->matchesSearcher->searchByTournamentAndRound(new Uuid($input->tournamentId), $input->round)
+            : $this->matchesSearcher->searchByTournament(new Uuid($input->tournamentId));
 
         $result = [];
         foreach ($matches as $match) {
-            $participants = [];
-            foreach ($match->participants() as $participant) {
-                $participants[] = [
-                    'teamId' => $participant->team()->id()->value(),
-                    'teamName' => $participant->team()->name(),
-                    'score' => $participant->score()?->value(),
-                    'isWinner' => $participant->isWinner(),
-                ];
-            }
-
-            $result[] = [
-                'id' => $match->id()->value(),
-                'name' => $match->name(),
-                'round' => $match->round(),
-                'status' => $match->status(),
-                'scheduledAt' => $match->scheduledAt()?->format('Y-m-d\TH:i:s\Z'),
-                'participants' => $participants,
-            ];
+            // ...existing code...
         }
 
         return new JsonResponse($result);

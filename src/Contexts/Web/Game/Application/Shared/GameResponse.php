@@ -20,12 +20,12 @@ final class GameResponse extends Response
     public static function fromGame(Game $game): self
     {
         return new self(
-            $game->id()->value(),
-            $game->name(),
-            $game->description(),
-            $game->minPlayersQuantity(),
-            $game->maxPlayersQuantity(),
-            $game->createdAt()->format(\DateTimeInterface::ATOM)
+            $game->getId()->value(),
+            $game->getName(),
+            $game->getDescription(),
+            $game->getMinPlayersQuantity(),
+            $game->getMaxPlayersQuantity(),
+            $game->getCreatedAt()->format(\DateTimeInterface::ATOM)
         );
     }
 

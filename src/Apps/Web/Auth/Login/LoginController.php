@@ -3,18 +3,17 @@
 namespace App\Apps\Web\Auth\Login;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\Auth\Application\Login\LoginUserQuery;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends ApiController
 {
-    public function __invoke(LoginRequest $request): Response
+    public function __invoke(Request $request): Response
     {
-        $query = new LoginUserQuery(
-            $request->email,
-            $request->password
-        );
+        $input = LoginRequest::fromHttp($request);
+        $this->validateRequest($input);
 
+        $query = $input->toQuery();
         $response = $this->queryBus->ask($query);
 
         return $this->successResponse($response);

@@ -19,13 +19,21 @@ final class PlayerCollectionResponse extends Response
 
     public function toArray(): array
     {
-        $response = [];
+        $data = [];
 
         foreach ($this->players as $player) {
-            $response[] = $player->toArray();
+            $data[] = $player->toArray();
         }
 
-        return $response;
+        return [
+            'data' => $data,
+            'metadata' => [
+                'total' => count($this->players),
+                'count' => count($this->players),
+                'limit' => 0,
+                'offset' => 0
+            ]
+        ];
     }
 }
 

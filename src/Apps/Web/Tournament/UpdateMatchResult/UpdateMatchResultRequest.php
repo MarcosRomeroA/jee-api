@@ -2,16 +2,31 @@
 
 namespace App\Apps\Web\Tournament\UpdateMatchResult;
 
-use App\Contexts\Shared\Infrastructure\Symfony\BaseRequest;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class UpdateMatchResultRequest extends BaseRequest
+final readonly class UpdateMatchResultRequest
 {
-    #[Assert\NotBlank]
-    #[Assert\Type('array')]
-    public mixed $scores; // Array de team_id => score
+    public function __construct(
+        public string $matchId,
 
-    #[Assert\Uuid]
-    public mixed $winnerId;
+        #[Assert\NotBlank]
+        #[Assert\Type('array')]
+        public array $scores, // Array de team_id => score
+
+        #[Assert\Uuid]
+        public ?string $winnerId = null,
+    ) {}
+
+    public static function fromHttp(Request $request, string $matchId): self
+    {
+        $data = json_decode($request->getContent(), true);
+
+        return new self(
+            $matchId,
+            $data['scores'] ?? [],
+            $data['winnerId'] ?? null
+        );
+    }
 }
 

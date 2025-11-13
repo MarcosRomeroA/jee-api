@@ -3,19 +3,20 @@
 namespace App\Apps\Web\Auth\Refresh;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\Auth\Application\RefreshToken\GetTokenByRefreshQuery;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class GetTokenByRefreshController extends ApiController
 {
-    public function __invoke(GetTokenByRefreshRequest $request): Response
+    public function __invoke(Request $request): Response
     {
-        $query = new GetTokenByRefreshQuery(
-            $request->refreshToken,
-        );
+        $input = GetTokenByRefreshRequest::fromHttp($request);
+        $this->validateRequest($input);
 
+        $query = $input->toQuery();
         $response = $this->queryBus->ask($query);
 
         return $this->successResponse($response);
     }
 }
+

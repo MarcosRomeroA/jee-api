@@ -1,11 +1,23 @@
 create_user:
-  path: /user
+  path: /user/{id}
   controller: App\Apps\Web\User\Create\CreateUserController
-  methods: [ POST ]
+  methods: [ PUT ]
 
 find_user:
   path: /user/{id}
   controller: App\Apps\Web\User\Find\FindUserController
+  methods: [ GET ]
+  defaults: { auth: true }
+
+find_user_teams:
+  path: /user/{id}/teams
+  controller: App\Apps\Web\User\FindTeams\FindUserTeamsController
+  methods: [ GET ]
+  defaults: { auth: true }
+
+find_user_tournaments:
+  path: /user/{id}/tournaments
+  controller: App\Apps\Web\User\FindTournaments\FindUserTournamentsController
   methods: [ GET ]
   defaults: { auth: true }
 
@@ -19,12 +31,6 @@ search_users:
   path: /users
   controller: App\Apps\Web\User\Search\SearchUsersController
   methods: [ GET ]
-  defaults: { auth: true }
-
-update_user:
-  path: /user
-  controller: App\Apps\Web\User\Update\UpdateUserController
-  methods: [ PUT ]
   defaults: { auth: true }
 
 update_user_password:

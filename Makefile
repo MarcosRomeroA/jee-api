@@ -47,13 +47,13 @@ routes-player:
 	@docker exec jee_symfony php bin/console debug:router | grep player
 
 test:
-	@docker exec jee_symfony vendor/bin/behat tests/Apps/Web/ --format=pretty
+	@docker exec jee_symfony vendor/bin/behat tests/Behat/Web/ --format=pretty
 
 test-player:
-	@docker exec jee_symfony vendor/bin/behat tests/Apps/Web/Player/ --format=pretty
+	@docker exec jee_symfony vendor/bin/behat tests/Behat/Web/Player/ --format=pretty
 
 test-verbose:
-	@docker exec jee_symfony vendor/bin/behat tests/Apps/Web/Player/ --format=pretty -vv
+	@docker exec jee_symfony vendor/bin/behat tests/Behat/Web/Player/ --format=pretty -vv
 
 setup:
 	@./setup-and-test.sh

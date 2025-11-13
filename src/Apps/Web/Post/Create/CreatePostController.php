@@ -11,16 +11,10 @@ class CreatePostController extends ApiController
 {
     public function __invoke(Request $request, string $id, string $sessionId): Response
     {
-        $data = $request->request->all();
+        $input = CreatePostRequest::fromHttp($request, $id, $sessionId);
+        $this->validateRequest($input);
 
-        $command = new CreatePostCommand(
-            $id,
-            $data['body'],
-            $data['resources'],
-            $data['sharedPostId'] ?? null,
-            $sessionId
-        );
-
+        $command = $input->toCommand();
         $this->commandBus->dispatch($command);
 
         return $this->successEmptyResponse();

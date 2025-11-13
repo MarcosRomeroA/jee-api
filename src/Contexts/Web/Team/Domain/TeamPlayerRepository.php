@@ -10,6 +10,6 @@ interface TeamPlayerRepository
     public function findById(Uuid $id): ?TeamPlayer;
     public function findByTeamAndPlayer(Uuid $teamId, Uuid $playerId): ?TeamPlayer;
     public function findByTeam(Uuid $teamId): array;
+    public function findByPlayerId(Uuid $playerId): array;
     public function delete(TeamPlayer $teamPlayer): void;
 }
-

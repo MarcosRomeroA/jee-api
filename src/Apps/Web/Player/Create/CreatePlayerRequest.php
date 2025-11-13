@@ -2,27 +2,51 @@
 
 namespace App\Apps\Web\Player\Create;
 
-use App\Contexts\Shared\Infrastructure\Symfony\BaseRequest;
+use App\Contexts\Web\Player\Application\Create\CreatePlayerCommand;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class CreatePlayerRequest extends BaseRequest
+final readonly class CreatePlayerRequest
 {
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $id;
+    public function __construct(
+        public string $id,
+        public string $sessionId,
 
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $userId;
+        #[Assert\NotBlank]
+        #[Assert\Type("string")]
+        public string $gameRoleId,
 
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $gameId;
+        #[Assert\NotBlank]
+        #[Assert\Type("string")]
+        public string $gameRankId,
 
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $gameRoleId;
+        #[Assert\NotBlank]
+        #[Assert\Type("string")]
+        public string $username,
+    ) {}
 
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $gameRankId;
+    public static function fromHttp(Request $request, string $id, string $sessionId): self
+    {
+        $data = json_decode($request->getContent(), true);
 
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $username;
+        return new self(
+            $id,
+            $sessionId,
+            $data['gameRoleId'] ?? '',
+            $data['gameRankId'] ?? '',
+            $data['username'] ?? ''
+        );
+    }
+
+    public function toCommand(): CreatePlayerCommand
+    {
+        return new CreatePlayerCommand(
+            $this->id,
+            $this->sessionId,
+            $this->gameRoleId,
+            $this->gameRankId,
+            $this->username
+        );
+    }
 }
 

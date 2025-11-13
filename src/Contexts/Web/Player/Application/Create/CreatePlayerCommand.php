@@ -9,7 +9,6 @@ final readonly class CreatePlayerCommand implements Command
     public function __construct(
         public string $id,
         public string $userId,
-        public string $gameId,
         public string $gameRoleId,
         public string $gameRankId,
         public string $username

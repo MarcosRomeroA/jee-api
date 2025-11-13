@@ -5,6 +5,7 @@ namespace App\Contexts\Web\Game\Infrastructure\Persistence;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\GameRank;
 use App\Contexts\Web\Game\Domain\GameRankRepository;
+use App\Contexts\Web\Game\Domain\Exception\GameRankNotFoundException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -21,30 +22,20 @@ final class DoctrineGameRankRepository extends ServiceEntityRepository implement
         $this->getEntityManager()->flush();
     }
 
-    public function findById(Uuid $id): ?GameRank
+    public function findById(Uuid $id): GameRank
     {
-        return $this->find($id->value());
+        $gameRank = $this->findOneBy(["id" => $id]);
+
+        if (!$gameRank) {
+            throw new GameRankNotFoundException($id->value());
+        }
+
+        return $gameRank;
     }
 
-    public function findByGameAndName(Uuid $gameId, string $name): ?GameRank
+    public function existsById(Uuid $id): bool
     {
-        return $this->createQueryBuilder('gr')
-            ->where('gr.game = :gameId')
-            ->andWhere('gr.name = :name')
-            ->setParameter('gameId', $gameId->value())
-            ->setParameter('name', $name)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
-
-    public function findByGame(Uuid $gameId): array
-    {
-        return $this->createQueryBuilder('gr')
-            ->where('gr.game = :gameId')
-            ->setParameter('gameId', $gameId->value())
-            ->orderBy('gr.level', 'ASC')
-            ->getQuery()
-            ->getResult();
+        return $this->count(['id' => $id->value()]) > 0;
     }
 }
 

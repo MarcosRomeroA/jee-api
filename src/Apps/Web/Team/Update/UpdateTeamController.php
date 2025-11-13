@@ -3,19 +3,17 @@
 namespace App\Apps\Web\Team\Update;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\Team\Application\Update\UpdateTeamCommand;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 final class UpdateTeamController extends ApiController
 {
-    public function __invoke(string $id, UpdateTeamRequest $request): Response
+    public function __invoke(string $id, Request $request): Response
     {
-        $command = new UpdateTeamCommand(
-            $id,
-            $request->name,
-            $request->image
-        );
+        $input = UpdateTeamRequest::fromHttp($request, $id);
+        $this->validateRequest($input);
 
+        $command = $input->toCommand();
         $this->commandBus->dispatch($command);
 
         return $this->successEmptyResponse();

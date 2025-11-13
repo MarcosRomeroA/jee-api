@@ -24,7 +24,7 @@ final class PlayerFinderTest extends TestCase
     public function testItShouldFindAPlayer(): void
     {
         $id = Uuid::random();
-        $player = PlayerMother::create($id, 'TestPlayer');
+        $player = PlayerMother::create(id: $id, username: 'TestPlayer');
 
         $this->repository
             ->expects($this->once())

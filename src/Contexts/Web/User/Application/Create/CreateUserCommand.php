@@ -12,8 +12,8 @@ final readonly class CreateUserCommand implements Command
         public string $lastname,
         public string $username,
         public string $email,
-        public string $password,
-        public string $confirmationPassword,
+        public ?string $password = null,
+        public ?string $confirmationPassword = null,
     )
     {
     }

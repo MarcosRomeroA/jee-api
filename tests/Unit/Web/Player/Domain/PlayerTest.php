@@ -12,18 +12,24 @@ final class PlayerTest extends TestCase
     public function testItShouldCreateAPlayer(): void
     {
         $id = Uuid::random();
+        $user = UserMother::random();
+        $gameRole = GameRoleMother::random();
+        $gameRank = GameRankMother::random();
         $username = 'ProGamer123';
 
         $player = new Player(
             $id,
-            UserMother::random(),
-            GameRoleMother::random(),
-            GameRankMother::random(),
+            $user,
+            $gameRole,
+            $gameRank,
             new UsernameValue($username),
             false
         );
 
         $this->assertEquals($id, $player->id());
+        $this->assertEquals($user, $player->user());
+        $this->assertEquals($gameRole, $player->gameRole());
+        $this->assertEquals($gameRank, $player->gameRank());
         $this->assertEquals($username, $player->username()->value());
         $this->assertFalse($player->verified());
     }
@@ -44,9 +50,18 @@ final class PlayerTest extends TestCase
 
     public function testItShouldVerifyPlayer(): void
     {
-        $player = PlayerMother::create();
+        $player = PlayerMother::create(verified: false);
+
+        $this->assertFalse($player->verified());
 
         $player->verify();
+
+        $this->assertTrue($player->verified());
+    }
+
+    public function testItShouldCreateVerifiedPlayer(): void
+    {
+        $player = PlayerMother::verified();
 
         $this->assertTrue($player->verified());
     }

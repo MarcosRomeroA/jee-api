@@ -30,12 +30,16 @@ final readonly class CreateUserCommandHandler implements CommandHandler
         $email = new EmailValue($command->email);
         $username = new UsernameValue($command->username);
 
-        if ($command->password !== $command->confirmationPassword) {
-            throw new PasswordMismatchException();
+        // Si viene password, validar confirmación
+        $password = null;
+        if ($command->password !== null || $command->confirmationPassword !== null) {
+            if ($command->password !== $command->confirmationPassword) {
+                throw new PasswordMismatchException();
+            }
+            $password = new PasswordValue($command->password ?? '');
         }
 
-        $password = new PasswordValue($command->password);
-
+        // UserCreator maneja el upsert completo (autocontenido)
         $this->creator->__invoke($id, $firstname, $lastname, $username, $email, $password);
     }
 }

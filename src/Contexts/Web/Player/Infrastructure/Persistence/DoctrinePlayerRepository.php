@@ -5,6 +5,7 @@ namespace App\Contexts\Web\Player\Infrastructure\Persistence;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Player\Domain\Player;
 use App\Contexts\Web\Player\Domain\PlayerRepository;
+use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -23,7 +24,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
 
     public function findById(Uuid $id): ?Player
     {
-        return $this->find($id->value());
+        return $this->findOneBy(["id" => $id]);
     }
 
     public function findByUserId(Uuid $userId): array
@@ -72,7 +73,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
         $qb = $this->createQueryBuilder('p');
 
         if ($query !== null && $query !== '') {
-            $qb->andWhere('p.username LIKE :query')
+            $qb->andWhere('p.username.username LIKE :query')
                ->setParameter('query', "%{$query}%");
         }
 
@@ -96,7 +97,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
                    ->select('COUNT(p.id)');
 
         if ($query !== null && $query !== '') {
-            $qb->andWhere('p.username LIKE :query')
+            $qb->andWhere('p.username.username LIKE :query')
                ->setParameter('query', "%{$query}%");
         }
 
@@ -109,5 +110,57 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
 
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
-}
 
+    public function searchMineWithPagination(?string $query, Uuid $userId, int $limit, int $offset): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->andWhere('p.user = :userId')
+            ->setParameter('userId', $userId->value());
+
+        if ($query !== null && $query !== '') {
+            $qb->andWhere('p.username.username LIKE :query')
+               ->setParameter('query', "%{$query}%");
+        }
+
+        return $qb->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->orderBy('p.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countMine(?string $query, Uuid $userId): int
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.user = :userId')
+            ->setParameter('userId', $userId->value());
+
+        if ($query !== null && $query !== '') {
+            $qb->andWhere('p.username.username LIKE :query')
+               ->setParameter('query', "%{$query}%");
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function existsByUserIdAndUsernameAndGameId(
+        Uuid $userId,
+        UsernameValue $username,
+        Uuid $gameId
+    ): bool {
+        $count = (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->join('p.gameRole', 'gr')
+            ->andWhere('p.user = :userId')
+            ->andWhere('p.username.username = :username')
+            ->andWhere('gr.game = :gameId')
+            ->setParameter('userId', $userId->value())
+            ->setParameter('username', $username->value())
+            ->setParameter('gameId', $gameId->value())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
+    }
+}

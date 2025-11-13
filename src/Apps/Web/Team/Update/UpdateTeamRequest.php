@@ -2,15 +2,41 @@
 
 namespace App\Apps\Web\Team\Update;
 
-use App\Contexts\Shared\Infrastructure\Symfony\BaseRequest;
+use App\Contexts\Web\Team\Application\Update\UpdateTeamCommand;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class UpdateTeamRequest extends BaseRequest
+final readonly class UpdateTeamRequest
 {
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $name;
+    public function __construct(
+        public string $id,
 
-    #[Assert\Type("string")]
-    public mixed $image;
+        #[Assert\NotBlank]
+        #[Assert\Type("string")]
+        public string $name,
+
+        #[Assert\Type("string")]
+        public ?string $image = null,
+    ) {}
+
+    public static function fromHttp(Request $request, string $id): self
+    {
+        $data = json_decode($request->getContent(), true);
+
+        return new self(
+            $id,
+            $data['name'] ?? '',
+            $data['image'] ?? null
+        );
+    }
+
+    public function toCommand(): UpdateTeamCommand
+    {
+        return new UpdateTeamCommand(
+            $this->id,
+            $this->name,
+            $this->image
+        );
+    }
 }
 

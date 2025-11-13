@@ -3,6 +3,7 @@
 namespace App\Contexts\Web\User\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\User\Domain\Exception\UserNotFoundException;
 use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
 
@@ -36,4 +37,6 @@ interface UserRepository
     public function countByCriteria(array $criteria): int;
 
     public function findByUsername(UsernameValue $username): User;
+
+    public function delete(User $user);
 }

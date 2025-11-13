@@ -6,10 +6,10 @@ use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Player\Application\Shared\PlayerResponse;
 
-final class FindPlayerQueryHandler implements QueryHandler
+final readonly class FindPlayerQueryHandler implements QueryHandler
 {
     public function __construct(
-        private readonly PlayerFinder $finder
+        private PlayerFinder $finder
     ) {
     }
 

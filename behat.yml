@@ -1,10 +1,18 @@
 default:
     suites:
         default:
-            paths: [ tests/Apps/Web ]
+            paths: [ tests/Behat/Web ]
             contexts:
-                - App\Tests\Apps\Shared\Infrastructure\Behat\ApiContext
-                - App\Tests\Apps\Web\Player\PlayerTestContext
+                - App\Tests\Behat\Shared\Infrastructure\Behat\ApiContext
+                - App\Tests\Behat\Web\Auth\AuthTestContext
+                - App\Tests\Behat\Web\Player\PlayerTestContext
+                - App\Tests\Behat\Web\Post\PostTestContext
+                - App\Tests\Behat\Web\Notification\NotificationTestContext
+                - App\Tests\Behat\Web\Conversation\ConversationTestContext
+                - App\Tests\Behat\Web\Team\TeamTestContext
+                - App\Tests\Behat\Web\Tournament\TournamentTestContext
+                - App\Tests\Behat\Web\Game\GameTestContext
+                - App\Tests\Behat\Web\HealthCheck\HealthCheckTestContext
 
     extensions:
         FriendsOfBehat\SymfonyExtension:

@@ -3,19 +3,21 @@
 namespace App\Apps\Web\Post\Search;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\Post\Application\Search\SearchPostQuery;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class SearchPostsController extends ApiController
 {
-    public function __invoke(SearchPostsRequest $request): Response
+    public function __invoke(Request $request): Response
     {
-        $criteria = $request->q ?? null;
+        $input = SearchPostsRequest::fromHttp($request);
+        $this->validateRequest($input);
 
-        $query = new SearchPostQuery($criteria);
-
+        $query = $input->toQuery();
         $response = $this->queryBus->ask($query);
 
         return $this->collectionResponse($response);
     }
 }
+
+
