@@ -2,6 +2,7 @@
 
 namespace App\Apps\Web\Auth\Refresh;
 
+use App\Contexts\Shared\Infrastructure\Symfony\Exception\ValidationException;
 use App\Contexts\Web\Auth\Application\RefreshToken\GetTokenByRefreshQuery;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -9,8 +10,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class GetTokenByRefreshRequest
 {
     public function __construct(
-        #[Assert\NotBlank]
-        #[Assert\Type("string")]
+        #[Assert\NotBlank(message: "The refreshToken field is required")] #[
+            Assert\Type("string"),
+        ]
         public string $refreshToken,
     ) {}
 
@@ -18,9 +20,19 @@ final readonly class GetTokenByRefreshRequest
     {
         $data = json_decode($request->getContent(), true);
 
-        return new self(
-            $data['refreshToken'] ?? ''
-        );
+        if (!is_array($data)) {
+            $data = [];
+        }
+
+        $refreshToken = $data["refreshToken"] ?? null;
+
+        if ($refreshToken === null || $refreshToken === "") {
+            throw new ValidationException([
+                "refreshToken" => ["The refreshToken field is required"],
+            ]);
+        }
+
+        return new self($refreshToken);
     }
 
     public function toQuery(): GetTokenByRefreshQuery
@@ -28,4 +40,3 @@ final readonly class GetTokenByRefreshRequest
         return new GetTokenByRefreshQuery($this->refreshToken);
     }
 }
-

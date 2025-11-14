@@ -10,41 +10,48 @@ use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
+use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 
 final class AuthTestContext implements Context
 {
-    private const TEST_USER_ID = '550e8400-e29b-41d4-a716-446655440099';
-    private const TEST_EMAIL = 'test@example.com';
-    private const TEST_PASSWORD = 'password123';
-
     public function __construct(
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
+        private readonly EntityManagerInterface $entityManager,
     ) {}
 
     /** @BeforeScenario @auth */
     public function createTestData(): void
     {
-        // Verificar si el usuario ya existe
-        try {
-            $existingUser = $this->userRepository->findById(new Uuid(self::TEST_USER_ID));
-            // Si existe, no hacer nada
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        // Verificar si el usuario ya existe antes de intentar crearlo
+        $userExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM user WHERE id = :id",
+            ["id" => TestUsers::USER1_ID],
+        );
+
+        if ($userExists) {
+            // El usuario ya existe, no hacer nada
             return;
-        } catch (\Exception $e) {
-            // Usuario no existe, continuar creándolo
         }
+
+        // Limpiar cualquier usuario existente con el mismo username o email ANTES de crear
+        $this->cleanupTestUser();
 
         // Crear usuario de prueba para login
         // IMPORTANTE: PasswordValue hashea automáticamente, pasar texto plano
         $user = User::create(
-            new Uuid(self::TEST_USER_ID),
-            new FirstnameValue('Test'),
-            new LastnameValue('User'),
-            new UsernameValue('testuser'),
-            new EmailValue(self::TEST_EMAIL),
-            new PasswordValue(self::TEST_PASSWORD) // NO hashear aquí
+            new Uuid(TestUsers::USER1_ID),
+            new FirstnameValue(TestUsers::USER1_FIRSTNAME),
+            new LastnameValue(TestUsers::USER1_LASTNAME),
+            new UsernameValue(TestUsers::USER1_USERNAME),
+            new EmailValue(TestUsers::USER1_EMAIL),
+            new PasswordValue(TestUsers::USER1_PASSWORD), // NO hashear aquí
         );
-
 
         $this->userRepository->save($user);
     }
@@ -52,13 +59,45 @@ final class AuthTestContext implements Context
     /** @AfterScenario @auth */
     public function cleanupTestData(): void
     {
+        $this->cleanupTestUser();
+    }
+
+    private function cleanupTestUser(): void
+    {
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
         try {
-            // Limpiar usuario de prueba
-            $user = $this->userRepository->findById(new Uuid(self::TEST_USER_ID));
-            $this->userRepository->delete($user);
+            // Limpiar con SQL nativo para evitar problemas de DQL y cacheo
+            // Limpiar por email (más confiable que por ID cuando hay duplicados)
+            $connection->executeStatement(
+                "DELETE FROM user WHERE email = :email",
+                ["email" => TestUsers::USER1_EMAIL],
+            );
         } catch (\Exception $e) {
-            // Usuario ya no existe, no hacer nada
+            // Ignorar si no existe
         }
+
+        try {
+            // Limpiar por username también por si acaso
+            $connection->executeStatement(
+                "DELETE FROM user WHERE username = :username",
+                ["username" => TestUsers::USER1_USERNAME],
+            );
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
+
+        try {
+            // Limpiar por ID también
+            $connection->executeStatement("DELETE FROM user WHERE id = :id", [
+                "id" => TestUsers::USER1_ID,
+            ]);
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
+
+        // Limpiar cualquier cambio pendiente en el EntityManager
+        $this->entityManager->clear();
     }
 }
-

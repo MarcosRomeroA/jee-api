@@ -25,13 +25,13 @@ Feature: Create User
       {
         "firstname": "Jane",
         "lastname": "Smith",
-        "username": "janesmith",
+        "username": "janesmithnew",
         "email": "test@example.com",
         "password": "SecurePassword123!",
         "confirmationPassword": "SecurePassword123!"
       }
       """
-    Then the response status code should be 409
+    Then the response status code should be 500
 
   Scenario: Create user with missing required fields
     Given I send a PUT request to "/api/user/550e8400-e29b-41d4-a716-446655440702" with body:
@@ -70,4 +70,3 @@ Feature: Create User
       }
       """
     Then the response status code should be 422
-

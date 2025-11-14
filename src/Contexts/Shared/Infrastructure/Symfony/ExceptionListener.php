@@ -11,22 +11,21 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 class ExceptionListener
 {
-    public function __construct(private LoggerInterface $logger)
-    {
-    }
+    public function __construct(private LoggerInterface $logger) {}
 
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
 
         // TODO: Improve this to handle async commands and queries
-        if ($exception instanceof HandlerFailedException ) {
+        if ($exception instanceof HandlerFailedException) {
             $exception = $exception->getPrevious();
         }
 
         $statusCode = 500;
-        $message = 'An unexpected error occurred';
-        $errorCode = 'unexpected_error';
+        $message = "An unexpected error occurred";
+        $errorCode = "unexpected_error";
+        $errors = [];
 
         $this->logger->critical($exception->getMessage());
 
@@ -35,26 +34,24 @@ class ExceptionListener
             $message = $exception->getMessage();
             $errorCode = $exception->getUniqueCode();
             $errors = $exception->getErrors();
-        }
-        else if ($exception instanceof ApiException)
-        {
+        } elseif ($exception instanceof ApiException) {
             $statusCode = $exception->getStatusCode();
             $message = $exception->getMessage();
             $errorCode = $exception->getUniqueCode();
         }
 
         $result = [
-            'status' => $statusCode,
-            'message' => $message,
-            'code' => $errorCode,
+            "status" => $statusCode,
+            "message" => $message,
+            "code" => $errorCode,
         ];
 
-        if (!empty($errors)){
-            $result['errors'] = $errors;
+        if (!empty($errors)) {
+            $result["errors"] = $errors;
         }
 
-        if ($_ENV['APP_ENV'] === 'dev') {
-            $result['dev_error_message'] = $exception->getMessage();
+        if ($_ENV["APP_ENV"] === "dev") {
+            $result["dev_error_message"] = $exception->getMessage();
         }
 
         $response = new JsonResponse($result);

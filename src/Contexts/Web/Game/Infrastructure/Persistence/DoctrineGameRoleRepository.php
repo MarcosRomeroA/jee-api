@@ -9,7 +9,9 @@ use App\Contexts\Web\Game\Domain\Exception\GameRoleNotFoundException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineGameRoleRepository extends ServiceEntityRepository implements GameRoleRepository
+final class DoctrineGameRoleRepository
+    extends ServiceEntityRepository
+    implements GameRoleRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -27,7 +29,7 @@ final class DoctrineGameRoleRepository extends ServiceEntityRepository implement
         $gameRole = $this->findOneBy(["id" => $id]);
 
         if (!$gameRole) {
-            throw new GameRoleNotFoundException($id);
+            throw new GameRoleNotFoundException($id->value());
         }
 
         return $gameRole;
@@ -35,16 +37,15 @@ final class DoctrineGameRoleRepository extends ServiceEntityRepository implement
 
     public function findByGame(Uuid $gameId): array
     {
-        return $this->createQueryBuilder('gr')
-            ->andWhere('gr.game = :gameId')
-            ->setParameter('gameId', $gameId)
+        return $this->createQueryBuilder("gr")
+            ->andWhere("gr.game = :gameId")
+            ->setParameter("gameId", $gameId)
             ->getQuery()
             ->getResult();
     }
 
     public function existsById(Uuid $id): bool
     {
-        return $this->count(['id' => $id]) > 0;
+        return $this->count(["id" => $id]) > 0;
     }
 }
-

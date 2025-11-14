@@ -9,7 +9,9 @@ use App\Contexts\Web\Game\Domain\Exception\GameRankNotFoundException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineGameRankRepository extends ServiceEntityRepository implements GameRankRepository
+final class DoctrineGameRankRepository
+    extends ServiceEntityRepository
+    implements GameRankRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -27,7 +29,7 @@ final class DoctrineGameRankRepository extends ServiceEntityRepository implement
         $gameRank = $this->findOneBy(["id" => $id]);
 
         if (!$gameRank) {
-            throw new GameRankNotFoundException($id);
+            throw new GameRankNotFoundException($id->value());
         }
 
         return $gameRank;
@@ -35,16 +37,15 @@ final class DoctrineGameRankRepository extends ServiceEntityRepository implement
 
     public function findByGame(Uuid $gameId): array
     {
-        return $this->createQueryBuilder('gr')
-            ->andWhere('gr.game = :gameId')
-            ->setParameter('gameId', $gameId)
+        return $this->createQueryBuilder("gr")
+            ->andWhere("gr.game = :gameId")
+            ->setParameter("gameId", $gameId)
             ->getQuery()
             ->getResult();
     }
 
     public function existsById(Uuid $id): bool
     {
-        return $this->count(['id' => $id]) > 0;
+        return $this->count(["id" => $id]) > 0;
     }
 }
-

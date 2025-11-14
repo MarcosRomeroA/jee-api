@@ -9,15 +9,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class SearchPostsRequest
 {
     public function __construct(
-        #[Assert\Type("array")]
-        public ?array $q = null,
+        #[Assert\Type("array")] public ?array $q = null,
     ) {}
 
     public static function fromHttp(Request $request): self
     {
-        return new self(
-            $request->query->all('q') ?: null
-        );
+        $q = $request->query->get("q");
+        return new self($q ? ["q" => $q] : null);
     }
 
     public function toQuery(): SearchPostQuery
@@ -25,4 +23,3 @@ final readonly class SearchPostsRequest
         return new SearchPostQuery($this->q);
     }
 }
-

@@ -16,7 +16,9 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Conversation[]    findAll()
  * @method Conversation[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-final class MysqlConversationRepository extends ServiceEntityRepository implements ConversationRepository
+final class MysqlConversationRepository
+    extends ServiceEntityRepository
+    implements ConversationRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -29,25 +31,27 @@ final class MysqlConversationRepository extends ServiceEntityRepository implemen
         $this->getEntityManager()->flush();
     }
 
-    public function searchConversationByParticipantUsers(User $user1, User $user2): ?Conversation
-    {
-        return $this->createQueryBuilder('c')
-            ->join('c.participants', 'p1')
-            ->join('c.participants', 'p2')
-            ->where('p1.user = :user1')
-            ->andWhere('p2.user = :user2')
-            ->setParameter('user1', $user1)
-            ->setParameter('user2', $user2)
+    public function searchConversationByParticipantUsers(
+        User $user1,
+        User $user2,
+    ): ?Conversation {
+        return $this->createQueryBuilder("c")
+            ->join("c.participants", "p1")
+            ->join("c.participants", "p2")
+            ->where("p1.user = :user1")
+            ->andWhere("p2.user = :user2")
+            ->setParameter("user1", $user1)
+            ->setParameter("user2", $user2)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
     public function searchConversations(User $user): array
     {
-        return $this->createQueryBuilder('c')
-            ->join('c.participants', 'p')
-            ->where('p.user = :user')
-            ->setParameter('user', $user)
+        return $this->createQueryBuilder("c")
+            ->join("c.participants", "p")
+            ->where("p.user = :user")
+            ->setParameter("user", $user)
             ->getQuery()
             ->getResult();
     }
@@ -58,7 +62,7 @@ final class MysqlConversationRepository extends ServiceEntityRepository implemen
      */
     public function findByIdOrFail(Uuid $id): Conversation
     {
-        $conversation = $this->find($id);
+        $conversation = $this->findOneBy(["id" => $id]);
 
         if (!$conversation) {
             throw new ConversationNotFoundException();

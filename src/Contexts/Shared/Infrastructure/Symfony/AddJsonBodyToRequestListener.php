@@ -11,28 +11,39 @@ final class AddJsonBodyToRequestListener
 {
     public function onKernelRequest(RequestEvent $event): void
     {
-        $request         = $event->getRequest();
+        $request = $event->getRequest();
         $requestContents = $request->getContent();
 
-        if (!empty($requestContents) && $this->containsHeader($request, 'Content-Type', 'application/json')) {
+        if (
+            !empty($requestContents) &&
+            $this->containsHeader($request, "Content-Type", "application/json")
+        ) {
             $jsonData = json_decode($requestContents, true);
-            if (!$jsonData) {
-                throw new HttpException(Response::HTTP_BAD_REQUEST, 'Invalid json data');
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new HttpException(
+                    Response::HTTP_BAD_REQUEST,
+                    "Invalid json data",
+                );
             }
             $jsonDataLowerCase = [];
             foreach ($jsonData as $key => $value) {
-                $jsonDataLowerCase[preg_replace_callback(
-                    '/_(.)/',
-                    static fn($matches) => strtoupper($matches[1]),
-                    $key
-                )] = $value;
+                $jsonDataLowerCase[
+                    preg_replace_callback(
+                        "/_(.)/",
+                        static fn($matches) => strtoupper($matches[1]),
+                        $key,
+                    )
+                ] = $value;
             }
             $request->request->replace($jsonDataLowerCase);
         }
     }
 
-    private function containsHeader(Request $request, string $name, string $value): bool
-    {
+    private function containsHeader(
+        Request $request,
+        string $name,
+        string $value,
+    ): bool {
         return str_starts_with($request->headers->get($name), $value);
     }
 }

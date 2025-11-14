@@ -6,104 +6,216 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\Team\Domain\Team;
 use App\Contexts\Web\User\Domain\User;
+use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
 use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
+use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class TeamTestContext implements Context
 {
-    private EntityManagerInterface $entityManager;
+    private const TEST_GAME_ID = "550e8400-e29b-41d4-a716-446655440071";
+    private const TEST_GAME_ID_2 = "550e8400-e29b-41d4-a716-446655440002";
+    private const TEST_TEAM_ID = "550e8400-e29b-41d4-a716-446655440072";
+    private const TEST_TEAM_ID_2 = "550e8400-e29b-41d4-a716-446655440060";
 
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UserRepository $userRepository,
+    ) {}
 
     /** @BeforeScenario @team */
     public function createTestData(): void
     {
-        // Limpiar caché antes de verificar
-        $this->entityManager->clear();
-
-        $userId = new Uuid('550e8400-e29b-41d4-a716-446655440001');
-        $gameId = new Uuid('550e8400-e29b-41d4-a716-446655440002');
-        $teamId = new Uuid('550e8400-e29b-41d4-a716-446655440060');
-
-        // Verificar si el usuario ya existe
-        $existingUser = $this->entityManager->find(User::class, $userId);
-        if (!$existingUser) {
-            // Crear usuario de test
-            // IMPORTANTE: PasswordValue hashea automáticamente, así que pasamos el plaintext
-            $user = User::create(
-                $userId,
-                new FirstnameValue('John'),
-                new LastnameValue('Doe'),
-                new UsernameValue('testuser'),
-                new EmailValue('test@example.com'),
-                new PasswordValue('password123')
+        // Obtener o crear el usuario compartido
+        try {
+            $user = $this->userRepository->findById(
+                new Uuid(TestUsers::USER1_ID),
             );
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
-        } else {
-            $user = $existingUser;
+        } catch (\Exception $e) {
+            $user = User::create(
+                new Uuid(TestUsers::USER1_ID),
+                new FirstnameValue(TestUsers::USER1_FIRSTNAME),
+                new LastnameValue(TestUsers::USER1_LASTNAME),
+                new UsernameValue(TestUsers::USER1_USERNAME),
+                new EmailValue(TestUsers::USER1_EMAIL),
+                new PasswordValue(TestUsers::USER1_PASSWORD),
+            );
+            $this->userRepository->save($user);
         }
 
         // Verificar si el juego ya existe
-        $existingGame = $this->entityManager->find(Game::class, $gameId);
-        if (!$existingGame) {
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        $gameExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM game WHERE id = :id",
+            ["id" => self::TEST_GAME_ID],
+        );
+
+        if (!$gameExists) {
+            // Crear juego de test
             $game = new Game(
-                $gameId,
-                'League of Legends',
-                'MOBA game',
+                new Uuid(self::TEST_GAME_ID),
+                "League of Legends",
+                "MOBA game",
                 5,
-                5
+                5,
             );
             $this->entityManager->persist($game);
             $this->entityManager->flush();
         } else {
-            $game = $existingGame;
+            // Obtener el juego existente
+            $game = $this->entityManager
+                ->getRepository(Game::class)
+                ->find(self::TEST_GAME_ID);
         }
 
-        // Limpiar equipos antiguos antes de crear uno nuevo
-        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Team\Domain\Team t WHERE t.id = :teamId')
-            ->setParameter('teamId', $teamId->value())
-            ->execute();
-
-        // Crear equipo de test
-        $team = new Team(
-            $teamId,
-            $game,
-            $user,
-            'Test Gaming Team',
-            'https://example.com/team-image.png'
+        // Verificar si el segundo juego ya existe
+        $game2Exists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM game WHERE id = :id",
+            ["id" => self::TEST_GAME_ID_2],
         );
-        $this->entityManager->persist($team);
-        $this->entityManager->flush();
+
+        if (!$game2Exists) {
+            // Crear segundo juego de test
+            $game2 = new Game(
+                new Uuid(self::TEST_GAME_ID_2),
+                "Valorant",
+                "FPS game",
+                5,
+                5,
+            );
+            $this->entityManager->persist($game2);
+            $this->entityManager->flush();
+        }
+
+        // Verificar si el equipo ya existe
+        $teamExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM team WHERE id = :id",
+            ["id" => self::TEST_TEAM_ID],
+        );
+
+        if (!$teamExists) {
+            // Crear equipo de test
+            $team = new Team(
+                new Uuid(self::TEST_TEAM_ID),
+                $game,
+                $user,
+                "Test Gaming Team",
+                "https://example.com/team-image.png",
+            );
+            $this->entityManager->persist($team);
+            $this->entityManager->flush();
+        }
+
+        // Verificar si el segundo equipo ya existe
+        $team2Exists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM team WHERE id = :id",
+            ["id" => self::TEST_TEAM_ID_2],
+        );
+
+        if (!$team2Exists) {
+            // Crear segundo equipo de test para delete
+            $team2 = new Team(
+                new Uuid(self::TEST_TEAM_ID_2),
+                $game,
+                $user,
+                "Team to Delete",
+                "https://example.com/team-image-2.png",
+            );
+            $this->entityManager->persist($team2);
+            $this->entityManager->flush();
+        }
     }
 
     /** @AfterScenario @team */
     public function cleanupTestData(): void
     {
-        // Limpiar en orden inverso respetando las claves foráneas
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
 
-        // 1. Limpiar team_players primero
-        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Team\Domain\TeamPlayer')->execute();
+        try {
+            // 1. Limpiar team_players del equipo de prueba con SQL nativo
+            $connection->executeStatement(
+                "DELETE FROM team_player WHERE team_id = :teamId",
+                ["teamId" => self::TEST_TEAM_ID],
+            );
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
 
-        // 2. Limpiar team_requests
-        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Team\Domain\TeamRequest')->execute();
+        try {
+            // 2. Limpiar team_requests del equipo de prueba
+            $connection->executeStatement(
+                "DELETE FROM team_request WHERE team_id = :teamId",
+                ["teamId" => self::TEST_TEAM_ID],
+            );
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
 
-        // 3. Limpiar equipos
-        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Team\Domain\Team')->execute();
+        try {
+            // 3. Limpiar equipo de prueba
+            $connection->executeStatement(
+                "DELETE FROM team WHERE id = :teamId",
+                ["teamId" => self::TEST_TEAM_ID],
+            );
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
 
-        // NO eliminamos usuarios ni games porque pueden tener otras dependencias (messages, posts, etc)
-        // Los datos de test se mantienen entre escenarios
+        try {
+            // 4. Limpiar segundo equipo de prueba
+            $connection->executeStatement(
+                "DELETE FROM team WHERE id = :teamId",
+                ["teamId" => self::TEST_TEAM_ID_2],
+            );
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
 
-        $this->entityManager->flush();
+        try {
+            // 5. Limpiar equipos del usuario de prueba (creados dinámicamente)
+            $connection->executeStatement(
+                "DELETE FROM team WHERE owner_id = :userId AND id NOT IN (:excludeId1, :excludeId2)",
+                [
+                    "userId" => TestUsers::USER1_ID,
+                    "excludeId1" => self::TEST_TEAM_ID,
+                    "excludeId2" => self::TEST_TEAM_ID_2,
+                ],
+            );
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
+
+        try {
+            // 5. Limpiar juego de prueba
+            $connection->executeStatement(
+                "DELETE FROM game WHERE id = :gameId",
+                ["gameId" => self::TEST_GAME_ID],
+            );
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
+
+        try {
+            // 6. Limpiar segundo juego de prueba
+            $connection->executeStatement(
+                "DELETE FROM game WHERE id = :gameId",
+                ["gameId" => self::TEST_GAME_ID_2],
+            );
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
+
+        // NO eliminar el usuario - es compartido entre contextos
+        // Limpiar el entity manager
         $this->entityManager->clear();
     }
 }
-

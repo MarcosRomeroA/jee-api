@@ -6,73 +6,85 @@ services:
         autoconfigure: true
 
     App\:
-        resource: '../src/'
+        resource: "../src/"
         exclude:
-            - '../src/Kernel.php'
+            - "../src/Kernel.php"
 
     App\Contexts\Shared\Infrastructure\Symfony\ExceptionListener:
         tags:
-            - { name: 'kernel.event_listener', event: 'kernel.exception' }
+            - { name: "kernel.event_listener", event: "kernel.exception" }
 
     App\Contexts\Shared\Infrastructure\Symfony\EventListener\ValidationExceptionListener:
         tags:
-            - { name: 'kernel.event_listener', event: 'kernel.exception' }
+            - {
+                  name: "kernel.event_listener",
+                  event: "kernel.exception",
+                  priority: 10,
+              }
 
     App\Contexts\Shared\Infrastructure\Symfony\JwtAuthMiddleware:
         tags:
-            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+            - {
+                  name: kernel.event_listener,
+                  event: kernel.request,
+                  method: onKernelRequest,
+              }
 
     # Configure
     _instanceof:
         App\Contexts\Shared\Domain\CQRS\Event\DomainEventSubscriber:
-            tags: [ 'app.domain_event_subscriber' ]
+            tags: ["app.domain_event_subscriber"]
 
         App\Contexts\Shared\Domain\CQRS\Command\CommandHandler:
-            tags: [ 'app.command_handler' ]
+            tags: ["app.command_handler"]
 
         App\Contexts\Shared\Domain\CQRS\Query\QueryHandler:
-            tags: [ 'app.query_handler' ]
+            tags: ["app.query_handler"]
 
     #Tagging
     App\Contexts\Shared\Infrastructure\CQRS\Event\InMemory\InMemorySymfonyEventBus:
-        arguments: [ !tagged app.domain_event_subscriber ]
+        arguments: [!tagged app.domain_event_subscriber]
         lazy: true
 
     App\Contexts\Shared\Infrastructure\CQRS\Event\DomainEventMapping:
-        arguments: [ !tagged app.domain_event_subscriber ]
+        arguments: [!tagged app.domain_event_subscriber]
 
     App\Contexts\Shared\Infrastructure\CQRS\Event\DomainEventSubscriberLocator:
-        arguments: [ !tagged app.domain_event_subscriber ]
+        arguments: [!tagged app.domain_event_subscriber]
 
     App\Contexts\Shared\Infrastructure\Symfony\AddJsonBodyToRequestListener:
         tags:
-            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+            - {
+                  name: kernel.event_listener,
+                  event: kernel.request,
+                  method: onKernelRequest,
+              }
 
     # -- APP DEFINITIONS --
     # Command/Query Handlers
     App\Contexts\Shared\Infrastructure\CQRS\Command\InMemorySymfonyCommandBus:
-        arguments: [ !tagged app.command_handler ]
+        arguments: [!tagged app.command_handler]
 
     App\Contexts\Shared\Infrastructure\CQRS\Query\InMemorySymfonyQueryBus:
-        arguments: [ !tagged app.query_handler ]
+        arguments: [!tagged app.query_handler]
 
     App\Contexts\Shared\Domain\CQRS\Event\EventBus: '@App\Contexts\Shared\Infrastructure\CQRS\Event\InMemory\InMemorySymfonyEventBus'
 
     # Email Configuration
     App\Contexts\Shared\Domain\Email\EmailSender: '@App\Contexts\Shared\Infrastructure\Email\SymfonyEmailSender'
-    
+
     App\Contexts\Shared\Infrastructure\Email\SymfonyEmailSender:
         arguments:
-            $fromEmail: '%env(MAILER_FROM_EMAIL)%'
-            $fromName: '%env(MAILER_FROM_NAME)%'
-    
+            $fromEmail: "%env(MAILER_FROM_EMAIL)%"
+            $fromName: "%env(MAILER_FROM_NAME)%"
+
     App\Contexts\Web\User\Application\SendEmailConfirmation\EmailConfirmationSender:
         arguments:
-            $appUrl: '%env(APP_URL)%'
-    
+            $appUrl: "%env(APP_URL)%"
+
     App\Contexts\Web\User\Application\ResendEmailConfirmation\EmailConfirmationResender:
         arguments:
-            $appUrl: '%env(APP_URL)%'
+            $appUrl: "%env(APP_URL)%"
 
     # HTTP Client Configuration
     App\Contexts\Shared\Domain\Http\HttpClient: '@App\Contexts\Shared\Infrastructure\Http\SymfonyHttpClient'
@@ -80,13 +92,13 @@ services:
     # Riot Games API Configuration
     App\Contexts\Web\Player\Infrastructure\RankVerification\Riot\RiotApiClient:
         arguments:
-            $apiKey: '%env(RIOT_API_KEY)%'
-            $defaultRegion: '%env(RIOT_DEFAULT_REGION)%'
+            $apiKey: "%env(RIOT_API_KEY)%"
+            $defaultRegion: "%env(RIOT_DEFAULT_REGION)%"
 
     # Steam API Configuration
     App\Contexts\Web\Player\Infrastructure\RankVerification\Steam\SteamApiClient:
         arguments:
-            $apiKey: '%env(STEAM_API_KEY)%'
+            $apiKey: "%env(STEAM_API_KEY)%"
 
     # Rank Verifier Configuration
     # Primero definimos los verificadores específicos
@@ -100,7 +112,7 @@ services:
     App\Contexts\Web\Player\Infrastructure\RankVerification\Decorator\CachedRankVerifier:
         decorates: App\Contexts\Web\Player\Infrastructure\RankVerification\CompositeRankVerifier
         arguments:
-            $inner: '@.inner'
+            $inner: "@.inner"
 
     # Alias para usar en la aplicación
     App\Contexts\Web\Player\Domain\Service\RankVerifier: '@App\Contexts\Web\Player\Infrastructure\RankVerification\Decorator\CachedRankVerifier'

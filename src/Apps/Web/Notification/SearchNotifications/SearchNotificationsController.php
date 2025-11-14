@@ -10,12 +10,16 @@ final class SearchNotificationsController extends ApiController
 {
     public function __invoke(SearchNotificationsRequest $request): Response
     {
-        $criteria = $request->q ?? null;
+        $criteria = [
+            "q" => $request->q ?? null,
+            "limit" => $request->limit ?? 10,
+            "offset" => $request->offset ?? 0,
+        ];
 
         $query = new SearchNotificationsQuery($criteria);
 
         $response = $this->queryBus->ask($query);
 
-        return $this->successResponse($response);
+        return $this->collectionResponse($response);
     }
 }

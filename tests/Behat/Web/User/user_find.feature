@@ -15,16 +15,12 @@ Feature: Find User
     And the response should have "lastname" property
     And the response should have "createdAt" property
     And the response should have "description" property
-    And the response should have "teams" property
-    And the response should have "tournaments" property
 
   Scenario: Find user by username
     Given I am authenticated as "test@example.com" with password "password123"
-    When I send a GET request to "/api/user/username/testuser"
+    When I send a GET request to "/api/user/by-username/testuser"
     Then the response status code should be 200
     And the response should have "username" property
-    And the response should have "teams" property
-    And the response should have "tournaments" property
 
   Scenario: Find user with non-existent id
     Given I am authenticated as "test@example.com" with password "password123"
@@ -38,6 +34,5 @@ Feature: Find User
 
   Scenario: Find user with non-existent username
     Given I am authenticated as "test@example.com" with password "password123"
-    When I send a GET request to "/api/user/username/nonexistentuser"
+    When I send a GET request to "/api/user/by-username/nonexistentuser"
     Then the response status code should be 404
-

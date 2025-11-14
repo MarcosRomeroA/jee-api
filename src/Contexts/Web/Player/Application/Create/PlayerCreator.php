@@ -14,31 +14,37 @@ use App\Contexts\Web\User\Domain\UserRepository;
 final readonly class PlayerCreator
 {
     public function __construct(
-        private PlayerRepository   $playerRepository,
-        private UserRepository     $userRepository,
+        private PlayerRepository $playerRepository,
+        private UserRepository $userRepository,
         private GameRoleRepository $gameRoleRepository,
         private GameRankRepository $gameRankRepository,
-    ) {
-    }
+    ) {}
 
     public function create(
         Uuid $id,
         Uuid $userId,
         Uuid $gameRoleId,
         Uuid $gameRankId,
-        UsernameValue $username
+        UsernameValue $username,
     ): void {
         $user = $this->userRepository->findById($userId);
         $gameRole = $this->gameRoleRepository->findById($gameRoleId);
         $gameRank = $this->gameRankRepository->findById($gameRankId);
-        $player = $this->playerRepository->findById($id);
 
-        if ($player){
+        // Check if player exists without throwing exception
+        try {
+            $player = $this->playerRepository->findById($id);
             $player->update($username, $gameRole, $gameRank);
-        } else {
-            // Validar que el usuario no tenga ya un player con el mismo username para el mismo juego
+        } catch (\Exception $e) {
+            // Player doesn't exist, create new one
             $gameId = $gameRole->game()->getId();
-            if ($this->playerRepository->existsByUserIdAndUsernameAndGameId($userId, $username, $gameId)) {
+            if (
+                $this->playerRepository->existsByUserIdAndUsernameAndGameId(
+                    $userId,
+                    $username,
+                    $gameId,
+                )
+            ) {
                 throw new PlayerAlreadyExistsException();
             }
 
@@ -48,7 +54,7 @@ final readonly class PlayerCreator
                 $gameRole,
                 $gameRank,
                 $username,
-                false
+                false,
             );
         }
 

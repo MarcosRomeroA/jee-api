@@ -11,7 +11,8 @@ use App\Contexts\Web\User\Domain\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class MysqlPostRepository extends ServiceEntityRepository implements PostRepository
+final class MysqlPostRepository extends ServiceEntityRepository implements
+    PostRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -34,12 +35,12 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
 
     public function findByUser(User $user): ?array
     {
-        return $this->findBy(['user' => $user]);
+        return $this->findBy(["user" => $user]);
     }
 
     public function findById(Uuid $id): Post
     {
-        $post = $this->findOneBy(['id' => $id]);
+        $post = $this->findOneBy(["id" => $id]);
 
         if (!$post) {
             throw new PostNotFoundException();
@@ -50,28 +51,27 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
 
     public function searchFeed(Uuid $userId, ?array $criteria = null): array
     {
-        $qb = $this
-            ->createQueryBuilder('p')
-            ->innerJoin('p.user', 'u')
-            ->leftJoin('u.followers', 'f')
-            ->where('f.follower = :userId')
-            ->orWhere('u.id = :userId')
-            ->setParameter('userId', $userId);
+        $qb = $this->createQueryBuilder("p")
+            ->innerJoin("p.user", "u")
+            ->leftJoin("u.followers", "f")
+            ->where("f.follower = :userId")
+            ->orWhere("u.id = :userId")
+            ->setParameter("userId", $userId);
 
         if (!is_null($criteria)) {
-            if (isset($criteria['limit']) && (int)$criteria['limit'] > 0) {
-                $qb->setMaxResults((int)$criteria['limit']);
+            if (isset($criteria["limit"]) && (int) $criteria["limit"] > 0) {
+                $qb->setMaxResults((int) $criteria["limit"]);
             }
-            if (isset($criteria['offset']) && (int)$criteria['offset'] >= 0) {
-                $qb->setFirstResult((int)$criteria['offset']);
+            if (isset($criteria["offset"]) && (int) $criteria["offset"] >= 0) {
+                $qb->setFirstResult((int) $criteria["offset"]);
             }
         }
 
         return $qb->getQuery()->getResult();
     }
-public function checkIsPostExists(Uuid $id): void
+    public function checkIsPostExists(Uuid $id): void
     {
-        $post = $this->findOneBy(['id' => $id]);
+        $post = $this->findOneBy(["id" => $id]);
 
         if ($post) {
             throw new PostAlreadyExistsException();
@@ -80,22 +80,23 @@ public function checkIsPostExists(Uuid $id): void
 
     public function searchByCriteria(array $criteria): array
     {
-        $dql = $this->createQueryBuilder('p')
-            ->innerJoin('p.user', 'u')
-            ->where('u.username.value LIKE :username')
-            ->setParameter('username', '%' . $criteria['username'] . '%')
-            ->getQuery();
+        $qb = $this->createQueryBuilder("p")->innerJoin("p.user", "u");
 
-        return $dql->getResult();
+        if (isset($criteria["q"])) {
+            $qb->where(
+                "p.body.value LIKE :query OR u.username.value LIKE :query",
+            )->setParameter("query", "%" . $criteria["q"] . "%");
+        }
 
+        return $qb->getQuery()->getResult();
     }
 
     public function findSharesQuantity(Uuid $id): int
     {
-        $dql = $this->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->where('p.sharedPostId = :id')
-            ->setParameter('id', $id)
+        $dql = $this->createQueryBuilder("p")
+            ->select("COUNT(p.id)")
+            ->where("p.sharedPostId = :id")
+            ->setParameter("id", $id)
             ->getQuery();
 
         return (int) $dql->getSingleScalarResult();
@@ -103,8 +104,8 @@ public function checkIsPostExists(Uuid $id): void
 
     public function countByCriteria(array $criteria): int
     {
-        $dql = $this->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
+        $dql = $this->createQueryBuilder("p")
+            ->select("COUNT(p.id)")
             ->getQuery();
 
         return (int) $dql->getSingleScalarResult();
@@ -112,14 +113,14 @@ public function checkIsPostExists(Uuid $id): void
 
     public function countFeed(Uuid $userId): int
     {
-        $qb = $this
-            ->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->innerJoin('p.user', 'u')
-            ->leftJoin('u.followers', 'f')
-            ->where('f.follower = :userId')
-            ->orWhere('u.id = :userId')
-            ->setParameter('userId', $userId);
+        $qb = $this->createQueryBuilder("p")
+            ->select("COUNT(p.id)")
+            ->innerJoin("p.user", "u")
+            ->leftJoin("u.followers", "f")
+            ->where("f.follower = :userId")
+            ->orWhere("u.id = :userId")
+            ->setParameter("userId", $userId);
 
-        return (int)$qb->getQuery()->getSingleScalarResult();
-    }}
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+}

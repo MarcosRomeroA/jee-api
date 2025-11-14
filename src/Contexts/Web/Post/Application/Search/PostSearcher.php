@@ -16,40 +16,60 @@ final readonly class PostSearcher implements QueryHandler
         private PostRepository $repository,
         private GetPostResources $getPostResources,
         private FileManager $fileManager,
-    )
-    {
-    }
+    ) {}
 
     /**
      * @throws Exception
      */
     public function __invoke(?array $criteria): PostCollectionResponse
     {
-        $posts = $criteria ? $this->repository->searchByCriteria($criteria) : $this->repository->searchAll();
+        // Merge default pagination values
+        $criteriaWithDefaults = array_merge(
+            ["limit" => 0, "offset" => 0],
+            $criteria ?? [],
+        );
 
+        $posts = $criteria
+            ? $this->repository->searchByCriteria($criteria)
+            : $this->repository->searchAll();
 
         foreach ($posts as $post) {
             $post->setResourceUrls($this->getPostResources->__invoke($post));
 
             if (!empty($post->getUser()->getProfileImage()->value())) {
-                $post->getUser()->setUrlProfileImage(
-                    $this->fileManager->generateTemporaryUrl('user/profile', $post->getUser()->getProfileImage()->value())
-                );
+                $post
+                    ->getUser()
+                    ->setUrlProfileImage(
+                        $this->fileManager->generateTemporaryUrl(
+                            "user/profile",
+                            $post->getUser()->getProfileImage()->value(),
+                        ),
+                    );
             }
 
             $sharedPost = null;
-            if ($post->getSharedPostId()){
-                $sharedPost = $this->repository->findById($post->getSharedPostId());
-                $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
+            if ($post->getSharedPostId()) {
+                $sharedPost = $this->repository->findById(
+                    $post->getSharedPostId(),
+                );
+                $sharedPost->setResourceUrls(
+                    $this->getPostResources->__invoke($sharedPost),
+                );
                 $post->setSharedPost($sharedPost);
             }
 
-            $sharesQuantity = $this->repository->findSharesQuantity($post->getId());
+            $sharesQuantity = $this->repository->findSharesQuantity(
+                $post->getId(),
+            );
             $post->setSharesQuantity($sharesQuantity);
         }
 
-        $total = $this->repository->countByCriteria($criteria ?? ["limit" => 0, "offset" => 0]);
+        $total = $this->repository->countByCriteria($criteriaWithDefaults);
 
-        return new PostCollectionResponse($posts, $criteria ?? ["limit" => 0, "offset" => 0], $total);
+        return new PostCollectionResponse(
+            $posts,
+            $criteriaWithDefaults,
+            $total,
+        );
     }
 }

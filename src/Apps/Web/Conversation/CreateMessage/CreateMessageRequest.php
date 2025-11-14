@@ -7,6 +7,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class CreateMessageRequest extends BaseRequest
 {
-    #[Assert\NotNull, Assert\Type("string")]
+    #[Assert\NotBlank, Assert\Type("string")]
     public mixed $content;
 }

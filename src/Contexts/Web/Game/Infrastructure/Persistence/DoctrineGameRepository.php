@@ -9,7 +9,8 @@ use App\Contexts\Web\Game\Domain\GameRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineGameRepository extends ServiceEntityRepository implements GameRepository
+final class DoctrineGameRepository extends ServiceEntityRepository implements
+    GameRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -24,10 +25,10 @@ final class DoctrineGameRepository extends ServiceEntityRepository implements Ga
 
     public function findById(Uuid $id): Game
     {
-        $game = $this->findOneBy(['id' => $id]);
+        $game = $this->findOneBy(["id" => $id]);
 
-        if (!$game){
-            throw new GameNotFoundException($id);
+        if (!$game) {
+            throw new GameNotFoundException($id->value());
         }
 
         return $game;
@@ -35,23 +36,20 @@ final class DoctrineGameRepository extends ServiceEntityRepository implements Ga
 
     public function findAll(): array
     {
-        return $this->createQueryBuilder('g')
-            ->getQuery()
-            ->getResult();
+        return $this->createQueryBuilder("g")->getQuery()->getResult();
     }
 
     public function search(string $query): array
     {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.name LIKE :query')
-            ->setParameter('query', '%' . $query . '%')
+        return $this->createQueryBuilder("g")
+            ->andWhere("g.name LIKE :query")
+            ->setParameter("query", "%" . $query . "%")
             ->getQuery()
             ->getResult();
     }
 
     public function existsById(Uuid $id): bool
     {
-        return $this->count(['id' => $id]) > 0;
+        return $this->count(["id" => $id]) > 0;
     }
 }
-

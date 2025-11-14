@@ -9,39 +9,33 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class SearchPlayersRequest
 {
     public function __construct(
-        #[Assert\Type("string")]
-        public ?string $gameId = null,
+        #[Assert\Type("string")] public ?string $gameId = null,
 
-        #[Assert\Type("bool")]
-        public bool $mine = false,
+        #[Assert\Type("bool")] public bool $mine = false,
 
-        #[Assert\Type("int")]
-        #[Assert\PositiveOrZero]
-        public ?int $page = null,
+        #[Assert\Type("int")] #[Assert\PositiveOrZero] public ?int $page = null,
 
-        #[Assert\Type("int")]
-        #[Assert\Positive]
-        public ?int $limit = null,
+        #[Assert\Type("int")] #[Assert\Positive] public ?int $limit = null,
     ) {}
 
     public static function fromHttp(Request $request): self
     {
         return new self(
-            $request->query->get('gameId'),
-            (bool) $request->query->get('mine', false),
-            $request->query->getInt('page', 1),
-            $request->query->getInt('limit', 20)
+            $request->query->get("gameId"),
+            (bool) $request->query->get("mine", false),
+            $request->query->getInt("page", 1),
+            $request->query->getInt("limit", 20),
         );
     }
 
     public function toQuery(string $userId): SearchPlayersQuery
     {
         return new SearchPlayersQuery(
+            null, // query
             $this->gameId,
             $this->mine ? $userId : null,
             $this->page,
-            $this->limit
+            $this->limit,
         );
     }
 }
-

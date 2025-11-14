@@ -18,11 +18,11 @@ final class ValidationExceptionListener
         }
 
         $response = new JsonResponse(
-            ['errors' => $exception->getErrors()],
-            422
+            ["errors" => $exception->getErrors()],
+            422,
         );
 
         $event->setResponse($response);
+        $event->stopPropagation();
     }
 }
-

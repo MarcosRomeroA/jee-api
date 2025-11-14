@@ -8,11 +8,7 @@ use App\Contexts\Web\Conversation\Domain\ValueObject\ContentValue;
 
 final readonly class CreateMessageCommandHandler implements CommandHandler
 {
-    public function __construct(
-        private MessageCreator $creator
-    )
-    {
-    }
+    public function __construct(private MessageCreator $creator) {}
 
     public function __invoke(CreateMessageCommand $command): void
     {
@@ -21,6 +17,11 @@ final readonly class CreateMessageCommandHandler implements CommandHandler
         $userId = new Uuid($command->userId);
         $content = new ContentValue($command->content);
 
-        $this->creator->__invoke($conversationId, $messageId, $userId, $content);
+        $this->creator->__invoke(
+            $messageId,
+            $conversationId,
+            $userId,
+            $content,
+        );
     }
 }

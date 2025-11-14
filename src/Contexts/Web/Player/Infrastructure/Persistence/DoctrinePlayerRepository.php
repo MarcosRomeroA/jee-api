@@ -10,7 +10,8 @@ use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrinePlayerRepository extends ServiceEntityRepository implements PlayerRepository
+final class DoctrinePlayerRepository extends ServiceEntityRepository implements
+    PlayerRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -28,7 +29,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
         $player = $this->findOneBy(["id" => $id]);
 
         if ($player === null) {
-            throw new PlayerNotFoundException($id);
+            throw new PlayerNotFoundException($id->value());
         }
 
         return $player;
@@ -36,28 +37,26 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
 
     public function findByUserId(Uuid $userId): array
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.user = :userId')
-            ->setParameter('userId', $userId)
+        return $this->createQueryBuilder("p")
+            ->andWhere("p.user = :userId")
+            ->setParameter("userId", $userId)
             ->getQuery()
             ->getResult();
     }
 
     public function findByGameId(Uuid $gameId): array
     {
-        return $this->createQueryBuilder('p')
-            ->join('p.gameRole', 'gr')
-            ->andWhere('gr.game = :gameId')
-            ->setParameter('gameId', $gameId)
+        return $this->createQueryBuilder("p")
+            ->join("p.gameRole", "gr")
+            ->andWhere("gr.game = :gameId")
+            ->setParameter("gameId", $gameId)
             ->getQuery()
             ->getResult();
     }
 
     public function findAll(): array
     {
-        return $this->createQueryBuilder('p')
-            ->getQuery()
-            ->getResult();
+        return $this->createQueryBuilder("p")->getQuery()->getResult();
     }
 
     public function delete(Player $player): void
@@ -68,7 +67,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
 
     public function existsById(Uuid $id): bool
     {
-        return $this->count(['id' => $id]) > 0;
+        return $this->count(["id" => $id]) > 0;
     }
 
     public function searchWithPagination(
@@ -76,54 +75,59 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
         ?Uuid $gameId,
         ?Uuid $userId,
         int $limit,
-        int $offset
+        int $offset,
     ): array {
-        $qb = $this->createQueryBuilder('p');
+        $qb = $this->createQueryBuilder("p");
 
-        if ($query !== null && $query !== '') {
-            $qb->andWhere('p.username.username LIKE :query')
-               ->setParameter('query', "%{$query}%");
+        if ($query !== null && $query !== "") {
+            $qb->andWhere("p.username.username LIKE :query")->setParameter(
+                "query",
+                "%{$query}%",
+            );
         }
 
         if ($gameId !== null) {
-            $qb->join('p.gameRole', 'gr')
-               ->join('gr.game', 'g')
-               ->andWhere('g.id = :gameId')
-               ->setParameter('gameId', $gameId);
+            $qb->join("p.gameRole", "gr")
+                ->join("gr.game", "g")
+                ->andWhere("g.id = :gameId")
+                ->setParameter("gameId", $gameId);
         }
 
         if ($userId !== null) {
-            $qb->andWhere('p.user = :userId')
-               ->setParameter('userId', $userId);
+            $qb->andWhere("p.user = :userId")->setParameter("userId", $userId);
         }
 
-        return $qb->setMaxResults($limit)
-                  ->setFirstResult($offset)
-                  ->orderBy('p.createdAt', 'DESC')
-                  ->getQuery()
-                  ->getResult();
+        return $qb
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->orderBy("p.createdAt", "DESC")
+            ->getQuery()
+            ->getResult();
     }
 
-    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $userId): int
-    {
-        $qb = $this->createQueryBuilder('p')
-                   ->select('COUNT(p.id)');
+    public function countSearch(
+        ?string $query,
+        ?Uuid $gameId,
+        ?Uuid $userId,
+    ): int {
+        $qb = $this->createQueryBuilder("p")->select("COUNT(p.id)");
 
-        if ($query !== null && $query !== '') {
-            $qb->andWhere('p.username.username LIKE :query')
-               ->setParameter('query', "%{$query}%");
+        if ($query !== null && $query !== "") {
+            $qb->andWhere("p.username.username LIKE :query")->setParameter(
+                "query",
+                "%{$query}%",
+            );
         }
 
         if ($gameId !== null) {
-            $qb->join('p.gameRole', 'gr')
-               ->join('gr.game', 'g')
-               ->andWhere('g.id = :gameId')
-               ->setParameter('gameId', $gameId);
+            $qb->join("p.gameRole", "gr")
+                ->join("gr.game", "g")
+                ->andWhere("g.id = :gameId")
+                ->setParameter("gameId", $gameId);
         }
 
         if ($userId !== null) {
-            $qb->andWhere('p.user = :userId')
-               ->setParameter('userId', $userId);
+            $qb->andWhere("p.user = :userId")->setParameter("userId", $userId);
         }
 
         return (int) $qb->getQuery()->getSingleScalarResult();
@@ -132,17 +136,17 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
     public function existsByUserIdAndUsernameAndGameId(
         Uuid $userId,
         UsernameValue $username,
-        Uuid $gameId
+        Uuid $gameId,
     ): bool {
-        $count = (int) $this->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->join('p.gameRole', 'gr')
-            ->andWhere('p.user = :userId')
-            ->andWhere('p.username.username = :username')
-            ->andWhere('gr.game = :gameId')
-            ->setParameter('userId', $userId)
-            ->setParameter('username', $username->value())
-            ->setParameter('gameId', $gameId)
+        $count = (int) $this->createQueryBuilder("p")
+            ->select("COUNT(p.id)")
+            ->join("p.gameRole", "gr")
+            ->andWhere("p.user = :userId")
+            ->andWhere("p.username.username = :username")
+            ->andWhere("gr.game = :gameId")
+            ->setParameter("userId", $userId)
+            ->setParameter("username", $username->value())
+            ->setParameter("gameId", $gameId)
             ->getQuery()
             ->getSingleScalarResult();
 
