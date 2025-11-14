@@ -28,8 +28,3 @@ verify_player_rank:
   methods: [ POST ]
   defaults: { auth: true }
 
-search_my_players:
-  path: /my-players
-  controller: App\Apps\Web\Player\Search\SearchMyPlayersController
-  methods: [ GET ]
-  defaults: { auth: true }

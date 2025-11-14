@@ -10,8 +10,10 @@ final class DeleteTournamentController extends ApiController
 {
     public function __invoke(string $id): Response
     {
-        $command = new DeleteTournamentCommand($id);
+        $input = DeleteTournamentRequest::fromId($id);
+        $this->validateRequest($input);
 
+        $command = $input->toCommand();
         $this->commandBus->dispatch($command);
 
         return $this->successEmptyResponse();

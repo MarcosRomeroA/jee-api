@@ -49,6 +49,17 @@ routes-player:
 test:
 	@docker exec jee_symfony vendor/bin/behat tests/Behat/Web/ --format=pretty
 
+reset-test-db: ## Reset test database completely
+	@echo "🔄 Resetting test database..."
+	@docker exec jee_symfony php bin/console doctrine:schema:drop --force --env=test
+	@docker exec jee_symfony php bin/console doctrine:schema:create --env=test
+	@docker exec jee_symfony php bin/console doctrine:migrations:migrate --no-interaction --env=test
+	@docker exec jee_symfony rm -rf var/cache/test/*
+	@docker exec jee_symfony php bin/console cache:clear --env=test
+	@echo "✅ Test database ready!"
+
+test-clean: reset-test-db test ## Reset DB and run all tests
+
 test-player:
 	@docker exec jee_symfony vendor/bin/behat tests/Behat/Web/Player/ --format=pretty
 

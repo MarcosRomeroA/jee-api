@@ -1,24 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace App\Apps\Web\Team\SearchTeams;
+namespace App\Apps\Web\Tournament\SearchTournaments;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\Team\Application\SearchTeams\SearchTeamsQuery;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-final class SearchTeamsController extends ApiController
+final class SearchTournamentsController extends ApiController
 {
     public function __invoke(Request $request, string $sessionId): Response
     {
-        $input = SearchTeamsRequest::fromHttp($request);
+        $input = SearchTournamentsRequest::fromHttp($request);
         $this->validateRequest($input);
 
         $queryObject = $input->toQuery($sessionId);
 
-        $teamsResponse = $this->queryBus->ask($queryObject);
+        $tournamentsResponse = $this->queryBus->ask($queryObject);
 
-        return $this->collectionResponse($teamsResponse);
+        return $this->collectionResponse($tournamentsResponse);
     }
 }
 

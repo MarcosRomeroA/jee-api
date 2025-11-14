@@ -12,6 +12,9 @@ final readonly class SearchPlayersRequest
         #[Assert\Type("string")]
         public ?string $gameId = null,
 
+        #[Assert\Type("bool")]
+        public bool $mine = false,
+
         #[Assert\Type("int")]
         #[Assert\PositiveOrZero]
         public ?int $page = null,
@@ -25,15 +28,17 @@ final readonly class SearchPlayersRequest
     {
         return new self(
             $request->query->get('gameId'),
+            (bool) $request->query->get('mine', false),
             $request->query->getInt('page', 1),
             $request->query->getInt('limit', 20)
         );
     }
 
-    public function toQuery(): SearchPlayersQuery
+    public function toQuery(string $userId): SearchPlayersQuery
     {
         return new SearchPlayersQuery(
             $this->gameId,
+            $this->mine ? $userId : null,
             $this->page,
             $this->limit
         );

@@ -23,7 +23,7 @@ final class DoctrineTournamentTeamRepository extends ServiceEntityRepository imp
 
     public function findById(Uuid $id): ?TournamentTeam
     {
-        return $this->find($id->value());
+        return $this->findOneBy(['id' => $id]);
     }
 
     public function findByTournamentAndTeam(Uuid $tournamentId, Uuid $teamId): ?TournamentTeam
@@ -31,8 +31,8 @@ final class DoctrineTournamentTeamRepository extends ServiceEntityRepository imp
         return $this->createQueryBuilder('tt')
             ->where('tt.tournament = :tournamentId')
             ->andWhere('tt.team = :teamId')
-            ->setParameter('tournamentId', $tournamentId->value())
-            ->setParameter('teamId', $teamId->value())
+            ->setParameter('tournamentId', $tournamentId)
+            ->setParameter('teamId', $teamId)
             ->getQuery()
             ->getOneOrNullResult();
     }
@@ -41,7 +41,7 @@ final class DoctrineTournamentTeamRepository extends ServiceEntityRepository imp
     {
         return $this->createQueryBuilder('tt')
             ->where('tt.tournament = :tournamentId')
-            ->setParameter('tournamentId', $tournamentId->value())
+            ->setParameter('tournamentId', $tournamentId)
             ->getQuery()
             ->getResult();
     }
@@ -54,7 +54,7 @@ final class DoctrineTournamentTeamRepository extends ServiceEntityRepository imp
             ->join('t.teamPlayers', 'tp')
             ->join('tp.player', 'p')
             ->where('p.user = :userId')
-            ->setParameter('userId', $userId->value())
+            ->setParameter('userId', $userId)
             ->getQuery()
             ->getResult();
     }

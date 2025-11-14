@@ -3,9 +3,11 @@
 namespace App\Contexts\Web\Tournament\Infrastructure\Persistence;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Tournament\Domain\Exception\TournamentNotFoundException;
 use App\Contexts\Web\Tournament\Domain\Tournament;
 use App\Contexts\Web\Tournament\Domain\TournamentRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 final class DoctrineTournamentRepository extends ServiceEntityRepository implements TournamentRepository
@@ -21,35 +23,99 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
         $this->getEntityManager()->flush();
     }
 
-    public function findById(Uuid $id): ?Tournament
+    public function findById(Uuid $id): Tournament
     {
-        return $this->find($id->value());
+        $tournament = $this->findOneBy(['id' => $id]);
+
+        if (!$tournament){
+            throw new TournamentNotFoundException($id->value());
+        }
+
+        return $tournament;
     }
 
-    public function findByResponsibleId(Uuid $responsibleId): array
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.responsible = :responsibleId')
-            ->setParameter('responsibleId', $responsibleId->value())
-            ->andWhere('t.deletedAt IS NULL')
+    public function search(
+        ?string $query,
+        ?Uuid $gameId,
+        ?Uuid $responsibleId,
+        bool $open,
+        int $limit,
+        int $offset
+    ): array {
+        $qb = $this->createQueryBuilder('t')
+            ->andWhere('t.deletedAt IS NULL');
+
+        if ($query !== null) {
+            $qb->andWhere('t.name LIKE :query')
+               ->setParameter('query', '%' . $query . '%');
+        }
+
+        if ($gameId !== null) {
+            $qb->join('t.game', 'g')
+               ->andWhere('g.id = :gameId')
+               ->setParameter('gameId', $gameId);
+        }
+
+        if ($responsibleId !== null) {
+            $qb->join('t.responsible', 'r')
+               ->andWhere('r.id = :responsibleId')
+               ->setParameter('responsibleId', $responsibleId);
+        }
+
+        if ($open) {
+            $qb->join('t.status', 's')
+               ->andWhere('s.name = :statusName')
+               ->setParameter('statusName', 'active')
+               ->andWhere('t.registeredTeams < t.maxTeams');
+        }
+
+        return $qb->setMaxResults($limit)
+            ->setFirstResult($offset)
             ->getQuery()
             ->getResult();
     }
 
-    public function findOpenTournaments(string $query = ''): array
-    {
+    public function countSearch(
+        ?string $query,
+        ?Uuid $gameId,
+        ?Uuid $responsibleId,
+        bool $open
+    ): int {
         $qb = $this->createQueryBuilder('t')
-            ->andWhere('t.deletedAt IS NULL')
-            ->andWhere('t.status.id = :active')
-            ->setParameter('active', 'active')
-            ->andWhere('t.registeredTeams < t.maxTeams');
+            ->select('COUNT(t.id)')
+            ->andWhere('t.deletedAt IS NULL');
 
-        if ($query !== '') {
+        if ($query !== null) {
             $qb->andWhere('t.name LIKE :query')
-                ->setParameter('query', '%' . $query . '%');
+               ->setParameter('query', '%' . $query . '%');
         }
 
-        return $qb->getQuery()->getResult();
+        if ($gameId !== null) {
+            $qb->join('t.game', 'g')
+               ->andWhere('g.id = :gameId')
+               ->setParameter('gameId', $gameId);
+        }
+
+        if ($responsibleId !== null) {
+            $qb->join('t.responsible', 'r')
+               ->andWhere('r.id = :responsibleId')
+               ->setParameter('responsibleId', $responsibleId);
+        }
+
+        if ($open) {
+            $qb->join('t.status', 's')
+               ->andWhere('s.name = :statusName')
+               ->setParameter('statusName', 'active')
+               ->andWhere('t.registeredTeams < t.maxTeams');
+        }
+
+        try {
+            $result = $qb->getQuery()->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            $result = 0;
+        }
+
+        return (int) $result;
     }
 
     public function delete(Tournament $tournament): void
@@ -60,7 +126,7 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
 
     public function existsById(Uuid $id): bool
     {
-        return $this->count(['id' => $id->value()]) > 0;
+        return $this->count(['id' => $id]) > 0;
     }
 }
 

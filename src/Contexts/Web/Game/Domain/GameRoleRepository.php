@@ -14,6 +14,8 @@ interface GameRoleRepository
      */
     public function findById(Uuid $id): GameRole;
 
+    public function findByGame(Uuid $gameId): array;
+
     public function existsById(Uuid $id): bool;
 }
 

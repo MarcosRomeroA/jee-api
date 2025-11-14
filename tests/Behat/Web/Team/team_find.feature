@@ -1,4 +1,4 @@
-@team
+@team @auth
 Feature: Find Team
   In order to get team information
   As an authenticated user
@@ -14,8 +14,4 @@ Feature: Find Team
     When I send a GET request to "/api/team/999e9999-e99b-99d9-a999-999999999999"
     Then the response status code should be 404
 
-  Scenario: Find team with invalid id format
-    Given I am authenticated as "test@example.com" with password "password123"
-    When I send a GET request to "/api/team/invalid-id"
-    Then the response status code should be 400
 

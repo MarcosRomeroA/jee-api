@@ -17,15 +17,17 @@ final readonly class SearchTeamsQueryHandler implements QueryHandler
     public function __invoke(SearchTeamsQuery $query): TeamCollectionResponse
     {
         $gameId = $query->gameId ? new Uuid($query->gameId) : null;
+        $ownerId = $query->ownerId ? new Uuid($query->ownerId) : null;
 
         $teams = $this->searcher->search(
             $query->query,
             $gameId,
+            $ownerId,
             $query->limit,
             $query->offset
         );
 
-        $total = $this->searcher->count($query->query, $gameId);
+        $total = $this->searcher->count($query->query, $gameId, $ownerId);
 
         $teamsResponse = !empty($teams)
             ? array_map(static fn($team) => TeamResponse::fromTeam($team), $teams)

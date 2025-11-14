@@ -23,7 +23,7 @@ final class DoctrineTournamentStatusRepository extends ServiceEntityRepository i
 
     public function findById(Uuid $id): ?TournamentStatus
     {
-        return $this->find($id->value());
+        return $this->findOneBy(['id' => $id]);
     }
 
     public function findByName(string $name): ?TournamentStatus

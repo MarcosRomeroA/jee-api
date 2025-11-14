@@ -9,3 +9,16 @@ find_game:
   controller: App\Apps\Web\Game\Find\FindGameController
   methods: [ GET ]
   defaults: { auth: true }
+
+search_game_roles:
+  path: /game/{gameId}/roles
+  controller: App\Apps\Web\Game\Search\SearchGameRolesController
+  methods: [ GET ]
+  defaults: { auth: true }
+
+search_game_ranks:
+  path: /game/{gameId}/ranks
+  controller: App\Apps\Web\Game\Search\SearchGameRanksController
+  methods: [ GET ]
+  defaults: { auth: true }
+

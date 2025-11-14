@@ -19,8 +19,6 @@ services:
             - { name: 'kernel.event_listener', event: 'kernel.exception' }
 
     App\Contexts\Shared\Infrastructure\Symfony\JwtAuthMiddleware:
-        arguments:
-            $environment: '%kernel.environment%'
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
 

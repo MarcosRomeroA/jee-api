@@ -28,70 +28,122 @@ final class TournamentTestContext implements Context
     /** @BeforeScenario @tournament */
     public function createTestData(): void
     {
-        // Crear un usuario de prueba (responsible)
-        $user = new User(
-            new Uuid('550e8400-e29b-41d4-a716-446655440001'),
-            new FirstnameValue('John'),
-            new LastnameValue('Doe'),
-            new UsernameValue('testuser'),
-            new EmailValue('test@example.com'),
-            new PasswordValue(password_hash('password123', PASSWORD_BCRYPT))
-        );
-        $this->entityManager->persist($user);
+        // Limpiar caché antes de verificar
+        $this->entityManager->clear();
+
+        // Crear un usuario de prueba (responsible) - diferente del usuario de autenticación
+        // Verificar si ya existe
+        $userId = new Uuid('750e8400-e29b-41d4-a716-446655440002');
+        $existingUser = $this->entityManager->find(User::class, $userId);
+
+        if (!$existingUser) {
+            $user = new User(
+                $userId,
+                new FirstnameValue('Tournament'),
+                new LastnameValue('Owner'),
+                new UsernameValue('tournament_owner'),
+                new EmailValue('tournament@example.com'),
+                new PasswordValue(password_hash('password123', PASSWORD_BCRYPT))
+            );
+            $this->entityManager->persist($user);
+        } else {
+            $user = $existingUser;
+        }
 
         // Crear un juego de prueba
-        $game = new Game(
-            new Uuid('550e8400-e29b-41d4-a716-446655440002'),
-            'League of Legends',
-            'MOBA game',
-            5,
-            5
-        );
-        $this->entityManager->persist($game);
+        $gameId = new Uuid('750e8400-e29b-41d4-a716-446655440001');
+        $existingGame = $this->entityManager->find(Game::class, $gameId);
+
+        if (!$existingGame) {
+            $game = new Game(
+                $gameId,
+                'League of Legends',
+                'MOBA game',
+                5,
+                5
+            );
+            $this->entityManager->persist($game);
+        } else {
+            $game = $existingGame;
+        }
+
+        // Crear rangos
+        $silverRankId = new Uuid('750e8400-e29b-41d4-a716-446655440005');
+        $existingSilverRank = $this->entityManager->find(\App\Contexts\Web\Game\Domain\Rank::class, $silverRankId);
+
+        if (!$existingSilverRank) {
+            $silverRank = new \App\Contexts\Web\Game\Domain\Rank($silverRankId, 'Silver');
+            $this->entityManager->persist($silverRank);
+        } else {
+            $silverRank = $existingSilverRank;
+        }
+
+        $diamondRankId = new Uuid('750e8400-e29b-41d4-a716-446655440006');
+        $existingDiamondRank = $this->entityManager->find(\App\Contexts\Web\Game\Domain\Rank::class, $diamondRankId);
+
+        if (!$existingDiamondRank) {
+            $diamondRank = new \App\Contexts\Web\Game\Domain\Rank($diamondRankId, 'Diamond');
+            $this->entityManager->persist($diamondRank);
+        } else {
+            $diamondRank = $existingDiamondRank;
+        }
 
         // Crear rangos de juego
-        $minRank = new GameRank(
-            new Uuid('550e8400-e29b-41d4-a716-446655440003'),
-            $game,
-            'Silver',
-            3
-        );
-        $this->entityManager->persist($minRank);
+        $minRankId = new Uuid('750e8400-e29b-41d4-a716-446655440003');
+        $existingMinRank = $this->entityManager->find(GameRank::class, $minRankId);
 
-        $maxRank = new GameRank(
-            new Uuid('550e8400-e29b-41d4-a716-446655440004'),
-            $game,
-            'Diamond',
-            7
-        );
-        $this->entityManager->persist($maxRank);
+        if (!$existingMinRank) {
+            $minRank = new GameRank($minRankId, $game, $silverRank, 3);
+            $this->entityManager->persist($minRank);
+        } else {
+            $minRank = $existingMinRank;
+        }
 
-        // Crear estado de torneo
-        $status = new TournamentStatus(
-            'active',
-            'Active Tournament'
-        );
-        $this->entityManager->persist($status);
+        $maxRankId = new Uuid('750e8400-e29b-41d4-a716-446655440004');
+        $existingMaxRank = $this->entityManager->find(GameRank::class, $maxRankId);
+
+        if (!$existingMaxRank) {
+            $maxRank = new GameRank($maxRankId, $game, $diamondRank, 7);
+            $this->entityManager->persist($maxRank);
+        } else {
+            $maxRank = $existingMaxRank;
+        }
+
+        // Crear estado de torneo (usar el ID de "created" de la migración)
+        $statusId = new Uuid('01234567-89ab-cdef-0123-000000000001');
+        $existingStatus = $this->entityManager->find(TournamentStatus::class, $statusId);
+
+        if (!$existingStatus) {
+            $status = new TournamentStatus($statusId, 'created');
+            $this->entityManager->persist($status);
+        } else {
+            $status = $existingStatus;
+        }
 
         // Crear un torneo de prueba
-        $tournament = new Tournament(
-            new Uuid('550e8400-e29b-41d4-a716-446655440070'),
-            $game,
-            $status,
-            $user,
-            'Test Summer Championship',
-            'This is a test tournament for competitive gaming',
-            16,
-            true,
-            'https://example.com/tournament-image.png',
-            '10000 USD',
-            'NA',
-            new \DateTimeImmutable('+1 week'),
-            new \DateTimeImmutable('+2 weeks'),
-            $minRank,
-            $maxRank
-        );
-        $this->entityManager->persist($tournament);
+        $tournamentId = new Uuid('750e8400-e29b-41d4-a716-446655440000');
+        $existingTournament = $this->entityManager->find(Tournament::class, $tournamentId);
+
+        if (!$existingTournament) {
+            $tournament = new Tournament(
+                $tournamentId,
+                $game,
+                $status,
+                $user,
+                'Summer Championship 2025',
+                'Annual summer tournament',
+                16,
+                true,
+                'https://example.com/tournament-image.png',
+                '10000 USD',
+                'NA',
+                new \DateTimeImmutable('+1 week'),
+                new \DateTimeImmutable('+2 weeks'),
+                $minRank,
+                $maxRank
+            );
+            $this->entityManager->persist($tournament);
+        }
 
         $this->entityManager->flush();
     }
@@ -99,6 +151,8 @@ final class TournamentTestContext implements Context
     /** @AfterScenario @tournament */
     public function cleanupTestData(): void
     {
+        // Limpiar en orden inverso respetando foreign keys
+
         // Limpiar torneos (esto también limpiará tournament_teams por cascade)
         $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Tournament\Domain\Tournament')->execute();
 
@@ -108,11 +162,22 @@ final class TournamentTestContext implements Context
         // Limpiar rangos de juego
         $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Game\Domain\GameRank')->execute();
 
+        // Limpiar ranks
+        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Game\Domain\Rank')->execute();
+
+        // Limpiar game roles si existen
+        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Game\Domain\GameRole')->execute();
+
         // Limpiar juegos
         $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\Game\Domain\Game')->execute();
 
-        // Limpiar usuarios
-        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\User\Domain\User')->execute();
+        // Limpiar usuarios solo si no fueron creados por AuthTestContext
+        $this->entityManager->createQuery('DELETE FROM App\Contexts\Web\User\Domain\User u WHERE u.id = :userId')
+            ->setParameter('userId', '750e8400-e29b-41d4-a716-446655440002')
+            ->execute();
+
+        // Limpiar caché del EntityManager
+        $this->entityManager->clear();
     }
 }
 

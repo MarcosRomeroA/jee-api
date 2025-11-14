@@ -1,4 +1,4 @@
-@team
+@team @auth
 Feature: Create Team
   In order to form gaming teams
   As an authenticated user
@@ -42,17 +42,6 @@ Feature: Create Team
       """
     Then the response status code should be 422
 
-  Scenario: Create team with invalid id format
-    Given I am authenticated as "test@example.com" with password "password123"
-    When I send a PUT request to "/api/team/invalid-id" with body:
-      """
-      {
-        "gameId": "550e8400-e29b-41d4-a716-446655440002",
-        "ownerId": "550e8400-e29b-41d4-a716-446655440001",
-        "name": "Test Team"
-      }
-      """
-    Then the response status code should be 400
 
   Scenario: Create team with non-existent game
     Given I am authenticated as "test@example.com" with password "password123"

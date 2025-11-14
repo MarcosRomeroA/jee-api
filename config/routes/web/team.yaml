@@ -10,11 +10,6 @@ find_team:
   methods: [ GET ]
   defaults: { auth: true }
 
-search_my_teams:
-  path: /my-teams
-  controller: App\Apps\Web\Team\SearchMyTeams\SearchMyTeamsController
-  methods: [ GET ]
-  defaults: { auth: true }
 
 search_teams:
   path: /teams

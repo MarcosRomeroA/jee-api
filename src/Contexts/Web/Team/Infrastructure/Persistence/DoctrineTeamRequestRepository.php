@@ -23,7 +23,7 @@ final class DoctrineTeamRequestRepository extends ServiceEntityRepository implem
 
     public function findById(Uuid $id): ?TeamRequest
     {
-        return $this->find($id->value());
+        return $this->findOneBy(['id' => $id]);
     }
 
     public function findPendingByTeamAndPlayer(Uuid $teamId, Uuid $playerId): ?TeamRequest
@@ -32,8 +32,8 @@ final class DoctrineTeamRequestRepository extends ServiceEntityRepository implem
             ->where('tr.team = :teamId')
             ->andWhere('tr.player = :playerId')
             ->andWhere('tr.status = :status')
-            ->setParameter('teamId', $teamId->value())
-            ->setParameter('playerId', $playerId->value())
+            ->setParameter('teamId', $teamId)
+            ->setParameter('playerId', $playerId)
             ->setParameter('status', 'pending')
             ->getQuery()
             ->getOneOrNullResult();
@@ -44,7 +44,7 @@ final class DoctrineTeamRequestRepository extends ServiceEntityRepository implem
         return $this->createQueryBuilder('tr')
             ->where('tr.team = :teamId')
             ->andWhere('tr.status = :status')
-            ->setParameter('teamId', $teamId->value())
+            ->setParameter('teamId', $teamId)
             ->setParameter('status', 'pending')
             ->orderBy('tr.createdAt', 'DESC')
             ->getQuery()
@@ -56,7 +56,7 @@ final class DoctrineTeamRequestRepository extends ServiceEntityRepository implem
         return $this->createQueryBuilder('tr')
             ->where('tr.player = :playerId')
             ->andWhere('tr.status = :status')
-            ->setParameter('playerId', $playerId->value())
+            ->setParameter('playerId', $playerId)
             ->setParameter('status', 'pending')
             ->orderBy('tr.createdAt', 'DESC')
             ->getQuery()

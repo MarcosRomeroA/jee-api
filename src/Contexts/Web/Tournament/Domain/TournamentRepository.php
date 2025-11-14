@@ -8,14 +8,26 @@ interface TournamentRepository
 {
     public function save(Tournament $tournament): void;
 
-    public function findById(Uuid $id): ?Tournament;
-
-    public function findByResponsibleId(Uuid $responsibleId): array;
-
-    public function findOpenTournaments(string $query = ''): array;
+    public function findById(Uuid $id): Tournament;
 
     public function delete(Tournament $tournament): void;
 
     public function existsById(Uuid $id): bool;
+
+    public function search(
+        ?string $query,
+        ?Uuid $gameId,
+        ?Uuid $responsibleId,
+        bool $open,
+        int $limit,
+        int $offset
+    ): array;
+
+    public function countSearch(
+        ?string $query,
+        ?Uuid $gameId,
+        ?Uuid $responsibleId,
+        bool $open
+    ): int;
 }
 

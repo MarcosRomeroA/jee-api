@@ -10,8 +10,10 @@ final class FindTournamentController extends ApiController
 {
     public function __invoke(string $id): Response
     {
-        $query = new FindTournamentQuery($id);
+        $input = FindTournamentRequest::fromId($id);
+        $this->validateRequest($input);
 
+        $query = $input->toQuery();
         $tournamentResponse = $this->queryBus->ask($query);
 
         return $this->successResponse($tournamentResponse->toArray());

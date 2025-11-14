@@ -15,14 +15,15 @@ final class TeamsSearcher
     public function search(
         ?string $query,
         ?Uuid $gameId,
+        ?Uuid $ownerId,
         int $limit,
         int $offset
     ): array {
-        return $this->repository->searchWithPagination($query, $gameId, $limit, $offset);
+        return $this->repository->searchWithPagination($query, $gameId, $ownerId, $limit, $offset);
     }
 
-    public function count(?string $query, ?Uuid $gameId): int
+    public function count(?string $query, ?Uuid $gameId, ?Uuid $ownerId): int
     {
-        return $this->repository->countSearch($query, $gameId);
+        return $this->repository->countSearch($query, $gameId, $ownerId);
     }
 }

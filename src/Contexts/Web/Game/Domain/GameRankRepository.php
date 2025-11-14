@@ -14,6 +14,8 @@ interface GameRankRepository
      */
     public function findById(Uuid $id): GameRank;
 
+    public function findByGame(Uuid $gameId): array;
+
     public function existsById(Uuid $id): bool;
 }
 

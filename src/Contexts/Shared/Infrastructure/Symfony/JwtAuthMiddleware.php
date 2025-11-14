@@ -11,7 +11,6 @@ final readonly class JwtAuthMiddleware
 {
     public function __construct(
         private JwtGenerator $jwtGenerator,
-        private string $environment,
     )
     {
     }

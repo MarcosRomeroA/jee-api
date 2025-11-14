@@ -16,17 +16,13 @@ find_tournament:
   methods: [ GET ]
   defaults: { auth: true }
 
-search_my_tournaments:
-  path: /my-tournaments
-  controller: App\Apps\Web\Tournament\SearchMyTournaments\SearchMyTournamentsController
+search_tournaments:
+  path: /tournaments
+  controller: App\Apps\Web\Tournament\SearchTournaments\SearchTournamentsController
   methods: [ GET ]
   defaults: { auth: true }
 
-search_open_tournaments:
-  path: /open-tournaments
-  controller: App\Apps\Web\Tournament\SearchOpenTournaments\SearchOpenTournamentsController
-  methods: [ GET ]
-  defaults: { auth: true }
+
 
 delete_tournament:
   path: /tournament/{id}

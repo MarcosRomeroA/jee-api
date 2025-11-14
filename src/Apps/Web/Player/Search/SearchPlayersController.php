@@ -8,12 +8,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class SearchPlayersController extends ApiController
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, string $sessionId): Response
     {
         $input = SearchPlayersRequest::fromHttp($request);
         $this->validateRequest($input);
 
-        $query = $input->toQuery();
+        $query = $input->toQuery($sessionId);
         $response = $this->queryBus->ask($query);
 
         return $this->collectionResponse($response);

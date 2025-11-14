@@ -22,19 +22,10 @@ interface TeamRepository
     public function searchWithPagination(
         ?string $query,
         ?Uuid $gameId,
+        ?Uuid $ownerId,
         int $limit,
         int $offset
     ): array;
 
-    public function countSearch(?string $query, ?Uuid $gameId): int;
-
-    public function searchMyTeamsWithPagination(
-        Uuid $userId,
-        ?string $query,
-        ?Uuid $gameId,
-        int $limit,
-        int $offset
-    ): array;
-
-    public function countMyTeams(Uuid $userId, ?string $query, ?Uuid $gameId): int;
+    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $ownerId): int;
 }

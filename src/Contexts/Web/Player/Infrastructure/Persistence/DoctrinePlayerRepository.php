@@ -25,10 +25,10 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
 
     public function findById(Uuid $id): Player
     {
-        $player = $this->findOneBy(["id" => $id->value()]);
+        $player = $this->findOneBy(["id" => $id]);
 
         if ($player === null) {
-            throw new PlayerNotFoundException($id->value());
+            throw new PlayerNotFoundException($id);
         }
 
         return $player;
@@ -38,7 +38,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
     {
         return $this->createQueryBuilder('p')
             ->andWhere('p.user = :userId')
-            ->setParameter('userId', $userId->value())
+            ->setParameter('userId', $userId)
             ->getQuery()
             ->getResult();
     }
@@ -48,7 +48,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
         return $this->createQueryBuilder('p')
             ->join('p.gameRole', 'gr')
             ->andWhere('gr.game = :gameId')
-            ->setParameter('gameId', $gameId->value())
+            ->setParameter('gameId', $gameId)
             ->getQuery()
             ->getResult();
     }
@@ -68,12 +68,13 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
 
     public function existsById(Uuid $id): bool
     {
-        return $this->count(['id' => $id->value()]) > 0;
+        return $this->count(['id' => $id]) > 0;
     }
 
     public function searchWithPagination(
         ?string $query,
         ?Uuid $gameId,
+        ?Uuid $userId,
         int $limit,
         int $offset
     ): array {
@@ -88,7 +89,12 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
             $qb->join('p.gameRole', 'gr')
                ->join('gr.game', 'g')
                ->andWhere('g.id = :gameId')
-               ->setParameter('gameId', $gameId->value());
+               ->setParameter('gameId', $gameId);
+        }
+
+        if ($userId !== null) {
+            $qb->andWhere('p.user = :userId')
+               ->setParameter('userId', $userId);
         }
 
         return $qb->setMaxResults($limit)
@@ -98,7 +104,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
                   ->getResult();
     }
 
-    public function countSearch(?string $query, ?Uuid $gameId): int
+    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $userId): int
     {
         $qb = $this->createQueryBuilder('p')
                    ->select('COUNT(p.id)');
@@ -112,40 +118,12 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
             $qb->join('p.gameRole', 'gr')
                ->join('gr.game', 'g')
                ->andWhere('g.id = :gameId')
-               ->setParameter('gameId', $gameId->value());
+               ->setParameter('gameId', $gameId);
         }
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
-    }
-
-    public function searchMineWithPagination(?string $query, Uuid $userId, int $limit, int $offset): array
-    {
-        $qb = $this->createQueryBuilder('p')
-            ->andWhere('p.user = :userId')
-            ->setParameter('userId', $userId->value());
-
-        if ($query !== null && $query !== '') {
-            $qb->andWhere('p.username.username LIKE :query')
-               ->setParameter('query', "%{$query}%");
-        }
-
-        return $qb->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->orderBy('p.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function countMine(?string $query, Uuid $userId): int
-    {
-        $qb = $this->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->andWhere('p.user = :userId')
-            ->setParameter('userId', $userId->value());
-
-        if ($query !== null && $query !== '') {
-            $qb->andWhere('p.username.username LIKE :query')
-               ->setParameter('query', "%{$query}%");
+        if ($userId !== null) {
+            $qb->andWhere('p.user = :userId')
+               ->setParameter('userId', $userId);
         }
 
         return (int) $qb->getQuery()->getSingleScalarResult();
@@ -162,9 +140,9 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements 
             ->andWhere('p.user = :userId')
             ->andWhere('p.username.username = :username')
             ->andWhere('gr.game = :gameId')
-            ->setParameter('userId', $userId->value())
+            ->setParameter('userId', $userId)
             ->setParameter('username', $username->value())
-            ->setParameter('gameId', $gameId->value())
+            ->setParameter('gameId', $gameId)
             ->getQuery()
             ->getSingleScalarResult();
 

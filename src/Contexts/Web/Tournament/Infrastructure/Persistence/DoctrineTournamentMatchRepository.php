@@ -23,14 +23,14 @@ final class DoctrineTournamentMatchRepository extends ServiceEntityRepository im
 
     public function findById(Uuid $id): ?TournamentMatch
     {
-        return $this->find($id->value());
+        return $this->findOneBy(['id' => $id]);
     }
 
     public function findByTournamentId(Uuid $tournamentId): array
     {
         return $this->createQueryBuilder('m')
             ->where('m.tournament = :tournamentId')
-            ->setParameter('tournamentId', $tournamentId->value())
+            ->setParameter('tournamentId', $tournamentId)
             ->orderBy('m.round', 'ASC')
             ->addOrderBy('m.createdAt', 'ASC')
             ->getQuery()
@@ -42,7 +42,7 @@ final class DoctrineTournamentMatchRepository extends ServiceEntityRepository im
         return $this->createQueryBuilder('m')
             ->where('m.tournament = :tournamentId')
             ->andWhere('m.round = :round')
-            ->setParameter('tournamentId', $tournamentId->value())
+            ->setParameter('tournamentId', $tournamentId)
             ->setParameter('round', $round)
             ->orderBy('m.createdAt', 'ASC')
             ->getQuery()

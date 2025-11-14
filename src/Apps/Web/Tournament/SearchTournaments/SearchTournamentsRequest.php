@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace App\Apps\Web\Team\SearchTeams;
+namespace App\Apps\Web\Tournament\SearchTournaments;
 
-use App\Contexts\Web\Team\Application\SearchTeams\SearchTeamsQuery;
+use App\Contexts\Web\Tournament\Application\Search\SearchTournamentsQuery;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class SearchTeamsRequest
+final readonly class SearchTournamentsRequest
 {
     public function __construct(
         #[Assert\Type("string")]
@@ -17,6 +17,9 @@ final readonly class SearchTeamsRequest
 
         #[Assert\Type("bool")]
         public bool $mine = false,
+
+        #[Assert\Type("bool")]
+        public bool $open = false,
 
         #[Assert\Type("int")]
         public int $limit = 20,
@@ -31,17 +34,19 @@ final readonly class SearchTeamsRequest
             $request->query->get('q'),
             $request->query->get('gameId'),
             (bool) $request->query->get('mine', false),
+            (bool) $request->query->get('open', false),
             (int) $request->query->get('limit', 20),
             (int) $request->query->get('offset', 0)
         );
     }
 
-    public function toQuery(string $userId): SearchTeamsQuery
+    public function toQuery(string $userId): SearchTournamentsQuery
     {
-        return new SearchTeamsQuery(
+        return new SearchTournamentsQuery(
             $this->q,
             $this->gameId,
             $this->mine ? $userId : null,
+            $this->open,
             $this->limit,
             $this->offset
         );

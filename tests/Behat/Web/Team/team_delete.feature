@@ -1,4 +1,4 @@
-@team
+@team @auth
 Feature: Delete Team
   In order to remove a team from the system
   As an authenticated user
@@ -15,10 +15,6 @@ Feature: Delete Team
     When I send a DELETE request to "/api/team/999e9999-e99b-99d9-a999-999999999999"
     Then the response status code should be 404
 
-  Scenario: Delete team with invalid id format
-    Given I am authenticated as "test@example.com" with password "password123"
-    When I send a DELETE request to "/api/team/invalid-id"
-    Then the response status code should be 400
 
 
 

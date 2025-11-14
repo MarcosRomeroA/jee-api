@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class UpdateTournamentRequest
 {
     public function __construct(
+        #[Assert\NotBlank]
         public string $id,
 
         #[Assert\NotBlank]

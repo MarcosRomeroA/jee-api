@@ -26,6 +26,9 @@ final class TeamTestContext implements Context
     /** @BeforeScenario @team */
     public function createTestData(): void
     {
+        // Limpiar caché antes de verificar
+        $this->entityManager->clear();
+
         $userId = new Uuid('550e8400-e29b-41d4-a716-446655440001');
         $gameId = new Uuid('550e8400-e29b-41d4-a716-446655440002');
         $teamId = new Uuid('550e8400-e29b-41d4-a716-446655440060');

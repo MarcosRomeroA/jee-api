@@ -24,20 +24,12 @@ interface PlayerRepository
     public function searchWithPagination(
         ?string $query,
         ?Uuid $gameId,
+        ?Uuid $userId,
         int $limit,
         int $offset
     ): array;
 
-    public function countSearch(?string $query, ?Uuid $gameId): int;
-
-    public function searchMineWithPagination(
-        ?string $query,
-        Uuid $userId,
-        int $limit,
-        int $offset
-    ): array;
-
-    public function countMine(?string $query, Uuid $userId): int;
+    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $userId): int;
 
     public function existsByUserIdAndUsernameAndGameId(
         Uuid $userId,

@@ -27,7 +27,7 @@ final class DoctrineGameRepository extends ServiceEntityRepository implements Ga
         $game = $this->findOneBy(['id' => $id]);
 
         if (!$game){
-            throw new GameNotFoundException($id->value());
+            throw new GameNotFoundException($id);
         }
 
         return $game;
@@ -51,7 +51,7 @@ final class DoctrineGameRepository extends ServiceEntityRepository implements Ga
 
     public function existsById(Uuid $id): bool
     {
-        return $this->count(['id' => $id->value()]) > 0;
+        return $this->count(['id' => $id]) > 0;
     }
 }
 

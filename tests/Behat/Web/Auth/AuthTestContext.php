@@ -25,14 +25,24 @@ final class AuthTestContext implements Context
     /** @BeforeScenario @auth */
     public function createTestData(): void
     {
+        // Verificar si el usuario ya existe
+        try {
+            $existingUser = $this->userRepository->findById(new Uuid(self::TEST_USER_ID));
+            // Si existe, no hacer nada
+            return;
+        } catch (\Exception $e) {
+            // Usuario no existe, continuar creándolo
+        }
+
         // Crear usuario de prueba para login
+        // IMPORTANTE: PasswordValue hashea automáticamente, pasar texto plano
         $user = User::create(
             new Uuid(self::TEST_USER_ID),
             new FirstnameValue('Test'),
             new LastnameValue('User'),
             new UsernameValue('testuser'),
             new EmailValue(self::TEST_EMAIL),
-            new PasswordValue(password_hash(self::TEST_PASSWORD, PASSWORD_BCRYPT))
+            new PasswordValue(self::TEST_PASSWORD) // NO hashear aquí
         );
 
 
@@ -42,9 +52,13 @@ final class AuthTestContext implements Context
     /** @AfterScenario @auth */
     public function cleanupTestData(): void
     {
-        // Limpiar usuario de prueba
-        $user = $this->userRepository->findById(new Uuid(self::TEST_USER_ID));
-        $this->userRepository->delete($user);
+        try {
+            // Limpiar usuario de prueba
+            $user = $this->userRepository->findById(new Uuid(self::TEST_USER_ID));
+            $this->userRepository->delete($user);
+        } catch (\Exception $e) {
+            // Usuario ya no existe, no hacer nada
+        }
     }
 }
 

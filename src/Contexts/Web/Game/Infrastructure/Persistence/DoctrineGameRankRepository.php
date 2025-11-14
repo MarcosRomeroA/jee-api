@@ -24,18 +24,27 @@ final class DoctrineGameRankRepository extends ServiceEntityRepository implement
 
     public function findById(Uuid $id): GameRank
     {
-        $gameRank = $this->findOneBy(["id" => $id->value()]);
+        $gameRank = $this->findOneBy(["id" => $id]);
 
         if (!$gameRank) {
-            throw new GameRankNotFoundException($id->value());
+            throw new GameRankNotFoundException($id);
         }
 
         return $gameRank;
     }
 
+    public function findByGame(Uuid $gameId): array
+    {
+        return $this->createQueryBuilder('gr')
+            ->andWhere('gr.game = :gameId')
+            ->setParameter('gameId', $gameId)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function existsById(Uuid $id): bool
     {
-        return $this->count(['id' => $id->value()]) > 0;
+        return $this->count(['id' => $id]) > 0;
     }
 }
 

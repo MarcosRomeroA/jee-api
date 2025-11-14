@@ -24,7 +24,7 @@ final class DoctrineEmailConfirmationRepository extends ServiceEntityRepository 
 
     public function findById(Uuid $id): ?EmailConfirmation
     {
-        return $this->find($id->value());
+        return $this->findOneBy(['id' => $id]);
     }
 
     public function findByToken(EmailConfirmationToken $token): ?EmailConfirmation
@@ -36,7 +36,7 @@ final class DoctrineEmailConfirmationRepository extends ServiceEntityRepository 
     {
         return $this->createQueryBuilder('ec')
             ->where('ec.user = :userId')
-            ->setParameter('userId', $userId->value())
+            ->setParameter('userId', $userId)
             ->orderBy('ec.createdAt', 'DESC')
             ->setMaxResults(1)
             ->getQuery()

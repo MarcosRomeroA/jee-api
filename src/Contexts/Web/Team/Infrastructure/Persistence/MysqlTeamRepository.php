@@ -26,7 +26,7 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
 
     public function findById(Uuid $id): Team
     {
-        $team = $this->findOneBy(['id' => $id->value()]);
+        $team = $this->findOneBy(['id' => $id]);
 
         if (!$team) {
             throw new TeamNotFoundException($id->value());
@@ -39,7 +39,7 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.owner = :ownerId')
-            ->setParameter('ownerId', $ownerId->value())
+            ->setParameter('ownerId', $ownerId)
             ->getQuery()
             ->getResult();
     }
@@ -61,12 +61,13 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
 
     public function existsById(Uuid $id): bool
     {
-        return $this->count(['id' => $id->value()]) > 0;
+        return $this->count(['id' => $id]) > 0;
     }
 
     public function searchWithPagination(
         ?string $query,
         ?Uuid $gameId,
+        ?Uuid $ownerId,
         int $limit,
         int $offset
     ): array {
@@ -80,7 +81,13 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
         if ($gameId !== null) {
             $qb->join('t.game', 'g')
                ->andWhere('g.id = :gameId')
-               ->setParameter('gameId', $gameId->value());
+               ->setParameter('gameId', $gameId);
+        }
+
+        if ($ownerId !== null) {
+            $qb->join('t.owner', 'u')
+               ->andWhere('u.id = :ownerId')
+               ->setParameter('ownerId', $ownerId);
         }
 
         return $qb->setMaxResults($limit)
@@ -89,47 +96,11 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
             ->getResult();
     }
 
-    public function countSearch(?string $query, ?Uuid $gameId): int
+    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $ownerId): int
     {
         $qb = $this->createQueryBuilder('t')
             ->select('COUNT(t.id)');
 
-        // Hacer join solo si es necesario
-        if ($gameId !== null) {
-            $qb->join('t.game', 'g');
-        }
-
-        if ($query !== null) {
-            $qb->andWhere('t.name LIKE :query')
-               ->setParameter('query', '%' . $query . '%');
-        }
-
-        if ($gameId !== null) {
-            $qb->andWhere('g.id = :gameId')
-               ->setParameter('gameId', $gameId->value());
-        }
-
-        try {
-            $result = $qb->getQuery()->getSingleScalarResult();
-        } catch (NoResultException $e) {
-            $result = 0;
-        }
-
-        return (int) $result;
-    }
-
-    public function searchMyTeamsWithPagination(
-        Uuid $userId,
-        ?string $query,
-        ?Uuid $gameId,
-        int $limit,
-        int $offset
-    ): array {
-        $qb = $this->createQueryBuilder('t')
-            ->join('t.owner', 'u')
-            ->andWhere('u.id = :userId')
-            ->setParameter('userId', $userId->value());
-
         if ($query !== null) {
             $qb->andWhere('t.name LIKE :query')
                ->setParameter('query', '%' . $query . '%');
@@ -138,32 +109,13 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
         if ($gameId !== null) {
             $qb->join('t.game', 'g')
                ->andWhere('g.id = :gameId')
-               ->setParameter('gameId', $gameId->value());
+               ->setParameter('gameId', $gameId);
         }
 
-        return $qb->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function countMyTeams(Uuid $userId, ?string $query, ?Uuid $gameId): int
-    {
-        $qb = $this->createQueryBuilder('t')
-            ->select('COUNT(t.id)')
-            ->join('t.owner', 'u')
-            ->andWhere('u.id = :userId')
-            ->setParameter('userId', $userId->value());
-
-        if ($query !== null) {
-            $qb->andWhere('t.name LIKE :query')
-                ->setParameter('query', '%' . $query . '%');
-        }
-
-        if ($gameId !== null) {
-            $qb->join('t.game', 'g')
-               ->andWhere('g.id = :gameId')
-               ->setParameter('gameId', $gameId->value());
+        if ($ownerId !== null) {
+            $qb->join('t.owner', 'u')
+               ->andWhere('u.id = :ownerId')
+               ->setParameter('ownerId', $ownerId);
         }
 
         try {

@@ -23,7 +23,7 @@ final class DoctrineTeamPlayerRepository extends ServiceEntityRepository impleme
 
     public function findById(Uuid $id): ?TeamPlayer
     {
-        return $this->find($id->value());
+        return $this->findOneBy(['id' => $id]);
     }
 
     public function findByTeamAndPlayer(Uuid $teamId, Uuid $playerId): ?TeamPlayer
@@ -31,8 +31,8 @@ final class DoctrineTeamPlayerRepository extends ServiceEntityRepository impleme
         return $this->createQueryBuilder('tp')
             ->where('tp.team = :teamId')
             ->andWhere('tp.player = :playerId')
-            ->setParameter('teamId', $teamId->value())
-            ->setParameter('playerId', $playerId->value())
+            ->setParameter('teamId', $teamId)
+            ->setParameter('playerId', $playerId)
             ->getQuery()
             ->getOneOrNullResult();
     }
@@ -41,7 +41,7 @@ final class DoctrineTeamPlayerRepository extends ServiceEntityRepository impleme
     {
         return $this->createQueryBuilder('tp')
             ->where('tp.team = :teamId')
-            ->setParameter('teamId', $teamId->value())
+            ->setParameter('teamId', $teamId)
             ->getQuery()
             ->getResult();
     }
@@ -50,7 +50,7 @@ final class DoctrineTeamPlayerRepository extends ServiceEntityRepository impleme
     {
         return $this->createQueryBuilder('tp')
             ->where('tp.player = :playerId')
-            ->setParameter('playerId', $playerId->value())
+            ->setParameter('playerId', $playerId)
             ->getQuery()
             ->getResult();
     }
