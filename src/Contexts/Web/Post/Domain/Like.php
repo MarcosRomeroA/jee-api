@@ -6,7 +6,9 @@ use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\Traits\Timestamps;
 use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
+use App\Contexts\Web\Post\Domain\Events\LikeCreatedDomainEvent;
 use App\Contexts\Web\User\Domain\User;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -16,37 +18,38 @@ use Doctrine\ORM\Mapping as ORM;
 class Like extends AggregateRoot
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id;
+    #[ORM\Column(type: "uuid", length: 36)]
+    private Uuid $id;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     private User $user;
 
-    #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: 'comments')]
+    #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: "comments")]
     private Post $post;
 
     use Timestamps;
 
-    public function __construct(
-        User $user,
-    )
+    public function __construct(Uuid $id, User $user)
     {
+        $this->id = $id;
         $this->user = $user;
         $this->createdAt = new CreatedAtValue();
         $this->updatedAt = new UpdatedAtValue($this->createdAt->value());
     }
 
-    public static function create(
-        User $user,
-    ): self
+    public static function create(Uuid $id, User $user, Post $post): self
     {
-        $like = new self($user);
-        $like->user = $user;
+        $like = new self($id, $user);
+        $like->post = $post;
+
+        $like->record(
+            new LikeCreatedDomainEvent($id, $user->getId(), $post->getId()),
+        );
+
         return $like;
     }
 
-    public function getId(): ?int
+    public function getId(): Uuid
     {
         return $this->id;
     }

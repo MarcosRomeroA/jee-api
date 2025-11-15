@@ -11,11 +11,9 @@ use App\Contexts\Web\User\Domain\UserRepository;
 final readonly class AddCommentPostCommandHandler implements CommandHandler
 {
     public function __construct(
-        private PostCommenter  $commenter,
+        private PostCommenter $commenter,
         private UserRepository $userRepository,
-    )
-    {
-    }
+    ) {}
 
     public function __invoke(AddCommentPostCommand $command): void
     {
@@ -24,8 +22,7 @@ final readonly class AddCommentPostCommandHandler implements CommandHandler
         $postId = new Uuid($command->postId);
         $commentId = new Uuid($command->commentId);
         $commentText = new CommentValue($command->comment);
-        $comment = Comment::create($commentId, $commentText, $user);
 
-        $this->commenter->__invoke($postId, $comment);
+        $this->commenter->__invoke($postId, $commentId, $commentText, $user);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Contexts\Web\Player\Domain;
 
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Player\Domain\Events\PlayerCreatedDomainEvent;
 use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
 use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\Game\Domain\GameRole;
@@ -12,32 +13,50 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Embedded;
 
 #[ORM\Entity(repositoryClass: PlayerRepository::class)]
-#[ORM\Table(name: 'player')]
+#[ORM\Table(name: "player")]
 class Player extends AggregateRoot
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', length: 36)]
+    #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
+    #[
+        ORM\JoinColumn(
+            name: "user_id",
+            referencedColumnName: "id",
+            nullable: false,
+        ),
+    ]
     private User $user;
 
     #[ORM\ManyToOne(targetEntity: GameRole::class)]
-    #[ORM\JoinColumn(name: 'game_role_id', referencedColumnName: 'id', nullable: false)]
+    #[
+        ORM\JoinColumn(
+            name: "game_role_id",
+            referencedColumnName: "id",
+            nullable: false,
+        ),
+    ]
     private GameRole $gameRole;
 
     #[ORM\ManyToOne(targetEntity: GameRank::class)]
-    #[ORM\JoinColumn(name: 'game_rank_id', referencedColumnName: 'id', nullable: false)]
+    #[
+        ORM\JoinColumn(
+            name: "game_rank_id",
+            referencedColumnName: "id",
+            nullable: false,
+        ),
+    ]
     private GameRank $gameRank;
 
     #[Embedded(class: UsernameValue::class, columnPrefix: false)]
     private UsernameValue $username;
 
-    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    #[ORM\Column(type: "boolean", options: ["default" => false])]
     private bool $verified;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: "datetime_immutable")]
     private \DateTimeImmutable $createdAt;
 
     public function __construct(
@@ -46,7 +65,7 @@ class Player extends AggregateRoot
         GameRole $gameRole,
         GameRank $gameRank,
         UsernameValue $username,
-        bool $verified = false
+        bool $verified = false,
     ) {
         $this->id = $id;
         $this->user = $user;
@@ -63,21 +82,31 @@ class Player extends AggregateRoot
         GameRole $gameRole,
         GameRank $gameRank,
         UsernameValue $username,
-        bool $verified = false
+        bool $verified = false,
     ): self {
-        return new self($id, $user, $gameRole, $gameRank, $username, $verified);
+        $player = new self(
+            $id,
+            $user,
+            $gameRole,
+            $gameRank,
+            $username,
+            $verified,
+        );
+
+        $player->record(new PlayerCreatedDomainEvent($id));
+
+        return $player;
     }
 
     public function update(
         UsernameValue $username,
         GameRole $gameRole,
-        GameRank $gameRank
+        GameRank $gameRank,
     ): void {
         $this->username = $username;
         $this->gameRole = $gameRole;
         $this->gameRank = $gameRank;
     }
-
 
     public function id(): Uuid
     {

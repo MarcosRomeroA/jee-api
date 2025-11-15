@@ -14,25 +14,22 @@ final readonly class PostLiker
         private PostRepository $postRepository,
         private UserRepository $userRepository,
         private EventBus $bus,
-    )
-    {
-    }
+    ) {}
 
-    public function __invoke(
-        Uuid $postId,
-        Uuid $userId,
-    ): void
+    public function __invoke(Uuid $postId, Uuid $userId): void
     {
         $post = $this->postRepository->findById($postId);
 
         $user = $this->userRepository->findById($userId);
 
-        $like = Like::create($user);
+        $likeId = Uuid::random();
+        $like = Like::create($likeId, $user, $post);
 
         $post->addLike($like);
 
         $this->postRepository->save($post);
 
         $this->bus->publish(...$post->pullDomainEvents());
+        $this->bus->publish(...$like->pullDomainEvents());
     }
 }

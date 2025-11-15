@@ -11,34 +11,52 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TeamRepository::class)]
-#[ORM\Table(name: 'team')]
+#[ORM\Table(name: "team")]
 class Team extends AggregateRoot
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', length: 36)]
+    #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
 
     #[ORM\ManyToOne(targetEntity: Game::class)]
-    #[ORM\JoinColumn(name: 'game_id', referencedColumnName: 'id', nullable: false)]
+    #[
+        ORM\JoinColumn(
+            name: "game_id",
+            referencedColumnName: "id",
+            nullable: false,
+        ),
+    ]
     private Game $game;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'owner_id', referencedColumnName: 'id', nullable: false)]
+    #[
+        ORM\JoinColumn(
+            name: "owner_id",
+            referencedColumnName: "id",
+            nullable: false,
+        ),
+    ]
     private User $owner;
 
-    #[ORM\Column(type: 'string', length: 100)]
+    #[ORM\Column(type: "string", length: 100)]
     private string $name;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $image;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: "datetime_immutable")]
     private \DateTimeImmutable $createdAt;
 
     /**
      * @var Collection<int, TeamPlayer>
      */
-    #[ORM\OneToMany(targetEntity: TeamPlayer::class, mappedBy: 'team', cascade: ['persist', 'remove'])]
+    #[
+        ORM\OneToMany(
+            targetEntity: TeamPlayer::class,
+            mappedBy: "team",
+            cascade: ["persist", "remove"],
+        ),
+    ]
     private Collection $teamPlayers;
 
     public function __construct(
@@ -46,7 +64,7 @@ class Team extends AggregateRoot
         Game $game,
         User $owner,
         string $name,
-        ?string $image = null
+        ?string $image = null,
     ) {
         $this->id = $id;
         $this->game = $game;
@@ -107,7 +125,6 @@ class Team extends AggregateRoot
 
     public function isOwner(Uuid $userId): bool
     {
-        return $this->owner->id()->equals($userId);
+        return $this->owner->getId()->equals($userId);
     }
 }
-

@@ -7,6 +7,7 @@ use App\Contexts\Shared\Domain\Traits\Timestamps;
 use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Conversation\Domain\Events\ConversationCreatedDomainEvent;
 use App\Contexts\Web\Participant\Domain\Participant;
 use App\Contexts\Web\User\Domain\User;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -17,13 +18,25 @@ use Doctrine\ORM\Mapping as ORM;
 class Conversation extends AggregateRoot
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', length: 36)]
+    #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
 
-    #[ORM\OneToMany(targetEntity: Participant::class, mappedBy: 'conversation', cascade: ["persist", "remove"])]
+    #[
+        ORM\OneToMany(
+            targetEntity: Participant::class,
+            mappedBy: "conversation",
+            cascade: ["persist", "remove"],
+        ),
+    ]
     private Collection $participants;
 
-    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'conversation', cascade: ["persist", "remove"])]
+    #[
+        ORM\OneToMany(
+            targetEntity: Message::class,
+            mappedBy: "conversation",
+            cascade: ["persist", "remove"],
+        ),
+    ]
     private Collection $messages;
 
     use Timestamps;
@@ -33,17 +46,19 @@ class Conversation extends AggregateRoot
      */
     private function __construct(Uuid $id)
     {
-        $this->id = $id;;
+        $this->id = $id;
         $this->participants = new ArrayCollection();
         $this->createdAt = new CreatedAtValue();
         $this->updatedAt = UpdatedAtValue::now();
     }
 
-    public static function create(
-        Uuid $id,
-    ): Conversation
+    public static function create(Uuid $id): Conversation
     {
-        return new self($id);
+        $conversation = new self($id);
+
+        $conversation->record(new ConversationCreatedDomainEvent($id));
+
+        return $conversation;
     }
 
     public function getParticipants(): Collection
@@ -72,8 +87,7 @@ class Conversation extends AggregateRoot
         /**
          * @var Participant $p
          */
-        foreach ($this->participants as $p)
-        {
+        foreach ($this->participants as $p) {
             if ($user->getId() === $p->getUser()->getId()) {
                 return true;
             }
@@ -82,9 +96,9 @@ class Conversation extends AggregateRoot
         return false;
     }
 
-    public function getOtherParticipant(User $user): ?Participant{
-        foreach ($this->participants as $p)
-        {
+    public function getOtherParticipant(User $user): ?Participant
+    {
+        foreach ($this->participants as $p) {
             if ($user->getId() !== $p->getUser()->getId()) {
                 return $p;
             }

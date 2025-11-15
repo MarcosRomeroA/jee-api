@@ -8,6 +8,7 @@ use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
+use App\Contexts\Web\Post\Domain\Events\CommentCreatedDomainEvent;
 use App\Contexts\Web\Post\Domain\ValueObject\CommentValue;
 use App\Contexts\Web\User\Domain\User;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,13 +20,13 @@ use Doctrine\ORM\Mapping\Embedded;
 class Comment extends AggregateRoot
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', length: 36)]
+    #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     private User $user;
 
-    #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: 'comments')]
+    #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: "comments")]
     private Post $post;
 
     #[Embedded(class: CommentValue::class, columnPrefix: false)]
@@ -33,10 +34,7 @@ class Comment extends AggregateRoot
 
     use Timestamps;
 
-    public function __construct(
-        Uuid $id,
-        CommentValue $comment,
-    )
+    public function __construct(Uuid $id, CommentValue $comment)
     {
         $this->id = $id;
         $this->comment = $comment;
@@ -48,11 +46,17 @@ class Comment extends AggregateRoot
         Uuid $id,
         CommentValue $comment,
         User $user,
-    ): self
-    {
-        $comment = new self($id, $comment);
-        $comment->user = $user;
-        return $comment;
+        Post $post,
+    ): self {
+        $commentEntity = new self($id, $comment);
+        $commentEntity->user = $user;
+        $commentEntity->post = $post;
+
+        $commentEntity->record(
+            new CommentCreatedDomainEvent($id, $user->getId(), $post->getId()),
+        );
+
+        return $commentEntity;
     }
 
     public function getId(): Uuid
