@@ -65,6 +65,20 @@ final class GameTestContext implements Context
             $this->entityManager->persist($game3);
         }
 
+        $game4Id = new Uuid("550e8400-e29b-41d4-a716-446655440083");
+        $existingGame4 = $this->entityManager->find(Game::class, $game4Id);
+
+        if (!$existingGame4) {
+            $game4 = new Game(
+                $game4Id,
+                "Dota 2",
+                "Multiplayer online battle arena game developed by Valve",
+                5,
+                5,
+            );
+            $this->entityManager->persist($game4);
+        }
+
         $this->entityManager->flush();
     }
 
