@@ -14,15 +14,10 @@ final class UserFollowersController extends ApiController
         string $sessionId,
         Request $request,
     ): Response {
-        $limit = $request->query->get("limit")
-            ? (int) $request->query->get("limit")
-            : null;
-        $offset = $request->query->get("offset")
-            ? (int) $request->query->get("offset")
-            : null;
+        $input = UserFollowersRequest::fromHttp($id, $sessionId, $request);
+        $this->validateRequest($input);
 
-        $query = new UserFollowersQuery($id, $sessionId, $limit, $offset);
-
+        $query = $input->toQuery();
         $response = $this->queryBus->ask($query);
 
         return $this->collectionResponse($response);

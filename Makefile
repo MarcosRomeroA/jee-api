@@ -1,4 +1,4 @@
-.PHONY: dev build-dev build start stop down exec logs clean-cache migration migrate test test-player
+.PHONY: dev build-dev build start stop down exec logs clean-cache migration migrate test behat unit test-player
 
 dev:
 	@docker compose -f compose.yaml -f compose.dev.yaml up -d
@@ -46,8 +46,16 @@ routes:
 routes-player:
 	@docker exec jee_symfony php bin/console debug:router | grep player
 
-test:
-	@docker exec jee_symfony vendor/bin/behat tests/Behat/Web/ --format=pretty
+behat: ## Run Behat tests
+	@echo "🧪 Running Behat tests..."
+	@docker exec jee_symfony vendor/bin/behat
+
+unit: ## Run PHPUnit tests
+	@echo "🧪 Running PHPUnit tests..."
+	@docker exec jee_symfony vendor/bin/phpunit
+
+test: behat unit ## Run all tests (Behat + PHPUnit)
+	@echo "✅ All tests completed!"
 
 reset-test-db: ## Reset test database completely
 	@echo "🔄 Resetting test database..."
@@ -84,7 +92,9 @@ help:
 	@echo "  make migrate-test     - Ejecutar migraciones (test)"
 	@echo "  make routes           - Ver todas las rutas"
 	@echo "  make routes-player    - Ver rutas de Player"
-	@echo "  make test             - Ejecutar todos los tests"
+	@echo "  make behat            - Ejecutar tests de Behat"
+	@echo "  make unit             - Ejecutar tests unitarios (PHPUnit)"
+	@echo "  make test             - Ejecutar todos los tests (Behat + PHPUnit)"
 	@echo "  make test-player      - Ejecutar tests de Player"
 	@echo "  make test-verbose     - Ejecutar tests con verbose"
 	@echo "  make setup            - Setup completo + tests"

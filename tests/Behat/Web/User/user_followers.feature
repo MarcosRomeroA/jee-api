@@ -22,10 +22,9 @@ Feature: Get User Followers
   Scenario: Get followers of non-existent user
     Given I am authenticated as "test@example.com" with password "password123"
     When I send a GET request to "/api/user/999e9999-e99b-99d9-a999-999999999999/followers"
-    Then the response status code should be 404
+    Then the response status code should be 422
 
   Scenario: Get followers with invalid user id
     Given I am authenticated as "test@example.com" with password "password123"
     When I send a GET request to "/api/user/invalid-id/followers"
-    Then the response status code should be 400
-
+    Then the response status code should be 422
