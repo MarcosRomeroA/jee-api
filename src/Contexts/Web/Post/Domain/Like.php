@@ -8,7 +8,7 @@ use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
-use App\Contexts\Web\Post\Domain\Events\LikeCreatedDomainEvent;
+
 use App\Contexts\Web\User\Domain\User;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -41,10 +41,6 @@ class Like extends AggregateRoot
     {
         $like = new self($id, $user);
         $like->post = $post;
-
-        $like->record(
-            new LikeCreatedDomainEvent($id, $user->getId(), $post->getId()),
-        );
 
         return $like;
     }

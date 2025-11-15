@@ -8,33 +8,47 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 class PostCommentedDomainEvent extends DomainEvent
 {
     public function __construct(
-        Uuid $id,
-        array $body
-    )
-    {
-        parent::__construct($id, $body);
+        Uuid $postId,
+        private readonly Uuid $commentId,
+        private readonly Uuid $userCommenterId,
+    ) {
+        parent::__construct($postId);
     }
 
     public static function eventName(): string
     {
-        return 'post.commented';
+        return "post.commented";
     }
 
     public static function fromPrimitives(
         Uuid $aggregateId,
         ?array $body,
         ?string $eventId,
-        ?string $occurredOn
-    ): DomainEvent
-    {
-        return new self($aggregateId, $body);
+        ?string $occurredOn,
+    ): DomainEvent {
+        return new self(
+            $aggregateId,
+            new Uuid($body["commentId"]),
+            new Uuid($body["userCommenterId"]),
+        );
     }
 
     public function toPrimitives(): array
     {
         return [
-            'id' => $this->getAggregateId(),
-            ...$this->body
+            "postId" => $this->getAggregateId(),
+            "commentId" => $this->commentId->value(),
+            "userCommenterId" => $this->userCommenterId->value(),
         ];
+    }
+
+    public function commentId(): Uuid
+    {
+        return $this->commentId;
+    }
+
+    public function userCommenterId(): Uuid
+    {
+        return $this->userCommenterId;
     }
 }

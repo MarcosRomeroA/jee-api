@@ -23,7 +23,7 @@ use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbe
 class Post extends AggregateRoot
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', length: 36)]
+    #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
 
     #[Embedded(class: BodyValue::class, columnPrefix: false)]
@@ -32,16 +32,35 @@ class Post extends AggregateRoot
     #[ORM\ManyToOne(targetEntity: User::class)]
     private User $user;
 
-    #[ORM\Column(type: 'uuid', length: 36, nullable: true)]
+    #[ORM\Column(type: "uuid", length: 36, nullable: true)]
     private ?Uuid $sharedPostId = null;
 
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', cascade: ['persist', 'remove'])]
+    #[
+        ORM\OneToMany(
+            targetEntity: Comment::class,
+            mappedBy: "post",
+            cascade: ["persist", "remove"],
+        ),
+    ]
     private ?Collection $comments;
 
-    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'post', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[
+        ORM\OneToMany(
+            targetEntity: Like::class,
+            mappedBy: "post",
+            cascade: ["persist", "remove"],
+            orphanRemoval: true,
+        ),
+    ]
     private ?Collection $likes;
 
-    #[ORM\OneToMany(targetEntity: PostResource::class, mappedBy: 'post', cascade: ['persist', 'remove'])]
+    #[
+        ORM\OneToMany(
+            targetEntity: PostResource::class,
+            mappedBy: "post",
+            cascade: ["persist", "remove"],
+        ),
+    ]
     private ?Collection $resources;
 
     private array $resourceUrls;
@@ -56,9 +75,8 @@ class Post extends AggregateRoot
         Uuid $id,
         BodyValue $body,
         User $user,
-        ?Uuid $sharedPostId
-    )
-    {
+        ?Uuid $sharedPostId,
+    ) {
         $this->id = $id;
         $this->body = $body;
         $this->user = $user;
@@ -74,15 +92,11 @@ class Post extends AggregateRoot
         BodyValue $body,
         User $user,
         array $resources,
-        ?Uuid $sharedPostId
-    ): self
-    {
+        ?Uuid $sharedPostId,
+    ): self {
         $post = new self($id, $body, $user, $sharedPostId);
 
-        $post->record(new PostCreatedDomainEvent(
-            $id,
-            $resources
-        ));
+        $post->record(new PostCreatedDomainEvent($id, $resources));
 
         return $post;
     }
@@ -107,10 +121,13 @@ class Post extends AggregateRoot
         if (!$this->comments->contains($comment)) {
             $this->comments[] = $comment;
             $comment->setPost($this);
-            $this->record(new PostCommentedDomainEvent(
-                $this->id,
-                ["commentId" => $comment->getId()]
-            ));
+            $this->record(
+                new PostCommentedDomainEvent(
+                    $this->id,
+                    $comment->getId(),
+                    $comment->getUser()->getId(),
+                ),
+            );
         }
 
         return $this;
@@ -118,27 +135,32 @@ class Post extends AggregateRoot
 
     public function addLike(Like $like): self
     {
-        foreach ($this->likes as $l){
-            if ($l->getUser()->getId()->value() === $like->getUser()->getId()->value()){
+        foreach ($this->likes as $l) {
+            if (
+                $l->getUser()->getId()->value() ===
+                $like->getUser()->getId()->value()
+            ) {
                 return $this;
             }
         }
 
         $this->likes[] = $like;
         $like->setPost($this);
-        $this->record(new PostLikedDomainEvent(
-            $this->id,
-            [
-                "userLikerId" => $like->getUser()->getId()->value(),
-            ]
-        ));
+        $this->record(
+            new PostLikedDomainEvent(
+                $this->id,
+                $like->getId(),
+                $like->getUser()->getId(),
+            ),
+        );
 
         return $this;
     }
 
-    public function removeLike(User $user): void{
-        foreach ($this->likes as $like){
-            if ($like->getUser() === $user){
+    public function removeLike(User $user): void
+    {
+        foreach ($this->likes as $like) {
+            if ($like->getUser() === $user) {
                 $this->likes->removeElement($like);
             }
         }
@@ -190,7 +212,8 @@ class Post extends AggregateRoot
         return $this->user;
     }
 
-    public function getLikes(): ?Collection{
+    public function getLikes(): ?Collection
+    {
         return $this->likes;
     }
 

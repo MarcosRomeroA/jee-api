@@ -8,7 +8,7 @@ use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
-use App\Contexts\Web\Post\Domain\Events\CommentCreatedDomainEvent;
+
 use App\Contexts\Web\Post\Domain\ValueObject\CommentValue;
 use App\Contexts\Web\User\Domain\User;
 use Doctrine\ORM\Mapping as ORM;
@@ -51,10 +51,6 @@ class Comment extends AggregateRoot
         $commentEntity = new self($id, $comment);
         $commentEntity->user = $user;
         $commentEntity->post = $post;
-
-        $commentEntity->record(
-            new CommentCreatedDomainEvent($id, $user->getId(), $post->getId()),
-        );
 
         return $commentEntity;
     }
