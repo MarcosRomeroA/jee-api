@@ -1,27 +1,28 @@
 default:
-    suites:
-        default:
-            paths: [ tests/Behat/Web ]
-            contexts:
-                - App\Tests\Behat\Shared\Infrastructure\Behat\ApiContext
-                - App\Tests\Behat\Web\Auth\AuthTestContext
-                - App\Tests\Behat\Web\Player\PlayerTestContext
-                - App\Tests\Behat\Web\Post\PostTestContext
-                - App\Tests\Behat\Web\Notification\NotificationTestContext
-                - App\Tests\Behat\Web\Conversation\ConversationTestContext
-                - App\Tests\Behat\Web\Team\TeamTestContext
-                - App\Tests\Behat\Web\Tournament\TournamentTestContext
-                - App\Tests\Behat\Web\Game\GameTestContext
-                - App\Tests\Behat\Web\HealthCheck\HealthCheckTestContext
+  suites:
+    default:
+      paths: [tests/Behat/Web]
+      contexts:
+        - App\Tests\Behat\Shared\Infrastructure\Behat\DatabaseContext
+        - App\Tests\Behat\Shared\Infrastructure\Behat\ApiContext
+        - App\Tests\Behat\Web\Auth\AuthTestContext
+        - App\Tests\Behat\Web\Player\PlayerTestContext
+        - App\Tests\Behat\Web\Post\PostTestContext
+        - App\Tests\Behat\Web\Notification\NotificationTestContext
+        - App\Tests\Behat\Web\Conversation\ConversationTestContext
+        - App\Tests\Behat\Web\Team\TeamTestContext
+        - App\Tests\Behat\Web\Tournament\TournamentTestContext
+        - App\Tests\Behat\Web\Game\GameTestContext
+        - App\Tests\Behat\Web\HealthCheck\HealthCheckTestContext
 
-    extensions:
-        FriendsOfBehat\SymfonyExtension:
-            bootstrap: tests/bootstrap.php
-            kernel:
-                class: App\Kernel
-                environment: test
-        Behat\MinkExtension:
-            sessions:
-                symfony:
-                    symfony: ~
-            base_url: ''
+  extensions:
+    FriendsOfBehat\SymfonyExtension:
+      bootstrap: tests/bootstrap.php
+      kernel:
+        class: App\Kernel
+        environment: test
+    Behat\MinkExtension:
+      sessions:
+        symfony:
+          symfony: ~
+      base_url: ""
