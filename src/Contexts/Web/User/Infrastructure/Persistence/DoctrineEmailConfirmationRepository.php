@@ -9,7 +9,9 @@ use App\Contexts\Web\User\Domain\ValueObject\EmailConfirmationToken;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineEmailConfirmationRepository extends ServiceEntityRepository implements EmailConfirmationRepository
+final class DoctrineEmailConfirmationRepository
+    extends ServiceEntityRepository
+    implements EmailConfirmationRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -24,20 +26,21 @@ final class DoctrineEmailConfirmationRepository extends ServiceEntityRepository 
 
     public function findById(Uuid $id): ?EmailConfirmation
     {
-        return $this->findOneBy(['id' => $id]);
+        return $this->findOneBy(["id" => $id->value()]);
     }
 
-    public function findByToken(EmailConfirmationToken $token): ?EmailConfirmation
-    {
-        return $this->findOneBy(['token.token' => $token->value()]);
+    public function findByToken(
+        EmailConfirmationToken $token,
+    ): ?EmailConfirmation {
+        return $this->findOneBy(["token.token" => $token->value()]);
     }
 
     public function findByUserId(Uuid $userId): ?EmailConfirmation
     {
-        return $this->createQueryBuilder('ec')
-            ->where('ec.user = :userId')
-            ->setParameter('userId', $userId)
-            ->orderBy('ec.createdAt', 'DESC')
+        return $this->createQueryBuilder("ec")
+            ->where("ec.user = :userId")
+            ->setParameter("userId", $userId)
+            ->orderBy("ec.createdAt", "DESC")
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
@@ -49,4 +52,3 @@ final class DoctrineEmailConfirmationRepository extends ServiceEntityRepository 
         $this->getEntityManager()->flush();
     }
 }
-

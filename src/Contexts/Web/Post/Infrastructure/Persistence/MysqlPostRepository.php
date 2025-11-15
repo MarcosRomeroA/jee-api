@@ -40,7 +40,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements
 
     public function findById(Uuid $id): Post
     {
-        $post = $this->findOneBy(["id" => $id]);
+        $post = $this->find($id);
 
         if (!$post) {
             throw new PostNotFoundException();
@@ -71,7 +71,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements
     }
     public function checkIsPostExists(Uuid $id): void
     {
-        $post = $this->findOneBy(["id" => $id]);
+        $post = $this->find($id);
 
         if ($post) {
             throw new PostAlreadyExistsException();

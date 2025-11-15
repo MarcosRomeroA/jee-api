@@ -14,7 +14,9 @@ class MysqlNotificationTypeRepository implements NotificationTypeRepository
 
     public function __construct(private EntityManagerInterface $entityManager)
     {
-        $this->repository = $entityManager->getRepository(NotificationType::class);
+        $this->repository = $entityManager->getRepository(
+            NotificationType::class,
+        );
     }
 
     public function save(NotificationType $notificationType): void
@@ -30,7 +32,15 @@ class MysqlNotificationTypeRepository implements NotificationTypeRepository
 
     public function findByName(string $name): NotificationType
     {
-        return $this->repository->findOneBy(["name" => $name]);
+        $notificationType = $this->repository->findOneBy(["name" => $name]);
+
+        if (!$notificationType) {
+            throw new \RuntimeException(
+                "NotificationType with name '{$name}' not found",
+            );
+        }
+
+        return $notificationType;
     }
 
     public function exists(Uuid $id): bool

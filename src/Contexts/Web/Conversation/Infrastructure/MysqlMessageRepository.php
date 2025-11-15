@@ -14,9 +14,10 @@ use App\Contexts\Web\Conversation\Domain\Exception\MessageNotFoundException;
  * @method Message|null find($id, $lockMode = null, $lockVersion = null)
  * @method Message|null findOneBy(array $criteria, array $orderBy = null)
  * @method Message[]    findAll()
- * @method Message[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)       
+ * @method Message[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class MysqlMessageRepository extends ServiceEntityRepository implements MessageRepository
+class MysqlMessageRepository extends ServiceEntityRepository implements
+    MessageRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -31,20 +32,20 @@ class MysqlMessageRepository extends ServiceEntityRepository implements MessageR
 
     public function findByIdOrFail(Uuid $id): Message
     {
-        $message = $this->find($id->value());
-        
+        $message = $this->find($id);
+
         if (!$message) {
             throw new MessageNotFoundException();
         }
-        
+
         return $message;
     }
 
     public function searchMessages(Conversation $conversation): array
     {
-        return $this->createQueryBuilder('m')
-            ->where('m.conversation = :conversation')
-            ->setParameter('conversation', $conversation)
+        return $this->createQueryBuilder("m")
+            ->where("m.conversation = :conversation")
+            ->setParameter("conversation", $conversation)
             ->getQuery()
             ->getResult();
     }

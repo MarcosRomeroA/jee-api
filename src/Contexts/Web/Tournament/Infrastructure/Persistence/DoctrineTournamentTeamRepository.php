@@ -8,7 +8,9 @@ use App\Contexts\Web\Tournament\Domain\TournamentTeamRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineTournamentTeamRepository extends ServiceEntityRepository implements TournamentTeamRepository
+final class DoctrineTournamentTeamRepository
+    extends ServiceEntityRepository
+    implements TournamentTeamRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -23,38 +25,40 @@ final class DoctrineTournamentTeamRepository extends ServiceEntityRepository imp
 
     public function findById(Uuid $id): ?TournamentTeam
     {
-        return $this->findOneBy(['id' => $id]);
+        return $this->findOneBy(["id" => $id->value()]);
     }
 
-    public function findByTournamentAndTeam(Uuid $tournamentId, Uuid $teamId): ?TournamentTeam
-    {
-        return $this->createQueryBuilder('tt')
-            ->where('tt.tournament = :tournamentId')
-            ->andWhere('tt.team = :teamId')
-            ->setParameter('tournamentId', $tournamentId)
-            ->setParameter('teamId', $teamId)
+    public function findByTournamentAndTeam(
+        Uuid $tournamentId,
+        Uuid $teamId,
+    ): ?TournamentTeam {
+        return $this->createQueryBuilder("tt")
+            ->where("tt.tournament = :tournamentId")
+            ->andWhere("tt.team = :teamId")
+            ->setParameter("tournamentId", $tournamentId)
+            ->setParameter("teamId", $teamId)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
     public function findByTournament(Uuid $tournamentId): array
     {
-        return $this->createQueryBuilder('tt')
-            ->where('tt.tournament = :tournamentId')
-            ->setParameter('tournamentId', $tournamentId)
+        return $this->createQueryBuilder("tt")
+            ->where("tt.tournament = :tournamentId")
+            ->setParameter("tournamentId", $tournamentId)
             ->getQuery()
             ->getResult();
     }
 
     public function findByUserId(Uuid $userId): array
     {
-        return $this->createQueryBuilder('tt')
-            ->select('tt')
-            ->join('tt.team', 't')
-            ->join('t.teamPlayers', 'tp')
-            ->join('tp.player', 'p')
-            ->where('p.user = :userId')
-            ->setParameter('userId', $userId)
+        return $this->createQueryBuilder("tt")
+            ->select("tt")
+            ->join("tt.team", "t")
+            ->join("t.teamPlayers", "tp")
+            ->join("tp.player", "p")
+            ->where("p.user = :userId")
+            ->setParameter("userId", $userId)
             ->getQuery()
             ->getResult();
     }

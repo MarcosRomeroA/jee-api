@@ -40,7 +40,7 @@ class MysqlNotificationRepository implements NotificationRepository
     {
         return $this->repository->findBy(
             ["user" => $user],
-            ["createdAt" => "DESC"]
+            ["createdAt" => "DESC"],
         );
     }
 
@@ -48,7 +48,7 @@ class MysqlNotificationRepository implements NotificationRepository
     {
         return $this->repository->findBy(
             ["user" => $user, "readAt" => null],
-            ["createdAt" => "DESC"]
+            ["createdAt" => "DESC"],
         );
     }
 
@@ -87,8 +87,8 @@ class MysqlNotificationRepository implements NotificationRepository
 
         $queryBuilder->orderBy("n.createdAt", "DESC");
 
-        $limit = isset($criteria["limit"]) ? (int)$criteria["limit"] : 10 ;
-        $offset = isset($criteria["offset"]) ? (int)$criteria["offset"] : 0 ;
+        $limit = isset($criteria["limit"]) ? (int) $criteria["limit"] : 10;
+        $offset = isset($criteria["offset"]) ? (int) $criteria["offset"] : 0;
 
         $queryBuilder->setMaxResults($limit)->setFirstResult($offset);
 
@@ -98,7 +98,7 @@ class MysqlNotificationRepository implements NotificationRepository
     public function countByCriteria(?array $criteria): int
     {
         $queryBuilder = $this->repository->createQueryBuilder("n");
-        
+
         $queryBuilder->select("COUNT(n.id)");
 
         return (int) $queryBuilder->getQuery()->getSingleScalarResult();

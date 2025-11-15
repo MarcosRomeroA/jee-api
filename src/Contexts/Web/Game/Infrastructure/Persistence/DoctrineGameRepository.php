@@ -25,7 +25,7 @@ final class DoctrineGameRepository extends ServiceEntityRepository implements
 
     public function findById(Uuid $id): Game
     {
-        $game = $this->findOneBy(["id" => $id]);
+        $game = $this->find($id);
 
         if (!$game) {
             throw new GameNotFoundException($id->value());

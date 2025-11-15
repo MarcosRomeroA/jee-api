@@ -8,7 +8,9 @@ use App\Contexts\Web\Team\Domain\TeamPlayerRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineTeamPlayerRepository extends ServiceEntityRepository implements TeamPlayerRepository
+final class DoctrineTeamPlayerRepository
+    extends ServiceEntityRepository
+    implements TeamPlayerRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -23,34 +25,36 @@ final class DoctrineTeamPlayerRepository extends ServiceEntityRepository impleme
 
     public function findById(Uuid $id): ?TeamPlayer
     {
-        return $this->findOneBy(['id' => $id]);
+        return $this->findOneBy(["id" => $id->value()]);
     }
 
-    public function findByTeamAndPlayer(Uuid $teamId, Uuid $playerId): ?TeamPlayer
-    {
-        return $this->createQueryBuilder('tp')
-            ->where('tp.team = :teamId')
-            ->andWhere('tp.player = :playerId')
-            ->setParameter('teamId', $teamId)
-            ->setParameter('playerId', $playerId)
+    public function findByTeamAndPlayer(
+        Uuid $teamId,
+        Uuid $playerId,
+    ): ?TeamPlayer {
+        return $this->createQueryBuilder("tp")
+            ->where("tp.team = :teamId")
+            ->andWhere("tp.player = :playerId")
+            ->setParameter("teamId", $teamId)
+            ->setParameter("playerId", $playerId)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
     public function findByTeam(Uuid $teamId): array
     {
-        return $this->createQueryBuilder('tp')
-            ->where('tp.team = :teamId')
-            ->setParameter('teamId', $teamId)
+        return $this->createQueryBuilder("tp")
+            ->where("tp.team = :teamId")
+            ->setParameter("teamId", $teamId)
             ->getQuery()
             ->getResult();
     }
 
     public function findByPlayerId(Uuid $playerId): array
     {
-        return $this->createQueryBuilder('tp')
-            ->where('tp.player = :playerId')
-            ->setParameter('playerId', $playerId)
+        return $this->createQueryBuilder("tp")
+            ->where("tp.player = :playerId")
+            ->setParameter("playerId", $playerId)
             ->getQuery()
             ->getResult();
     }

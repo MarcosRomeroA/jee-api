@@ -8,7 +8,9 @@ use App\Contexts\Web\Tournament\Domain\TournamentStatusRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineTournamentStatusRepository extends ServiceEntityRepository implements TournamentStatusRepository
+final class DoctrineTournamentStatusRepository
+    extends ServiceEntityRepository
+    implements TournamentStatusRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -23,22 +25,22 @@ final class DoctrineTournamentStatusRepository extends ServiceEntityRepository i
 
     public function findById(Uuid $id): ?TournamentStatus
     {
-        return $this->findOneBy(['id' => $id]);
+        return $this->findOneBy(["id" => $id->value()]);
     }
 
     public function findByName(string $name): ?TournamentStatus
     {
-        return $this->createQueryBuilder('ts')
-            ->where('ts.name = :name')
-            ->setParameter('name', $name)
+        return $this->createQueryBuilder("ts")
+            ->where("ts.name = :name")
+            ->setParameter("name", $name)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
     public function findAll(): array
     {
-        return $this->createQueryBuilder('ts')
-            ->orderBy('ts.name', 'ASC')
+        return $this->createQueryBuilder("ts")
+            ->orderBy("ts.name", "ASC")
             ->getQuery()
             ->getResult();
     }

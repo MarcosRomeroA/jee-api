@@ -16,7 +16,6 @@ final class SearchUsersController extends ApiController
         $query = $input->toQuery();
         $response = $this->queryBus->ask($query);
 
-        return $this->successResponse($response);
+        return $this->collectionResponse($response);
     }
 }
-

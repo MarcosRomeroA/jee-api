@@ -8,7 +8,9 @@ use App\Contexts\Web\Tournament\Domain\TournamentMatchRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineTournamentMatchRepository extends ServiceEntityRepository implements TournamentMatchRepository
+final class DoctrineTournamentMatchRepository
+    extends ServiceEntityRepository
+    implements TournamentMatchRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -23,28 +25,30 @@ final class DoctrineTournamentMatchRepository extends ServiceEntityRepository im
 
     public function findById(Uuid $id): ?TournamentMatch
     {
-        return $this->findOneBy(['id' => $id]);
+        return $this->findOneBy(["id" => $id->value()]);
     }
 
     public function findByTournamentId(Uuid $tournamentId): array
     {
-        return $this->createQueryBuilder('m')
-            ->where('m.tournament = :tournamentId')
-            ->setParameter('tournamentId', $tournamentId)
-            ->orderBy('m.round', 'ASC')
-            ->addOrderBy('m.createdAt', 'ASC')
+        return $this->createQueryBuilder("m")
+            ->where("m.tournament = :tournamentId")
+            ->setParameter("tournamentId", $tournamentId)
+            ->orderBy("m.round", "ASC")
+            ->addOrderBy("m.createdAt", "ASC")
             ->getQuery()
             ->getResult();
     }
 
-    public function findByTournamentIdAndRound(Uuid $tournamentId, int $round): array
-    {
-        return $this->createQueryBuilder('m')
-            ->where('m.tournament = :tournamentId')
-            ->andWhere('m.round = :round')
-            ->setParameter('tournamentId', $tournamentId)
-            ->setParameter('round', $round)
-            ->orderBy('m.createdAt', 'ASC')
+    public function findByTournamentIdAndRound(
+        Uuid $tournamentId,
+        int $round,
+    ): array {
+        return $this->createQueryBuilder("m")
+            ->where("m.tournament = :tournamentId")
+            ->andWhere("m.round = :round")
+            ->setParameter("tournamentId", $tournamentId)
+            ->setParameter("round", $round)
+            ->orderBy("m.createdAt", "ASC")
             ->getQuery()
             ->getResult();
     }
@@ -55,4 +59,3 @@ final class DoctrineTournamentMatchRepository extends ServiceEntityRepository im
         $this->getEntityManager()->flush();
     }
 }
-

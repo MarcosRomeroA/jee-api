@@ -9,16 +9,13 @@ use App\Contexts\Web\User\Application\Shared\UserCollectionMinimalResponse;
 
 final readonly class UserFollowersQueryHandler implements QueryHandler
 {
-    public function __construct(
-        private UserFollowersFinder $finder
-    )
-    {
-    }
+    public function __construct(private UserFollowersFinder $finder) {}
 
-    public function __invoke(UserFollowersQuery $query): UserCollectionMinimalResponse
-    {
-        $id = new Uuid($query->sessionId);
+    public function __invoke(
+        UserFollowersQuery $query,
+    ): UserCollectionMinimalResponse {
+        $id = new Uuid($query->id);
 
-        return $this->finder->__invoke($id);
+        return $this->finder->__invoke($id, $query->limit, $query->offset);
     }
 }

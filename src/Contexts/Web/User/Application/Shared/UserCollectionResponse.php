@@ -14,30 +14,30 @@ final class UserCollectionResponse extends Response
 
     /**
      * @param array<UserResponse> $users
-     * @param array{limit: int, offset: int} $criteria
+     * @param array $criteria
      * @param int $total
      */
     public function __construct(array $users, array $criteria, int $total = 0)
     {
         $this->users = $users;
-        $this->limit = $criteria["limit"];
-        $this->offset = $criteria["offset"];
+        $this->limit = $criteria["limit"] ?? 20;
+        $this->offset = $criteria["offset"] ?? 0;
         $this->total = $total;
     }
 
     public function toArray(): array
     {
-        $response['data'] = [];
+        $response["data"] = [];
 
-        foreach($this->users as $user){
-            $response['data'][] = $user->toArray();
+        foreach ($this->users as $user) {
+            $response["data"][] = $user->toArray();
         }
 
-        $response['pagination'] = [
-            'limit' => $this->limit,
-            'offset' => $this->offset,
-            'total' => $this->total,
-            'count' => count($this->users)
+        $response["metadata"] = [
+            "limit" => $this->limit,
+            "offset" => $this->offset,
+            "total" => $this->total,
+            "count" => count($this->users),
         ];
 
         return $response;

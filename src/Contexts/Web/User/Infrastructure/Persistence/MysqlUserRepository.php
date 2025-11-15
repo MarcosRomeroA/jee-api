@@ -19,7 +19,8 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method User[]    findAll()
  * @method User[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-final class MysqlUserRepository extends ServiceEntityRepository implements UserRepository
+final class MysqlUserRepository extends ServiceEntityRepository implements
+    UserRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -39,7 +40,7 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
 
     public function findByEmail(string $email): User
     {
-        $user = $this->findOneBy(['email.value' => $email]);
+        $user = $this->findOneBy(["email.value" => $email]);
 
         if (!$user) {
             throw new UserNotFoundException();
@@ -50,7 +51,7 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
 
     public function findById(Uuid $id): User
     {
-        $user = $this->findOneBy(['id' => $id]);
+        $user = $this->find($id);
 
         if (!$user) {
             throw new UserNotFoundException();
@@ -61,7 +62,7 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
 
     public function checkIfUsernameExists(UsernameValue $username): void
     {
-        $user = $this->findOneBy(['username.value' => $username->value()]);
+        $user = $this->findOneBy(["username.value" => $username->value()]);
 
         if ($user) {
             throw new UsernameAlreadyExistsException();
@@ -70,7 +71,7 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
 
     public function checkIfEmailExists(EmailValue $email): void
     {
-        $user = $this->findOneBy(['email.value' => $email->value()]);
+        $user = $this->findOneBy(["email.value" => $email->value()]);
 
         if ($user) {
             throw new EmailAlreadyExistsException();
@@ -83,15 +84,17 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
      */
     public function searchByCriteria(array $criteria): array
     {
-        $qb = $this->createQueryBuilder('u');
+        $qb = $this->createQueryBuilder("u");
 
-        if (isset($criteria['username']) && $criteria['username'] !== '') {
-            $qb->andWhere('u.username.value LIKE :username')
-               ->setParameter('username', '%' . $criteria['username'] . '%');
+        if (isset($criteria["username"]) && $criteria["username"] !== "") {
+            $qb->andWhere("u.username.value LIKE :username")->setParameter(
+                "username",
+                "%" . $criteria["username"] . "%",
+            );
         }
 
-        $limit = $criteria['limit'] ?? null;
-        $offset = $criteria['offset'] ?? null;
+        $limit = $criteria["limit"] ?? null;
+        $offset = $criteria["offset"] ?? null;
 
         if ($limit !== null) {
             $qb->setMaxResults((int) $limit);
@@ -105,7 +108,7 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
 
     public function findByUsername(UsernameValue $username): User
     {
-        $user = $this->findOneBy(['username.value' => $username->value()]);
+        $user = $this->findOneBy(["username.value" => $username->value()]);
 
         if (!$user) {
             throw new UserNotFoundException();
@@ -115,18 +118,20 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
     }
     public function countByCriteria(array $criteria): int
     {
-        $qb = $this->createQueryBuilder('u')
-            ->select('COUNT(u.id)');
+        $qb = $this->createQueryBuilder("u")->select("COUNT(u.id)");
 
-        if (isset($criteria['username']) && $criteria['username'] !== '') {
-            $qb->andWhere('u.username.value LIKE :username')
-               ->setParameter('username', '%' . $criteria['username'] . '%');
+        if (isset($criteria["username"]) && $criteria["username"] !== "") {
+            $qb->andWhere("u.username.value LIKE :username")->setParameter(
+                "username",
+                "%" . $criteria["username"] . "%",
+            );
         }
 
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
-    public function delete(User $user): void{
+    public function delete(User $user): void
+    {
         $this->getEntityManager()->remove($user);
         $this->getEntityManager()->flush();
     }

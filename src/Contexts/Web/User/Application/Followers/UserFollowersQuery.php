@@ -8,8 +8,8 @@ final readonly class UserFollowersQuery implements Query
 {
     public function __construct(
         public string $id,
-        public string $sessionId
-    )
-    {
-    }
+        public string $sessionId,
+        public ?int $limit = null,
+        public ?int $offset = null,
+    ) {}
 }

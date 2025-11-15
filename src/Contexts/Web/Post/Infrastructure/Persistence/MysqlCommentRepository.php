@@ -9,7 +9,8 @@ use App\Contexts\Web\Post\Domain\Exception\CommentNotFoundException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class MysqlCommentRepository extends ServiceEntityRepository implements CommentRepository
+final class MysqlCommentRepository extends ServiceEntityRepository implements
+    CommentRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -18,9 +19,9 @@ final class MysqlCommentRepository extends ServiceEntityRepository implements Co
 
     public function findById(Uuid $id): Comment
     {
-        $comment = $this->findOneBy(['id' => $id]);
+        $comment = $this->find($id);
         if (!$comment) {
-            throw new CommentNotFoundException('Comment not found');
+            throw new CommentNotFoundException($id->value());
         }
         return $comment;
     }

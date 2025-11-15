@@ -10,7 +10,9 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineTournamentRepository extends ServiceEntityRepository implements TournamentRepository
+final class DoctrineTournamentRepository
+    extends ServiceEntityRepository
+    implements TournamentRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -25,9 +27,9 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
 
     public function findById(Uuid $id): Tournament
     {
-        $tournament = $this->findOneBy(['id' => $id]);
+        $tournament = $this->findOneBy(["id" => $id->value()]);
 
-        if (!$tournament){
+        if (!$tournament) {
             throw new TournamentNotFoundException($id->value());
         }
 
@@ -40,36 +42,38 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
         ?Uuid $responsibleId,
         bool $open,
         int $limit,
-        int $offset
+        int $offset,
     ): array {
-        $qb = $this->createQueryBuilder('t')
-            ->andWhere('t.deletedAt IS NULL');
+        $qb = $this->createQueryBuilder("t")->andWhere("t.deletedAt IS NULL");
 
         if ($query !== null) {
-            $qb->andWhere('t.name LIKE :query')
-               ->setParameter('query', '%' . $query . '%');
+            $qb->andWhere("t.name LIKE :query")->setParameter(
+                "query",
+                "%" . $query . "%",
+            );
         }
 
         if ($gameId !== null) {
-            $qb->join('t.game', 'g')
-               ->andWhere('g.id = :gameId')
-               ->setParameter('gameId', $gameId);
+            $qb->join("t.game", "g")
+                ->andWhere("g.id = :gameId")
+                ->setParameter("gameId", $gameId);
         }
 
         if ($responsibleId !== null) {
-            $qb->join('t.responsible', 'r')
-               ->andWhere('r.id = :responsibleId')
-               ->setParameter('responsibleId', $responsibleId);
+            $qb->join("t.responsible", "r")
+                ->andWhere("r.id = :responsibleId")
+                ->setParameter("responsibleId", $responsibleId);
         }
 
         if ($open) {
-            $qb->join('t.status', 's')
-               ->andWhere('s.name = :statusName')
-               ->setParameter('statusName', 'active')
-               ->andWhere('t.registeredTeams < t.maxTeams');
+            $qb->join("t.status", "s")
+                ->andWhere("s.name = :statusName")
+                ->setParameter("statusName", "active")
+                ->andWhere("t.registeredTeams < t.maxTeams");
         }
 
-        return $qb->setMaxResults($limit)
+        return $qb
+            ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->getQuery()
             ->getResult();
@@ -79,34 +83,36 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
         ?string $query,
         ?Uuid $gameId,
         ?Uuid $responsibleId,
-        bool $open
+        bool $open,
     ): int {
-        $qb = $this->createQueryBuilder('t')
-            ->select('COUNT(t.id)')
-            ->andWhere('t.deletedAt IS NULL');
+        $qb = $this->createQueryBuilder("t")
+            ->select("COUNT(t.id)")
+            ->andWhere("t.deletedAt IS NULL");
 
         if ($query !== null) {
-            $qb->andWhere('t.name LIKE :query')
-               ->setParameter('query', '%' . $query . '%');
+            $qb->andWhere("t.name LIKE :query")->setParameter(
+                "query",
+                "%" . $query . "%",
+            );
         }
 
         if ($gameId !== null) {
-            $qb->join('t.game', 'g')
-               ->andWhere('g.id = :gameId')
-               ->setParameter('gameId', $gameId);
+            $qb->join("t.game", "g")
+                ->andWhere("g.id = :gameId")
+                ->setParameter("gameId", $gameId);
         }
 
         if ($responsibleId !== null) {
-            $qb->join('t.responsible', 'r')
-               ->andWhere('r.id = :responsibleId')
-               ->setParameter('responsibleId', $responsibleId);
+            $qb->join("t.responsible", "r")
+                ->andWhere("r.id = :responsibleId")
+                ->setParameter("responsibleId", $responsibleId);
         }
 
         if ($open) {
-            $qb->join('t.status', 's')
-               ->andWhere('s.name = :statusName')
-               ->setParameter('statusName', 'active')
-               ->andWhere('t.registeredTeams < t.maxTeams');
+            $qb->join("t.status", "s")
+                ->andWhere("s.name = :statusName")
+                ->setParameter("statusName", "active")
+                ->andWhere("t.registeredTeams < t.maxTeams");
         }
 
         try {
@@ -126,7 +132,6 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
 
     public function existsById(Uuid $id): bool
     {
-        return $this->count(['id' => $id]) > 0;
+        return $this->count(["id" => $id]) > 0;
     }
 }
-

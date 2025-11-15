@@ -62,7 +62,7 @@ final class MysqlConversationRepository
      */
     public function findByIdOrFail(Uuid $id): Conversation
     {
-        $conversation = $this->findOneBy(["id" => $id]);
+        $conversation = $this->find($id);
 
         if (!$conversation) {
             throw new ConversationNotFoundException();

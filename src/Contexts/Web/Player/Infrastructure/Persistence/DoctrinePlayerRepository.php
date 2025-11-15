@@ -26,7 +26,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements
 
     public function findById(Uuid $id): Player
     {
-        $player = $this->findOneBy(["id" => $id]);
+        $player = $this->find($id);
 
         if ($player === null) {
             throw new PlayerNotFoundException($id->value());

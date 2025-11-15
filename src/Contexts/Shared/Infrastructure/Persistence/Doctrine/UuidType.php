@@ -15,11 +15,13 @@ final class UuidType extends StringType
 
     final public function getName(): string
     {
-        return 'uuid';
+        return "uuid";
     }
 
-    final public function convertToPHPValue($value, AbstractPlatform $platform): mixed
-    {
+    final public function convertToPHPValue(
+        $value,
+        AbstractPlatform $platform,
+    ): mixed {
         if ($value === null) {
             return null;
         }
@@ -29,10 +31,17 @@ final class UuidType extends StringType
         return new $className($value);
     }
 
-    final public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
-    {
+    final public function convertToDatabaseValue(
+        $value,
+        AbstractPlatform $platform,
+    ): ?string {
         if ($value === null) {
             return null;
+        }
+
+        // Si ya es un string, devolverlo directamente
+        if (is_string($value)) {
+            return $value;
         }
 
         /** @var Uuid $value */
