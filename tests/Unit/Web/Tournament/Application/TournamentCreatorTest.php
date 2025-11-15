@@ -29,18 +29,24 @@ final class TournamentCreatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->tournamentRepository = $this->createMock(TournamentRepository::class);
+        $this->tournamentRepository = $this->createMock(
+            TournamentRepository::class,
+        );
         $this->gameRepository = $this->createMock(GameRepository::class);
         $this->userRepository = $this->createMock(UserRepository::class);
-        $this->statusRepository = $this->createMock(TournamentStatusRepository::class);
-        $this->gameRankRepository = $this->createMock(GameRankRepository::class);
+        $this->statusRepository = $this->createMock(
+            TournamentStatusRepository::class,
+        );
+        $this->gameRankRepository = $this->createMock(
+            GameRankRepository::class,
+        );
 
         $this->creator = new TournamentCreator(
             $this->tournamentRepository,
             $this->gameRepository,
             $this->userRepository,
             $this->statusRepository,
-            $this->gameRankRepository
+            $this->gameRankRepository,
         );
     }
 
@@ -49,10 +55,10 @@ final class TournamentCreatorTest extends TestCase
         $id = Uuid::random();
         $gameId = Uuid::random();
         $responsibleId = Uuid::random();
-        $name = 'Championship 2025';
+        $name = "Championship 2025";
         $maxTeams = 16;
-        $startAt = new \DateTimeImmutable('+1 day');
-        $endAt = new \DateTimeImmutable('+7 days');
+        $startAt = new \DateTimeImmutable("+1 day");
+        $endAt = new \DateTimeImmutable("+7 days");
 
         $game = GameMother::create($gameId);
         $responsible = UserMother::create($responsibleId);
@@ -60,43 +66,48 @@ final class TournamentCreatorTest extends TestCase
 
         $this->gameRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($gameId)
             ->willReturn($game);
 
         $this->userRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($responsibleId)
             ->willReturn($responsible);
 
         $this->statusRepository
             ->expects($this->once())
-            ->method('findByName')
-            ->with('created')
+            ->method("findByName")
+            ->with("created")
             ->willReturn($status);
 
         $this->tournamentRepository
             ->expects($this->once())
-            ->method('save')
-            ->with($this->callback(function (Tournament $tournament) use ($id, $name) {
-                return $tournament->id()->equals($id)
-                    && $tournament->name() === $name;
-            }));
+            ->method("save")
+            ->with(
+                $this->callback(function (Tournament $tournament) use (
+                    $id,
+                    $name,
+                ) {
+                    return $tournament->id()->equals($id) &&
+                        $tournament->name() === $name;
+                }),
+            );
 
         $this->creator->create(
             $id,
             $gameId,
             $responsibleId,
             $name,
-            'Tournament description',
+            "Tournament description",
             $maxTeams,
             false,
             null,
             '$1000 USD',
-            'NA',
+            "NA",
             $startAt,
-            $endAt
+            $endAt,
         );
     }
 
@@ -108,9 +119,9 @@ final class TournamentCreatorTest extends TestCase
 
         $this->gameRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($gameId)
-            ->willReturn(null);
+            ->willThrowException(new GameNotFoundException($gameId->value()));
 
         $this->expectException(GameNotFoundException::class);
 
@@ -118,15 +129,15 @@ final class TournamentCreatorTest extends TestCase
             $id,
             $gameId,
             $responsibleId,
-            'Tournament Name',
+            "Tournament Name",
             null,
             16,
             false,
             null,
             null,
             null,
-            new \DateTimeImmutable('+1 day'),
-            new \DateTimeImmutable('+7 days')
+            new \DateTimeImmutable("+1 day"),
+            new \DateTimeImmutable("+7 days"),
         );
     }
 
@@ -140,13 +151,13 @@ final class TournamentCreatorTest extends TestCase
 
         $this->gameRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($gameId)
             ->willReturn($game);
 
         $this->userRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($responsibleId)
             ->willThrowException(new UserNotFoundException());
 
@@ -156,16 +167,15 @@ final class TournamentCreatorTest extends TestCase
             $id,
             $gameId,
             $responsibleId,
-            'Tournament Name',
+            "Tournament Name",
             null,
             16,
             false,
             null,
             null,
             null,
-            new \DateTimeImmutable('+1 day'),
-            new \DateTimeImmutable('+7 days')
+            new \DateTimeImmutable("+1 day"),
+            new \DateTimeImmutable("+7 days"),
         );
     }
 }
-

@@ -23,13 +23,16 @@ final class PlayerUpdaterTest extends TestCase
     {
         $this->repository = $this->createMock(PlayerRepository::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->updater = new PlayerUpdater($this->repository, $this->entityManager);
+        $this->updater = new PlayerUpdater(
+            $this->repository,
+            $this->entityManager,
+        );
     }
 
     public function testItShouldUpdateAPlayer(): void
     {
         $id = Uuid::random();
-        $newUsername = 'UpdatedGamer456';
+        $newUsername = "UpdatedGamer456";
         $newGameRoleId = Uuid::random();
         $newGameRankId = Uuid::random();
 
@@ -39,21 +42,26 @@ final class PlayerUpdaterTest extends TestCase
 
         $this->repository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($id)
             ->willReturn($player);
 
         $this->entityManager
             ->expects($this->exactly(2))
-            ->method('getReference')
+            ->method("getReference")
             ->willReturnOnConsecutiveCalls($gameRole, $gameRank);
 
         $this->repository
             ->expects($this->once())
-            ->method('save')
+            ->method("save")
             ->with($player);
 
-        $this->updater->update($id, $newUsername, $newGameRoleId, $newGameRankId);
+        $this->updater->update(
+            $id,
+            $newUsername,
+            $newGameRoleId,
+            $newGameRankId,
+        );
     }
 
     public function testItShouldThrowExceptionWhenPlayerNotFound(): void
@@ -62,13 +70,17 @@ final class PlayerUpdaterTest extends TestCase
 
         $this->repository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($id)
-            ->willReturn(null);
+            ->willThrowException(new PlayerNotFoundException($id->value()));
 
         $this->expectException(PlayerNotFoundException::class);
 
-        $this->updater->update($id, 'NewUsername', Uuid::random(), Uuid::random());
+        $this->updater->update(
+            $id,
+            "NewUsername",
+            Uuid::random(),
+            Uuid::random(),
+        );
     }
 }
-

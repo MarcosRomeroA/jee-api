@@ -24,18 +24,18 @@ final class PlayerFinderTest extends TestCase
     public function testItShouldFindAPlayer(): void
     {
         $id = Uuid::random();
-        $player = PlayerMother::create(id: $id, username: 'TestPlayer');
+        $player = PlayerMother::create(id: $id, username: "TestPlayer");
 
         $this->repository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($id)
             ->willReturn($player);
 
         $response = $this->finder->find($id);
 
         $this->assertEquals($id->value(), $response->id());
-        $this->assertEquals('TestPlayer', $response->username());
+        $this->assertEquals("TestPlayer", $response->username());
         $this->assertFalse($response->verified());
     }
 
@@ -45,13 +45,12 @@ final class PlayerFinderTest extends TestCase
 
         $this->repository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($id)
-            ->willReturn(null);
+            ->willThrowException(new PlayerNotFoundException($id->value()));
 
         $this->expectException(PlayerNotFoundException::class);
 
         $this->finder->find($id);
     }
 }
-

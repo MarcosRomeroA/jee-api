@@ -6,6 +6,7 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\GameRepository;
 use App\Contexts\Web\Team\Application\Create\TeamCreator;
 use App\Contexts\Web\Team\Domain\Exception\GameNotFoundException;
+use App\Contexts\Web\Team\Domain\Exception\TeamNotFoundException;
 use App\Contexts\Web\Team\Domain\Team;
 use App\Contexts\Web\Team\Domain\TeamRepository;
 use App\Contexts\Web\User\Domain\Exception\UserNotFoundException;
@@ -31,7 +32,7 @@ final class TeamCreatorTest extends TestCase
         $this->creator = new TeamCreator(
             $this->teamRepository,
             $this->userRepository,
-            $this->gameRepository
+            $this->gameRepository,
         );
     }
 
@@ -40,31 +41,38 @@ final class TeamCreatorTest extends TestCase
         $id = Uuid::random();
         $gameId = Uuid::random();
         $ownerId = Uuid::random();
-        $name = 'Los Campeones';
-        $image = 'https://example.com/team.jpg';
+        $name = "Los Campeones";
+        $image = "https://example.com/team.jpg";
 
         $game = GameMother::create($gameId);
         $owner = UserMother::create($ownerId);
 
         $this->gameRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($gameId)
             ->willReturn($game);
 
         $this->userRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($ownerId)
             ->willReturn($owner);
 
         $this->teamRepository
             ->expects($this->once())
-            ->method('save')
-            ->with($this->callback(function (Team $team) use ($id, $name) {
-                return $team->id()->equals($id)
-                    && $team->name() === $name;
-            }));
+            ->method("findById")
+            ->with($id)
+            ->willThrowException(new TeamNotFoundException($id->value()));
+
+        $this->teamRepository
+            ->expects($this->once())
+            ->method("save")
+            ->with(
+                $this->callback(function (Team $team) use ($id, $name) {
+                    return $team->id()->equals($id) && $team->name() === $name;
+                }),
+            );
 
         $this->creator->create($id, $gameId, $ownerId, $name, $image);
     }
@@ -77,13 +85,13 @@ final class TeamCreatorTest extends TestCase
 
         $this->gameRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($gameId)
-            ->willReturn(null);
+            ->willThrowException(new GameNotFoundException($gameId->value()));
 
         $this->expectException(GameNotFoundException::class);
 
-        $this->creator->create($id, $gameId, $ownerId, 'Team Name', null);
+        $this->creator->create($id, $gameId, $ownerId, "Team Name", null);
     }
 
     public function testItShouldThrowExceptionWhenUserNotFound(): void
@@ -96,19 +104,18 @@ final class TeamCreatorTest extends TestCase
 
         $this->gameRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($gameId)
             ->willReturn($game);
 
         $this->userRepository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($ownerId)
             ->willThrowException(new UserNotFoundException($ownerId->value()));
 
         $this->expectException(UserNotFoundException::class);
 
-        $this->creator->create($id, $gameId, $ownerId, 'Team Name', null);
+        $this->creator->create($id, $gameId, $ownerId, "Team Name", null);
     }
 }
-

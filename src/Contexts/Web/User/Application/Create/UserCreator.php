@@ -18,9 +18,7 @@ final readonly class UserCreator
     public function __construct(
         private UserRepository $userRepository,
         private EventBus $bus,
-    )
-    {
-    }
+    ) {}
 
     public function __invoke(
         Uuid $id,
@@ -29,8 +27,7 @@ final readonly class UserCreator
         UsernameValue $username,
         EmailValue $email,
         ?PasswordValue $password,
-    ): void
-    {
+    ): void {
         // Intentar obtener el usuario por id (upsert)
         try {
             $user = $this->userRepository->findById($id);
@@ -45,16 +42,22 @@ final readonly class UserCreator
         } catch (\Throwable $e) {
             // Si no existe, crear (password obligatoria en creación)
             if ($password === null) {
-                throw new \InvalidArgumentException('Password is required on user creation');
+                throw new \InvalidArgumentException(
+                    "Password is required on user creation",
+                );
             }
 
             // Validar que no exista otro usuario con el mismo username
-            $existingUser = $this->userRepository->findOneBy(['username.value' => $username->value()]);
-            if ($existingUser) {
-                throw new UsernameAlreadyExistsException();
-            }
+            $this->userRepository->checkIfUsernameExists($username);
 
-            $user = User::create($id, $firstname, $lastname, $username, $email, $password);
+            $user = User::create(
+                $id,
+                $firstname,
+                $lastname,
+                $username,
+                $email,
+                $password,
+            );
         }
 
         $this->userRepository->save($user);

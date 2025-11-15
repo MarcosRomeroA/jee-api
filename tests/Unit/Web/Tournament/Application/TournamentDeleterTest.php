@@ -28,13 +28,13 @@ final class TournamentDeleterTest extends TestCase
 
         $this->repository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($id)
             ->willReturn($tournament);
 
         $this->repository
             ->expects($this->once())
-            ->method('save')
+            ->method("save")
             ->with($tournament);
 
         $this->deleter->delete($id);
@@ -48,13 +48,12 @@ final class TournamentDeleterTest extends TestCase
 
         $this->repository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($id)
-            ->willReturn(null);
+            ->willThrowException(new TournamentNotFoundException($id->value()));
 
         $this->expectException(TournamentNotFoundException::class);
 
         $this->deleter->delete($id);
     }
 }
-

@@ -5,20 +5,21 @@ namespace App\Tests\Unit\Web\Player\Domain;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\Game\Domain\GameRank;
+use App\Contexts\Web\Game\Domain\Rank;
 
 final class GameRankMother
 {
     public static function create(
         ?Uuid $id = null,
         ?Game $game = null,
-        ?string $name = null,
-        ?int $level = null
+        ?Rank $rank = null,
+        ?int $level = null,
     ): GameRank {
         return new GameRank(
             $id ?? Uuid::random(),
             $game ?? GameMother::random(),
-            $name ?? 'Gold',
-            $level ?? 5
+            $rank ?? RankMother::random(),
+            $level ?? 5,
         );
     }
 
@@ -32,4 +33,3 @@ final class GameRankMother
         return self::create(level: $level);
     }
 }
-

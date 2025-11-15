@@ -24,18 +24,18 @@ final class TournamentFinderTest extends TestCase
     public function testItShouldFindATournament(): void
     {
         $id = Uuid::random();
-        $tournament = TournamentMother::create($id, 'Championship 2025');
+        $tournament = TournamentMother::create($id, "Championship 2025");
 
         $this->repository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($id)
             ->willReturn($tournament);
 
         $result = $this->finder->find($id);
 
         $this->assertEquals($tournament, $result);
-        $this->assertEquals('Championship 2025', $result->name());
+        $this->assertEquals("Championship 2025", $result->name());
     }
 
     public function testItShouldThrowExceptionWhenTournamentNotFound(): void
@@ -44,13 +44,12 @@ final class TournamentFinderTest extends TestCase
 
         $this->repository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($id)
-            ->willReturn(null);
+            ->willThrowException(new TournamentNotFoundException($id->value()));
 
         $this->expectException(TournamentNotFoundException::class);
 
         $this->finder->find($id);
     }
 }
-

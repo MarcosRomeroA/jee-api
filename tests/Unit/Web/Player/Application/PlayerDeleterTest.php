@@ -28,13 +28,13 @@ final class PlayerDeleterTest extends TestCase
 
         $this->repository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($id)
             ->willReturn($player);
 
         $this->repository
             ->expects($this->once())
-            ->method('delete')
+            ->method("delete")
             ->with($player);
 
         $this->deleter->delete($id);
@@ -46,13 +46,12 @@ final class PlayerDeleterTest extends TestCase
 
         $this->repository
             ->expects($this->once())
-            ->method('findById')
+            ->method("findById")
             ->with($id)
-            ->willReturn(null);
+            ->willThrowException(new PlayerNotFoundException($id->value()));
 
         $this->expectException(PlayerNotFoundException::class);
 
         $this->deleter->delete($id);
     }
 }
-
