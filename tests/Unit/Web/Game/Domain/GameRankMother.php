@@ -12,14 +12,14 @@ final class GameRankMother
     public static function create(
         ?Uuid $id = null,
         ?Game $game = null,
-        ?string $name = null,
-        ?int $level = null
+        ?Rank $rank = null,
+        ?int $level = null,
     ): GameRank {
         return new GameRank(
             $id ?? UuidMother::create(),
             $game ?? GameMother::create(),
-            $name ?? 'Gold',
-            $level ?? 4
+            $rank ?? RankMother::create(),
+            $level ?? 4,
         );
     }
 
@@ -28,4 +28,3 @@ final class GameRankMother
         return self::create();
     }
 }
-

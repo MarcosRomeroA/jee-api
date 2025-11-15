@@ -2,20 +2,27 @@
 
 namespace App\Contexts\Web\Game\Application\Search;
 
-use App\Contexts\Shared\Domain\Bus\Query\QueryHandler;
+use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Game\Application\Shared\GameRankCollectionResponse;
+use App\Contexts\Web\Game\Application\Shared\GameRankResponse;
 use App\Contexts\Web\Game\Domain\GameRankRepository;
 
 final readonly class SearchGameRanksQueryHandler implements QueryHandler
 {
-    public function __construct(private GameRankRepository $repository)
-    {
-    }
+    public function __construct(private GameRankRepository $repository) {}
 
-    public function __invoke(SearchGameRanksQuery $query): array
-    {
+    public function __invoke(
+        SearchGameRanksQuery $query,
+    ): GameRankCollectionResponse {
         $gameId = new Uuid($query->gameId);
-        return $this->repository->findByGame($gameId);
+        $gameRanks = $this->repository->findByGame($gameId);
+
+        $gameRanksResponse = array_map(
+            static fn($gameRank) => GameRankResponse::fromGameRank($gameRank),
+            $gameRanks,
+        );
+
+        return new GameRankCollectionResponse($gameRanksResponse);
     }
 }
-

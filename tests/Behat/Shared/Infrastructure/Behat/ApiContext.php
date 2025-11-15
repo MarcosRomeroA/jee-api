@@ -504,6 +504,83 @@ final class ApiContext extends RawMinkContext
         }
     }
 
+    /**
+     * @Then the response should be a valid JSON array
+     */
+    public function theResponseShouldBeAValidJsonArray(): void
+    {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!is_array($response)) {
+            throw new RuntimeException(
+                sprintf(
+                    "Response is not a valid JSON array. Response: %s",
+                    $this->sessionHelper->getResponse(),
+                ),
+            );
+        }
+
+        // Si el array está vacío, es válido
+        if (empty($response)) {
+            return;
+        }
+
+        // Verificar que sea un array indexado (no asociativo)
+        if (array_keys($response) !== range(0, count($response) - 1)) {
+            throw new RuntimeException(
+                "Response is a JSON object, not an array",
+            );
+        }
+    }
+
+    /**
+     * @Then the response should have at least :count items
+     */
+    public function theResponseShouldHaveAtLeastItems(int $count): void
+    {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!is_array($response)) {
+            throw new RuntimeException("Response is not a valid JSON array");
+        }
+
+        $actualCount = count($response);
+
+        if ($actualCount < $count) {
+            throw new RuntimeException(
+                sprintf(
+                    "Response has %d items, expected at least %d items",
+                    $actualCount,
+                    $count,
+                ),
+            );
+        }
+    }
+
+    /**
+     * @Then the response should have :count items
+     */
+    public function theResponseShouldHaveItems(int $count): void
+    {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!is_array($response)) {
+            throw new RuntimeException("Response is not a valid JSON array");
+        }
+
+        $actualCount = count($response);
+
+        if ($actualCount !== $count) {
+            throw new RuntimeException(
+                sprintf(
+                    "Response has %d items, expected exactly %d items",
+                    $actualCount,
+                    $count,
+                ),
+            );
+        }
+    }
+
     private function sanitizeOutput(string $output): false|string
     {
         return json_encode(
