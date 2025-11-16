@@ -1,75 +1,81 @@
 create_user:
-  path: /user/{id}
-  controller: App\Apps\Web\User\Create\CreateUserController
-  methods: [ PUT ]
+    path: /user/{id}
+    controller: App\Apps\Web\User\Create\CreateUserController
+    methods: [PUT]
 
 find_user:
-  path: /user/{id}
-  controller: App\Apps\Web\User\Find\FindUserController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /user/{id}
+    controller: App\Apps\Web\User\Find\FindUserController
+    methods: [GET]
+    defaults: { auth: true }
 
 find_user_teams:
-  path: /user/{id}/teams
-  controller: App\Apps\Web\User\FindTeams\FindUserTeamsController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /user/{id}/teams
+    controller: App\Apps\Web\User\FindTeams\FindUserTeamsController
+    methods: [GET]
+    defaults: { auth: true }
 
 find_user_tournaments:
-  path: /user/{id}/tournaments
-  controller: App\Apps\Web\User\FindTournaments\FindUserTournamentsController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /user/{id}/tournaments
+    controller: App\Apps\Web\User\FindTournaments\FindUserTournamentsController
+    methods: [GET]
+    defaults: { auth: true }
 
 find_user_by_username:
-  path: /user/by-username/{username}
-  controller: App\Apps\Web\User\FindByUsername\FindUserByUsernameController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /user/by-username/{username}
+    controller: App\Apps\Web\User\FindByUsername\FindUserByUsernameController
+    methods: [GET]
+    defaults: { auth: true }
 
 search_users:
-  path: /users
-  controller: App\Apps\Web\User\Search\SearchUsersController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /users
+    controller: App\Apps\Web\User\Search\SearchUsersController
+    methods: [GET]
+    defaults: { auth: true }
 
 update_user_password:
-  path: /user/password/{id}
-  controller: App\Apps\Web\User\UpdatePassword\UpdateUserPasswordController
-  methods: [ PUT ]
-  defaults: { auth: true }
+    path: /user/password/{id}
+    controller: App\Apps\Web\User\UpdatePassword\UpdateUserPasswordController
+    methods: [PUT]
+    defaults: { auth: true }
+
+update_user_description:
+    path: /user/description
+    controller: App\Apps\Web\User\UpdateDescription\UpdateUserDescriptionController
+    methods: [PATCH]
+    defaults: { auth: true }
 
 user_restore:
-  path: /user/{id}/restore
-  controller: App\Apps\Web\User\RestorePassword\RestoreUserPasswordController
-  methods: [ PUT ]
+    path: /user/{id}/restore
+    controller: App\Apps\Web\User\RestorePassword\RestoreUserPasswordController
+    methods: [PUT]
 
 update_profile_image:
-  path: /user-profile-image
-  controller: App\Apps\Web\User\UpdateProfilePhoto\UpdateUserProfilePhotoController
-  methods: [ POST ]
-  defaults: { auth: true }
+    path: /user-profile-image
+    controller: App\Apps\Web\User\UpdateProfilePhoto\UpdateUserProfilePhotoController
+    methods: [POST]
+    defaults: { auth: true }
 
 follow:
-  path: /user/{id}/follow
-  controller: App\Apps\Web\User\Follow\FollowUserController
-  methods: [ PUT ]
-  defaults: { auth: true }
+    path: /user/{id}/follow
+    controller: App\Apps\Web\User\Follow\FollowUserController
+    methods: [PUT]
+    defaults: { auth: true }
 
 unfollow:
-  path: /user/{id}/unfollow
-  controller: App\Apps\Web\User\Unfollow\UnfollowUserController
-  methods: [ PUT ]
-  defaults: { auth: true }
+    path: /user/{id}/unfollow
+    controller: App\Apps\Web\User\Unfollow\UnfollowUserController
+    methods: [PUT]
+    defaults: { auth: true }
 
 followings:
-  path: /user/{id}/followings
-  controller: App\Apps\Web\User\Followings\UserFollowingsController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /user/{id}/followings
+    controller: App\Apps\Web\User\Followings\UserFollowingsController
+    methods: [GET]
+    defaults: { auth: true }
 
 followers:
-  path: /user/{id}/followers
-  controller: App\Apps\Web\User\Followers\UserFollowersController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /user/{id}/followers
+    controller: App\Apps\Web\User\Followers\UserFollowersController
+    methods: [GET]
+    defaults: { auth: true }
