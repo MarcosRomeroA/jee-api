@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Game\Infrastructure\Persistence;
 
@@ -9,8 +11,10 @@ use App\Contexts\Web\Game\Domain\Exception\GameRoleNotFoundException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class MysqlGameRoleRepository extends ServiceEntityRepository implements
-    GameRoleRepository
+/**
+ * @extends ServiceEntityRepository<GameRole>
+ */
+final class MysqlGameRoleRepository extends ServiceEntityRepository implements GameRoleRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

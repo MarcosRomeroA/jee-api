@@ -967,4 +967,46 @@ final class ApiContext extends RawMinkContext
             JSON_THROW_ON_ERROR,
         );
     }
+
+    /**
+     * @Then the response should contain a request for team :teamName by player :playerNickname with status :status
+     */
+    public function theResponseShouldContainARequestForTeamByPlayerWithStatus(
+        string $teamName,
+        string $playerNickname,
+        string $status
+    ): void {
+        $responseContent = $this->sessionHelper->getResponse();
+        $response = json_decode($responseContent, true);
+
+        if (!isset($response['requests']) || !is_array($response['requests'])) {
+            throw new RuntimeException('Response does not contain a "requests" array');
+        }
+
+        $found = false;
+        foreach ($response['requests'] as $request) {
+            if (
+                isset($request['teamName']) &&
+                isset($request['playerNickname']) &&
+                isset($request['status']) &&
+                $request['teamName'] === $teamName &&
+                $request['playerNickname'] === $playerNickname &&
+                $request['status'] === $status
+            ) {
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            throw new RuntimeException(
+                sprintf(
+                    'Could not find a request for team "%s" by player "%s" with status "%s" in the response',
+                    $teamName,
+                    $playerNickname,
+                    $status
+                )
+            );
+        }
+    }
 }

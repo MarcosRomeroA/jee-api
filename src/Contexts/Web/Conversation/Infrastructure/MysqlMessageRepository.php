@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Conversation\Infrastructure;
 
@@ -11,13 +13,14 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Contexts\Web\Conversation\Domain\Exception\MessageNotFoundException;
 
 /**
+ * @extends ServiceEntityRepository<Message>
+ *
  * @method Message|null find($id, $lockMode = null, $lockVersion = null)
  * @method Message|null findOneBy(array $criteria, array $orderBy = null)
  * @method Message[]    findAll()
  * @method Message[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class MysqlMessageRepository extends ServiceEntityRepository implements
-    MessageRepository
+final class MysqlMessageRepository extends ServiceEntityRepository implements MessageRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

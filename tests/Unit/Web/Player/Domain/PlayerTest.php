@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Player\Domain;
 
@@ -14,13 +16,14 @@ final class PlayerTest extends TestCase
         $id = Uuid::random();
         $user = UserMother::random();
         $gameRole = GameRoleMother::random();
+        $gameRoles = [$gameRole];
         $gameRank = GameRankMother::random();
         $username = 'ProGamer123';
 
         $player = new Player(
             $id,
             $user,
-            $gameRole,
+            $gameRoles,
             $gameRank,
             new UsernameValue($username),
             false
@@ -28,7 +31,8 @@ final class PlayerTest extends TestCase
 
         $this->assertEquals($id, $player->id());
         $this->assertEquals($user, $player->user());
-        $this->assertEquals($gameRole, $player->gameRole());
+        $this->assertCount(1, $player->gameRoles());
+        $this->assertEquals($gameRole, $player->gameRoles()[0]);
         $this->assertEquals($gameRank, $player->gameRank());
         $this->assertEquals($username, $player->username()->value());
         $this->assertFalse($player->verified());
@@ -39,12 +43,14 @@ final class PlayerTest extends TestCase
         $player = PlayerMother::create();
         $newUsername = new UsernameValue('UpdatedGamer456');
         $newGameRole = GameRoleMother::random();
+        $newGameRoles = [$newGameRole];
         $newGameRank = GameRankMother::random();
 
-        $player->update($newUsername, $newGameRole, $newGameRank);
+        $player->update($newUsername, $newGameRoles, $newGameRank);
 
         $this->assertEquals($newUsername->value(), $player->username()->value());
-        $this->assertEquals($newGameRole, $player->gameRole());
+        $this->assertCount(1, $player->gameRoles());
+        $this->assertEquals($newGameRole, $player->gameRoles()[0]);
         $this->assertEquals($newGameRank, $player->gameRank());
     }
 
@@ -66,4 +72,3 @@ final class PlayerTest extends TestCase
         $this->assertTrue($player->verified());
     }
 }
-

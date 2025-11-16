@@ -13,7 +13,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<TeamRequest>
  */
-final class DoctrineTeamRequestRepository extends ServiceEntityRepository implements TeamRequestRepository
+final class MysqlTeamRequestRepository extends ServiceEntityRepository implements TeamRequestRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -75,7 +75,7 @@ final class DoctrineTeamRequestRepository extends ServiceEntityRepository implem
         return $this->createQueryBuilder("tr")
             ->where("tr.status = :status")
             ->setParameter("status", "pending")
-            ->orderBy("tr.createdAt", "DESC")
+            ->orderBy("tr.createdAt", "ASC")
             ->getQuery()
             ->getResult();
     }

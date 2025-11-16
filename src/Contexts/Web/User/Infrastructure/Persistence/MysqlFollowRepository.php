@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Infrastructure\Persistence;
 
@@ -8,8 +10,10 @@ use App\Contexts\Web\User\Domain\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class MysqlFollowRepository extends ServiceEntityRepository implements
-    FollowRepository
+/**
+ * @extends ServiceEntityRepository<Follow>
+ */
+final class MysqlFollowRepository extends ServiceEntityRepository implements FollowRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

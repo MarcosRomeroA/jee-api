@@ -13,6 +13,9 @@ use App\Contexts\Web\User\Domain\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Post>
+ */
 final class MysqlPostRepository extends ServiceEntityRepository implements PostRepository
 {
     public function __construct(ManagerRegistry $registry)

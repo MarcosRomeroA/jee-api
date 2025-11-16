@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Game\Infrastructure\Persistence;
 
@@ -9,8 +11,10 @@ use App\Contexts\Web\Game\Domain\GameRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class MysqlGameRepository extends ServiceEntityRepository implements
-    GameRepository
+/**
+ * @extends ServiceEntityRepository<Game>
+ */
+final class MysqlGameRepository extends ServiceEntityRepository implements GameRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

@@ -4,14 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat\Shared\Infrastructure\Behat;
 
-use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\User\Domain\UserRepository;
-use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
-use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
-use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
-use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
-use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
 use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;

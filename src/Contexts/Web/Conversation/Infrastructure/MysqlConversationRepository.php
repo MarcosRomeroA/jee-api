@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Conversation\Infrastructure;
 
@@ -11,14 +13,14 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
+ * @extends ServiceEntityRepository<Conversation>
+ *
  * @method Conversation|null find($id, $lockMode = null, $lockVersion = null)
  * @method Conversation|null findOneBy(array $criteria, array $orderBy = null)
  * @method Conversation[]    findAll()
  * @method Conversation[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-final class MysqlConversationRepository
-    extends ServiceEntityRepository
-    implements ConversationRepository
+final class MysqlConversationRepository extends ServiceEntityRepository implements ConversationRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -40,8 +42,10 @@ final class MysqlConversationRepository
             ->join("c.participants", "p2")
             ->where("p1.user = :user1")
             ->andWhere("p2.user = :user2")
+            ->andWhere("p1.id != p2.id")
             ->setParameter("user1", $user1)
             ->setParameter("user2", $user2)
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
     }

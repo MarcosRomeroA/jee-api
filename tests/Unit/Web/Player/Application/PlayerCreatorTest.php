@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Player\Application;
 
@@ -65,7 +67,9 @@ final class PlayerCreatorTest extends TestCase
         $this->gameRoleRepository
             ->expects($this->once())
             ->method("findById")
-            ->with($gameRoleId)
+            ->with($this->callback(function (Uuid $uuid) use ($gameRoleId) {
+                return $uuid->equals($gameRoleId);
+            }))
             ->willReturn($gameRole);
 
         $this->gameRankRepository
@@ -99,7 +103,7 @@ final class PlayerCreatorTest extends TestCase
         $this->creator->create(
             $id,
             $userId,
-            $gameRoleId,
+            [$gameRoleId->value()],
             $gameRankId,
             $username,
         );
@@ -128,7 +132,7 @@ final class PlayerCreatorTest extends TestCase
         $this->creator->create(
             $id,
             $userId,
-            $gameRoleId,
+            [$gameRoleId->value()],
             $gameRankId,
             $username,
         );

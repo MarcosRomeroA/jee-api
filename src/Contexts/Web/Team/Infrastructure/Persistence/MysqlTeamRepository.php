@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Infrastructure\Persistence;
 
@@ -11,8 +13,10 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class MysqlTeamRepository extends ServiceEntityRepository implements
-    TeamRepository
+/**
+ * @extends ServiceEntityRepository<Team>
+ */
+final class MysqlTeamRepository extends ServiceEntityRepository implements TeamRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

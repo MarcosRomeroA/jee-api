@@ -12,7 +12,10 @@ use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrinePlayerRepository extends ServiceEntityRepository implements PlayerRepository
+/**
+ * @extends ServiceEntityRepository<Player>
+ */
+final class MysqlPlayerRepository extends ServiceEntityRepository implements PlayerRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

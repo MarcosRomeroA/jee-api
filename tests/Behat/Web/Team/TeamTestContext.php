@@ -41,6 +41,13 @@ final class TeamTestContext implements Context
         /** @var Connection $connection */
         $connection = $this->entityManager->getConnection();
 
+        // IMPORTANTE: Limpiar team_requests ANTES de cada escenario para evitar contaminación
+        try {
+            $connection->executeStatement("DELETE FROM team_request");
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
+
         // Obtener o crear el usuario compartido USER1
         try {
             $user = $this->userRepository->findById(

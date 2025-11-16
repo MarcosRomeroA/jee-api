@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Infrastructure\Persistence;
 
@@ -7,7 +9,10 @@ use App\Contexts\Web\Post\Domain\PostResourceRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class MysqlPostResourceRepository extends ServiceEntityRepository implements PostResourceRepository
+/**
+ * @extends ServiceEntityRepository<PostResource>
+ */
+final class MysqlPostResourceRepository extends ServiceEntityRepository implements PostResourceRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

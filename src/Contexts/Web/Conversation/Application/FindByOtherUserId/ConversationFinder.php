@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Conversation\Application\FindByOtherUserId;
 
@@ -15,13 +17,12 @@ final readonly class ConversationFinder
     public function __construct(
         private UserRepository $userRepository,
         private ConversationRepository $conversationRepository,
-    )
-    {
+    ) {
     }
 
     public function __invoke(Uuid $otherUserId, Uuid $sessionId): ConversationResponse
     {
-        $otherUser = $this->userRepository->findById($sessionId);
+        $otherUser = $this->userRepository->findById($otherUserId);
 
         $sessionUser = $this->userRepository->findById($sessionId);
 
@@ -31,7 +32,7 @@ final readonly class ConversationFinder
 
         $conversation = $this->conversationRepository->searchConversationByParticipantUsers($otherUser, $sessionUser);
 
-        if (!$conversation){
+        if (!$conversation) {
             $conversation = Conversation::create(Uuid::random());
 
             $user1 = $this->userRepository->findById($sessionId);

@@ -1,9 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Team\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\Team;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamNameValue;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamDescriptionValue;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamImageValue;
 use PHPUnit\Framework\TestCase;
 
 final class TeamTest extends TestCase
@@ -16,7 +21,13 @@ final class TeamTest extends TestCase
         $image = "https://example.com/team.jpg";
         $creator = UserMother::random();
 
-        $team = Team::create($id, $name, $description, $image, $creator);
+        $team = Team::create(
+            $id,
+            new TeamNameValue($name),
+            new TeamDescriptionValue($description),
+            new TeamImageValue($image),
+            $creator
+        );
 
         $this->assertEquals($id, $team->id());
         $this->assertEquals($name, $team->name());
@@ -35,7 +46,11 @@ final class TeamTest extends TestCase
         $newDescription = "Updated team description";
         $newImage = "https://example.com/new-image.jpg";
 
-        $team->update($newName, $newDescription, $newImage);
+        $team->update(
+            new TeamNameValue($newName),
+            new TeamDescriptionValue($newDescription),
+            new TeamImageValue($newImage)
+        );
 
         $this->assertEquals($newName, $team->name());
         $this->assertEquals($newDescription, $team->description());

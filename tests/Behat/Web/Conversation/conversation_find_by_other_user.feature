@@ -12,7 +12,7 @@ Feature: Find Conversation by Other User
   Scenario: Find conversation with non-existent user
     Given I am authenticated as "test@example.com" with password "password123"
     When I send a GET request to "/api/conversation/by-other-user/999e9999-e99b-99d9-a999-999999999999"
-    Then the response status code should be 200
+    Then the response status code should be 404
 
   Scenario: Find conversation with invalid user id format
     Given I am authenticated as "test@example.com" with password "password123"

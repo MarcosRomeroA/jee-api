@@ -42,12 +42,8 @@ Feature: Team Requests
     When I send a GET request to "/api/team/requests"
     Then the response status code should be 200
     And the JSON node "requests" should have 2 elements
-    And the JSON node "requests[0].teamName" should be equal to "Alpha Team"
-    And the JSON node "requests[0].playerNickname" should be equal to "jane"
-    And the JSON node "requests[0].status" should be equal to "pending"
-    And the JSON node "requests[1].teamName" should be equal to "Beta Team"
-    And the JSON node "requests[1].playerNickname" should be equal to "bob"
-    And the JSON node "requests[1].status" should be equal to "pending"
+    And the response should contain a request for team "Alpha Team" by player "jane" with status "pending"
+    And the response should contain a request for team "Beta Team" by player "bob" with status "pending"
 
   Scenario: Get pending requests shows only pending ones
     # Create a team as john

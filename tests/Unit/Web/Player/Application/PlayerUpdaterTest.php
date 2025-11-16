@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Player\Application;
 
@@ -59,7 +61,7 @@ final class PlayerUpdaterTest extends TestCase
         $this->updater->update(
             $id,
             $newUsername,
-            $newGameRoleId,
+            [$newGameRoleId->value()],
             $newGameRankId,
         );
     }
@@ -67,6 +69,7 @@ final class PlayerUpdaterTest extends TestCase
     public function testItShouldThrowExceptionWhenPlayerNotFound(): void
     {
         $id = Uuid::random();
+        $gameRoleId = Uuid::random();
 
         $this->repository
             ->expects($this->once())
@@ -79,7 +82,7 @@ final class PlayerUpdaterTest extends TestCase
         $this->updater->update(
             $id,
             "NewUsername",
-            Uuid::random(),
+            [$gameRoleId->value()],
             Uuid::random(),
         );
     }

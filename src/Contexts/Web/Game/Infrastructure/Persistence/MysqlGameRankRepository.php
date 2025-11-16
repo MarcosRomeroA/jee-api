@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Game\Infrastructure\Persistence;
 
@@ -9,8 +11,10 @@ use App\Contexts\Web\Game\Domain\Exception\GameRankNotFoundException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class MysqlGameRankRepository extends ServiceEntityRepository implements
-    GameRankRepository
+/**
+ * @extends ServiceEntityRepository<GameRank>
+ */
+final class MysqlGameRankRepository extends ServiceEntityRepository implements GameRankRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

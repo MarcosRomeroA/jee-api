@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Infrastructure\Persistence;
 
@@ -9,8 +11,10 @@ use App\Contexts\Web\Post\Domain\Exception\CommentNotFoundException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class MysqlCommentRepository extends ServiceEntityRepository implements
-    CommentRepository
+/**
+ * @extends ServiceEntityRepository<Comment>
+ */
+final class MysqlCommentRepository extends ServiceEntityRepository implements CommentRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

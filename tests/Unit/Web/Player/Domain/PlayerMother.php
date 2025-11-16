@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Player\Domain;
 
@@ -16,7 +18,7 @@ final class PlayerMother
     public static function create(
         ?Uuid $id = null,
         ?User $user = null,
-        ?GameRole $gameRole = null,
+        ?array $gameRoles = null,
         ?GameRank $gameRank = null,
         ?string $username = null,
         ?bool $verified = null
@@ -24,7 +26,7 @@ final class PlayerMother
         return new Player(
             $id ?? Uuid::random(),
             $user ?? UserMother::random(),
-            $gameRole ?? GameRoleMother::random(),
+            $gameRoles ?? [GameRoleMother::random()],
             $gameRank ?? GameRankMother::random(),
             new UsernameValue($username ?? 'testplayer' . rand(1, 1000)),
             $verified ?? false
@@ -51,4 +53,3 @@ final class PlayerMother
         return self::create(user: $user);
     }
 }
-
