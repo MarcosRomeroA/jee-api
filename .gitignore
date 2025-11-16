@@ -26,3 +26,8 @@
 ###> DOCKER ###
 /data
 ###< DOCKER ###
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.cache
+/.php-cs-fixer.php
+###< friendsofphp/php-cs-fixer ###
