@@ -66,4 +66,14 @@ final class DoctrineTeamRequestRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findAllPending(): array
+    {
+        return $this->createQueryBuilder("tr")
+            ->where("tr.status = :status")
+            ->setParameter("status", "pending")
+            ->orderBy("tr.createdAt", "DESC")
+            ->getQuery()
+            ->getResult();
+    }
 }

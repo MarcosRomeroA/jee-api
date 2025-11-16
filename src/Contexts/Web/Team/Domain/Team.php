@@ -11,10 +11,16 @@ use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\Team\Domain\Events\TeamCreatedDomainEvent;
 use App\Contexts\Web\Team\Domain\Events\TeamUpdatedDomainEvent;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamNameValue;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamDescriptionValue;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamImageValue;
+use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Embedded;
 
+#[ContainsNullableEmbeddable]
 #[ORM\Entity(repositoryClass: TeamRepository::class)]
 #[ORM\Table(name: "team")]
 class Team extends AggregateRoot
@@ -45,14 +51,14 @@ class Team extends AggregateRoot
     ]
     private User $leader;
 
-    #[ORM\Column(type: "string", length: 100)]
-    private string $name;
+    #[Embedded(class: TeamNameValue::class, columnPrefix: false)]
+    private TeamNameValue $name;
 
-    #[ORM\Column(type: "text", nullable: true)]
-    private ?string $description = null;
+    #[Embedded(class: TeamDescriptionValue::class, columnPrefix: false)]
+    private TeamDescriptionValue $description;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private ?string $image = null;
+    #[Embedded(class: TeamImageValue::class, columnPrefix: false)]
+    private TeamImageValue $image;
 
     /**
      * @var Collection<int, TeamPlayer>
@@ -80,9 +86,9 @@ class Team extends AggregateRoot
 
     public function __construct(
         Uuid $id,
-        string $name,
-        ?string $description,
-        ?string $image,
+        TeamNameValue $name,
+        TeamDescriptionValue $description,
+        TeamImageValue $image,
         User $creator,
     ) {
         $this->id = $id;
@@ -99,9 +105,9 @@ class Team extends AggregateRoot
 
     public static function create(
         Uuid $id,
-        string $name,
-        ?string $description,
-        ?string $image,
+        TeamNameValue $name,
+        TeamDescriptionValue $description,
+        TeamImageValue $image,
         User $creator,
     ): self {
         $team = new self($id, $name, $description, $image, $creator);
@@ -112,9 +118,9 @@ class Team extends AggregateRoot
     }
 
     public function update(
-        string $name,
-        ?string $description,
-        ?string $image,
+        TeamNameValue $name,
+        TeamDescriptionValue $description,
+        TeamImageValue $image,
     ): void {
         $this->name = $name;
         $this->description = $description;
@@ -140,17 +146,17 @@ class Team extends AggregateRoot
 
     public function name(): string
     {
-        return $this->name;
+        return $this->name->value();
     }
 
     public function description(): ?string
     {
-        return $this->description;
+        return $this->description->value();
     }
 
     public function image(): ?string
     {
-        return $this->image;
+        return $this->image->value();
     }
 
     public function teamPlayers(): Collection

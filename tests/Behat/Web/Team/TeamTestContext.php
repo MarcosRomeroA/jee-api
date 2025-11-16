@@ -5,6 +5,9 @@ namespace App\Tests\Behat\Web\Team;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\Team\Domain\Team;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamNameValue;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamDescriptionValue;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamImageValue;
 use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
@@ -32,7 +35,10 @@ final class TeamTestContext implements Context
     /** @BeforeScenario @team */
     public function createTestData(): void
     {
-        // Obtener o crear el usuario compartido
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        // Obtener o crear el usuario compartido USER1
         try {
             $user = $this->userRepository->findById(
                 new Uuid(TestUsers::USER1_ID),
@@ -49,10 +55,88 @@ final class TeamTestContext implements Context
             $this->userRepository->save($user);
         }
 
-        // Verificar si el juego ya existe
-        /** @var Connection $connection */
-        $connection = $this->entityManager->getConnection();
+        // Crear USER2 si no existe
+        $user2Exists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM user WHERE id = :id",
+            ["id" => TestUsers::USER2_ID],
+        );
 
+        if ($user2Exists == 0) {
+            $user2 = User::create(
+                new Uuid(TestUsers::USER2_ID),
+                new FirstnameValue(TestUsers::USER2_FIRSTNAME),
+                new LastnameValue(TestUsers::USER2_LASTNAME),
+                new UsernameValue(TestUsers::USER2_USERNAME),
+                new EmailValue(TestUsers::USER2_EMAIL),
+                new PasswordValue(TestUsers::USER2_PASSWORD),
+            );
+            $this->userRepository->save($user2);
+        }
+
+        // Crear USER3 si no existe
+        $user3Exists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM user WHERE id = :id",
+            ["id" => TestUsers::USER3_ID],
+        );
+
+        if ($user3Exists == 0) {
+            $user3 = User::create(
+                new Uuid(TestUsers::USER3_ID),
+                new FirstnameValue(TestUsers::USER3_FIRSTNAME),
+                new LastnameValue(TestUsers::USER3_LASTNAME),
+                new UsernameValue(TestUsers::USER3_USERNAME),
+                new EmailValue(TestUsers::USER3_EMAIL),
+                new PasswordValue(TestUsers::USER3_PASSWORD),
+            );
+            $this->userRepository->save($user3);
+        }
+
+        // Crear dependencias necesarias para Player (Game, Role, Rank, GameRole, GameRank)
+        $this->createPlayerDependencies($connection);
+
+        // Crear Player para USER2 si no existe
+        $player2Exists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM player WHERE id = :id",
+            ["id" => TestUsers::USER2_ID],
+        );
+
+        if ($player2Exists == 0) {
+            $connection->executeStatement(
+                "INSERT INTO player (id, user_id, game_role_id, game_rank_id, username, verified, created_at)
+                 VALUES (:id, :userId, :gameRoleId, :gameRankId, :username, :verified, NOW())",
+                [
+                    "id" => TestUsers::USER2_ID,
+                    "userId" => TestUsers::USER2_ID,
+                    "gameRoleId" => "750e8400-e29b-41d4-a716-446655440001",
+                    "gameRankId" => "850e8400-e29b-41d4-a716-446655440011",
+                    "username" => "jane",
+                    "verified" => 0,
+                ],
+            );
+        }
+
+        // Crear Player para USER3 si no existe
+        $player3Exists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM player WHERE id = :id",
+            ["id" => TestUsers::USER3_ID],
+        );
+
+        if ($player3Exists == 0) {
+            $connection->executeStatement(
+                "INSERT INTO player (id, user_id, game_role_id, game_rank_id, username, verified, created_at)
+                 VALUES (:id, :userId, :gameRoleId, :gameRankId, :username, :verified, NOW())",
+                [
+                    "id" => TestUsers::USER3_ID,
+                    "userId" => TestUsers::USER3_ID,
+                    "gameRoleId" => "750e8400-e29b-41d4-a716-446655440001",
+                    "gameRankId" => "850e8400-e29b-41d4-a716-446655440011",
+                    "username" => "bob",
+                    "verified" => 0,
+                ],
+            );
+        }
+
+        // Verificar si el juego ya existe
         $gameExists = $connection->fetchOne(
             "SELECT COUNT(*) FROM game WHERE id = :id",
             ["id" => self::TEST_GAME_ID],
@@ -105,9 +189,9 @@ final class TeamTestContext implements Context
             // Crear equipo de test
             $team = Team::create(
                 new Uuid(self::TEST_TEAM_ID),
-                "Test Gaming Team",
-                "Test team description",
-                "https://example.com/team-image.png",
+                new TeamNameValue("Test Gaming Team"),
+                new TeamDescriptionValue("Test team description"),
+                new TeamImageValue("https://example.com/team-image.png"),
                 $user,
             );
             $this->entityManager->persist($team);
@@ -124,9 +208,9 @@ final class TeamTestContext implements Context
             // Crear segundo equipo de test para delete
             $team2 = Team::create(
                 new Uuid(self::TEST_TEAM_ID_2),
-                "Team to Delete",
-                "Team to be deleted",
-                "https://example.com/team-image-2.png",
+                new TeamNameValue("Team to Delete"),
+                new TeamDescriptionValue("Team to be deleted"),
+                new TeamImageValue("https://example.com/team-image-2.png"),
                 $user,
             );
             $this->entityManager->persist($team2);
@@ -141,55 +225,29 @@ final class TeamTestContext implements Context
         $connection = $this->entityManager->getConnection();
 
         try {
-            // 1. Limpiar team_players del equipo de prueba con SQL nativo
-            $connection->executeStatement(
-                "DELETE FROM team_player WHERE team_id = :teamId",
-                ["teamId" => self::TEST_TEAM_ID],
-            );
+            // 1. Limpiar team_requests de todos los equipos
+            $connection->executeStatement("DELETE FROM team_request");
         } catch (\Exception $e) {
             // Ignorar si no existe
         }
 
         try {
-            // 2. Limpiar team_requests del equipo de prueba
-            $connection->executeStatement(
-                "DELETE FROM team_request WHERE team_id = :teamId",
-                ["teamId" => self::TEST_TEAM_ID],
-            );
+            // 2. Limpiar team_players de todos los equipos
+            $connection->executeStatement("DELETE FROM team_player");
         } catch (\Exception $e) {
             // Ignorar si no existe
         }
 
         try {
-            // 3. Limpiar equipo de prueba
-            $connection->executeStatement(
-                "DELETE FROM team WHERE id = :teamId",
-                ["teamId" => self::TEST_TEAM_ID],
-            );
+            // 3. Limpiar team_game de todos los equipos
+            $connection->executeStatement("DELETE FROM team_game");
         } catch (\Exception $e) {
             // Ignorar si no existe
         }
 
         try {
-            // 4. Limpiar segundo equipo de prueba
-            $connection->executeStatement(
-                "DELETE FROM team WHERE id = :teamId",
-                ["teamId" => self::TEST_TEAM_ID_2],
-            );
-        } catch (\Exception $e) {
-            // Ignorar si no existe
-        }
-
-        try {
-            // 5. Limpiar equipos del usuario de prueba (creados dinámicamente)
-            $connection->executeStatement(
-                "DELETE FROM team WHERE creator_id = :userId AND id NOT IN (:excludeId1, :excludeId2)",
-                [
-                    "userId" => TestUsers::USER1_ID,
-                    "excludeId1" => self::TEST_TEAM_ID,
-                    "excludeId2" => self::TEST_TEAM_ID_2,
-                ],
-            );
+            // 4. Limpiar todos los equipos
+            $connection->executeStatement("DELETE FROM team");
         } catch (\Exception $e) {
             // Ignorar si no existe
         }
@@ -217,5 +275,96 @@ final class TeamTestContext implements Context
         // NO eliminar el usuario - es compartido entre contextos
         // Limpiar el entity manager
         $this->entityManager->clear();
+    }
+
+    private function createPlayerDependencies(Connection $connection): void
+    {
+        // Crear Game si no existe
+        $gameExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM game WHERE id = :id",
+            ["id" => "550e8400-e29b-41d4-a716-446655440080"],
+        );
+
+        if ($gameExists == 0) {
+            $connection->executeStatement(
+                "INSERT INTO game (id, name, description, min_players_quantity, max_players_quantity, created_at)
+                 VALUES (:id, :name, :description, :min, :max, NOW())",
+                [
+                    "id" => "550e8400-e29b-41d4-a716-446655440080",
+                    "name" => "League of Legends",
+                    "description" => "Test game",
+                    "min" => 5,
+                    "max" => 5,
+                ],
+            );
+        }
+
+        // Crear Role si no existe
+        $roleExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM role WHERE id = :id",
+            ["id" => "650e8400-e29b-41d4-a716-446655440001"],
+        );
+
+        if ($roleExists == 0) {
+            $connection->executeStatement(
+                "INSERT INTO role (id, name) VALUES (:id, :name)",
+                [
+                    "id" => "650e8400-e29b-41d4-a716-446655440001",
+                    "name" => "Mid Laner",
+                ],
+            );
+        }
+
+        // Crear GameRole si no existe
+        $gameRoleExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM game_role WHERE id = :id",
+            ["id" => "750e8400-e29b-41d4-a716-446655440001"],
+        );
+
+        if ($gameRoleExists == 0) {
+            $connection->executeStatement(
+                "INSERT INTO game_role (id, role_id, game_id) VALUES (:id, :roleId, :gameId)",
+                [
+                    "id" => "750e8400-e29b-41d4-a716-446655440001",
+                    "roleId" => "650e8400-e29b-41d4-a716-446655440001",
+                    "gameId" => "550e8400-e29b-41d4-a716-446655440080",
+                ],
+            );
+        }
+
+        // Crear Rank si no existe
+        $rankExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM rank WHERE id = :id",
+            ["id" => "750e8400-e29b-41d4-a716-446655440011"],
+        );
+
+        if ($rankExists == 0) {
+            $connection->executeStatement(
+                "INSERT INTO rank (id, name, description) VALUES (:id, :name, :description)",
+                [
+                    "id" => "750e8400-e29b-41d4-a716-446655440011",
+                    "name" => "Gold",
+                    "description" => "Gold rank",
+                ],
+            );
+        }
+
+        // Crear GameRank si no existe
+        $gameRankExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM game_rank WHERE id = :id",
+            ["id" => "850e8400-e29b-41d4-a716-446655440011"],
+        );
+
+        if ($gameRankExists == 0) {
+            $connection->executeStatement(
+                "INSERT INTO game_rank (id, rank_id, game_id, level) VALUES (:id, :rankId, :gameId, :level)",
+                [
+                    "id" => "850e8400-e29b-41d4-a716-446655440011",
+                    "rankId" => "750e8400-e29b-41d4-a716-446655440011",
+                    "gameId" => "550e8400-e29b-41d4-a716-446655440080",
+                    "level" => 5,
+                ],
+            );
+        }
     }
 }

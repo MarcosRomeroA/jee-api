@@ -8,8 +8,11 @@ interface TeamRequestRepository
 {
     public function save(TeamRequest $request): void;
     public function findById(Uuid $id): ?TeamRequest;
-    public function findPendingByTeamAndPlayer(Uuid $teamId, Uuid $playerId): ?TeamRequest;
+    public function findPendingByTeamAndPlayer(
+        Uuid $teamId,
+        Uuid $playerId,
+    ): ?TeamRequest;
     public function findPendingByTeam(Uuid $teamId): array;
     public function findPendingByPlayer(Uuid $playerId): array;
+    public function findAllPending(): array;
 }
-

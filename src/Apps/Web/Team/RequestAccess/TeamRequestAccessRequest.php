@@ -11,27 +11,19 @@ final readonly class TeamRequestAccessRequest
     public function __construct(
         public string $teamId,
 
-        #[Assert\NotBlank]
-        #[Assert\Type("string")]
-        public string $playerId,
+        #[Assert\NotBlank] #[Assert\Type("string")] public string $playerId,
     ) {}
 
-    public static function fromHttp(Request $request, string $teamId): self
-    {
-        $data = json_decode($request->getContent(), true);
-
-        return new self(
-            $teamId,
-            $data['playerId'] ?? ''
-        );
+    public static function fromHttp(
+        Request $request,
+        string $teamId,
+        string $sessionId,
+    ): self {
+        return new self($teamId, $sessionId);
     }
 
     public function toCommand(): TeamRequestAccessCommand
     {
-        return new TeamRequestAccessCommand(
-            $this->teamId,
-            $this->playerId
-        );
+        return new TeamRequestAccessCommand($this->teamId, $this->playerId);
     }
 }
-

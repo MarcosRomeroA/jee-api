@@ -2,29 +2,26 @@
 
 namespace App\Contexts\Web\Team\Domain\ValueObject;
 
-use Webmozart\Assert\Assert;
+use App\Contexts\Shared\Domain\ValueObject\StringValueObject;
+use Doctrine\ORM\Mapping as ORM;
 
-final class TeamNameValue
+#[ORM\Embeddable]
+class TeamNameValue extends StringValueObject
 {
-    private string $value;
+    #[ORM\Column(name: "name", type: "string", length: 100)]
+    protected string $value;
 
     public function __construct(string $value)
     {
-        Assert::notEmpty($value, 'Team name cannot be empty');
-        Assert::maxLength($value, 100, 'Team name cannot be longer than 100 characters');
-        Assert::minLength($value, 3, 'Team name must be at least 3 characters');
-        
-        $this->value = $value;
+        parent::__construct($value);
+        $this->ensureIsNotEmpty();
+        $this->limitedToLength(100);
     }
 
-    public function value(): string
+    private function ensureIsNotEmpty(): void
     {
-        return $this->value;
-    }
-
-    public function __toString(): string
-    {
-        return $this->value;
+        if (empty(trim($this->value))) {
+            throw new \InvalidArgumentException("Team name cannot be empty");
+        }
     }
 }
-

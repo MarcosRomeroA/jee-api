@@ -48,7 +48,7 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements
     public function search(string $query): array
     {
         return $this->createQueryBuilder("t")
-            ->andWhere("t.name LIKE :query")
+            ->andWhere("t.name.value LIKE :query")
             ->setParameter("query", "%" . $query . "%")
             ->getQuery()
             ->getResult();
@@ -75,7 +75,7 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements
         $qb = $this->createQueryBuilder("t");
 
         if ($query !== null) {
-            $qb->andWhere("t.name LIKE :query")->setParameter(
+            $qb->andWhere("t.name.value LIKE :query")->setParameter(
                 "query",
                 "%" . $query . "%",
             );
@@ -109,7 +109,7 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements
         $qb = $this->createQueryBuilder("t")->select("COUNT(DISTINCT t.id)");
 
         if ($query !== null) {
-            $qb->andWhere("t.name LIKE :query")->setParameter(
+            $qb->andWhere("t.name.value LIKE :query")->setParameter(
                 "query",
                 "%" . $query . "%",
             );

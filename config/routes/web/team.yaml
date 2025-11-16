@@ -1,3 +1,9 @@
+find_pending_team_requests:
+    path: /team/requests
+    controller: App\Apps\Web\Team\FindPendingRequests\FindPendingTeamRequestsController
+    methods: [GET]
+    defaults: { auth: true }
+
 create_team:
     path: /team/{id}
     controller: App\Apps\Web\Team\Create\CreateTeamController
@@ -25,13 +31,13 @@ delete_team:
 team_request_access:
     path: /team/{teamId}/request-access
     controller: App\Apps\Web\Team\RequestAccess\TeamRequestAccessController
-    methods: [POST]
+    methods: [PUT]
     defaults: { auth: true }
 
 team_accept_request:
     path: /team/request/{requestId}/accept
     controller: App\Apps\Web\Team\AcceptRequest\TeamAcceptRequestController
-    methods: [POST]
+    methods: [PUT]
     defaults: { auth: true }
 
 add_game:

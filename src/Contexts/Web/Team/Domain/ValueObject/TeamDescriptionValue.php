@@ -5,15 +5,21 @@ namespace App\Contexts\Web\Team\Domain\ValueObject;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Embeddable]
-class TeamImageValue
+class TeamDescriptionValue
 {
-    #[ORM\Column(name: "image", type: "string", length: 255, nullable: true)]
+    #[
+        ORM\Column(
+            name: "description",
+            type: "text",
+            length: 1000,
+            nullable: true,
+        ),
+    ]
     private ?string $value;
 
     public function __construct(?string $value)
     {
         if ($value !== null) {
-            $this->ensureIsValidUrl($value);
             $this->ensureIsNotTooLong($value);
         }
         $this->value = $value;
@@ -24,20 +30,11 @@ class TeamImageValue
         return $this->value;
     }
 
-    private function ensureIsValidUrl(string $value): void
-    {
-        if (!empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) {
-            throw new \InvalidArgumentException(
-                "Team image must be a valid URL",
-            );
-        }
-    }
-
     private function ensureIsNotTooLong(string $value): void
     {
-        if (mb_strlen($value) > 255) {
+        if (mb_strlen($value) > 1000) {
             throw new \InvalidArgumentException(
-                "Team image URL cannot exceed 255 characters",
+                "Team description cannot exceed 1000 characters",
             );
         }
     }

@@ -4,6 +4,9 @@ namespace App\Tests\Unit\Web\Team\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\Team;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamNameValue;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamDescriptionValue;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamImageValue;
 use App\Contexts\Web\User\Domain\User;
 
 final class TeamMother
@@ -17,9 +20,9 @@ final class TeamMother
     ): Team {
         return Team::create(
             $id ?? Uuid::random(),
-            $name ?? "Test Team",
-            $description ?? "Test team description",
-            $image,
+            new TeamNameValue($name ?? "Test Team"),
+            new TeamDescriptionValue($description ?? "Test team description"),
+            new TeamImageValue($image),
             $creator ?? UserMother::random(),
         );
     }

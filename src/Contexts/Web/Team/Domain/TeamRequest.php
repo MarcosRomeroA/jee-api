@@ -8,37 +8,50 @@ use App\Contexts\Web\Player\Domain\Player;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'team_request')]
+#[ORM\Table(name: "team_request")]
 class TeamRequest extends AggregateRoot
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', length: 36)]
+    #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
 
     #[ORM\ManyToOne(targetEntity: Team::class)]
-    #[ORM\JoinColumn(name: 'team_id', referencedColumnName: 'id', nullable: false)]
+    #[
+        ORM\JoinColumn(
+            name: "team_id",
+            referencedColumnName: "id",
+            nullable: false,
+        ),
+    ]
     private Team $team;
 
     #[ORM\ManyToOne(targetEntity: Player::class)]
-    #[ORM\JoinColumn(name: 'player_id', referencedColumnName: 'id', nullable: false)]
+    #[
+        ORM\JoinColumn(
+            name: "player_id",
+            referencedColumnName: "id",
+            nullable: false,
+        ),
+    ]
     private Player $player;
 
-    #[ORM\Column(type: 'string', length: 20)]
+    #[ORM\Column(type: "string", length: 20)]
     private string $status;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: "datetime_immutable")]
     private \DateTimeImmutable $createdAt;
 
-    public function __construct(
-        Uuid $id,
-        Team $team,
-        Player $player
-    ) {
+    #[ORM\Column(type: "datetime_immutable", nullable: true)]
+    private ?\DateTimeImmutable $acceptedAt;
+
+    public function __construct(Uuid $id, Team $team, Player $player)
+    {
         $this->id = $id;
         $this->team = $team;
         $this->player = $player;
-        $this->status = 'pending';
+        $this->status = "pending";
         $this->createdAt = new \DateTimeImmutable();
+        $this->acceptedAt = null;
     }
 
     public function id(): Uuid
@@ -66,19 +79,24 @@ class TeamRequest extends AggregateRoot
         return $this->createdAt;
     }
 
+    public function acceptedAt(): ?\DateTimeImmutable
+    {
+        return $this->acceptedAt;
+    }
+
     public function accept(): void
     {
-        $this->status = 'accepted';
+        $this->status = "accepted";
+        $this->acceptedAt = new \DateTimeImmutable();
     }
 
     public function reject(): void
     {
-        $this->status = 'rejected';
+        $this->status = "rejected";
     }
 
     public function isPending(): bool
     {
-        return $this->status === 'pending';
+        return $this->status === "pending";
     }
 }
-

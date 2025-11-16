@@ -106,8 +106,23 @@ final class MercureContext implements Context
 
         $this->stopMercureListener();
 
-        echo "⚠️  No Mercure notification received within {$maxWait} seconds\n";
-        echo "This is expected if Mercure server is not running or not publishing.\n";
+        // En tests @realtime, FALLAR si no se recibe la notificación
+        // Esto asegura que la infraestructura de Mercure funciona correctamente
+        throw new \RuntimeException(
+            "❌ Mercure notification NOT received within {$maxWait} seconds.\n" .
+                "This test REQUIRES Mercure to be running and working correctly.\n\n" .
+                "Debug info:\n" .
+                "- Output file: {$outputFile}\n" .
+                "- File size: {$fileSize} bytes\n" .
+                "- First 500 chars of debug output:\n" .
+                substr($debugContent, 0, 500) .
+                "\n\n" .
+                "To fix:\n" .
+                "1. Ensure Mercure is running: docker ps | grep mercure\n" .
+                "2. Check Mercure logs: docker logs jee_mercure\n" .
+                "3. Verify MERCURE_URL in .env: " .
+                ($_ENV["MERCURE_URL"] ?? "NOT SET"),
+        );
     }
 
     /**

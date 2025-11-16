@@ -74,6 +74,8 @@ final class ApiContext extends RawMinkContext
      */
     public function iSendARequestTo(string $method, string $url): void
     {
+        // Replace saved variables in the URL
+        $url = $this->replaceVariables($url);
         $this->request->sendRequest($method, $this->locatePath($url));
     }
 
@@ -85,6 +87,9 @@ final class ApiContext extends RawMinkContext
         string $url,
         PyStringNode $body,
     ): void {
+        // Replace saved variables in the URL
+        $url = $this->replaceVariables($url);
+
         // Replace saved variables in the body
         $bodyString = $this->replaceVariables($body->getRaw());
         $modifiedBody = new PyStringNode([$bodyString], $body->getLine());
@@ -699,6 +704,210 @@ final class ApiContext extends RawMinkContext
                 }
             }
         }
+    }
+
+    /**
+     * @Then the JSON response should be:
+     */
+    public function theJsonResponseShouldBe(PyStringNode $string): void
+    {
+        $expected = $this->sanitizeOutput($string->getRaw());
+        $actual = $this->sanitizeOutput($this->sessionHelper->getResponse());
+
+        if ($expected === false || $actual === false) {
+            throw new RuntimeException(
+                "The outputs could not be parsed as JSON",
+            );
+        }
+
+        if ($expected !== $actual) {
+            throw new RuntimeException(
+                sprintf(
+                    "The JSON responses do not match!\n\n-- Expected:\n%s\n\n-- Actual:\n%s",
+                    $expected,
+                    $actual,
+                ),
+            );
+        }
+    }
+
+    /**
+     * @Then the JSON node :node should have :count element
+     */
+    public function theJsonNodeShouldHaveElement(string $node, int $count): void
+    {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!is_array($response)) {
+            throw new RuntimeException("Response is not a valid JSON");
+        }
+
+        $value = $this->getJsonNodeValue($response, $node);
+
+        if (!is_array($value)) {
+            throw new RuntimeException(
+                sprintf("JSON node '%s' is not an array", $node),
+            );
+        }
+
+        $actualCount = count($value);
+
+        if ($actualCount !== $count) {
+            throw new RuntimeException(
+                sprintf(
+                    "JSON node '%s' has %d elements, expected exactly %d element(s)",
+                    $node,
+                    $actualCount,
+                    $count,
+                ),
+            );
+        }
+    }
+
+    /**
+     * @Then the JSON node :node should have :count elements
+     */
+    public function theJsonNodeShouldHaveElements(
+        string $node,
+        int $count,
+    ): void {
+        // Delegate to singular version
+        $this->theJsonNodeShouldHaveElement($node, $count);
+    }
+
+    /**
+     * @Then the JSON node :node should be equal to :value
+     */
+    public function theJsonNodeShouldBeEqualTo(
+        string $node,
+        string $value,
+    ): void {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!is_array($response)) {
+            throw new RuntimeException("Response is not a valid JSON");
+        }
+
+        $actualValue = $this->getJsonNodeValue($response, $node);
+
+        // Convert expected value to proper type
+        $expectedValue = $this->convertValue($value);
+
+        if ($actualValue !== $expectedValue) {
+            throw new RuntimeException(
+                sprintf(
+                    "JSON node '%s' has value '%s', expected '%s'",
+                    $node,
+                    json_encode($actualValue),
+                    json_encode($expectedValue),
+                ),
+            );
+        }
+    }
+
+    /**
+     * @Then I save the value of JSON node :node as :variable
+     */
+    public function iSaveTheValueOfJsonNodeAs(
+        string $node,
+        string $variable,
+    ): void {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!is_array($response)) {
+            throw new RuntimeException("Response is not a valid JSON");
+        }
+
+        $value = $this->getJsonNodeValue($response, $node);
+
+        // Save the value in context variables
+        $this->savedVariables[$variable] = $value;
+    }
+
+    /**
+     * Get a value from JSON response using dot notation (e.g., "data.user.id" or "data[0].name")
+     */
+    private function getJsonNodeValue(array $data, string $path): mixed
+    {
+        $keys = explode(".", $path);
+        $current = $data;
+
+        foreach ($keys as $key) {
+            // Handle array access like "data[0]"
+            if (preg_match('/^(.+)\[(\d+)\]$/', $key, $matches)) {
+                $arrayKey = $matches[1];
+                $index = (int) $matches[2];
+
+                if (!isset($current[$arrayKey])) {
+                    throw new RuntimeException(
+                        sprintf(
+                            "JSON node '%s' not found in path '%s'",
+                            $arrayKey,
+                            $path,
+                        ),
+                    );
+                }
+
+                if (!is_array($current[$arrayKey])) {
+                    throw new RuntimeException(
+                        sprintf("JSON node '%s' is not an array", $arrayKey),
+                    );
+                }
+
+                if (!isset($current[$arrayKey][$index])) {
+                    throw new RuntimeException(
+                        sprintf(
+                            "Index %d not found in JSON node '%s'",
+                            $index,
+                            $arrayKey,
+                        ),
+                    );
+                }
+
+                $current = $current[$arrayKey][$index];
+            } else {
+                if (!isset($current[$key])) {
+                    throw new RuntimeException(
+                        sprintf(
+                            "JSON node '%s' not found in path '%s'",
+                            $key,
+                            $path,
+                        ),
+                    );
+                }
+
+                $current = $current[$key];
+            }
+        }
+
+        return $current;
+    }
+
+    /**
+     * Convert string value to proper type (e.g., "true" -> true, "123" -> 123)
+     */
+    private function convertValue(string $value): mixed
+    {
+        // Handle boolean values
+        if ($value === "true") {
+            return true;
+        }
+        if ($value === "false") {
+            return false;
+        }
+
+        // Handle null
+        if ($value === "null") {
+            return null;
+        }
+
+        // Handle numeric values
+        if (is_numeric($value)) {
+            return str_contains($value, ".") ? (float) $value : (int) $value;
+        }
+
+        // Return as string
+        return $value;
     }
 
     private function sanitizeOutput(string $output): false|string

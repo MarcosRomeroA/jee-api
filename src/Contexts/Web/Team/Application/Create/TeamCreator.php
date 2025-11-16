@@ -6,6 +6,9 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\Exception\TeamNotFoundException;
 use App\Contexts\Web\Team\Domain\Team;
 use App\Contexts\Web\Team\Domain\TeamRepository;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamNameValue;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamDescriptionValue;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamImageValue;
 use App\Contexts\Web\User\Domain\UserRepository;
 
 final class TeamCreator
@@ -24,7 +27,13 @@ final class TeamCreator
     ): void {
         $creator = $this->userRepository->findById($creatorId);
 
-        $team = Team::create($id, $name, $description, $image, $creator);
+        $team = Team::create(
+            $id,
+            new TeamNameValue($name),
+            new TeamDescriptionValue($description),
+            new TeamImageValue($image),
+            $creator,
+        );
 
         $this->teamRepository->save($team);
     }
