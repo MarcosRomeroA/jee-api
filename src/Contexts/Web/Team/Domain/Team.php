@@ -159,6 +159,9 @@ class Team extends AggregateRoot
         return $this->image->value();
     }
 
+    /**
+     * @return Collection<int, TeamPlayer>
+     */
     public function teamPlayers(): Collection
     {
         return $this->teamPlayers;
@@ -169,6 +172,9 @@ class Team extends AggregateRoot
         return $this->teamPlayers->count();
     }
 
+    /**
+     * @return Collection<int, TeamGame>
+     */
     public function teamGames(): Collection
     {
         return $this->teamGames;

@@ -7,6 +7,9 @@ use App\Contexts\Web\Team\Domain\Team;
 
 final class TeamResponse extends Response
 {
+    /**
+     * @param array<array{id: string, name: string}> $games
+     */
     public function __construct(
         public readonly string $id,
         public readonly array $games,

@@ -1,0 +1,17 @@
+{
+    "languages": {
+        "PHP": {
+            "format_on_save": "on",
+            "tab_size": 4,
+            "formatter": {
+                "external": {
+                    "command": "bash",
+                    "arguments": [
+                        "-c",
+                        "temp=$(mktemp) && cat > $temp && php php-cs-fixer.phar fix --quiet --config=.php-cs-fixer.dist.php $temp 2>&1 && cat $temp"
+                    ]
+                }
+            }
+        }
+    }
+}

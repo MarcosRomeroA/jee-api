@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Infrastructure\Persistence;
 
@@ -8,9 +10,10 @@ use App\Contexts\Web\Team\Domain\TeamRequestRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineTeamRequestRepository
-    extends ServiceEntityRepository
-    implements TeamRequestRepository
+/**
+ * @extends ServiceEntityRepository<TeamRequest>
+ */
+final class DoctrineTeamRequestRepository extends ServiceEntityRepository implements TeamRequestRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

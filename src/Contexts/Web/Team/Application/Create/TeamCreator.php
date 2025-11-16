@@ -3,7 +3,6 @@
 namespace App\Contexts\Web\Team\Application\Create;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Team\Domain\Exception\TeamNotFoundException;
 use App\Contexts\Web\Team\Domain\Team;
 use App\Contexts\Web\Team\Domain\TeamRepository;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamNameValue;
