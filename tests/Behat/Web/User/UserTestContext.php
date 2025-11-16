@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Behat\Web\User;
 
@@ -18,64 +20,28 @@ final class UserTestContext implements Context
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-    ) {}
+    ) {
+    }
 
     /** @BeforeScenario @user */
     public function createTestData(): void
     {
-        /** @var Connection $connection */
-        $connection = $this->entityManager->getConnection();
-
-        // Verificar si el usuario 1 ya existe
-        $existingUser1 = $connection->fetchOne(
-            "SELECT COUNT(*) FROM user WHERE id = :id",
-            ["id" => TestUsers::USER1_ID],
-        );
-
-        if (!$existingUser1) {
-            $user1 = User::create(
-                new Uuid(TestUsers::USER1_ID),
-                new FirstnameValue(TestUsers::USER1_FIRSTNAME),
-                new LastnameValue(TestUsers::USER1_LASTNAME),
-                new UsernameValue(TestUsers::USER1_USERNAME),
-                new EmailValue(TestUsers::USER1_EMAIL),
-                new PasswordValue(TestUsers::USER1_PASSWORD),
-            );
-            $this->entityManager->persist($user1);
-        }
-
-        // Verificar si el usuario 2 ya existe
-        $existingUser2 = $connection->fetchOne(
-            "SELECT COUNT(*) FROM user WHERE id = :id",
-            ["id" => TestUsers::USER2_ID],
-        );
-
-        if (!$existingUser2) {
-            $user2 = User::create(
-                new Uuid(TestUsers::USER2_ID),
-                new FirstnameValue(TestUsers::USER2_FIRSTNAME),
-                new LastnameValue(TestUsers::USER2_LASTNAME),
-                new UsernameValue(TestUsers::USER2_USERNAME),
-                new EmailValue(TestUsers::USER2_EMAIL),
-                new PasswordValue(TestUsers::USER2_PASSWORD),
-            );
-            $this->entityManager->persist($user2);
-        }
-
-        $this->entityManager->flush();
+        // Los usuarios globales ya fueron creados en DatabaseContext::setupDatabase()
+        // No necesitamos crear usuarios aquí
         $this->entityManager->clear();
     }
 
-    /** @AfterScenario @user */
+    /** @AfterScenario */
     public function cleanupTestData(): void
     {
         /** @var Connection $connection */
         $connection = $this->entityManager->getConnection();
 
         try {
-            // Limpiar seguidores/seguidos relacionados con usuarios de prueba
+            // Limpiar SOLO relaciones de seguimiento de usuarios de prueba
+            // NO eliminar usuarios, otros contextos los necesitan
             $connection->executeStatement(
-                "DELETE FROM follower WHERE follower_id IN (:id1, :id2) OR followed_id IN (:id3, :id4)",
+                "DELETE FROM user_follow WHERE follower_id IN (:id1, :id2) OR followed_id IN (:id3, :id4)",
                 [
                     "id1" => TestUsers::USER1_ID,
                     "id2" => TestUsers::USER2_ID,
@@ -83,18 +49,38 @@ final class UserTestContext implements Context
                     "id4" => TestUsers::USER2_ID,
                 ],
             );
-        } catch (\Exception $e) {
-            // Ignorar si no existe
-        }
 
-        try {
-            // Limpiar usuarios creados dinámicamente en los tests (no los usuarios base)
+            // Restaurar emails originales de los usuarios de prueba
+            // NO actualizar la contraseña para evitar cambiar el hash
             $connection->executeStatement(
-                "DELETE FROM user WHERE id NOT IN (:id1, :id2)",
+                "UPDATE user SET email = :email1, username = :username1, firstname = :firstname1, lastname = :lastname1 WHERE id = :id1",
                 [
                     "id1" => TestUsers::USER1_ID,
+                    "email1" => "test@example.com",
+                    "username1" => "testuser",
+                    "firstname1" => "Test",
+                    "lastname1" => "User",
+                ]
+            );
+            $connection->executeStatement(
+                "UPDATE user SET email = :email2, username = :username2, firstname = :firstname2, lastname = :lastname2 WHERE id = :id2",
+                [
                     "id2" => TestUsers::USER2_ID,
-                ],
+                    "email2" => "jane@example.com",
+                    "username2" => "janesmith",
+                    "firstname2" => "Jane",
+                    "lastname2" => "Smith",
+                ]
+            );
+            $connection->executeStatement(
+                "UPDATE user SET email = :email3, username = :username3, firstname = :firstname3, lastname = :lastname3 WHERE id = :id3",
+                [
+                    "id3" => TestUsers::USER3_ID,
+                    "email3" => "bob@example.com",
+                    "username3" => "bobtest",
+                    "firstname3" => "Bob",
+                    "lastname3" => "Test",
+                ]
             );
         } catch (\Exception $e) {
             // Ignorar si no existe

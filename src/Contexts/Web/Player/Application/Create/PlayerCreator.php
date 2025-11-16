@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Player\Application\Create;
 
@@ -18,26 +20,41 @@ final readonly class PlayerCreator
         private UserRepository $userRepository,
         private GameRoleRepository $gameRoleRepository,
         private GameRankRepository $gameRankRepository,
-    ) {}
+    ) {
+    }
 
+    /**
+     * @param array<string> $gameRoleIds - Array of GameRole UUIDs
+     */
     public function create(
         Uuid $id,
         Uuid $userId,
-        Uuid $gameRoleId,
-        Uuid $gameRankId,
+        array $gameRoleIds,
+        ?Uuid $gameRankId,
         UsernameValue $username,
     ): void {
         $user = $this->userRepository->findById($userId);
-        $gameRole = $this->gameRoleRepository->findById($gameRoleId);
-        $gameRank = $this->gameRankRepository->findById($gameRankId);
+
+        // Fetch all game roles
+        $gameRoles = [];
+        foreach ($gameRoleIds as $gameRoleId) {
+            $gameRoles[] = $this->gameRoleRepository->findById(new Uuid($gameRoleId));
+        }
+
+        // Fetch game rank if provided
+        $gameRank = null;
+        if ($gameRankId !== null) {
+            $gameRank = $this->gameRankRepository->findById($gameRankId);
+        }
 
         // Check if player exists without throwing exception
         try {
             $player = $this->playerRepository->findById($id);
-            $player->update($username, $gameRole, $gameRank);
+            $player->update($username, $gameRoles, $gameRank);
         } catch (\Exception $e) {
             // Player doesn't exist, create new one
-            $gameId = $gameRole->game()->getId();
+            // Use the first game role to get the gameId for validation
+            $gameId = $gameRoles[0]->game()->getId();
             if (
                 $this->playerRepository->existsByUserIdAndUsernameAndGameId(
                     $userId,
@@ -51,7 +68,7 @@ final readonly class PlayerCreator
             $player = Player::create(
                 $id,
                 $user,
-                $gameRole,
+                $gameRoles,
                 $gameRank,
                 $username,
                 false,

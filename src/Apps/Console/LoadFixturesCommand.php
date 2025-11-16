@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Console;
 
@@ -6,6 +8,7 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\Game\Domain\GameRank;
 use App\Contexts\Web\Game\Domain\GameRole;
+use App\Contexts\Web\Game\Domain\Rank;
 use App\Contexts\Web\Game\Domain\Role;
 use App\Contexts\Web\Tournament\Domain\TournamentStatus;
 use App\Contexts\Web\User\Domain\User;
@@ -108,7 +111,7 @@ final class LoadFixturesCommand extends Command
         ];
 
         foreach ($statuses as $data) {
-            $status = new TournamentStatus($data['id'], $data['name']);
+            $status = new TournamentStatus(new Uuid($data['id']), $data['name']);
             $this->entityManager->persist($status);
         }
     }
@@ -117,30 +120,30 @@ final class LoadFixturesCommand extends Command
     {
         $gamesData = [
             [
-                'id' => '550e8400-e29b-41d4-a716-446655440002',
-                'name' => 'League of Legends',
-                'description' => 'MOBA desarrollado por Riot Games',
-                'min' => 5,
-                'max' => 5
-            ],
-            [
-                'id' => '550e8400-e29b-41d4-a716-446655440012',
+                'id' => '550e8400-e29b-41d4-a716-446655440080',
                 'name' => 'Valorant',
-                'description' => 'FPS táctico desarrollado por Riot Games',
+                'description' => 'Tactical first-person shooter developed by Riot Games',
                 'min' => 5,
                 'max' => 5
             ],
             [
-                'id' => '550e8400-e29b-41d4-a716-446655440022',
+                'id' => '550e8400-e29b-41d4-a716-446655440081',
+                'name' => 'League of Legends',
+                'description' => 'Multiplayer online battle arena game developed by Riot Games',
+                'min' => 5,
+                'max' => 5
+            ],
+            [
+                'id' => '550e8400-e29b-41d4-a716-446655440082',
                 'name' => 'Counter-Strike 2',
-                'description' => 'FPS competitivo desarrollado por Valve',
+                'description' => 'Tactical first-person shooter developed by Valve',
                 'min' => 5,
                 'max' => 5
             ],
             [
-                'id' => '550e8400-e29b-41d4-a716-446655440032',
+                'id' => '550e8400-e29b-41d4-a716-446655440083',
                 'name' => 'Dota 2',
-                'description' => 'MOBA desarrollado por Valve',
+                'description' => 'Multiplayer online battle arena game developed by Valve',
                 'min' => 5,
                 'max' => 5
             ],
@@ -165,51 +168,15 @@ final class LoadFixturesCommand extends Command
     private function createRoles(): array
     {
         $rolesData = [
-            [
-                'id' => '550e8400-e29b-41d4-a716-446655440100',
-                'name' => 'Top',
-                'description' => 'Top lane player'
-            ],
-            [
-                'id' => '550e8400-e29b-41d4-a716-446655440101',
-                'name' => 'Jungle',
-                'description' => 'Jungle player'
-            ],
-            [
-                'id' => '550e8400-e29b-41d4-a716-446655440102',
-                'name' => 'Mid',
-                'description' => 'Mid lane player'
-            ],
-            [
-                'id' => '550e8400-e29b-41d4-a716-446655440103',
-                'name' => 'ADC',
-                'description' => 'Attack Damage Carry'
-            ],
-            [
-                'id' => '550e8400-e29b-41d4-a716-446655440104',
-                'name' => 'Support',
-                'description' => 'Support player'
-            ],
-            [
-                'id' => '550e8400-e29b-41d4-a716-446655440105',
-                'name' => 'Duelist',
-                'description' => 'Duelist agent'
-            ],
-            [
-                'id' => '550e8400-e29b-41d4-a716-446655440106',
-                'name' => 'Controller',
-                'description' => 'Controller agent'
-            ],
-            [
-                'id' => '550e8400-e29b-41d4-a716-446655440107',
-                'name' => 'Initiator',
-                'description' => 'Initiator agent'
-            ],
-            [
-                'id' => '550e8400-e29b-41d4-a716-446655440108',
-                'name' => 'Sentinel',
-                'description' => 'Sentinel agent'
-            ],
+            ['id' => '650e8400-e29b-41d4-a716-446655440001', 'name' => 'Duelist', 'description' => 'Aggressive entry fragger'],
+            ['id' => '650e8400-e29b-41d4-a716-446655440002', 'name' => 'Controller', 'description' => 'Controls map space and blocks vision'],
+            ['id' => '650e8400-e29b-41d4-a716-446655440003', 'name' => 'Sentinel', 'description' => 'Defensive anchor and support'],
+            ['id' => '650e8400-e29b-41d4-a716-446655440004', 'name' => 'Initiator', 'description' => 'Gathers information and sets up plays'],
+            ['id' => '650e8400-e29b-41d4-a716-446655440005', 'name' => 'Top', 'description' => 'Top lane position'],
+            ['id' => '650e8400-e29b-41d4-a716-446655440006', 'name' => 'Jungle', 'description' => 'Jungle position'],
+            ['id' => '650e8400-e29b-41d4-a716-446655440007', 'name' => 'Mid', 'description' => 'Mid lane position'],
+            ['id' => '650e8400-e29b-41d4-a716-446655440008', 'name' => 'ADC', 'description' => 'Attack Damage Carry - Bottom lane'],
+            ['id' => '650e8400-e29b-41d4-a716-446655440009', 'name' => 'Support', 'description' => 'Support position'],
         ];
 
         $roles = [];
@@ -228,24 +195,37 @@ final class LoadFixturesCommand extends Command
 
     private function createGameRoles(array $games, array $roles): void
     {
-        // League of Legends roles
-        $lolRoles = ['Top', 'Jungle', 'Mid', 'ADC', 'Support'];
-        foreach ($lolRoles as $index => $roleName) {
+        // Valorant roles
+        $valorantGameRoles = [
+            ['id' => '750e8400-e29b-41d4-a716-446655440001', 'role' => 'Duelist'],
+            ['id' => '750e8400-e29b-41d4-a716-446655440002', 'role' => 'Controller'],
+            ['id' => '750e8400-e29b-41d4-a716-446655440003', 'role' => 'Sentinel'],
+            ['id' => '750e8400-e29b-41d4-a716-446655440004', 'role' => 'Initiator'],
+        ];
+
+        foreach ($valorantGameRoles as $data) {
             $gameRole = new GameRole(
-                new Uuid('550e8400-e29b-41d4-a716-44665544000' . (3 + $index)),
-                $roles[$roleName],
-                $games['League of Legends']
+                new Uuid($data['id']),
+                $roles[$data['role']],
+                $games['Valorant']
             );
             $this->entityManager->persist($gameRole);
         }
 
-        // Valorant roles
-        $valorantRoles = ['Duelist', 'Controller', 'Initiator', 'Sentinel'];
-        foreach ($valorantRoles as $index => $roleName) {
+        // League of Legends roles
+        $lolGameRoles = [
+            ['id' => '750e8400-e29b-41d4-a716-446655440005', 'role' => 'Top'],
+            ['id' => '750e8400-e29b-41d4-a716-446655440006', 'role' => 'Jungle'],
+            ['id' => '750e8400-e29b-41d4-a716-446655440007', 'role' => 'Mid'],
+            ['id' => '750e8400-e29b-41d4-a716-446655440008', 'role' => 'ADC'],
+            ['id' => '750e8400-e29b-41d4-a716-446655440009', 'role' => 'Support'],
+        ];
+
+        foreach ($lolGameRoles as $data) {
             $gameRole = new GameRole(
-                new Uuid('550e8400-e29b-41d4-a716-44665544001' . $index),
-                $roles[$roleName],
-                $games['Valorant']
+                new Uuid($data['id']),
+                $roles[$data['role']],
+                $games['League of Legends']
             );
             $this->entityManager->persist($gameRole);
         }
@@ -312,8 +292,8 @@ final class LoadFixturesCommand extends Command
         // Por ahora vamos a asumir que existe un usuario con ese ID en la base
         // o lo creamos directamente con SQL para evitar complejidad con ValueObjects
 
-        $sql = "INSERT INTO `user` (id, firstname, lastname, username, email, password, profile_image) 
-                VALUES (?, ?, ?, ?, ?, ?, ?) 
+        $sql = "INSERT INTO `user` (id, firstname, lastname, username, email, password, profile_image)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE id=id";
 
         $this->entityManager->getConnection()->executeStatement($sql, [
@@ -327,4 +307,3 @@ final class LoadFixturesCommand extends Command
         ]);
     }
 }
-

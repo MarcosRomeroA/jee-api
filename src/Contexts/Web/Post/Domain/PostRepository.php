@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Domain;
 
@@ -22,6 +24,12 @@ interface PostRepository
     public function findById(Uuid $id): Post;
 
     /**
+     * @param array<Uuid> $ids
+     * @return array<Post>
+     */
+    public function findByIds(array $ids): array;
+
+    /**
      * @return array<Post>
      */
     public function searchFeed(Uuid $userId, ?array $criteria = null): array;
@@ -33,6 +41,13 @@ interface PostRepository
     public function countByCriteria(array $criteria): int;
 
     public function findSharesQuantity(Uuid $id): int;
+
+    /**
+     * @return array<Post>
+     */
+    public function findSharesByPostId(Uuid $postId, int $limit, int $offset): array;
+
+    public function countSharesByPostId(Uuid $postId): int;
 
     public function countFeed(Uuid $userId): int;
 }

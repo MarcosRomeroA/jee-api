@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\Shared;
 
@@ -20,7 +22,7 @@ final class UserCollectionResponse extends Response
     public function __construct(array $users, array $criteria, int $total = 0)
     {
         $this->users = $users;
-        $this->limit = $criteria["limit"] ?? 20;
+        $this->limit = $criteria["limit"] ?? 10;
         $this->offset = $criteria["offset"] ?? 0;
         $this->total = $total;
     }

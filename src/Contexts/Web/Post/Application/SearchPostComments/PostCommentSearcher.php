@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\SearchPostComments;
 
@@ -11,16 +13,19 @@ final readonly class PostCommentSearcher implements QueryHandler
 {
     public function __construct(
         private PostRepository $repository,
-    )
-    {
+    ) {
     }
 
-    public function __invoke(string $id): PostCommentCollectionResponse
+    public function __invoke(string $id, int $limit = 10, int $offset = 0): PostCommentCollectionResponse
     {
         $post = $this->repository->findById(new Uuid($id));
 
-        $comments = $post->getComments();
+        $allComments = $post->getComments()->toArray();
+        $total = count($allComments);
 
-        return new PostCommentCollectionResponse($comments->toArray());
+        // Apply pagination
+        $comments = array_slice($allComments, $offset, $limit);
+
+        return new PostCommentCollectionResponse($comments, $limit, $offset, $total);
     }
 }

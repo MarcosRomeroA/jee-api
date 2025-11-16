@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\Shared;
 
@@ -11,10 +13,11 @@ class UserCollectionMinimalResponse extends Response
      */
     public function __construct(
         private readonly array $follows,
-        private readonly int $limit = 20,
+        private readonly int $limit = 10,
         private readonly int $offset = 0,
         private readonly int $total = 0,
-    ) {}
+    ) {
+    }
 
     public function toArray(): array
     {

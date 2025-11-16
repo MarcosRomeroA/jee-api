@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Conversation\Application\FindConversations;
 
@@ -12,8 +14,7 @@ final readonly class ConversationsFinder
     public function __construct(
         private UserRepository $userRepository,
         private ConversationRepository $conversationRepository,
-    )
-    {
+    ) {
     }
 
     public function __invoke(Uuid $sessionId): ConversationsResponse
@@ -22,6 +23,6 @@ final readonly class ConversationsFinder
 
         $conversations = $this->conversationRepository->searchConversations($sessionUser);
 
-        return new ConversationsResponse($conversations);
+        return new ConversationsResponse($conversations, $sessionUser);
     }
 }

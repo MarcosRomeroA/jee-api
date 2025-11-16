@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\Search;
 
@@ -11,9 +13,8 @@ final readonly class SearchTournamentsQuery implements Query
         public ?string $gameId = null,
         public ?string $responsibleId = null,
         public bool $open = false,
-        public int $limit = 20,
+        public int $limit = 10,
         public int $offset = 0
     ) {
     }
 }
-

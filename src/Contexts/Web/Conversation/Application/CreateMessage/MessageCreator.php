@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Conversation\Application\CreateMessage;
 
@@ -17,7 +19,8 @@ readonly class MessageCreator
         private ConversationRepository $conversationRepository,
         private UserRepository $userRepository,
         private EventBus $bus,
-    ) {}
+    ) {
+    }
 
     public function __invoke(
         Uuid $messageId,
@@ -36,6 +39,10 @@ readonly class MessageCreator
         );
 
         $this->messageRepository->save($message);
+
+        $conversation->updateLastMessage($message);
+        $this->conversationRepository->save($conversation);
+
         $this->bus->publish(...$message->pullDomainEvents());
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Domain;
 
@@ -8,7 +10,6 @@ use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
-
 use App\Contexts\Web\User\Domain\User;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -17,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: "post_like")]
 class Like extends AggregateRoot
 {
+    use Timestamps;
     #[ORM\Id]
     #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
@@ -24,10 +26,8 @@ class Like extends AggregateRoot
     #[ORM\ManyToOne(targetEntity: User::class)]
     private User $user;
 
-    #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: "comments")]
+    #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: "likes")]
     private Post $post;
-
-    use Timestamps;
 
     public function __construct(Uuid $id, User $user)
     {

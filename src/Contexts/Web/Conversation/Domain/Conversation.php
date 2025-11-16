@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Conversation\Domain;
 
@@ -17,6 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ConversationRepository::class)]
 class Conversation extends AggregateRoot
 {
+    use Timestamps;
     #[ORM\Id]
     #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
@@ -39,7 +42,9 @@ class Conversation extends AggregateRoot
     ]
     private Collection $messages;
 
-    use Timestamps;
+    #[ORM\ManyToOne(targetEntity: Message::class)]
+    #[ORM\JoinColumn(name: "last_message_id", referencedColumnName: "id", nullable: true)]
+    private ?Message $lastMessage = null;
 
     /**
      * @param Uuid $id
@@ -110,5 +115,16 @@ class Conversation extends AggregateRoot
     public function getMessages(): Collection
     {
         return $this->messages;
+    }
+
+    public function getLastMessage(): ?Message
+    {
+        return $this->lastMessage;
+    }
+
+    public function updateLastMessage(Message $message): void
+    {
+        $this->lastMessage = $message;
+        $this->updatedAt = UpdatedAtValue::now();
     }
 }

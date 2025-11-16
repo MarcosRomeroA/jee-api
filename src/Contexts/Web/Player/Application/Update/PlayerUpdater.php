@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Player\Application\Update;
 
@@ -20,34 +22,43 @@ final class PlayerUpdater
     ) {
     }
 
+    /**
+     * @param array<string> $gameRoleIds - Array of GameRole UUIDs
+     */
     public function update(
         Uuid $id,
         string $username,
-        Uuid $gameRoleId,
-        Uuid $gameRankId
+        array $gameRoleIds,
+        ?Uuid $gameRankId
     ): void {
         $player = $this->repository->findById($id);
         if ($player === null) {
             throw new PlayerNotFoundException($id->value());
         }
 
-        $gameRole = $this->entityManager->getReference(GameRole::class, $gameRoleId->value());
-        if ($gameRole === null) {
-            throw new GameRoleNotFoundException($gameRoleId->value());
+        $gameRoles = [];
+        foreach ($gameRoleIds as $gameRoleId) {
+            $gameRole = $this->entityManager->getReference(GameRole::class, $gameRoleId);
+            if ($gameRole === null) {
+                throw new GameRoleNotFoundException($gameRoleId);
+            }
+            $gameRoles[] = $gameRole;
         }
 
-        $gameRank = $this->entityManager->getReference(GameRank::class, $gameRankId->value());
-        if ($gameRank === null) {
-            throw new GameRankNotFoundException($gameRankId->value());
+        $gameRank = null;
+        if ($gameRankId !== null) {
+            $gameRank = $this->entityManager->getReference(GameRank::class, $gameRankId->value());
+            if ($gameRank === null) {
+                throw new GameRankNotFoundException($gameRankId->value());
+            }
         }
 
         $player->update(
             new UsernameValue($username),
-            $gameRole,
+            $gameRoles,
             $gameRank
         );
 
         $this->repository->save($player);
     }
 }
-

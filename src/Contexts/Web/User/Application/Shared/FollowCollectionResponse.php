@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\Shared;
 
@@ -10,14 +12,18 @@ class FollowCollectionResponse extends Response
     /**
      * @param array<Follow> $follows
      */
-    public function __construct(private readonly array $follows) {}
+    public function __construct(
+        private readonly array $follows,
+        private readonly bool $isFollower = false
+    ) {
+    }
 
     public function toArray(): array
     {
         $data = [];
 
         foreach ($this->follows as $follow) {
-            $data[] = FollowResponse::fromEntity($follow)->toArray();
+            $data[] = FollowResponse::fromEntity($follow, $this->isFollower)->toArray();
         }
 
         $response["data"] = $data;

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Player\Application\Create;
 
@@ -15,13 +17,14 @@ final readonly class CreatePlayerCommandHandler implements CommandHandler
 
     public function __invoke(CreatePlayerCommand $command): void
     {
+        $gameRankId = $command->gameRankId !== null ? new Uuid($command->gameRankId) : null;
+
         $this->creator->create(
             new Uuid($command->id),
             new Uuid($command->userId),
-            new Uuid($command->gameRoleId),
-            new Uuid($command->gameRankId),
+            $command->gameRoleIds,
+            $gameRankId,
             new UsernameValue($command->username)
         );
     }
 }
-

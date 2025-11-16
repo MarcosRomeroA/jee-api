@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Conversation\Domain;
 
@@ -16,11 +18,12 @@ use App\Contexts\Web\Conversation\Domain\Events\MessageCreatedEvent;
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 class Message extends AggregateRoot
 {
+    use Timestamps;
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', length: 36)]
     private Uuid $id;
 
-    #[ORM\ManyToOne(targetEntity: Conversation::class)]
+    #[ORM\ManyToOne(targetEntity: Conversation::class, inversedBy: "messages")]
     private Conversation $conversation;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -29,15 +32,12 @@ class Message extends AggregateRoot
     #[Embedded(class: ContentValue::class, columnPrefix: false)]
     private ContentValue $content;
 
-    use Timestamps;
-
     public function __construct(
         Uuid $id,
         Conversation $conversation,
         User $user,
         ContentValue $content
-    )
-    {
+    ) {
         $this->id = $id;
         $this->conversation = $conversation;
         $this->user = $user;
@@ -49,7 +49,7 @@ class Message extends AggregateRoot
     public static function create(Uuid $id, Conversation $conversation, User $user, ContentValue $content): self
     {
         $message = new self($id, $conversation, $user, $content);
-        
+
         $message->record(new MessageCreatedEvent(
             $message->getId(),
             $conversation->getId(),

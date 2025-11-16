@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Behat\Web\Notification;
 
@@ -206,37 +208,9 @@ final class MercureContext implements Context
     /** @BeforeScenario @realtime */
     public function ensureSecondaryUserExists(): void
     {
-        // Asegurar que USER2 existe para el test de like
-        $connection = $this->entityManager->getConnection();
-
-        $userExists = $connection->fetchOne(
-            "SELECT COUNT(*) FROM user WHERE id = :id",
-            ["id" => \App\Tests\Behat\Shared\Fixtures\TestUsers::USER2_ID],
-        );
-
-        if (!$userExists) {
-            $user = \App\Contexts\Web\User\Domain\User::create(
-                new \App\Contexts\Shared\Domain\ValueObject\Uuid(
-                    \App\Tests\Behat\Shared\Fixtures\TestUsers::USER2_ID,
-                ),
-                new \App\Contexts\Web\User\Domain\ValueObject\FirstnameValue(
-                    \App\Tests\Behat\Shared\Fixtures\TestUsers::USER2_FIRSTNAME,
-                ),
-                new \App\Contexts\Web\User\Domain\ValueObject\LastnameValue(
-                    \App\Tests\Behat\Shared\Fixtures\TestUsers::USER2_LASTNAME,
-                ),
-                new \App\Contexts\Web\User\Domain\ValueObject\UsernameValue(
-                    \App\Tests\Behat\Shared\Fixtures\TestUsers::USER2_USERNAME,
-                ),
-                new \App\Contexts\Web\User\Domain\ValueObject\EmailValue(
-                    \App\Tests\Behat\Shared\Fixtures\TestUsers::USER2_EMAIL,
-                ),
-                new \App\Contexts\Web\User\Domain\ValueObject\PasswordValue(
-                    \App\Tests\Behat\Shared\Fixtures\TestUsers::USER2_PASSWORD,
-                ),
-            );
-            $this->userRepository->save($user);
-        }
+        // Los usuarios globales ya fueron creados en DatabaseContext::setupDatabase()
+        // No necesitamos crear usuarios aquí
+        $this->entityManager->clear();
     }
 
     /** @AfterScenario @mercure */
@@ -248,5 +222,6 @@ final class MercureContext implements Context
     public function __construct(
         private readonly \Doctrine\ORM\EntityManagerInterface $entityManager,
         private readonly \App\Contexts\Web\User\Domain\UserRepository $userRepository,
-    ) {}
+    ) {
+    }
 }

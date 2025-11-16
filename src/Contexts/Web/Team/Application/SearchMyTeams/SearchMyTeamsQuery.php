@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\SearchMyTeams;
 
@@ -10,9 +12,8 @@ final readonly class SearchMyTeamsQuery implements Query
         public string $ownerId,
         public ?string $query = null,
         public ?string $gameId = null,
-        public int $limit = 20,
+        public int $limit = 10,
         public int $offset = 0
     ) {
     }
 }
-

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\Followings;
 
@@ -10,15 +12,14 @@ use App\Contexts\Web\User\Application\Shared\UserCollectionMinimalResponse;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Domain\FollowRepository;
 
-
-
 final readonly class UserFollowingsFinder
 {
     public function __construct(
         private UserRepository $userRepository,
         private FileManager $fileManager,
         private FollowRepository $followRepository,
-    ) {}
+    ) {
+    }
 
     public function __invoke(
         Uuid $id,
@@ -27,14 +28,14 @@ final readonly class UserFollowingsFinder
     ): UserCollectionMinimalResponse {
         $user = $this->userRepository->findById($id);
 
-        $limit = $limit ?? 20;
+        $limit = $limit ?? 10;
         $offset = $offset ?? 0;
 
         $followings = $this->followRepository->findFollowingsByUser($user, $limit, $offset);
         $total = $this->followRepository->countFollowingsByUser($user);
 
-        $collectionResponse = (new FollowCollectionResponse($followings))->toArray(); 
-        
+        $collectionResponse = (new FollowCollectionResponse($followings))->toArray();
+
         $response = [];
 
         foreach ($collectionResponse["data"] as $cr) {

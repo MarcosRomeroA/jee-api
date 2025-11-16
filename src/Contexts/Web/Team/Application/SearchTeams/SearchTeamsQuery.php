@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\SearchTeams;
 
@@ -10,7 +12,7 @@ final readonly class SearchTeamsQuery implements Query
         public ?string $query = null,
         public ?string $gameId = null,
         public ?string $creatorId = null,
-        public int $limit = 20,
+        public int $limit = 10,
         public int $offset = 0
     ) {
     }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\Shared;
 
@@ -12,7 +14,7 @@ final class TeamCollectionResponse extends Response
     public function __construct(
         public readonly array $teams,
         public readonly int $total = 0,
-        public readonly int $limit = 20,
+        public readonly int $limit = 10,
         public readonly int $offset = 0
     ) {
     }
@@ -20,7 +22,7 @@ final class TeamCollectionResponse extends Response
     public function toArray(): array
     {
         $data = array_map(
-            static fn(TeamResponse $team) => $team->toArray(),
+            static fn (TeamResponse $team) => $team->toArray(),
             $this->teams
         );
 
@@ -35,4 +37,3 @@ final class TeamCollectionResponse extends Response
         ];
     }
 }
-

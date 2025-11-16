@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Player\Application\Update;
 
@@ -14,12 +16,13 @@ final class UpdatePlayerCommandHandler implements CommandHandler
 
     public function __invoke(UpdatePlayerCommand $command): void
     {
+        $gameRankId = $command->gameRankId !== null ? new Uuid($command->gameRankId) : null;
+
         $this->updater->update(
             new Uuid($command->id),
             $command->username,
-            new Uuid($command->gameRoleId),
-            new Uuid($command->gameRankId)
+            $command->gameRoleIds,
+            $gameRankId
         );
     }
 }
-

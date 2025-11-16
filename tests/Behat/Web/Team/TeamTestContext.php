@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Behat\Web\Team;
 
@@ -30,7 +32,8 @@ final class TeamTestContext implements Context
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
-    ) {}
+    ) {
+    }
 
     /** @BeforeScenario @team */
     public function createTestData(): void
@@ -102,15 +105,23 @@ final class TeamTestContext implements Context
 
         if ($player2Exists == 0) {
             $connection->executeStatement(
-                "INSERT INTO player (id, user_id, game_role_id, game_rank_id, username, verified, created_at)
-                 VALUES (:id, :userId, :gameRoleId, :gameRankId, :username, :verified, NOW())",
+                "INSERT INTO player (id, user_id, game_rank_id, username, verified, created_at)
+                 VALUES (:id, :userId, :gameRankId, :username, :verified, NOW())",
                 [
                     "id" => TestUsers::USER2_ID,
                     "userId" => TestUsers::USER2_ID,
-                    "gameRoleId" => "750e8400-e29b-41d4-a716-446655440001",
                     "gameRankId" => "850e8400-e29b-41d4-a716-446655440011",
                     "username" => "jane",
                     "verified" => 0,
+                ],
+            );
+
+            // Crear relación player_game_role
+            $connection->executeStatement(
+                "INSERT INTO player_game_role (player_id, game_role_id) VALUES (:playerId, :gameRoleId)",
+                [
+                    "playerId" => TestUsers::USER2_ID,
+                    "gameRoleId" => "750e8400-e29b-41d4-a716-446655440001",
                 ],
             );
         }
@@ -123,15 +134,23 @@ final class TeamTestContext implements Context
 
         if ($player3Exists == 0) {
             $connection->executeStatement(
-                "INSERT INTO player (id, user_id, game_role_id, game_rank_id, username, verified, created_at)
-                 VALUES (:id, :userId, :gameRoleId, :gameRankId, :username, :verified, NOW())",
+                "INSERT INTO player (id, user_id, game_rank_id, username, verified, created_at)
+                 VALUES (:id, :userId, :gameRankId, :username, :verified, NOW())",
                 [
                     "id" => TestUsers::USER3_ID,
                     "userId" => TestUsers::USER3_ID,
-                    "gameRoleId" => "750e8400-e29b-41d4-a716-446655440001",
                     "gameRankId" => "850e8400-e29b-41d4-a716-446655440011",
                     "username" => "bob",
                     "verified" => 0,
+                ],
+            );
+
+            // Crear relación player_game_role
+            $connection->executeStatement(
+                "INSERT INTO player_game_role (player_id, game_role_id) VALUES (:playerId, :gameRoleId)",
+                [
+                    "playerId" => TestUsers::USER3_ID,
+                    "gameRoleId" => "750e8400-e29b-41d4-a716-446655440001",
                 ],
             );
         }
@@ -153,11 +172,6 @@ final class TeamTestContext implements Context
             );
             $this->entityManager->persist($game);
             $this->entityManager->flush();
-        } else {
-            // Obtener el juego existente
-            $game = $this->entityManager
-                ->getRepository(Game::class)
-                ->find(self::TEST_GAME_ID);
         }
 
         // Verificar si el segundo juego ya existe
@@ -216,6 +230,26 @@ final class TeamTestContext implements Context
             $this->entityManager->persist($team2);
             $this->entityManager->flush();
         }
+
+        // Crear relación team_game para los tests de eliminación
+        // Siempre eliminar todas las relaciones team_game y recrear el estado inicial
+        try {
+            $connection->executeStatement("DELETE FROM team_game");
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
+
+        // Crear la relación team_game con un UUID (estado inicial para tests)
+        // Usar TEST_TEAM_ID_2 que es el que se usa en los tests (550e8400-e29b-41d4-a716-446655440060)
+        $teamGameId = "650e8400-e29b-41d4-a716-446655440001";
+        $connection->executeStatement(
+            "INSERT INTO team_game (id, team_id, game_id, added_at) VALUES (:id, :teamId, :gameId, NOW())",
+            [
+                "id" => $teamGameId,
+                "teamId" => self::TEST_TEAM_ID_2,
+                "gameId" => self::TEST_GAME_ID_2,
+            ],
+        );
     }
 
     /** @AfterScenario @team */
@@ -239,25 +273,54 @@ final class TeamTestContext implements Context
         }
 
         try {
-            // 3. Limpiar team_game de todos los equipos
-            $connection->executeStatement("DELETE FROM team_game");
+            // 3. NO limpiar team_game - se maneja en BeforeScenario
+            // Solo limpiar team_game que no sean de test base
+            // El BeforeScenario se encarga de recrear el estado inicial
         } catch (\Exception $e) {
             // Ignorar si no existe
         }
 
         try {
-            // 4. Limpiar todos los equipos
-            $connection->executeStatement("DELETE FROM team");
+            // 4. Limpiar SOLO equipos creados en tests de create, NO los de test base
+            $teamsToDelete = [
+                "550e8400-e29b-41d4-a716-446655440070", // team_create.feature:7
+                "550e8400-e29b-41d4-a716-446655440075", // team_create.feature:20
+                "550e8400-e29b-41d4-a716-446655440076", // team_create.feature:33
+                "750e8400-e29b-41d4-a716-446655440001", // team_requests.feature teams
+                "750e8400-e29b-41d4-a716-446655440002",
+                "750e8400-e29b-41d4-a716-446655440003",
+            ];
+
+            foreach ($teamsToDelete as $teamId) {
+                // Primero eliminar dependencias
+                $connection->executeStatement(
+                    "DELETE FROM team_player WHERE team_id = :id",
+                    ["id" => $teamId]
+                );
+                $connection->executeStatement(
+                    "DELETE FROM match_participant WHERE team_id = :id",
+                    ["id" => $teamId]
+                );
+                $connection->executeStatement(
+                    "DELETE FROM tournament_team WHERE team_id = :id",
+                    ["id" => $teamId]
+                );
+                $connection->executeStatement(
+                    "DELETE FROM tournament_request WHERE team_id = :id",
+                    ["id" => $teamId]
+                );
+                // Luego el team
+                $connection->executeStatement(
+                    "DELETE FROM team WHERE id = :id",
+                    ["id" => $teamId]
+                );
+            }
         } catch (\Exception $e) {
             // Ignorar si no existe
         }
 
         try {
-            // 5. Limpiar juego de prueba
-            $connection->executeStatement(
-                "DELETE FROM game WHERE id = :gameId",
-                ["gameId" => self::TEST_GAME_ID],
-            );
+            // 5. NO limpiar juegos - se crean en BeforeScenario y deben persistir
         } catch (\Exception $e) {
             // Ignorar si no existe
         }

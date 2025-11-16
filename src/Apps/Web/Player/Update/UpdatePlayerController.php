@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\Player\Update;
 
@@ -13,8 +15,8 @@ final class UpdatePlayerController extends ApiController
         $command = new UpdatePlayerCommand(
             $id,
             $request->username,
-            $request->gameRoleId,
-            $request->gameRankId
+            $request->getGameRoleIds(),
+            $request->getGameRankId()
         );
 
         $this->commandBus->dispatch($command);
@@ -22,4 +24,3 @@ final class UpdatePlayerController extends ApiController
         return $this->successEmptyResponse();
     }
 }
-

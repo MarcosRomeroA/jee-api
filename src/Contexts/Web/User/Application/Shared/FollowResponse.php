@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\Shared;
 
@@ -13,18 +15,21 @@ class FollowResponse extends Response
         public readonly string $firstname,
         public readonly string $lastname,
         public readonly string $profileImage,
-    )
-    {
+    ) {
     }
 
-    public static function fromEntity(Follow $follow): self
+    public static function fromEntity(Follow $follow, bool $isFollower = false): self
     {
+        // For followers list, return the follower (person who follows you)
+        // For followings list, return the followed (person you follow)
+        $user = $isFollower ? $follow->getFollower() : $follow->getFollowed();
+
         return new self(
-            $follow->getFollowed()->getId()->value(),
-            $follow->getFollowed()->getUsername()->value(),
-            $follow->getFollowed()->getFirstname()->value(),
-            $follow->getFollowed()->getLastname()->value(),
-            $follow->getFollowed()->getProfileImage()->value()
+            $user->getId()->value(),
+            $user->getUsername()->value(),
+            $user->getFirstname()->value(),
+            $user->getLastname()->value(),
+            $user->getProfileImage()->value()
         );
     }
 

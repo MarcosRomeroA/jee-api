@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\Followers;
 
@@ -16,7 +18,8 @@ final readonly class UserFollowersFinder
         private UserRepository $userRepository,
         private FileManager $fileManager,
         private FollowRepository $followRepository,
-    ) {}
+    ) {
+    }
 
     public function __invoke(
         Uuid $id,
@@ -25,13 +28,13 @@ final readonly class UserFollowersFinder
     ): UserCollectionMinimalResponse {
         $user = $this->userRepository->findById($id);
 
-        $limit = $limit ?? 20;
+        $limit = $limit ?? 10;
         $offset = $offset ?? 0;
 
         $follows = $this->followRepository->findFollowersByUser($user, $limit, $offset);
         $total = $this->followRepository->countFollowersByUser($user);
 
-        $collectionResponse = (new FollowCollectionResponse($follows))->toArray();
+        $collectionResponse = (new FollowCollectionResponse($follows, true))->toArray();
         $response = [];
 
         foreach ($collectionResponse["data"] as $cr) {

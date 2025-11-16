@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Behat\Web\Conversation;
 
@@ -30,58 +32,37 @@ final class ConversationTestContext implements Context
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
-    ) {}
+    ) {
+    }
 
     /** @BeforeScenario @conversation */
     public function createTestData(): void
     {
+        // NO limpiar antes de crear - solo limpiar mensajes específicos
+        $this->cleanupMessages();
+
         // Crear notification_type si no existe usando Doctrine
         $notificationType = $this->entityManager
             ->getRepository(NotificationType::class)
-            ->findOneBy(["name" => "NEW_MESSAGE"]);
+            ->findOneBy(["name" => "new_message"]);
 
         if (!$notificationType) {
             $notificationType = NotificationType::create(
                 new Uuid("550e8400-e29b-41d4-a716-446655440099"),
-                "NEW_MESSAGE",
+                "new_message",
             );
             $this->entityManager->persist($notificationType);
             $this->entityManager->flush();
         }
 
-        // Obtener o crear usuario 1
-        try {
-            $user1 = $this->userRepository->findById(
-                new Uuid(TestUsers::USER1_ID),
-            );
-        } catch (\Exception $e) {
-            $user1 = User::create(
-                new Uuid(TestUsers::USER1_ID),
-                new FirstnameValue(TestUsers::USER1_FIRSTNAME),
-                new LastnameValue(TestUsers::USER1_LASTNAME),
-                new UsernameValue(TestUsers::USER1_USERNAME),
-                new EmailValue(TestUsers::USER1_EMAIL),
-                new PasswordValue(TestUsers::USER1_PASSWORD),
-            );
-            $this->userRepository->save($user1);
-        }
+        // Los usuarios globales ya existen, solo obtenerlos
+        $user1 = $this->userRepository->findById(
+            new Uuid(TestUsers::USER1_ID),
+        );
 
-        // Obtener o crear usuario 2
-        try {
-            $user2 = $this->userRepository->findById(
-                new Uuid(TestUsers::USER2_ID),
-            );
-        } catch (\Exception $e) {
-            $user2 = User::create(
-                new Uuid(TestUsers::USER2_ID),
-                new FirstnameValue(TestUsers::USER2_FIRSTNAME),
-                new LastnameValue(TestUsers::USER2_LASTNAME),
-                new UsernameValue(TestUsers::USER2_USERNAME),
-                new EmailValue(TestUsers::USER2_EMAIL),
-                new PasswordValue(TestUsers::USER2_PASSWORD),
-            );
-            $this->userRepository->save($user2);
-        }
+        $user2 = $this->userRepository->findById(
+            new Uuid(TestUsers::USER2_ID),
+        );
 
         // Verificar si la conversación ya existe
         /** @var Connection $connection */
@@ -92,8 +73,46 @@ final class ConversationTestContext implements Context
             ["id" => self::CONVERSATION_ID],
         );
 
-        if ($conversationExists > 0) {
-            // La conversación ya existe, no hacer nada
+        // Verificar si los participantes existen
+        $participantsCount = $connection->fetchOne(
+            "SELECT COUNT(*) FROM participant WHERE conversation_id = :id",
+            ["id" => self::CONVERSATION_ID],
+        );
+
+        if ($conversationExists > 0 && $participantsCount >= 2) {
+            // La conversación y participantes ya existen, no hacer nada
+            return;
+        }
+
+        // Si la conversación existe pero no tiene participantes, crearlos
+        if ($conversationExists > 0 && $participantsCount < 2) {
+            // Eliminar participantes existentes
+            $connection->executeStatement(
+                "DELETE FROM participant WHERE conversation_id = :id",
+                ["id" => self::CONVERSATION_ID]
+            );
+
+            // Obtener la conversación existente
+            $conversation = $this->entityManager->find(Conversation::class, new Uuid(self::CONVERSATION_ID));
+
+            // Agregar participantes
+            $participant1 = Participant::create(
+                new Uuid(self::PARTICIPANT1_ID),
+                $conversation,
+                $user1,
+                true,
+            );
+            $this->entityManager->persist($participant1);
+
+            $participant2 = Participant::create(
+                new Uuid(self::PARTICIPANT2_ID),
+                $conversation,
+                $user2,
+                false,
+            );
+            $this->entityManager->persist($participant2);
+
+            $this->entityManager->flush();
             return;
         }
 
@@ -121,14 +140,8 @@ final class ConversationTestContext implements Context
 
         $this->entityManager->persist($conversation);
 
-        // Crear un mensaje de prueba
-        $message = new Message(
-            new Uuid(self::MESSAGE_ID),
-            $conversation,
-            $user1,
-            new ContentValue("Hello, this is a test message!"),
-        );
-        $this->entityManager->persist($message);
+        // NO crear mensaje inicial - los tests crearán sus propios mensajes
+        // Esto evita conflictos de IDs con los tests
 
         $this->entityManager->flush();
     }
@@ -136,17 +149,57 @@ final class ConversationTestContext implements Context
     /** @AfterScenario @conversation */
     public function cleanupTestData(): void
     {
+        $this->cleanupMessages();
+
+        // NO eliminar la conversación ni los participantes - persisten durante toda la suite
+        $this->entityManager->clear();
+    }
+
+    private function cleanupMessages(): void
+    {
         /** @var Connection $connection */
         $connection = $this->entityManager->getConnection();
 
+        // IDs de mensajes usados en los tests
+        $messageIds = [
+            '550e8400-e29b-41d4-a716-446655440050', // MESSAGE_ID constante
+            '550e8400-e29b-41d4-a716-446655440060', // message_create test
+            '550e8400-e29b-41d4-a716-446655440051', // message_create test
+            '550e8400-e29b-41d4-a716-446655440052', // message_create test
+            '550e8400-e29b-41d4-a716-446655440053', // message_create test
+            '950e8400-e29b-41d4-a716-446655440999', // notification_mercure test
+        ];
+
         try {
-            // Primero eliminar notificaciones asociadas a los mensajes
+            // Primero limpiar la referencia last_message_id en conversation para evitar FK constraint
             $connection->executeStatement(
-                "DELETE FROM notification WHERE message_id IN (SELECT id FROM message WHERE conversation_id = :conversationId)",
+                "UPDATE conversation SET last_message_id = NULL WHERE id = :conversationId",
+                ["conversationId" => self::CONVERSATION_ID]
+            );
+
+            // Limpiar notificaciones de los mensajes específicos
+            foreach ($messageIds as $messageId) {
+                $connection->executeStatement(
+                    "DELETE FROM notification WHERE message_id = :messageId",
+                    ["messageId" => $messageId]
+                );
+            }
+
+            // Limpiar notificaciones de mensajes de la conversación
+            $connection->executeStatement(
+                "DELETE n FROM notification n INNER JOIN message m ON n.message_id = m.id WHERE m.conversation_id = :conversationId",
                 ["conversationId" => self::CONVERSATION_ID],
             );
 
-            // Luego limpiar mensajes de la conversación (pero mantener la conversación y participantes)
+            // Limpiar mensajes específicos
+            foreach ($messageIds as $messageId) {
+                $connection->executeStatement(
+                    "DELETE FROM message WHERE id = :messageId",
+                    ["messageId" => $messageId]
+                );
+            }
+
+            // Limpiar mensajes de la conversación
             $connection->executeStatement(
                 "DELETE FROM message WHERE conversation_id = :conversationId",
                 ["conversationId" => self::CONVERSATION_ID],
@@ -154,12 +207,5 @@ final class ConversationTestContext implements Context
         } catch (\Exception $e) {
             // Ignorar si no existe
         }
-
-        // NO eliminar la conversación ni los participantes para que estén disponibles para otros tests
-        // Solo limpiar al final de todos los tests del contexto de conversación
-
-        // NO eliminar usuarios - son compartidos entre contextos
-        // Limpiar el entity manager
-        $this->entityManager->clear();
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Player\Infrastructure\Persistence;
 
@@ -10,8 +12,7 @@ use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrinePlayerRepository extends ServiceEntityRepository implements
-    PlayerRepository
+final class DoctrinePlayerRepository extends ServiceEntityRepository implements PlayerRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -47,7 +48,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements
     public function findByGameId(Uuid $gameId): array
     {
         return $this->createQueryBuilder("p")
-            ->join("p.gameRole", "gr")
+            ->join("p.gameRoles", "gr")
             ->andWhere("gr.game = :gameId")
             ->setParameter("gameId", $gameId)
             ->getQuery()
@@ -87,7 +88,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements
         }
 
         if ($gameId !== null) {
-            $qb->join("p.gameRole", "gr")
+            $qb->join("p.gameRoles", "gr")
                 ->join("gr.game", "g")
                 ->andWhere("g.id = :gameId")
                 ->setParameter("gameId", $gameId);
@@ -120,7 +121,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements
         }
 
         if ($gameId !== null) {
-            $qb->join("p.gameRole", "gr")
+            $qb->join("p.gameRoles", "gr")
                 ->join("gr.game", "g")
                 ->andWhere("g.id = :gameId")
                 ->setParameter("gameId", $gameId);
@@ -140,7 +141,7 @@ final class DoctrinePlayerRepository extends ServiceEntityRepository implements
     ): bool {
         $count = (int) $this->createQueryBuilder("p")
             ->select("COUNT(p.id)")
-            ->join("p.gameRole", "gr")
+            ->join("p.gameRoles", "gr")
             ->andWhere("p.user = :userId")
             ->andWhere("p.username.username = :username")
             ->andWhere("gr.game = :gameId")

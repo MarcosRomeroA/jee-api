@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Behat\Shared\Infrastructure\Behat;
 
@@ -504,6 +506,54 @@ final class ApiContext extends RawMinkContext
                     $property,
                     $actualValue,
                     $value,
+                ),
+            );
+        }
+    }
+
+    /**
+     * @Then the response data should contain user with username :username
+     */
+    public function theResponseDataShouldContainUserWithUsername(string $username): void
+    {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!is_array($response)) {
+            throw new RuntimeException("Response is not a valid JSON object");
+        }
+
+        if (!array_key_exists("data", $response)) {
+            throw new RuntimeException(
+                sprintf(
+                    "Response does not contain 'data' field. Response: %s",
+                    json_encode($response),
+                ),
+            );
+        }
+
+        if (!is_array($response["data"])) {
+            throw new RuntimeException('The "data" field must be an array');
+        }
+
+        // Buscar el usuario con el username especificado
+        $found = false;
+        foreach ($response["data"] as $user) {
+            if (!is_array($user)) {
+                continue;
+            }
+
+            if (isset($user["username"]) && $user["username"] === $username) {
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            throw new RuntimeException(
+                sprintf(
+                    "User with username '%s' not found in response data. Response: %s",
+                    $username,
+                    json_encode($response["data"]),
                 ),
             );
         }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Infrastructure\Persistence;
 
@@ -11,8 +13,7 @@ use App\Contexts\Web\User\Domain\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class MysqlPostRepository extends ServiceEntityRepository implements
-    PostRepository
+final class MysqlPostRepository extends ServiceEntityRepository implements PostRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -47,6 +48,23 @@ final class MysqlPostRepository extends ServiceEntityRepository implements
         }
 
         return $post;
+    }
+
+    /**
+     * @param array<Uuid> $ids
+     * @return array<Post>
+     */
+    public function findByIds(array $ids): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('p')
+            ->where('p.id IN (:ids)')
+            ->setParameter('ids', $ids);
+
+        return $qb->getQuery()->getResult();
     }
 
     public function searchFeed(Uuid $userId, ?array $criteria = null): array
@@ -97,6 +115,32 @@ final class MysqlPostRepository extends ServiceEntityRepository implements
             ->select("COUNT(p.id)")
             ->where("p.sharedPostId = :id")
             ->setParameter("id", $id)
+            ->getQuery();
+
+        return (int) $dql->getSingleScalarResult();
+    }
+
+    /**
+     * @return array<Post>
+     */
+    public function findSharesByPostId(Uuid $postId, int $limit, int $offset): array
+    {
+        return $this->createQueryBuilder("p")
+            ->where("p.sharedPostId = :postId")
+            ->setParameter("postId", $postId)
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->orderBy('p.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countSharesByPostId(Uuid $postId): int
+    {
+        $dql = $this->createQueryBuilder("p")
+            ->select("COUNT(p.id)")
+            ->where("p.sharedPostId = :postId")
+            ->setParameter("postId", $postId)
             ->getQuery();
 
         return (int) $dql->getSingleScalarResult();

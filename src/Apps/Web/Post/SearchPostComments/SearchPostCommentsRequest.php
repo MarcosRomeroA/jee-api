@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\Post\SearchPostComments;
 
@@ -9,6 +11,9 @@ class SearchPostCommentsRequest
     #[Assert\NotNull, Assert\Type("string")]
     public string $id;
 
-    #[Assert\NotNull, Assert\Type("array")]
-    public mixed $q;
+    #[Assert\Type("array")]
+    public mixed $q = [];
+
+    public ?int $limit = 10;
+    public ?int $offset = 0;
 }

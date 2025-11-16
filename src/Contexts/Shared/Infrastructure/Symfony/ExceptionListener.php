@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Shared\Infrastructure\Symfony;
 
@@ -11,7 +13,9 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 class ExceptionListener
 {
-    public function __construct(private LoggerInterface $logger) {}
+    public function __construct(private LoggerInterface $logger)
+    {
+    }
 
     public function onKernelException(ExceptionEvent $event): void
     {

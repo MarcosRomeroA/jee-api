@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Behat\Web\Player;
 
@@ -11,11 +13,15 @@ final class PlayerTestContext implements Context
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-    ) {}
+    ) {
+    }
 
     /** @BeforeScenario @player */
     public function createTestData(): void
     {
+        // Limpiar datos de prueba antes de crear
+        $this->cleanupTestData();
+
         /** @var Connection $connection */
         $connection = $this->entityManager->getConnection();
 
@@ -354,10 +360,60 @@ final class PlayerTestContext implements Context
         $connection = $this->entityManager->getConnection();
 
         try {
-            // Limpiar solo los players del usuario de prueba
+            // Primero limpiar player_game_role del usuario de prueba
+            $connection->executeStatement(
+                "DELETE FROM player_game_role WHERE player_id IN (SELECT id FROM player WHERE user_id = :userId)",
+                ["userId" => TestUsers::USER1_ID],
+            );
+
+            // Luego limpiar players del usuario de prueba
             $connection->executeStatement(
                 "DELETE FROM player WHERE user_id = :userId",
                 ["userId" => TestUsers::USER1_ID],
+            );
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
+
+        try {
+            // Limpiar player_game_role de players con usernames de prueba
+            $connection->executeStatement(
+                "DELETE FROM player_game_role WHERE player_id IN (SELECT id FROM player WHERE username IN ('ProGamer123', 'TestPlayer1', 'UpdatedUsername', 'OriginalName', 'UpdatedName'))"
+            );
+
+            // Limpiar players con usernames de prueba específicos
+            $connection->executeStatement(
+                "DELETE FROM player WHERE username IN ('ProGamer123', 'TestPlayer1', 'UpdatedUsername', 'OriginalName', 'UpdatedName')"
+            );
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
+
+        try {
+            // Limpiar player_game_role de players con IDs de prueba
+            $connection->executeStatement(
+                "DELETE FROM player_game_role WHERE player_id IN (
+                    '550e8400-e29b-41d4-a716-446655440100',
+                    '550e8400-e29b-41d4-a716-446655440101',
+                    '550e8400-e29b-41d4-a716-446655440102',
+                    '550e8400-e29b-41d4-a716-446655440103',
+                    '550e8400-e29b-41d4-a716-446655440104',
+                    '550e8400-e29b-41d4-a716-446655440300',
+                    '550e8400-e29b-41d4-a716-446655440400'
+                )"
+            );
+
+            // Limpiar players con IDs de prueba específicos
+            $connection->executeStatement(
+                "DELETE FROM player WHERE id IN (
+                    '550e8400-e29b-41d4-a716-446655440100',
+                    '550e8400-e29b-41d4-a716-446655440101',
+                    '550e8400-e29b-41d4-a716-446655440102',
+                    '550e8400-e29b-41d4-a716-446655440103',
+                    '550e8400-e29b-41d4-a716-446655440104',
+                    '550e8400-e29b-41d4-a716-446655440300',
+                    '550e8400-e29b-41d4-a716-446655440400'
+                )"
             );
         } catch (\Exception $e) {
             // Ignorar si no existe

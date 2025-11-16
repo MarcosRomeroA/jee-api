@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Behat\Web\Post;
 
@@ -24,7 +26,8 @@ final class PostTestContext implements Context
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
-    ) {}
+    ) {
+    }
 
     /** @BeforeScenario @post */
     public function createTestData(): void
@@ -64,22 +67,10 @@ final class PostTestContext implements Context
             );
         }
 
-        // Obtener o crear el usuario compartido
-        try {
-            $user = $this->userRepository->findById(
-                new Uuid(TestUsers::USER1_ID),
-            );
-        } catch (\Exception $e) {
-            $user = User::create(
-                new Uuid(TestUsers::USER1_ID),
-                new FirstnameValue(TestUsers::USER1_FIRSTNAME),
-                new LastnameValue(TestUsers::USER1_LASTNAME),
-                new UsernameValue(TestUsers::USER1_USERNAME),
-                new EmailValue(TestUsers::USER1_EMAIL),
-                new PasswordValue(TestUsers::USER1_PASSWORD),
-            );
-            $this->userRepository->save($user);
-        }
+        // Los usuarios globales ya existen, solo obtenerlos
+        $user = $this->userRepository->findById(
+            new Uuid(TestUsers::USER1_ID),
+        );
 
         // Verificar si el post ya existe
         $postExists = $connection->fetchOne(

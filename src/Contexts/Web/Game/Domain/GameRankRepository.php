@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Game\Domain;
 
@@ -14,8 +16,10 @@ interface GameRankRepository
      */
     public function findById(Uuid $id): GameRank;
 
+    /**
+     * @return GameRank[]
+     */
     public function findByGame(Uuid $gameId): array;
 
     public function existsById(Uuid $id): bool;
 }
-
