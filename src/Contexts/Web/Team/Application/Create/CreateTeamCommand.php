@@ -8,11 +8,9 @@ final readonly class CreateTeamCommand implements Command
 {
     public function __construct(
         public string $id,
-        public string $gameId,
-        public string $ownerId,
         public string $name,
-        public ?string $image = null
-    ) {
-    }
+        public ?string $description = null,
+        public ?string $image = null,
+        public string $creatorId = "",
+    ) {}
 }
-

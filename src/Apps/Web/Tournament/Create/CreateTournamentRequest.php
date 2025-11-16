@@ -9,76 +9,63 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class CreateTournamentRequest
 {
     public function __construct(
-        #[Assert\NotBlank]
-        #[Assert\Type("string")]
-        public string $id,
+        #[Assert\NotBlank] #[Assert\Type("string")] public string $id,
 
-        #[Assert\NotBlank]
-        #[Assert\Type("string")]
-        public string $gameId,
+        #[Assert\NotBlank] #[Assert\Type("string")] public string $gameId,
 
-        #[Assert\NotBlank]
-        #[Assert\Type("string")]
+        #[Assert\NotBlank] #[Assert\Type("string")] public string $name,
+
+        #[Assert\Type("bool")] public bool $isOfficial,
+
+        #[Assert\NotBlank] #[
+            Assert\Type("string"),
+        ]
         public string $responsibleId,
 
-        #[Assert\NotBlank]
-        #[Assert\Type("string")]
-        public string $name,
+        #[Assert\Type("string")] public ?string $description = null,
 
-        #[Assert\Type("string")]
-        public ?string $description = null,
+        #[Assert\Type("int")] #[
+            Assert\GreaterThan(0),
+        ]
+        public ?int $maxTeams = null,
 
-        #[Assert\NotBlank]
-        #[Assert\Type("int")]
-        #[Assert\GreaterThan(0)]
-        public int $maxTeams = 0,
+        #[Assert\Type("string")] public ?string $image = null,
 
-        #[Assert\Type("bool")]
-        public bool $isOfficial = false,
+        #[Assert\Type("string")] public ?string $prize = null,
 
-        #[Assert\Type("string")]
-        public ?string $image = null,
+        #[Assert\Type("string")] public ?string $region = null,
 
-        #[Assert\Type("string")]
-        public ?string $prize = null,
+        #[Assert\Type("string")] public ?string $startAt = null,
 
-        #[Assert\Type("string")]
-        public ?string $region = null,
+        #[Assert\Type("string")] public ?string $endAt = null,
 
-        #[Assert\NotBlank]
-        #[Assert\Type("string")]
-        public string $startAt = '',
+        #[Assert\Type("string")] public ?string $minGameRankId = null,
 
-        #[Assert\NotBlank]
-        #[Assert\Type("string")]
-        public string $endAt = '',
-
-        #[Assert\Type("string")]
-        public ?string $minGameRankId = null,
-
-        #[Assert\Type("string")]
-        public ?string $maxGameRankId = null,
+        #[Assert\Type("string")] public ?string $maxGameRankId = null,
     ) {}
 
-    public static function fromHttp(Request $request): self
-    {
+    public static function fromHttp(
+        Request $request,
+        string $id,
+        string $sessionId,
+    ): self {
         $data = json_decode($request->getContent(), true);
 
         return new self(
-            $data['id'] ?? '',
-            $data['gameId'] ?? '',
-            $data['responsibleId'] ?? '',
-            $data['name'] ?? '',
-            $data['description'] ?? null,
-            $data['maxTeams'] ?? 0,
-            $data['isOfficial'] ?? false,
-            $data['image'] ?? null,
-            $data['prize'] ?? null,
-            $data['region'] ?? null,
-            $data['startAt'] ?? '',
-            $data['endAt'] ?? '',
-            $data['minGameRankId'] ?? null,
-            $data['maxGameRankId'] ?? null
+            $id,
+            $data["gameId"] ?? "",
+            $data["name"] ?? "",
+            filter_var($data["isOfficial"] ?? false, FILTER_VALIDATE_BOOLEAN),
+            $data["responsibleId"] ?? $sessionId,
+            $data["description"] ?? null,
+            isset($data["maxTeams"]) ? (int) $data["maxTeams"] : null,
+            $data["image"] ?? null,
+            $data["prize"] ?? null,
+            $data["region"] ?? null,
+            $data["startAt"] ?? null,
+            $data["endAt"] ?? null,
+            $data["minGameRankId"] ?? null,
+            $data["maxGameRankId"] ?? null,
         );
     }
 
@@ -87,19 +74,18 @@ final readonly class CreateTournamentRequest
         return new CreateTournamentCommand(
             $this->id,
             $this->gameId,
-            $this->responsibleId,
             $this->name,
+            $this->isOfficial,
+            $this->responsibleId,
             $this->description,
             $this->maxTeams,
-            $this->isOfficial,
             $this->image,
             $this->prize,
             $this->region,
             $this->startAt,
             $this->endAt,
             $this->minGameRankId,
-            $this->maxGameRankId
+            $this->maxGameRankId,
         );
     }
 }
-

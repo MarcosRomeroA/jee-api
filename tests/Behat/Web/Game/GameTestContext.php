@@ -29,8 +29,8 @@ final class GameTestContext implements Context
         if (!$existingGame1) {
             $game1 = new Game(
                 $game1Id,
-                "League of Legends",
-                "Multiplayer online battle arena game developed by Riot Games",
+                "Valorant",
+                "Tactical first-person shooter developed by Riot Games",
                 5,
                 5,
             );
@@ -43,8 +43,8 @@ final class GameTestContext implements Context
         if (!$existingGame2) {
             $game2 = new Game(
                 $game2Id,
-                "Valorant",
-                "Tactical first-person shooter developed by Riot Games",
+                "League of Legends",
+                "Multiplayer online battle arena game developed by Riot Games",
                 5,
                 5,
             );

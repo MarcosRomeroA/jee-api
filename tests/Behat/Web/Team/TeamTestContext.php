@@ -103,12 +103,12 @@ final class TeamTestContext implements Context
 
         if (!$teamExists) {
             // Crear equipo de test
-            $team = new Team(
+            $team = Team::create(
                 new Uuid(self::TEST_TEAM_ID),
-                $game,
-                $user,
                 "Test Gaming Team",
+                "Test team description",
                 "https://example.com/team-image.png",
+                $user,
             );
             $this->entityManager->persist($team);
             $this->entityManager->flush();
@@ -122,12 +122,12 @@ final class TeamTestContext implements Context
 
         if (!$team2Exists) {
             // Crear segundo equipo de test para delete
-            $team2 = new Team(
+            $team2 = Team::create(
                 new Uuid(self::TEST_TEAM_ID_2),
-                $game,
-                $user,
                 "Team to Delete",
+                "Team to be deleted",
                 "https://example.com/team-image-2.png",
+                $user,
             );
             $this->entityManager->persist($team2);
             $this->entityManager->flush();
@@ -183,7 +183,7 @@ final class TeamTestContext implements Context
         try {
             // 5. Limpiar equipos del usuario de prueba (creados dinámicamente)
             $connection->executeStatement(
-                "DELETE FROM team WHERE owner_id = :userId AND id NOT IN (:excludeId1, :excludeId2)",
+                "DELETE FROM team WHERE creator_id = :userId AND id NOT IN (:excludeId1, :excludeId2)",
                 [
                     "userId" => TestUsers::USER1_ID,
                     "excludeId1" => self::TEST_TEAM_ID,

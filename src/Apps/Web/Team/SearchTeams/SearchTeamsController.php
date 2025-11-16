@@ -9,16 +9,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class SearchTeamsController extends ApiController
 {
-    public function __invoke(Request $request, string $sessionId): Response
+    public function __invoke(Request $request): Response
     {
         $input = SearchTeamsRequest::fromHttp($request);
         $this->validateRequest($input);
 
-        $queryObject = $input->toQuery($sessionId);
+        $queryObject = $input->toQuery();
 
         $teamsResponse = $this->queryBus->ask($queryObject);
 
         return $this->collectionResponse($teamsResponse);
     }
 }
-

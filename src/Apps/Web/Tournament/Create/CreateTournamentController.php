@@ -8,9 +8,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class CreateTournamentController extends ApiController
 {
-    public function __invoke(Request $request): Response
-    {
-        $input = CreateTournamentRequest::fromHttp($request);
+    public function __invoke(
+        string $id,
+        string $sessionId,
+        Request $request,
+    ): Response {
+        $input = CreateTournamentRequest::fromHttp($request, $id, $sessionId);
         $this->validateRequest($input);
 
         $command = $input->toCommand();
@@ -19,4 +22,3 @@ final class CreateTournamentController extends ApiController
         return $this->successEmptyResponse();
     }
 }
-

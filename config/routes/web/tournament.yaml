@@ -1,86 +1,78 @@
 create_tournament:
-  path: /tournament
-  controller: App\Apps\Web\Tournament\Create\CreateTournamentController
-  methods: [ POST ]
-  defaults: { auth: true }
-
-update_tournament:
-  path: /tournament/{id}
-  controller: App\Apps\Web\Tournament\Update\UpdateTournamentController
-  methods: [ PUT ]
-  defaults: { auth: true }
+    path: /tournament/{id}
+    controller: App\Apps\Web\Tournament\Create\CreateTournamentController
+    methods: [PUT]
+    defaults: { auth: true }
 
 find_tournament:
-  path: /tournament/{id}
-  controller: App\Apps\Web\Tournament\Find\FindTournamentController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /tournament/{id}
+    controller: App\Apps\Web\Tournament\Find\FindTournamentController
+    methods: [GET]
+    defaults: { auth: true }
 
 search_tournaments:
-  path: /tournaments
-  controller: App\Apps\Web\Tournament\SearchTournaments\SearchTournamentsController
-  methods: [ GET ]
-  defaults: { auth: true }
-
-
+    path: /tournaments
+    controller: App\Apps\Web\Tournament\SearchTournaments\SearchTournamentsController
+    methods: [GET]
+    defaults: { auth: true }
 
 delete_tournament:
-  path: /tournament/{id}
-  controller: App\Apps\Web\Tournament\Delete\DeleteTournamentController
-  methods: [ DELETE ]
-  defaults: { auth: true }
+    path: /tournament/{id}
+    controller: App\Apps\Web\Tournament\Delete\DeleteTournamentController
+    methods: [DELETE]
+    defaults: { auth: true }
 
 tournament_add_team:
-  path: /tournament/{tournamentId}/team/{teamId}
-  controller: App\Apps\Web\Tournament\AddTeam\TournamentAddTeamController
-  methods: [ POST ]
-  defaults: { auth: true }
+    path: /tournament/{tournamentId}/team/{teamId}
+    controller: App\Apps\Web\Tournament\AddTeam\TournamentAddTeamController
+    methods: [POST]
+    defaults: { auth: true }
 
 tournament_remove_team:
-  path: /tournament/{tournamentId}/team/{teamId}
-  controller: App\Apps\Web\Tournament\RemoveTeam\TournamentRemoveTeamController
-  methods: [ DELETE ]
-  defaults: { auth: true }
+    path: /tournament/{tournamentId}/team/{teamId}
+    controller: App\Apps\Web\Tournament\RemoveTeam\TournamentRemoveTeamController
+    methods: [DELETE]
+    defaults: { auth: true }
 
 tournament_assign_responsible:
-  path: /tournament/{tournamentId}/responsible/{userId}
-  controller: App\Apps\Web\Tournament\AssignResponsible\TournamentAssignResponsibleController
-  methods: [ POST ]
-  defaults: { auth: true }
+    path: /tournament/{tournamentId}/responsible/{userId}
+    controller: App\Apps\Web\Tournament\AssignResponsible\TournamentAssignResponsibleController
+    methods: [POST]
+    defaults: { auth: true }
 
 # Matches
 create_match:
-  path: /match
-  controller: App\Apps\Web\Tournament\CreateMatch\CreateMatchController
-  methods: [ PUT ]
-  defaults: { auth: true }
+    path: /match
+    controller: App\Apps\Web\Tournament\CreateMatch\CreateMatchController
+    methods: [PUT]
+    defaults: { auth: true }
 
 update_match_result:
-  path: /match/{id}/result
-  controller: App\Apps\Web\Tournament\UpdateMatchResult\UpdateMatchResultController
-  methods: [ PUT ]
-  defaults: { auth: true }
+    path: /match/{id}/result
+    controller: App\Apps\Web\Tournament\UpdateMatchResult\UpdateMatchResultController
+    methods: [PUT]
+    defaults: { auth: true }
 
 find_match:
-  path: /match/{id}
-  controller: App\Apps\Web\Tournament\FindMatch\FindMatchController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /match/{id}
+    controller: App\Apps\Web\Tournament\FindMatch\FindMatchController
+    methods: [GET]
+    defaults: { auth: true }
 
 search_matches:
-  path: /tournament/{tournamentId}/matches
-  controller: App\Apps\Web\Tournament\SearchMatches\SearchMatchesController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /tournament/{tournamentId}/matches
+    controller: App\Apps\Web\Tournament\SearchMatches\SearchMatchesController
+    methods: [GET]
+    defaults: { auth: true }
 
 start_match:
-  path: /match/{id}/start
-  controller: App\Apps\Web\Tournament\StartMatch\StartMatchController
-  methods: [ POST ]
-  defaults: { auth: true }
+    path: /match/{id}/start
+    controller: App\Apps\Web\Tournament\StartMatch\StartMatchController
+    methods: [POST]
+    defaults: { auth: true }
 
 delete_match:
-  path: /match/{id}
-  controller: App\Apps\Web\Tournament\DeleteMatch\DeleteMatchController
-  methods: [ DELETE ]
-  defaults: { auth: true }
+    path: /match/{id}
+    controller: App\Apps\Web\Tournament\DeleteMatch\DeleteMatchController
+    methods: [DELETE]
+    defaults: { auth: true }

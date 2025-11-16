@@ -11,7 +11,7 @@ interface TeamRepository
 
     public function findById(Uuid $id): Team;
 
-    public function findByOwnerId(Uuid $ownerId): array;
+    public function findByCreatorId(Uuid $creatorId): array;
 
     public function search(string $query): array;
 
@@ -22,10 +22,10 @@ interface TeamRepository
     public function searchWithPagination(
         ?string $query,
         ?Uuid $gameId,
-        ?Uuid $ownerId,
+        ?Uuid $creatorId,
         int $limit,
         int $offset
     ): array;
 
-    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $ownerId): int;
+    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $creatorId): int;
 }

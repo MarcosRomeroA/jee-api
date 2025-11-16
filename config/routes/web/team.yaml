@@ -1,37 +1,59 @@
 create_team:
-  path: /team/{id}
-  controller: App\Apps\Web\Team\Create\CreateTeamController
-  methods: [ PUT ]
-  defaults: { auth: true }
+    path: /team/{id}
+    controller: App\Apps\Web\Team\Create\CreateTeamController
+    methods: [PUT]
+    defaults: { auth: true }
 
 find_team:
-  path: /team/{id}
-  controller: App\Apps\Web\Team\Find\FindTeamController
-  methods: [ GET ]
-  defaults: { auth: true }
-
+    path: /team/{id}
+    controller: App\Apps\Web\Team\Find\FindTeamController
+    methods: [GET]
+    defaults: { auth: true }
 
 search_teams:
-  path: /teams
-  controller: App\Apps\Web\Team\SearchTeams\SearchTeamsController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /teams
+    controller: App\Apps\Web\Team\SearchTeams\SearchTeamsController
+    methods: [GET]
+    defaults: { auth: true }
 
 delete_team:
-  path: /team/{id}
-  controller: App\Apps\Web\Team\Delete\DeleteTeamController
-  methods: [ DELETE ]
-  defaults: { auth: true }
+    path: /team/{id}
+    controller: App\Apps\Web\Team\Delete\DeleteTeamController
+    methods: [DELETE]
+    defaults: { auth: true }
 
 team_request_access:
-  path: /team/{teamId}/request-access
-  controller: App\Apps\Web\Team\RequestAccess\TeamRequestAccessController
-  methods: [ POST ]
-  defaults: { auth: true }
+    path: /team/{teamId}/request-access
+    controller: App\Apps\Web\Team\RequestAccess\TeamRequestAccessController
+    methods: [POST]
+    defaults: { auth: true }
 
 team_accept_request:
-  path: /team/request/{requestId}/accept
-  controller: App\Apps\Web\Team\AcceptRequest\TeamAcceptRequestController
-  methods: [ POST ]
-  defaults: { auth: true }
+    path: /team/request/{requestId}/accept
+    controller: App\Apps\Web\Team\AcceptRequest\TeamAcceptRequestController
+    methods: [POST]
+    defaults: { auth: true }
 
+add_game:
+    path: /team/{id}/game/{gameId}
+    controller: App\Apps\Web\Team\AddGame\AddGameToTeamController
+    methods: [PUT]
+    defaults: { auth: true }
+
+remove_game:
+    path: /team/{id}/game/{gameId}
+    controller: App\Apps\Web\Team\RemoveGame\RemoveGameFromTeamController
+    methods: [DELETE]
+    defaults: { auth: true }
+
+find_team_games:
+    path: /team/{id}/games
+    controller: App\Apps\Web\Team\FindTeamGames\FindTeamGamesController
+    methods: [GET]
+    defaults: { auth: true }
+
+update_team_leader:
+    path: /team/{id}/leader/{userId}
+    controller: App\Apps\Web\Team\UpdateLeader\UpdateTeamLeaderController
+    methods: [PUT]
+    defaults: { auth: true }

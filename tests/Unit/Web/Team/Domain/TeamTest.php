@@ -11,42 +11,47 @@ final class TeamTest extends TestCase
     public function testItShouldCreateATeam(): void
     {
         $id = Uuid::random();
-        $name = 'Los Campeones';
-        $image = 'https://example.com/team.jpg';
+        $name = "Los Campeones";
+        $description = "A professional gaming team";
+        $image = "https://example.com/team.jpg";
+        $creator = UserMother::random();
 
-        $team = new Team(
-            $id,
-            GameMother::random(),
-            UserMother::random(),
-            $name,
-            $image
-        );
+        $team = Team::create($id, $name, $description, $image, $creator);
 
         $this->assertEquals($id, $team->id());
         $this->assertEquals($name, $team->name());
+        $this->assertEquals($description, $team->description());
         $this->assertEquals($image, $team->image());
         $this->assertEquals(0, $team->playersQuantity());
+        $this->assertEquals(0, $team->gamesQuantity());
+        $this->assertEquals($creator, $team->creator());
+        $this->assertEquals($creator, $team->leader());
     }
 
     public function testItShouldUpdateTeam(): void
     {
         $team = TeamMother::create();
-        $newName = 'Updated Team Name';
-        $newImage = 'https://example.com/new-image.jpg';
+        $newName = "Updated Team Name";
+        $newDescription = "Updated team description";
+        $newImage = "https://example.com/new-image.jpg";
 
-        $team->update($newName, $newImage);
+        $team->update($newName, $newDescription, $newImage);
 
         $this->assertEquals($newName, $team->name());
+        $this->assertEquals($newDescription, $team->description());
         $this->assertEquals($newImage, $team->image());
     }
 
-    public function testItShouldVerifyOwner(): void
+    public function testItShouldSetLeader(): void
     {
-        $ownerId = Uuid::random();
-        $team = TeamMother::withOwner($ownerId);
+        $team = TeamMother::create();
+        $leaderId = Uuid::random();
+        $leader = UserMother::create($leaderId);
 
-        $this->assertTrue($team->isOwner($ownerId));
-        $this->assertFalse($team->isOwner(Uuid::random()));
+        $team->setLeader($leader);
+
+        $this->assertEquals($leader, $team->leader());
+        $this->assertTrue($team->isLeader($leaderId));
     }
 
     public function testItShouldReturnPlayersQuantity(): void
@@ -55,5 +60,39 @@ final class TeamTest extends TestCase
 
         $this->assertEquals(0, $team->playersQuantity());
     }
-}
 
+    public function testItShouldAddGame(): void
+    {
+        $team = TeamMother::create();
+        $game = GameMother::random();
+
+        $team->addGame($game);
+
+        $this->assertEquals(1, $team->gamesQuantity());
+        $this->assertTrue($team->hasGame($game));
+    }
+
+    public function testItShouldNotAddDuplicateGame(): void
+    {
+        $team = TeamMother::create();
+        $game = GameMother::random();
+
+        $team->addGame($game);
+        $team->addGame($game);
+
+        $this->assertEquals(1, $team->gamesQuantity());
+    }
+
+    public function testItShouldRemoveGame(): void
+    {
+        $team = TeamMother::create();
+        $game = GameMother::random();
+
+        $team->addGame($game);
+        $this->assertEquals(1, $team->gamesQuantity());
+
+        $team->removeGame($game);
+        $this->assertEquals(0, $team->gamesQuantity());
+        $this->assertFalse($team->hasGame($game));
+    }
+}

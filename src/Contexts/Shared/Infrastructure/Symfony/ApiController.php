@@ -16,12 +16,10 @@ use App\Contexts\Shared\Infrastructure\Symfony\Exception\ValidationException;
 abstract class ApiController extends AbstractController
 {
     public function __construct(
-        protected QueryBus                 $queryBus,
-        protected CommandBus               $commandBus,
-        protected ValidatorInterface        $validator,
-    )
-    {
-    }
+        protected QueryBus $queryBus,
+        protected CommandBus $commandBus,
+        protected ValidatorInterface $validator,
+    ) {}
 
     protected function ask(Query $query): ?Response
     {
@@ -33,26 +31,32 @@ abstract class ApiController extends AbstractController
         $this->commandBus->dispatch($command);
     }
 
-    public function successResponse(mixed $message, int $code = SymfonyResponse::HTTP_OK) : JsonResponse
-    {
-        if(is_object($message))
+    public function successResponse(
+        mixed $message,
+        int $code = SymfonyResponse::HTTP_OK,
+    ): JsonResponse {
+        if (is_object($message)) {
             $message = $message->toArray();
+        }
 
-        return new JsonResponse(['data'=> $message], $code);
+        return new JsonResponse(["data" => $message], $code);
     }
 
-    public function successEmptyResponse(int $code = SymfonyResponse::HTTP_OK) : SymfonyResponse
-    {
-        return new SymfonyResponse('', $code);
+    public function successEmptyResponse(
+        int $code = SymfonyResponse::HTTP_OK,
+    ): SymfonyResponse {
+        return new SymfonyResponse("", $code);
     }
 
-    public function successCreatedResponse() : SymfonyResponse
+    public function successCreatedResponse(): SymfonyResponse
     {
-        return new SymfonyResponse('', SymfonyResponse::HTTP_CREATED);
+        return new SymfonyResponse("", SymfonyResponse::HTTP_CREATED);
     }
 
-    public function collectionResponse(mixed $message, $code = 200) : JsonResponse
-    {
+    public function collectionResponse(
+        mixed $message,
+        $code = 200,
+    ): JsonResponse {
         return new JsonResponse($message->toArray(), $code);
     }
 

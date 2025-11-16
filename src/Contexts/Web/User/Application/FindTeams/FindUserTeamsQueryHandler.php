@@ -22,18 +22,23 @@ final readonly class FindUserTeamsQueryHandler implements QueryHandler
         $teams = [];
         foreach ($teamPlayers as $teamPlayer) {
             $team = $teamPlayer->team();
+
+            $games = [];
+            foreach ($team->teamGames() as $teamGame) {
+                $games[] = [
+                    "id" => $teamGame->game()->getId()->value(),
+                    "name" => $teamGame->game()->getName(),
+                ];
+            }
+
             $teams[] = [
-                'id' => $team->id()->value(),
-                'name' => $team->name(),
-                'image' => $team->image(),
-                'game' => [
-                    'id' => $team->game()->id()->value(),
-                    'name' => $team->game()->name(),
-                ],
+                "id" => $team->id()->value(),
+                "name" => $team->name(),
+                "image" => $team->image(),
+                "games" => $games,
             ];
         }
 
         return $teams;
     }
 }
-

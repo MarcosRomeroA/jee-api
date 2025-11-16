@@ -37,11 +37,11 @@ final class TournamentTeamAdder
             throw new TeamNotFoundException($teamId->value());
         }
 
-        // Verificar permisos (responsable del torneo o owner del equipo)
+        // Verificar permisos (responsable del torneo o creador del equipo)
         $isResponsible = $tournament->responsible()->id()->value() === $addedByUserId->value();
-        $isOwner = $team->owner()->id()->value() === $addedByUserId->value();
+        $isCreator = $team->creator() !== null && $team->creator()->getId()->value() === $addedByUserId->value();
 
-        if (!$isResponsible && !$isOwner) {
+        if (!$isResponsible && !$isCreator) {
             throw new UnauthorizedException('No tiene permisos para agregar este equipo al torneo');
         }
 
@@ -81,4 +81,3 @@ final class TournamentTeamAdder
         $this->tournamentRepository->save($tournament);
     }
 }
-

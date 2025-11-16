@@ -581,6 +581,126 @@ final class ApiContext extends RawMinkContext
         }
     }
 
+    /**
+     * @Then the response should be an array
+     */
+    public function theResponseShouldBeAnArray(): void
+    {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!is_array($response)) {
+            throw new RuntimeException(
+                sprintf(
+                    "Response is not an array. Response: %s",
+                    $this->sessionHelper->getResponse(),
+                ),
+            );
+        }
+    }
+
+    /**
+     * @Then the response should have a :property property
+     */
+    public function theResponseShouldHaveAProperty(string $property): void
+    {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!isset($response[$property])) {
+            throw new RuntimeException(
+                sprintf(
+                    "Response does not have property '%s'. Response: %s",
+                    $property,
+                    $this->sessionHelper->getResponse(),
+                ),
+            );
+        }
+    }
+
+    /**
+     * @Then the :property property should be an array with :count items
+     */
+    public function thePropertyShouldBeAnArrayWithItems(
+        string $property,
+        int $count,
+    ): void {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!isset($response[$property])) {
+            throw new RuntimeException(
+                sprintf("Property '%s' not found in response", $property),
+            );
+        }
+
+        if (!is_array($response[$property])) {
+            throw new RuntimeException(
+                sprintf("Property '%s' is not an array", $property),
+            );
+        }
+
+        $actualCount = count($response[$property]);
+
+        if ($actualCount !== $count) {
+            throw new RuntimeException(
+                sprintf(
+                    "Property '%s' has %d items, expected exactly %d items",
+                    $property,
+                    $actualCount,
+                    $count,
+                ),
+            );
+        }
+    }
+
+    /**
+     * @Then the :property property should be an array containing objects with properties :properties
+     */
+    public function thePropertyShouldBeAnArrayContainingObjectsWithProperties(
+        string $property,
+        string $properties,
+    ): void {
+        $response = json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!isset($response[$property])) {
+            throw new RuntimeException(
+                sprintf("Property '%s' not found in response", $property),
+            );
+        }
+
+        if (!is_array($response[$property]) || empty($response[$property])) {
+            throw new RuntimeException(
+                sprintf("Property '%s' is not a non-empty array", $property),
+            );
+        }
+
+        $expectedProperties = array_map("trim", explode(",", $properties));
+
+        foreach ($response[$property] as $index => $item) {
+            if (!is_array($item)) {
+                throw new RuntimeException(
+                    sprintf(
+                        "Item at index %d in property '%s' is not an object",
+                        $index,
+                        $property,
+                    ),
+                );
+            }
+
+            foreach ($expectedProperties as $expectedProperty) {
+                if (!array_key_exists($expectedProperty, $item)) {
+                    throw new RuntimeException(
+                        sprintf(
+                            "Item at index %d in property '%s' does not have property '%s'. Item: %s",
+                            $index,
+                            $property,
+                            $expectedProperty,
+                            json_encode($item),
+                        ),
+                    );
+                }
+            }
+        }
+    }
+
     private function sanitizeOutput(string $output): false|string
     {
         return json_encode(

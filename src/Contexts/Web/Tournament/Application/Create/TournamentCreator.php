@@ -22,32 +22,35 @@ final class TournamentCreator
         private readonly GameRepository $gameRepository,
         private readonly UserRepository $userRepository,
         private readonly TournamentStatusRepository $statusRepository,
-        private readonly GameRankRepository $gameRankRepository
-    ) {
-    }
+        private readonly GameRankRepository $gameRankRepository,
+    ) {}
 
     public function create(
         Uuid $id,
         Uuid $gameId,
-        Uuid $responsibleId,
         string $name,
-        ?string $description,
-        int $maxTeams,
         bool $isOfficial,
-        ?string $image,
-        ?string $prize,
-        ?string $region,
-        \DateTimeImmutable $startAt,
-        \DateTimeImmutable $endAt,
+        Uuid $responsibleId,
+        ?string $description = null,
+        ?int $maxTeams = null,
+        ?string $image = null,
+        ?string $prize = null,
+        ?string $region = null,
+        ?\DateTimeImmutable $startAt = null,
+        ?\DateTimeImmutable $endAt = null,
         ?Uuid $minGameRankId = null,
-        ?Uuid $maxGameRankId = null
+        ?Uuid $maxGameRankId = null,
     ): void {
         $game = $this->gameRepository->findById($gameId);
         $responsible = $this->userRepository->findById($responsibleId);
 
-        $status = $this->statusRepository->findByName(TournamentStatus::CREATED);
+        $status = $this->statusRepository->findByName(
+            TournamentStatus::CREATED,
+        );
         if ($status === null) {
-            throw new TournamentStatusNotFoundException(TournamentStatus::CREATED);
+            throw new TournamentStatusNotFoundException(
+                TournamentStatus::CREATED,
+            );
         }
 
         $minGameRank = null;
@@ -60,6 +63,11 @@ final class TournamentCreator
             $maxGameRank = $this->gameRankRepository->findById($maxGameRankId);
         }
 
+        // Set default values for optional fields
+        $finalMaxTeams = $maxTeams ?? 16;
+        $finalStartAt = $startAt ?? new \DateTimeImmutable();
+        $finalEndAt = $endAt ?? new \DateTimeImmutable("+30 days");
+
         $tournament = new Tournament(
             $id,
             $game,
@@ -67,19 +75,17 @@ final class TournamentCreator
             $responsible,
             $name,
             $description,
-            $maxTeams,
+            $finalMaxTeams,
             $isOfficial,
             $image,
             $prize,
             $region,
-            $startAt,
-            $endAt,
+            $finalStartAt,
+            $finalEndAt,
             $minGameRank,
-            $maxGameRank
+            $maxGameRank,
         );
 
         $this->tournamentRepository->save($tournament);
     }
 }
-
-

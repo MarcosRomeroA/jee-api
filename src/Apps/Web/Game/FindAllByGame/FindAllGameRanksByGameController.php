@@ -13,6 +13,6 @@ final class FindAllGameRanksByGameController extends ApiController
         $query = new FindAllGameRanksByGameQuery($gameId);
         $response = $this->queryBus->ask($query);
 
-        return $this->collectionResponse($response);
+        return $this->successResponse($response);
     }
 }

@@ -32,11 +32,11 @@ final class TournamentTeamRemover
             throw new TeamNotRegisteredException('El equipo no está registrado en este torneo');
         }
 
-        // Verificar permisos (responsable del torneo o owner del equipo)
+        // Verificar permisos (responsable del torneo o creador del equipo)
         $isResponsible = $tournament->responsible()->id()->value() === $removedByUserId->value();
-        $isOwner = $tournamentTeam->team()->owner()->id()->value() === $removedByUserId->value();
+        $isCreator = $tournamentTeam->team()->creator() !== null && $tournamentTeam->team()->creator()->getId()->value() === $removedByUserId->value();
 
-        if (!$isResponsible && !$isOwner) {
+        if (!$isResponsible && !$isCreator) {
             throw new UnauthorizedException('No tiene permisos para eliminar este equipo del torneo');
         }
 
@@ -52,4 +52,3 @@ final class TournamentTeamRemover
         $this->tournamentRepository->save($tournament);
     }
 }
-

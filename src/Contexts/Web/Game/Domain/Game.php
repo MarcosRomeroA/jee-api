@@ -7,26 +7,26 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GameRepository::class)]
-#[ORM\Table(name: 'game')]
+#[ORM\Table(name: "game")]
 class Game extends AggregateRoot
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', length: 36)]
+    #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
 
-    #[ORM\Column(type: 'string', length: 100)]
+    #[ORM\Column(type: "string", length: 100)]
     private string $name;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: "text", nullable: true)]
     private ?string $description;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: "integer")]
     private int $minPlayersQuantity;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: "integer")]
     private int $maxPlayersQuantity;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: "datetime_immutable")]
     private \DateTimeImmutable $createdAt;
 
     public function __construct(
@@ -34,7 +34,7 @@ class Game extends AggregateRoot
         string $name,
         ?string $description,
         int $minPlayersQuantity,
-        int $maxPlayersQuantity
+        int $maxPlayersQuantity,
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -74,4 +74,3 @@ class Game extends AggregateRoot
         return $this->createdAt;
     }
 }
-

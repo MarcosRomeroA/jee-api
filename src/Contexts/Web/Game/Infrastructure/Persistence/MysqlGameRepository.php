@@ -9,7 +9,7 @@ use App\Contexts\Web\Game\Domain\GameRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineGameRepository extends ServiceEntityRepository implements
+final class MysqlGameRepository extends ServiceEntityRepository implements
     GameRepository
 {
     public function __construct(ManagerRegistry $registry)

@@ -15,8 +15,8 @@ final readonly class SearchTeamsRequest
         #[Assert\Type("string")]
         public ?string $gameId = null,
 
-        #[Assert\Type("bool")]
-        public bool $mine = false,
+        #[Assert\Type("string")]
+        public ?string $creatorId = null,
 
         #[Assert\Type("int")]
         public int $limit = 20,
@@ -30,21 +30,20 @@ final readonly class SearchTeamsRequest
         return new self(
             $request->query->get('q'),
             $request->query->get('gameId'),
-            (bool) $request->query->get('mine', false),
+            $request->query->get('creatorId'),
             (int) $request->query->get('limit', 20),
             (int) $request->query->get('offset', 0)
         );
     }
 
-    public function toQuery(string $userId): SearchTeamsQuery
+    public function toQuery(): SearchTeamsQuery
     {
         return new SearchTeamsQuery(
             $this->q,
             $this->gameId,
-            $this->mine ? $userId : null,
+            $this->creatorId,
             $this->limit,
             $this->offset
         );
     }
 }
-

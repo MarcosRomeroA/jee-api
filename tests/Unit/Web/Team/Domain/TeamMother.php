@@ -4,20 +4,23 @@ namespace App\Tests\Unit\Web\Team\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\Team;
+use App\Contexts\Web\User\Domain\User;
 
 final class TeamMother
 {
     public static function create(
         ?Uuid $id = null,
         ?string $name = null,
-        ?string $image = null
+        ?string $description = null,
+        ?string $image = null,
+        ?User $creator = null,
     ): Team {
-        return new Team(
+        return Team::create(
             $id ?? Uuid::random(),
-            GameMother::random(),
-            UserMother::random(),
-            $name ?? 'Test Team',
-            $image
+            $name ?? "Test Team",
+            $description ?? "Test team description",
+            $image,
+            $creator ?? UserMother::random(),
         );
     }
 
@@ -33,18 +36,24 @@ final class TeamMother
 
     public static function withImage(string $image): Team
     {
-        return self::create(null, null, $image);
+        return self::create(null, null, null, $image);
     }
 
-    public static function withOwner(Uuid $ownerId): Team
+    public static function withCreator(Uuid $creatorId): Team
     {
-        return new Team(
-            Uuid::random(),
-            GameMother::random(),
-            UserMother::create($ownerId),
-            'Test Team',
-            null
+        return self::create(
+            null,
+            null,
+            null,
+            null,
+            UserMother::create($creatorId),
         );
     }
-}
 
+    public static function withLeader(Uuid $leaderId): Team
+    {
+        $team = self::create();
+        $team->setLeader(UserMother::create($leaderId));
+        return $team;
+    }
+}

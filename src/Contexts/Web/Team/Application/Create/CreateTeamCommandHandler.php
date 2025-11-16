@@ -7,20 +7,16 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 
 final readonly class CreateTeamCommandHandler implements CommandHandler
 {
-    public function __construct(
-        private TeamCreator $creator
-    ) {
-    }
+    public function __construct(private TeamCreator $creator) {}
 
     public function __invoke(CreateTeamCommand $command): void
     {
         $this->creator->create(
             new Uuid($command->id),
-            new Uuid($command->gameId),
-            new Uuid($command->ownerId),
             $command->name,
-            $command->image
+            $command->description,
+            $command->image,
+            new Uuid($command->creatorId),
         );
     }
 }
-

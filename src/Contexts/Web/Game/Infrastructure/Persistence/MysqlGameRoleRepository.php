@@ -3,36 +3,35 @@
 namespace App\Contexts\Web\Game\Infrastructure\Persistence;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Game\Domain\GameRank;
-use App\Contexts\Web\Game\Domain\GameRankRepository;
-use App\Contexts\Web\Game\Domain\Exception\GameRankNotFoundException;
+use App\Contexts\Web\Game\Domain\GameRole;
+use App\Contexts\Web\Game\Domain\GameRoleRepository;
+use App\Contexts\Web\Game\Domain\Exception\GameRoleNotFoundException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineGameRankRepository
-    extends ServiceEntityRepository
-    implements GameRankRepository
+final class MysqlGameRoleRepository extends ServiceEntityRepository implements
+    GameRoleRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, GameRank::class);
+        parent::__construct($registry, GameRole::class);
     }
 
-    public function save(GameRank $gameRank): void
+    public function save(GameRole $gameRole): void
     {
-        $this->getEntityManager()->persist($gameRank);
+        $this->getEntityManager()->persist($gameRole);
         $this->getEntityManager()->flush();
     }
 
-    public function findById(Uuid $id): GameRank
+    public function findById(Uuid $id): GameRole
     {
-        $gameRank = $this->findOneBy(["id" => $id]);
+        $gameRole = $this->findOneBy(["id" => $id]);
 
-        if (!$gameRank) {
-            throw new GameRankNotFoundException($id->value());
+        if (!$gameRole) {
+            throw new GameRoleNotFoundException($id->value());
         }
 
-        return $gameRank;
+        return $gameRole;
     }
 
     public function findByGame(Uuid $gameId): array

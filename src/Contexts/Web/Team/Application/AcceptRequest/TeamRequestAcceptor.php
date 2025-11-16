@@ -25,9 +25,9 @@ final readonly class TeamRequestAcceptor
             throw new RequestNotFoundException($requestId->value());
         }
 
-        // Verificar que quien acepta es el dueño del equipo
-        if ($request->team()->owner()->getId()->value() !== $acceptedByUserId->value()) {
-            throw new UnauthorizedException('Solo el dueño del equipo puede aceptar solicitudes');
+        // Verificar que quien acepta es el creador del equipo
+        if ($request->team()->creator() === null || $request->team()->creator()->getId()->value() !== $acceptedByUserId->value()) {
+            throw new UnauthorizedException('Solo el creador del equipo puede aceptar solicitudes');
         }
 
         // Verificar que la solicitud está pendiente
@@ -49,4 +49,3 @@ final readonly class TeamRequestAcceptor
         $this->teamRequestRepository->save($request);
     }
 }
-

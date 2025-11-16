@@ -13,6 +13,6 @@ final class FindAllGameRolesByGameController extends ApiController
         $query = new FindAllGameRolesByGameQuery($gameId);
         $response = $this->queryBus->ask($query);
 
-        return $this->collectionResponse($response);
+        return $this->successResponse($response);
     }
 }

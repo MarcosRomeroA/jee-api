@@ -4,8 +4,13 @@ namespace App\Contexts\Web\Team\Domain;
 
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
+use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
+use App\Contexts\Shared\Domain\Traits\Timestamps;
 use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\User\Domain\User;
+use App\Contexts\Web\Team\Domain\Events\TeamCreatedDomainEvent;
+use App\Contexts\Web\Team\Domain\Events\TeamUpdatedDomainEvent;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,38 +19,40 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: "team")]
 class Team extends AggregateRoot
 {
+    use Timestamps;
+
     #[ORM\Id]
     #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
 
-    #[ORM\ManyToOne(targetEntity: Game::class)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[
         ORM\JoinColumn(
-            name: "game_id",
+            name: "creator_id",
             referencedColumnName: "id",
             nullable: false,
         ),
     ]
-    private Game $game;
+    private User $creator;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[
         ORM\JoinColumn(
-            name: "owner_id",
+            name: "leader_id",
             referencedColumnName: "id",
             nullable: false,
         ),
     ]
-    private User $owner;
+    private User $leader;
 
     #[ORM\Column(type: "string", length: 100)]
     private string $name;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private ?string $image;
+    #[ORM\Column(type: "text", nullable: true)]
+    private ?string $description = null;
 
-    #[ORM\Column(type: "datetime_immutable")]
-    private \DateTimeImmutable $createdAt;
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    private ?string $image = null;
 
     /**
      * @var Collection<int, TeamPlayer>
@@ -59,20 +66,61 @@ class Team extends AggregateRoot
     ]
     private Collection $teamPlayers;
 
+    /**
+     * @var Collection<int, TeamGame>
+     */
+    #[
+        ORM\OneToMany(
+            targetEntity: TeamGame::class,
+            mappedBy: "team",
+            cascade: ["persist", "remove"],
+        ),
+    ]
+    private Collection $teamGames;
+
     public function __construct(
         Uuid $id,
-        Game $game,
-        User $owner,
         string $name,
-        ?string $image = null,
+        ?string $description,
+        ?string $image,
+        User $creator,
     ) {
         $this->id = $id;
-        $this->game = $game;
-        $this->owner = $owner;
         $this->name = $name;
+        $this->description = $description;
         $this->image = $image;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->creator = $creator;
+        $this->leader = $creator;
         $this->teamPlayers = new ArrayCollection();
+        $this->teamGames = new ArrayCollection();
+        $this->createdAt = new CreatedAtValue();
+        $this->updatedAt = new UpdatedAtValue($this->createdAt->value());
+    }
+
+    public static function create(
+        Uuid $id,
+        string $name,
+        ?string $description,
+        ?string $image,
+        User $creator,
+    ): self {
+        $team = new self($id, $name, $description, $image, $creator);
+
+        $team->record(new TeamCreatedDomainEvent($id));
+
+        return $team;
+    }
+
+    public function update(
+        string $name,
+        ?string $description,
+        ?string $image,
+    ): void {
+        $this->name = $name;
+        $this->description = $description;
+        $this->image = $image;
+
+        $this->record(new TeamUpdatedDomainEvent($this->id));
     }
 
     public function id(): Uuid
@@ -80,14 +128,14 @@ class Team extends AggregateRoot
         return $this->id;
     }
 
-    public function game(): Game
+    public function creator(): User
     {
-        return $this->game;
+        return $this->creator;
     }
 
-    public function owner(): User
+    public function leader(): User
     {
-        return $this->owner;
+        return $this->leader;
     }
 
     public function name(): string
@@ -95,14 +143,14 @@ class Team extends AggregateRoot
         return $this->name;
     }
 
+    public function description(): ?string
+    {
+        return $this->description;
+    }
+
     public function image(): ?string
     {
         return $this->image;
-    }
-
-    public function createdAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
     }
 
     public function teamPlayers(): Collection
@@ -115,16 +163,62 @@ class Team extends AggregateRoot
         return $this->teamPlayers->count();
     }
 
-    public function update(string $name, ?string $image): void
+    public function teamGames(): Collection
     {
-        $this->name = $name;
-        if ($image !== null) {
-            $this->image = $image;
-        }
+        return $this->teamGames;
+    }
+
+    public function gamesQuantity(): int
+    {
+        return $this->teamGames->count();
+    }
+
+    public function setLeader(User $leader): void
+    {
+        $this->leader = $leader;
     }
 
     public function isOwner(Uuid $userId): bool
     {
-        return $this->owner->getId()->equals($userId);
+        return $this->creator->getId()->equals($userId);
+    }
+
+    public function isLeader(Uuid $userId): bool
+    {
+        return $this->leader->getId()->equals($userId);
+    }
+
+    public function addGame(Game $game): void
+    {
+        // Check if game already exists
+        foreach ($this->teamGames as $teamGame) {
+            if ($teamGame->game()->getId()->equals($game->getId())) {
+                return; // Game already exists, don't add duplicate
+            }
+        }
+
+        $teamGame = new TeamGame(Uuid::random(), $this, $game);
+
+        $this->teamGames->add($teamGame);
+    }
+
+    public function removeGame(Game $game): void
+    {
+        foreach ($this->teamGames as $teamGame) {
+            if ($teamGame->game()->getId()->equals($game->getId())) {
+                $this->teamGames->removeElement($teamGame);
+                return;
+            }
+        }
+    }
+
+    public function hasGame(Game $game): bool
+    {
+        foreach ($this->teamGames as $teamGame) {
+            if ($teamGame->game()->getId()->equals($game->getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

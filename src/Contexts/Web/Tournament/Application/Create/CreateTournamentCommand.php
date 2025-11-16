@@ -9,19 +9,17 @@ final readonly class CreateTournamentCommand implements Command
     public function __construct(
         public string $id,
         public string $gameId,
-        public string $responsibleId,
         public string $name,
-        public string $description,
-        public int $maxTeams,
         public bool $isOfficial,
-        public ?string $image,
-        public ?string $prize,
-        public ?string $region,
-        public string $startAt,
-        public string $endAt,
-        public ?string $minGameRankId,
-        public ?string $maxGameRankId
-    ) {
-    }
+        public string $responsibleId,
+        public ?string $description = null,
+        public ?int $maxTeams = null,
+        public ?string $image = null,
+        public ?string $prize = null,
+        public ?string $region = null,
+        public ?string $startAt = null,
+        public ?string $endAt = null,
+        public ?string $minGameRankId = null,
+        public ?string $maxGameRankId = null,
+    ) {}
 }
-

@@ -9,24 +9,33 @@ Feature: Create Team
     When I send a PUT request to "/api/team/550e8400-e29b-41d4-a716-446655440070" with body:
       """
       {
-        "gameId": "550e8400-e29b-41d4-a716-446655440002",
-        "ownerId": "550e8400-e29b-41d4-a716-446655440001",
         "name": "Pro Gamers Team",
+        "description": "A professional gaming team",
         "image": "https://example.com/team-logo.png"
       }
       """
     Then the response status code should be 200
     And the response should be empty
 
-  Scenario: Update an existing team (upsert)
+  Scenario: Create team with empty description
     Given I am authenticated as "test@example.com" with password "password123"
-    When I send a PUT request to "/api/team/550e8400-e29b-41d4-a716-446655440060" with body:
+    When I send a PUT request to "/api/team/550e8400-e29b-41d4-a716-446655440075" with body:
       """
       {
-        "gameId": "550e8400-e29b-41d4-a716-446655440002",
-        "ownerId": "550e8400-e29b-41d4-a716-446655440001",
-        "name": "Updated Team Name",
-        "image": "https://example.com/updated-logo.png"
+        "name": "Another Team",
+        "description": "",
+        "image": "https://example.com/team-logo2.png"
+      }
+      """
+    Then the response status code should be 200
+    And the response should be empty
+
+  Scenario: Create team without optional fields
+    Given I am authenticated as "test@example.com" with password "password123"
+    When I send a PUT request to "/api/team/550e8400-e29b-41d4-a716-446655440076" with body:
+      """
+      {
+        "name": "Minimal Team"
       }
       """
     Then the response status code should be 200
@@ -37,22 +46,8 @@ Feature: Create Team
     When I send a PUT request to "/api/team/550e8400-e29b-41d4-a716-446655440071" with body:
       """
       {
-        "name": "Incomplete Team"
+        "description": "Missing name field",
+        "image": "https://example.com/logo.png"
       }
       """
     Then the response status code should be 422
-
-
-  Scenario: Create team with non-existent game
-    Given I am authenticated as "test@example.com" with password "password123"
-    When I send a PUT request to "/api/team/550e8400-e29b-41d4-a716-446655440072" with body:
-      """
-      {
-        "gameId": "999e9999-e99b-99d9-a999-999999999999",
-        "ownerId": "550e8400-e29b-41d4-a716-446655440001",
-        "name": "Test Team"
-      }
-      """
-    Then the response status code should be 404
-
-

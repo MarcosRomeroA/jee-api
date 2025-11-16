@@ -9,10 +9,9 @@ final readonly class SearchTeamsQuery implements Query
     public function __construct(
         public ?string $query = null,
         public ?string $gameId = null,
-        public ?string $ownerId = null,
+        public ?string $creatorId = null,
         public int $limit = 20,
         public int $offset = 0
     ) {
     }
 }
-

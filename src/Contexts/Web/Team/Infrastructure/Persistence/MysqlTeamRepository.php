@@ -36,11 +36,11 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements
         return $team;
     }
 
-    public function findByOwnerId(Uuid $ownerId): array
+    public function findByCreatorId(Uuid $creatorId): array
     {
         return $this->createQueryBuilder("t")
-            ->andWhere("t.owner = :ownerId")
-            ->setParameter("ownerId", $ownerId)
+            ->andWhere("t.creator = :creatorId")
+            ->setParameter("creatorId", $creatorId)
             ->getQuery()
             ->getResult();
     }
@@ -68,7 +68,7 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements
     public function searchWithPagination(
         ?string $query,
         ?Uuid $gameId,
-        ?Uuid $ownerId,
+        ?Uuid $creatorId,
         int $limit,
         int $offset,
     ): array {
@@ -82,15 +82,16 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements
         }
 
         if ($gameId !== null) {
-            $qb->join("t.game", "g")
+            $qb->join("t.teamGames", "tg")
+                ->join("tg.game", "g")
                 ->andWhere("g.id = :gameId")
                 ->setParameter("gameId", $gameId);
         }
 
-        if ($ownerId !== null) {
-            $qb->join("t.owner", "u")
-                ->andWhere("u.id = :ownerId")
-                ->setParameter("ownerId", $ownerId);
+        if ($creatorId !== null) {
+            $qb->join("t.creator", "u")
+                ->andWhere("u.id = :creatorId")
+                ->setParameter("creatorId", $creatorId);
         }
 
         return $qb
@@ -103,9 +104,9 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements
     public function countSearch(
         ?string $query,
         ?Uuid $gameId,
-        ?Uuid $ownerId,
+        ?Uuid $creatorId,
     ): int {
-        $qb = $this->createQueryBuilder("t")->select("COUNT(t.id)");
+        $qb = $this->createQueryBuilder("t")->select("COUNT(DISTINCT t.id)");
 
         if ($query !== null) {
             $qb->andWhere("t.name LIKE :query")->setParameter(
@@ -115,15 +116,16 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements
         }
 
         if ($gameId !== null) {
-            $qb->join("t.game", "g")
+            $qb->join("t.teamGames", "tg")
+                ->join("tg.game", "g")
                 ->andWhere("g.id = :gameId")
                 ->setParameter("gameId", $gameId);
         }
 
-        if ($ownerId !== null) {
-            $qb->join("t.owner", "u")
-                ->andWhere("u.id = :ownerId")
-                ->setParameter("ownerId", $ownerId);
+        if ($creatorId !== null) {
+            $qb->join("t.creator", "u")
+                ->andWhere("u.id = :creatorId")
+                ->setParameter("creatorId", $creatorId);
         }
 
         try {

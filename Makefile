@@ -106,6 +106,9 @@ migrate:
 empty-migration:
 	@docker compose exec symfony php bin/console doctrine:migrations:generate
 
+migration:
+	@docker compose exec symfony php bin/console make:migration
+
 deploy:
 	make stop
 	make build
