@@ -28,8 +28,8 @@ logs-test:
 	@docker exec jee_symfony tail -100 var/log/test.log
 
 clean-cache:
-	@docker exec jee_symfony php bin/console cache:clear
-	@docker exec jee_symfony php bin/console cache:clear --env=test
+	@docker exec jee_symfony php -d memory_limit=128M bin/console cache:clear --no-warmup
+	@docker exec jee_symfony php -d memory_limit=128M bin/console cache:clear --env=test --no-warmup
 
 migration-diff:
 	@docker exec jee_symfony php bin/console doctrine:migrations:diff
