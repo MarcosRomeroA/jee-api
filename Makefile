@@ -29,6 +29,7 @@ logs-test:
 
 clean-cache:
 	@docker exec jee_symfony php -d memory_limit=128M bin/console cache:clear --no-warmup
+	@docker exec jee_symfony php -d memory_limit=128M bin/console doctrine:database:create --if-not-exists --env=test || true
 	@docker exec jee_symfony php -d memory_limit=128M bin/console cache:clear --env=test --no-warmup
 
 migration-diff:
@@ -83,6 +84,21 @@ test-verbose:
 setup:
 	@./setup-and-test.sh
 
+migrate:
+	@docker compose exec symfony php bin/console doctrine:migrations:migrate
+
+empty-migration:
+	@docker compose exec symfony php bin/console doctrine:migrations:generate
+
+migration:
+	@docker compose exec symfony php bin/console make:migration
+
+deploy:
+	make stop
+	make build
+	make start
+	make clean-cache
+
 help:
 	@echo "Comandos disponibles:"
 	@echo "  make dev              - Iniciar contenedores en modo desarrollo"
@@ -106,18 +122,3 @@ help:
 	@echo "  make test-verbose     - Ejecutar tests con verbose"
 	@echo "  make setup            - Setup completo + tests"
 	@echo "  make help             - Mostrar esta ayuda"
-
-migrate:
-	@docker compose exec symfony php bin/console doctrine:migrations:migrate
-
-empty-migration:
-	@docker compose exec symfony php bin/console doctrine:migrations:generate
-
-migration:
-	@docker compose exec symfony php bin/console make:migration
-
-deploy:
-	make stop
-	make build
-	make start
-	make clean-cache
