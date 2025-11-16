@@ -25,7 +25,7 @@ delete_tournament:
 tournament_add_team:
     path: /tournament/{tournamentId}/team/{teamId}
     controller: App\Apps\Web\Tournament\AddTeam\TournamentAddTeamController
-    methods: [POST]
+    methods: [PUT]
     defaults: { auth: true }
 
 tournament_remove_team:
@@ -37,7 +37,7 @@ tournament_remove_team:
 tournament_assign_responsible:
     path: /tournament/{tournamentId}/responsible/{userId}
     controller: App\Apps\Web\Tournament\AssignResponsible\TournamentAssignResponsibleController
-    methods: [POST]
+    methods: [PUT]
     defaults: { auth: true }
 
 # Matches

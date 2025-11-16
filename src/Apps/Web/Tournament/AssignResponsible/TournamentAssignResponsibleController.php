@@ -8,15 +8,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class TournamentAssignResponsibleController extends ApiController
 {
-    public function __invoke(string $tournamentId, string $userId): Response
-    {
-        $currentResponsibleId = $this->getAuthenticatedUserId();
-
-        $command = new TournamentAssignResponsibleCommand($tournamentId, $userId, $currentResponsibleId);
+    public function __invoke(
+        string $tournamentId,
+        string $userId,
+        string $sessionId,
+    ): Response {
+        $command = new TournamentAssignResponsibleCommand(
+            $tournamentId,
+            $userId,
+            $sessionId,
+        );
 
         $this->commandBus->dispatch($command);
 
         return $this->successEmptyResponse();
     }
 }
-

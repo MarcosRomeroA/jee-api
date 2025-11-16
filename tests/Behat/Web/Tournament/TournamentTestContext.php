@@ -31,18 +31,17 @@ final class TournamentTestContext implements Context
         // Limpiar caché antes de verificar
         $this->entityManager->clear();
 
-        // Crear un usuario de prueba (responsible) - diferente del usuario de autenticación
-        // Verificar si ya existe
-        $userId = new Uuid("750e8400-e29b-41d4-a716-446655440002");
+        // Usar el usuario de autenticación compartido (test@example.com)
+        $userId = new Uuid("550e8400-e29b-41d4-a716-446655440001");
         $existingUser = $this->entityManager->find(User::class, $userId);
 
         if (!$existingUser) {
             $user = new User(
                 $userId,
-                new FirstnameValue("Tournament"),
-                new LastnameValue("Owner"),
-                new UsernameValue("tournament_owner"),
-                new EmailValue("tournament@example.com"),
+                new FirstnameValue("Test"),
+                new LastnameValue("User"),
+                new UsernameValue("testuser"),
+                new EmailValue("test@example.com"),
                 new PasswordValue(
                     password_hash("password123", PASSWORD_BCRYPT),
                 ),
@@ -190,13 +189,7 @@ final class TournamentTestContext implements Context
         // NO eliminar GameRank, Rank, GameRole ni Game porque están en las migraciones
         // y son datos compartidos que se usan en múltiples tests
 
-        // Limpiar usuarios solo si no fueron creados por AuthTestContext
-        $this->entityManager
-            ->createQuery(
-                "DELETE FROM App\Contexts\Web\User\Domain\User u WHERE u.id = :userId",
-            )
-            ->setParameter("userId", "750e8400-e29b-41d4-a716-446655440002")
-            ->execute();
+        // NO eliminar usuario porque es compartido con AuthTestContext
 
         // Limpiar caché del EntityManager
         $this->entityManager->clear();

@@ -8,13 +8,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class TournamentRemoveTeamController extends ApiController
 {
-    public function __invoke(string $tournamentId, string $teamId): Response
-    {
-        $command = new TournamentRemoveTeamCommand($tournamentId, $teamId);
+    public function __invoke(
+        string $tournamentId,
+        string $teamId,
+        string $sessionId,
+    ): Response {
+        $command = new TournamentRemoveTeamCommand(
+            $tournamentId,
+            $teamId,
+            $sessionId,
+        );
 
         $this->commandBus->dispatch($command);
 
         return $this->successEmptyResponse();
     }
 }
-

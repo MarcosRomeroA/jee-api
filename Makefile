@@ -48,7 +48,13 @@ routes-player:
 
 behat: ## Run Behat tests
 	@echo "🧪 Running Behat tests..."
+ifdef tag
+	@docker exec jee_symfony vendor/bin/behat --tags=@$(tag)
+else ifdef ARGS
+	@docker exec jee_symfony vendor/bin/behat $(ARGS)
+else
 	@docker exec jee_symfony vendor/bin/behat
+endif
 
 unit: ## Run PHPUnit tests
 	@echo "🧪 Running PHPUnit tests..."
@@ -93,6 +99,7 @@ help:
 	@echo "  make routes           - Ver todas las rutas"
 	@echo "  make routes-player    - Ver rutas de Player"
 	@echo "  make behat            - Ejecutar tests de Behat"
+	@echo "  make behat tag=<tag>  - Ejecutar tests con un tag específico (ej: make behat tag=mercure)"
 	@echo "  make unit             - Ejecutar tests unitarios (PHPUnit)"
 	@echo "  make test             - Ejecutar todos los tests (Behat + PHPUnit)"
 	@echo "  make test-player      - Ejecutar tests de Player"
