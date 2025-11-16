@@ -163,6 +163,42 @@ final class DatabaseContext implements Context
                 );
 
                 echo "  ✓ Passwords actualizados correctamente\n";
+
+                // Asegurar que tengan email confirmado
+                $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
+                $expiresAt = (new \DateTimeImmutable())->modify('+24 hours')->format('Y-m-d H:i:s');
+
+                foreach ([TestUsers::USER1_ID, TestUsers::USER2_ID, TestUsers::USER3_ID] as $userId) {
+                    // Generar UUID válido
+                    $uuid = \sprintf(
+                        '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                        \random_int(0, 0xffff),
+                        \random_int(0, 0xffff),
+                        \random_int(0, 0xffff),
+                        \random_int(0, 0x0fff) | 0x4000,
+                        \random_int(0, 0x3fff) | 0x8000,
+                        \random_int(0, 0xffff),
+                        \random_int(0, 0xffff),
+                        \random_int(0, 0xffff)
+                    );
+
+                    $connection->executeStatement(
+                        "INSERT INTO email_confirmation (id, user_id, token, created_at, expires_at, confirmed_at)
+                         VALUES (:id, :user_id, :token, :created_at, :expires_at, :confirmed_at)
+                         ON DUPLICATE KEY UPDATE confirmed_at = :confirmed_at",
+                        [
+                            "id" => $uuid,
+                            "user_id" => $userId,
+                            "token" => \bin2hex(\random_bytes(32)),
+                            "created_at" => $now,
+                            "expires_at" => $expiresAt,
+                            "confirmed_at" => $now,
+                        ]
+                    );
+                }
+
+                echo "  ✓ Email confirmations verificadas\n";
+
                 $kernel->shutdown();
                 return;
             }
@@ -211,6 +247,41 @@ final class DatabaseContext implements Context
                 ]
             );
             echo "  ✓ USER3 creado: {" . TestUsers::USER3_EMAIL . "}\n";
+
+            // Crear confirmaciones de email para los 3 usuarios (ya confirmados)
+            $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
+            $expiresAt = (new \DateTimeImmutable())->modify('+24 hours')->format('Y-m-d H:i:s');
+
+            foreach ([TestUsers::USER1_ID, TestUsers::USER2_ID, TestUsers::USER3_ID] as $userId) {
+                // Generar UUID válido
+                $uuid = \sprintf(
+                    '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                    \random_int(0, 0xffff),
+                    \random_int(0, 0xffff),
+                    \random_int(0, 0xffff),
+                    \random_int(0, 0x0fff) | 0x4000,
+                    \random_int(0, 0x3fff) | 0x8000,
+                    \random_int(0, 0xffff),
+                    \random_int(0, 0xffff),
+                    \random_int(0, 0xffff)
+                );
+
+                $connection->executeStatement(
+                    "INSERT INTO email_confirmation (id, user_id, token, created_at, expires_at, confirmed_at)
+                     VALUES (:id, :user_id, :token, :created_at, :expires_at, :confirmed_at)
+                     ON DUPLICATE KEY UPDATE confirmed_at = :confirmed_at",
+                    [
+                        "id" => $uuid,
+                        "user_id" => $userId,
+                        "token" => \bin2hex(\random_bytes(32)),
+                        "created_at" => $now,
+                        "expires_at" => $expiresAt,
+                        "confirmed_at" => $now,
+                    ]
+                );
+            }
+
+            echo "  ✓ Email confirmations creadas para usuarios globales\n";
 
         } catch (\Exception $e) {
             echo "  ✗ Error creando usuarios globales: " . $e->getMessage() . "\n";
@@ -280,6 +351,62 @@ final class DatabaseContext implements Context
                 } catch (\Exception $e) {
                     // Ignorar si hay error
                 }
+            }
+        }
+    }
+
+    /**
+     * @Given the following email confirmations exist:
+     */
+    public function theFollowingEmailConfirmationsExist(TableNode $table): void
+    {
+        $connection = $this->entityManager->getConnection();
+
+        foreach ($table->getHash() as $row) {
+            // Generar UUID para el email confirmation
+            $uuid = \sprintf(
+                '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                \random_int(0, 0xffff),
+                \random_int(0, 0xffff),
+                \random_int(0, 0xffff),
+                \random_int(0, 0x0fff) | 0x4000,
+                \random_int(0, 0x3fff) | 0x8000,
+                \random_int(0, 0xffff),
+                \random_int(0, 0xffff),
+                \random_int(0, 0xffff)
+            );
+
+            $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
+            $expiresAt = isset($row['expires_at']) && $row['expires_at'] !== 'null'
+                ? $row['expires_at']
+                : (new \DateTimeImmutable())->modify('+24 hours')->format('Y-m-d H:i:s');
+
+            $confirmedAt = isset($row['confirmed_at']) && $row['confirmed_at'] !== 'null'
+                ? $row['confirmed_at']
+                : null;
+
+            try {
+                // Primero eliminar cualquier confirmación existente para este usuario
+                $connection->executeStatement(
+                    "DELETE FROM email_confirmation WHERE user_id = :user_id",
+                    ["user_id" => $row['user_id']]
+                );
+
+                // Insertar la nueva confirmación
+                $connection->executeStatement(
+                    "INSERT INTO email_confirmation (id, user_id, token, created_at, expires_at, confirmed_at)
+                     VALUES (:id, :user_id, :token, :created_at, :expires_at, :confirmed_at)",
+                    [
+                        "id" => $uuid,
+                        "user_id" => $row['user_id'],
+                        "token" => $row['token'],
+                        "created_at" => $now,
+                        "expires_at" => $expiresAt,
+                        "confirmed_at" => $confirmedAt,
+                    ]
+                );
+            } catch (\Exception $e) {
+                // Ignorar si hay error
             }
         }
     }

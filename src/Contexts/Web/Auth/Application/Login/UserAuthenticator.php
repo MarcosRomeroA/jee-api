@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Auth\Application\Login;
 
@@ -6,6 +8,8 @@ use App\Contexts\Shared\Domain\Exception\UnauthorizedException;
 use App\Contexts\Shared\Domain\Jwt\JwtGenerator;
 use App\Contexts\Shared\Infrastructure\Jwt\MercureJwtGenerator;
 use App\Contexts\Web\Auth\Application\Shared\LoginUserResponse;
+use App\Contexts\Web\Auth\Domain\Exception\EmailNotVerifiedException;
+use App\Contexts\Web\User\Domain\EmailConfirmationRepository;
 use App\Contexts\Web\User\Domain\Exception\UserNotFoundException;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
@@ -16,7 +20,9 @@ final readonly class UserAuthenticator
     public function __construct(
         private UserRepository $userRepository,
         private JwtGenerator $jwtGenerator,
-    ) {}
+        private EmailConfirmationRepository $emailConfirmationRepository,
+    ) {
+    }
 
     public function __invoke(
         EmailValue $email,
@@ -31,6 +37,13 @@ final readonly class UserAuthenticator
         } catch (UserNotFoundException $e) {
             // Don't reveal whether user exists or not - return generic unauthorized
             throw new UnauthorizedException();
+        }
+
+        // Check if email is verified
+        $emailConfirmation = $this->emailConfirmationRepository->findByUserId($user->getId());
+
+        if ($emailConfirmation === null || !$emailConfirmation->isConfirmed()) {
+            throw new EmailNotVerifiedException();
         }
 
         $token = $this->jwtGenerator->create([

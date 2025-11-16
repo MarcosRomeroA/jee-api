@@ -34,7 +34,7 @@ final class ApiContext extends RawMinkContext
      */
     public function iAmAuthenticatedAs(string $email, string $password): void
     {
-        $body = json_encode([
+        $body = \json_encode([
             "email" => $email,
             "password" => $password,
         ]);
@@ -46,12 +46,12 @@ final class ApiContext extends RawMinkContext
             $body,
         );
 
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
         // La respuesta tiene estructura {"data": {"id": "...", "token": "...", ...}}
         if (!isset($response["data"]["token"])) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Login failed. Response: %s",
                     $this->sessionHelper->getResponse(),
                 ),
@@ -105,11 +105,14 @@ final class ApiContext extends RawMinkContext
 
     /**
      * Replace variables in the format {variableName} with saved values
+     *
+     * @param string $text The text containing variables to replace
+     * @return string The text with variables replaced by their saved values
      */
     private function replaceVariables(string $text): string
     {
         foreach ($this->savedVariables as $key => $value) {
-            $text = str_replace("{" . $key . "}", $value, $text);
+            $text = \str_replace('{' . $key . '}', $value, $text);
         }
         return $text;
     }
@@ -131,7 +134,7 @@ final class ApiContext extends RawMinkContext
 
         if ($expected !== $actual) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "The outputs does not match!\n\n-- Expected:\n%s\n\n-- Actual:\n%s",
                     $expected,
                     $actual,
@@ -145,11 +148,11 @@ final class ApiContext extends RawMinkContext
      */
     public function theResponseShouldBeEmpty(): void
     {
-        $actual = trim($this->sessionHelper->getResponse());
+        $actual = \trim($this->sessionHelper->getResponse());
 
         if (!empty($actual)) {
             throw new RuntimeException(
-                sprintf("The outputs is not empty, Actual:\n%s", $actual),
+                \sprintf("The outputs is not empty, Actual:\n%s", $actual),
             );
         }
     }
@@ -159,7 +162,7 @@ final class ApiContext extends RawMinkContext
      */
     public function printApiResponse(): void
     {
-        print_r($this->sessionHelper->getResponse());
+        \print_r($this->sessionHelper->getResponse());
     }
 
     /**
@@ -167,7 +170,7 @@ final class ApiContext extends RawMinkContext
      */
     public function printResponseHeaders(): void
     {
-        print_r($this->sessionHelper->getResponseHeaders());
+        \print_r($this->sessionHelper->getResponseHeaders());
     }
 
     /**
@@ -181,7 +184,7 @@ final class ApiContext extends RawMinkContext
         ) {
             $responseContent = $this->minkSession->getPage()->getContent();
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "The status code <%s> does not match the expected <%s>\nResponse: %s",
                     $this->minkSession->getStatusCode(),
                     $expectedResponseCode,
@@ -196,37 +199,37 @@ final class ApiContext extends RawMinkContext
      */
     public function theResponseShouldContainPaginationStructure(): void
     {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON object");
         }
 
         // Verificar que exista el campo "data"
-        if (!array_key_exists("data", $response)) {
+        if (!\array_key_exists("data", $response)) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response does not contain required field 'data'. Response: %s",
-                    json_encode($response),
+                    \json_encode($response),
                 ),
             );
         }
 
-        if (!is_array($response["data"])) {
+        if (!\is_array($response["data"])) {
             throw new RuntimeException('The "data" field must be an array');
         }
 
         // Verificar que exista el campo "metadata"
-        if (!array_key_exists("metadata", $response)) {
+        if (!\array_key_exists("metadata", $response)) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response does not contain required field 'metadata'. Response: %s",
-                    json_encode($response),
+                    \json_encode($response),
                 ),
             );
         }
 
-        if (!is_array($response["metadata"])) {
+        if (!\is_array($response["metadata"])) {
             throw new RuntimeException(
                 'The "metadata" field must be an object',
             );
@@ -235,12 +238,12 @@ final class ApiContext extends RawMinkContext
         // Validar campos requeridos en metadata
         $requiredMetadataFields = ["limit", "offset", "total", "count"];
         foreach ($requiredMetadataFields as $field) {
-            if (!array_key_exists($field, $response["metadata"])) {
+            if (!\array_key_exists($field, $response["metadata"])) {
                 throw new RuntimeException(
-                    sprintf(
+                    \sprintf(
                         "Metadata does not contain required field '%s'. Response: %s",
                         $field,
-                        json_encode($response),
+                        \json_encode($response),
                     ),
                 );
             }
@@ -248,7 +251,7 @@ final class ApiContext extends RawMinkContext
 
         // Validar tipos de datos
         if (
-            !is_int($response["metadata"]["total"]) ||
+            !\is_int($response["metadata"]["total"]) ||
             $response["metadata"]["total"] < 0
         ) {
             throw new RuntimeException(
@@ -257,7 +260,7 @@ final class ApiContext extends RawMinkContext
         }
 
         if (
-            !is_int($response["metadata"]["count"]) ||
+            !\is_int($response["metadata"]["count"]) ||
             $response["metadata"]["count"] < 0
         ) {
             throw new RuntimeException(
@@ -266,7 +269,7 @@ final class ApiContext extends RawMinkContext
         }
 
         if (
-            !is_int($response["metadata"]["limit"]) ||
+            !\is_int($response["metadata"]["limit"]) ||
             $response["metadata"]["limit"] < 0
         ) {
             throw new RuntimeException(
@@ -275,7 +278,7 @@ final class ApiContext extends RawMinkContext
         }
 
         if (
-            !is_int($response["metadata"]["offset"]) ||
+            !\is_int($response["metadata"]["offset"]) ||
             $response["metadata"]["offset"] < 0
         ) {
             throw new RuntimeException(
@@ -289,25 +292,25 @@ final class ApiContext extends RawMinkContext
      */
     public function theResponseShouldHavePropertyAsArray(string $property): void
     {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON object");
         }
 
-        if (!array_key_exists($property, $response)) {
+        if (!\array_key_exists($property, $response)) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response does not contain property '%s'. Response: %s",
                     $property,
-                    json_encode($response),
+                    \json_encode($response),
                 ),
             );
         }
 
-        if (!is_array($response[$property])) {
+        if (!\is_array($response[$property])) {
             throw new RuntimeException(
-                sprintf("The '%s' property must be an array", $property),
+                \sprintf("The '%s' property must be an array", $property),
             );
         }
     }
@@ -317,29 +320,29 @@ final class ApiContext extends RawMinkContext
      */
     public function theResponseShouldHaveProperty(string $property): void
     {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON object");
         }
 
         // Si la propiedad está anidada dentro de "data", buscar allí primero
         if (
-            array_key_exists("data", $response) &&
-            is_array($response["data"])
+            \array_key_exists("data", $response) &&
+            \is_array($response["data"])
         ) {
-            if (array_key_exists($property, $response["data"])) {
+            if (\array_key_exists($property, $response["data"])) {
                 return;
             }
         }
 
         // Si no está en "data", buscar en el nivel raíz
-        if (!array_key_exists($property, $response)) {
+        if (!\array_key_exists($property, $response)) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response does not contain property '%s'. Response: %s",
                     $property,
-                    json_encode($response),
+                    \json_encode($response),
                 ),
             );
         }
@@ -362,9 +365,9 @@ final class ApiContext extends RawMinkContext
         string $property,
         string $value,
     ): void {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON object");
         }
 
@@ -373,36 +376,36 @@ final class ApiContext extends RawMinkContext
 
         // Si la propiedad está anidada dentro de "data", buscar allí primero
         if (
-            array_key_exists("data", $response) &&
-            is_array($response["data"])
+            \array_key_exists("data", $response) &&
+            \is_array($response["data"])
         ) {
-            if (array_key_exists($property, $response["data"])) {
-                $actualValue = is_string($response["data"][$property])
+            if (\array_key_exists($property, $response["data"])) {
+                $actualValue = \is_string($response["data"][$property])
                     ? $response["data"][$property]
-                    : json_encode($response["data"][$property]);
+                    : \json_encode($response["data"][$property]);
                 $found = true;
             }
         }
 
         // Si no está en "data", buscar en el nivel raíz
         if (!$found) {
-            if (!array_key_exists($property, $response)) {
+            if (!\array_key_exists($property, $response)) {
                 throw new RuntimeException(
-                    sprintf(
+                    \sprintf(
                         "Response does not contain property '%s'. Response: %s",
                         $property,
-                        json_encode($response),
+                        \json_encode($response),
                     ),
                 );
             }
-            $actualValue = is_string($response[$property])
+            $actualValue = \is_string($response[$property])
                 ? $response[$property]
-                : json_encode($response[$property]);
+                : \json_encode($response[$property]);
         }
 
         if ($actualValue !== $value) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "The value of property '%s' is '%s', but expected '%s'",
                     $property,
                     $actualValue,
@@ -417,9 +420,9 @@ final class ApiContext extends RawMinkContext
      */
     public function iSaveThePropertyAs(string $property, string $variable): void
     {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON object");
         }
 
@@ -428,27 +431,27 @@ final class ApiContext extends RawMinkContext
 
         // Si la propiedad está anidada dentro de "data", buscar allí primero
         if (
-            array_key_exists("data", $response) &&
-            is_array($response["data"])
+            \array_key_exists("data", $response) &&
+            \is_array($response["data"])
         ) {
-            if (array_key_exists($property, $response["data"])) {
+            if (\array_key_exists($property, $response["data"])) {
                 $value = $response["data"][$property];
                 $found = true;
             }
         }
 
         // Si no está en "data", buscar en el nivel raíz
-        if (!$found && array_key_exists($property, $response)) {
+        if (!$found && \array_key_exists($property, $response)) {
             $value = $response[$property];
             $found = true;
         }
 
         if (!$found) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response does not contain property '%s'. Response: %s",
                     $property,
-                    json_encode($response),
+                    \json_encode($response),
                 ),
             );
         }
@@ -464,44 +467,44 @@ final class ApiContext extends RawMinkContext
         string $property,
         string $value,
     ): void {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON object");
         }
 
-        if (!array_key_exists("metadata", $response)) {
+        if (!\array_key_exists("metadata", $response)) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response does not contain 'metadata' field. Response: %s",
-                    json_encode($response),
+                    \json_encode($response),
                 ),
             );
         }
 
-        if (!is_array($response["metadata"])) {
+        if (!\is_array($response["metadata"])) {
             throw new RuntimeException(
                 'The "metadata" field must be an object',
             );
         }
 
-        if (!array_key_exists($property, $response["metadata"])) {
+        if (!\array_key_exists($property, $response["metadata"])) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Metadata does not contain property '%s'. Response: %s",
                     $property,
-                    json_encode($response),
+                    \json_encode($response),
                 ),
             );
         }
 
-        $actualValue = is_string($response["metadata"][$property])
+        $actualValue = \is_string($response["metadata"][$property])
             ? $response["metadata"][$property]
-            : json_encode($response["metadata"][$property]);
+            : \json_encode($response["metadata"][$property]);
 
         if ($actualValue !== $value) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "The value of metadata property '%s' is '%s', but expected '%s'",
                     $property,
                     $actualValue,
@@ -516,29 +519,29 @@ final class ApiContext extends RawMinkContext
      */
     public function theResponseDataShouldContainUserWithUsername(string $username): void
     {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON object");
         }
 
-        if (!array_key_exists("data", $response)) {
+        if (!\array_key_exists("data", $response)) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response does not contain 'data' field. Response: %s",
-                    json_encode($response),
+                    \json_encode($response),
                 ),
             );
         }
 
-        if (!is_array($response["data"])) {
+        if (!\is_array($response["data"])) {
             throw new RuntimeException('The "data" field must be an array');
         }
 
         // Buscar el usuario con el username especificado
         $found = false;
         foreach ($response["data"] as $user) {
-            if (!is_array($user)) {
+            if (!\is_array($user)) {
                 continue;
             }
 
@@ -550,10 +553,10 @@ final class ApiContext extends RawMinkContext
 
         if (!$found) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "User with username '%s' not found in response data. Response: %s",
                     $username,
-                    json_encode($response["data"]),
+                    \json_encode($response["data"]),
                 ),
             );
         }
@@ -564,11 +567,11 @@ final class ApiContext extends RawMinkContext
      */
     public function theResponseShouldBeAValidJsonArray(): void
     {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response is not a valid JSON array. Response: %s",
                     $this->sessionHelper->getResponse(),
                 ),
@@ -581,7 +584,7 @@ final class ApiContext extends RawMinkContext
         }
 
         // Verificar que sea un array indexado (no asociativo)
-        if (array_keys($response) !== range(0, count($response) - 1)) {
+        if (\array_keys($response) !== \range(0, \count($response) - 1)) {
             throw new RuntimeException(
                 "Response is a JSON object, not an array",
             );
@@ -593,17 +596,17 @@ final class ApiContext extends RawMinkContext
      */
     public function theResponseShouldHaveAtLeastItems(int $count): void
     {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON array");
         }
 
-        $actualCount = count($response);
+        $actualCount = \count($response);
 
         if ($actualCount < $count) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response has %d items, expected at least %d items",
                     $actualCount,
                     $count,
@@ -617,17 +620,17 @@ final class ApiContext extends RawMinkContext
      */
     public function theResponseShouldHaveItems(int $count): void
     {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON array");
         }
 
-        $actualCount = count($response);
+        $actualCount = \count($response);
 
         if ($actualCount !== $count) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response has %d items, expected exactly %d items",
                     $actualCount,
                     $count,
@@ -641,11 +644,11 @@ final class ApiContext extends RawMinkContext
      */
     public function theResponseShouldBeAnArray(): void
     {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response is not an array. Response: %s",
                     $this->sessionHelper->getResponse(),
                 ),
@@ -658,11 +661,11 @@ final class ApiContext extends RawMinkContext
      */
     public function theResponseShouldHaveAProperty(string $property): void
     {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
         if (!isset($response[$property])) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Response does not have property '%s'. Response: %s",
                     $property,
                     $this->sessionHelper->getResponse(),
@@ -678,25 +681,25 @@ final class ApiContext extends RawMinkContext
         string $property,
         int $count,
     ): void {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
         if (!isset($response[$property])) {
             throw new RuntimeException(
-                sprintf("Property '%s' not found in response", $property),
+                \sprintf("Property '%s' not found in response", $property),
             );
         }
 
-        if (!is_array($response[$property])) {
+        if (!\is_array($response[$property])) {
             throw new RuntimeException(
-                sprintf("Property '%s' is not an array", $property),
+                \sprintf("Property '%s' is not an array", $property),
             );
         }
 
-        $actualCount = count($response[$property]);
+        $actualCount = \count($response[$property]);
 
         if ($actualCount !== $count) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "Property '%s' has %d items, expected exactly %d items",
                     $property,
                     $actualCount,
@@ -713,26 +716,26 @@ final class ApiContext extends RawMinkContext
         string $property,
         string $properties,
     ): void {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
         if (!isset($response[$property])) {
             throw new RuntimeException(
-                sprintf("Property '%s' not found in response", $property),
+                \sprintf("Property '%s' not found in response", $property),
             );
         }
 
-        if (!is_array($response[$property]) || empty($response[$property])) {
+        if (!\is_array($response[$property]) || empty($response[$property])) {
             throw new RuntimeException(
-                sprintf("Property '%s' is not a non-empty array", $property),
+                \sprintf("Property '%s' is not a non-empty array", $property),
             );
         }
 
-        $expectedProperties = array_map("trim", explode(",", $properties));
+        $expectedProperties = \array_map("trim", \explode(",", $properties));
 
         foreach ($response[$property] as $index => $item) {
-            if (!is_array($item)) {
+            if (!\is_array($item)) {
                 throw new RuntimeException(
-                    sprintf(
+                    \sprintf(
                         "Item at index %d in property '%s' is not an object",
                         $index,
                         $property,
@@ -741,14 +744,14 @@ final class ApiContext extends RawMinkContext
             }
 
             foreach ($expectedProperties as $expectedProperty) {
-                if (!array_key_exists($expectedProperty, $item)) {
+                if (!\array_key_exists($expectedProperty, $item)) {
                     throw new RuntimeException(
-                        sprintf(
+                        \sprintf(
                             "Item at index %d in property '%s' does not have property '%s'. Item: %s",
                             $index,
                             $property,
                             $expectedProperty,
-                            json_encode($item),
+                            \json_encode($item),
                         ),
                     );
                 }
@@ -772,7 +775,7 @@ final class ApiContext extends RawMinkContext
 
         if ($expected !== $actual) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "The JSON responses do not match!\n\n-- Expected:\n%s\n\n-- Actual:\n%s",
                     $expected,
                     $actual,
@@ -786,25 +789,25 @@ final class ApiContext extends RawMinkContext
      */
     public function theJsonNodeShouldHaveElement(string $node, int $count): void
     {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON");
         }
 
         $value = $this->getJsonNodeValue($response, $node);
 
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             throw new RuntimeException(
-                sprintf("JSON node '%s' is not an array", $node),
+                \sprintf("JSON node '%s' is not an array", $node),
             );
         }
 
-        $actualCount = count($value);
+        $actualCount = \count($value);
 
         if ($actualCount !== $count) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "JSON node '%s' has %d elements, expected exactly %d element(s)",
                     $node,
                     $actualCount,
@@ -832,9 +835,9 @@ final class ApiContext extends RawMinkContext
         string $node,
         string $value,
     ): void {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON");
         }
 
@@ -845,14 +848,24 @@ final class ApiContext extends RawMinkContext
 
         if ($actualValue !== $expectedValue) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     "JSON node '%s' has value '%s', expected '%s'",
                     $node,
-                    json_encode($actualValue),
-                    json_encode($expectedValue),
+                    \json_encode($actualValue),
+                    \json_encode($expectedValue),
                 ),
             );
         }
+    }
+
+    /**
+     * @Then the JSON response should have :node with value :value
+     */
+    public function theJsonResponseShouldHaveWithValue(
+        string $node,
+        string $value,
+    ): void {
+        $this->theJsonNodeShouldBeEqualTo($node, $value);
     }
 
     /**
@@ -862,9 +875,9 @@ final class ApiContext extends RawMinkContext
         string $node,
         string $variable,
     ): void {
-        $response = json_decode($this->sessionHelper->getResponse(), true);
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
 
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             throw new RuntimeException("Response is not a valid JSON");
         }
 
@@ -876,21 +889,26 @@ final class ApiContext extends RawMinkContext
 
     /**
      * Get a value from JSON response using dot notation (e.g., "data.user.id" or "data[0].name")
+     *
+     * @param array $data The JSON response data as an associative array
+     * @param string $path The path to the desired value using dot notation
+     * @return mixed The value found at the specified path
+     * @throws RuntimeException If the path is not found in the data
      */
     private function getJsonNodeValue(array $data, string $path): mixed
     {
-        $keys = explode(".", $path);
+        $keys = \explode(".", $path);
         $current = $data;
 
         foreach ($keys as $key) {
             // Handle array access like "data[0]"
-            if (preg_match('/^(.+)\[(\d+)\]$/', $key, $matches)) {
+            if (\preg_match('/^(.+)\[(\d+)\]$/', $key, $matches)) {
                 $arrayKey = $matches[1];
                 $index = (int) $matches[2];
 
                 if (!isset($current[$arrayKey])) {
                     throw new RuntimeException(
-                        sprintf(
+                        \sprintf(
                             "JSON node '%s' not found in path '%s'",
                             $arrayKey,
                             $path,
@@ -898,15 +916,15 @@ final class ApiContext extends RawMinkContext
                     );
                 }
 
-                if (!is_array($current[$arrayKey])) {
+                if (!\is_array($current[$arrayKey])) {
                     throw new RuntimeException(
-                        sprintf("JSON node '%s' is not an array", $arrayKey),
+                        \sprintf("JSON node '%s' is not an array", $arrayKey),
                     );
                 }
 
                 if (!isset($current[$arrayKey][$index])) {
                     throw new RuntimeException(
-                        sprintf(
+                        \sprintf(
                             "Index %d not found in JSON node '%s'",
                             $index,
                             $arrayKey,
@@ -918,7 +936,7 @@ final class ApiContext extends RawMinkContext
             } else {
                 if (!isset($current[$key])) {
                     throw new RuntimeException(
-                        sprintf(
+                        \sprintf(
                             "JSON node '%s' not found in path '%s'",
                             $key,
                             $path,
@@ -935,6 +953,9 @@ final class ApiContext extends RawMinkContext
 
     /**
      * Convert string value to proper type (e.g., "true" -> true, "123" -> 123)
+     *
+     * @param string $value The string value to convert
+     * @return mixed The converted value (bool, int, float, string, or null)
      */
     private function convertValue(string $value): mixed
     {
@@ -952,18 +973,24 @@ final class ApiContext extends RawMinkContext
         }
 
         // Handle numeric values
-        if (is_numeric($value)) {
-            return str_contains($value, ".") ? (float) $value : (int) $value;
+        if (\is_numeric($value)) {
+            return \str_contains($value, ".") ? (float) $value : (int) $value;
         }
 
         // Return as string
         return $value;
     }
 
+    /**
+     * Sanitize and format JSON output for comparison
+     *
+     * @param string $output The raw JSON output to sanitize
+     * @return false|string The sanitized JSON string or false on failure
+     */
     private function sanitizeOutput(string $output): false|string
     {
-        return json_encode(
-            json_decode(trim($output), true, 512, JSON_THROW_ON_ERROR),
+        return \json_encode(
+            \json_decode(\trim($output), true, 512, JSON_THROW_ON_ERROR),
             JSON_THROW_ON_ERROR,
         );
     }
@@ -977,9 +1004,9 @@ final class ApiContext extends RawMinkContext
         string $status
     ): void {
         $responseContent = $this->sessionHelper->getResponse();
-        $response = json_decode($responseContent, true);
+        $response = \json_decode($responseContent, true);
 
-        if (!isset($response['requests']) || !is_array($response['requests'])) {
+        if (!isset($response['requests']) || !\is_array($response['requests'])) {
             throw new RuntimeException('Response does not contain a "requests" array');
         }
 
@@ -1000,7 +1027,7 @@ final class ApiContext extends RawMinkContext
 
         if (!$found) {
             throw new RuntimeException(
-                sprintf(
+                \sprintf(
                     'Could not find a request for team "%s" by player "%s" with status "%s" in the response',
                     $teamName,
                     $playerNickname,

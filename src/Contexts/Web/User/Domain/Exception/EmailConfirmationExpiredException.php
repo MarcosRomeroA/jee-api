@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Domain\Exception;
 
@@ -9,10 +11,9 @@ final class EmailConfirmationExpiredException extends ApiException
 {
     public function __construct(
         string $message = "Email confirmation token has expired",
-        string $uniqueCode = "email_confirmation_expired",
+        string $uniqueCode = "email_confirmation_expired_exception",
         int $statusCode = Response::HTTP_BAD_REQUEST
     ) {
         parent::__construct($message, $uniqueCode, $statusCode);
     }
 }
-

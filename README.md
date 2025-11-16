@@ -704,11 +704,19 @@ Create domain exception if needed:
 // src/Contexts/Web/User/Domain/Exception/InvalidEmailException.php
 <?php declare(strict_types=1);
 namespace App\Contexts\Web\User\Domain\Exception;
-final class InvalidEmailException extends \DomainException
+
+use App\Contexts\Shared\Infrastructure\Symfony\ApiException;
+use Symfony\Component\HttpFoundation\Response;
+
+final class InvalidEmailException extends ApiException
 {
     public function __construct()
     {
-        parent::__construct('Invalid email format');
+        parent::__construct(
+            'Invalid email format',
+            'invalid_email_exception',
+            Response::HTTP_BAD_REQUEST
+        );
     }
 }
 ```

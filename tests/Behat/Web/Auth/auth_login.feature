@@ -65,3 +65,16 @@ Feature: Login User
       }
       """
     Then the response status code should be 422
+
+  Scenario: Login with unverified email should fail
+    Given the following users exist:
+      | id                                   | firstname  | lastname | username     | email               | password    |
+      | 650e8400-e29b-41d4-a716-446655440099 | Unverified | User     | unverified99 | unverified@test.com | password123 |
+    When I send a POST request to "/api/login" with body:
+      """
+      {
+        "email": "unverified@test.com",
+        "password": "password123"
+      }
+      """
+    Then the response status code should be 403

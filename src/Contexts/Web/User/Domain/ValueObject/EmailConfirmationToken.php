@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Domain\ValueObject;
 
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Embeddable]
-final readonly class EmailConfirmationToken
+final class EmailConfirmationToken
 {
     #[ORM\Column(type: 'string', length: 64)]
     private string $token;
@@ -42,4 +44,3 @@ final readonly class EmailConfirmationToken
         return $this->token === $other->token;
     }
 }
-

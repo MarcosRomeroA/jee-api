@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\SendEmailConfirmation;
 
@@ -45,7 +47,7 @@ final class EmailConfirmationSender
 
         // Enviar email
         $email = new Email(
-            $user->email()->value(),
+            $user->getEmail()->value(),
             'Confirma tu Email - Juga en Equipo',
             $this->buildEmailHtml($token),
             $this->buildEmailText($token)
@@ -56,8 +58,8 @@ final class EmailConfirmationSender
 
     private function buildEmailHtml(EmailConfirmationToken $token): string
     {
-        $confirmationUrl = sprintf(
-            '%s/auth/confirm-email/%s',
+        $confirmationUrl = \sprintf(
+            '%s/api/auth/confirm-email/%s',
             $this->appUrl,
             $token->value()
         );
@@ -69,25 +71,24 @@ final class EmailConfirmationSender
 
     private function buildEmailText(EmailConfirmationToken $token): string
     {
-        $confirmationUrl = sprintf(
-            '%s/auth/confirm-email/%s',
+        $confirmationUrl = \sprintf(
+            '%s/api/auth/confirm-email/%s',
             $this->appUrl,
             $token->value()
         );
 
         return <<<TEXT
         Bienvenido a Juga en Equipo!
-        
+
         Para confirmar tu email, haz clic en el siguiente enlace:
         {$confirmationUrl}
-        
+
         Este enlace expirará en 24 horas.
-        
+
         Si no solicitaste este registro, puedes ignorar este email.
-        
+
         --
         Juga en Equipo
         TEXT;
     }
 }
-

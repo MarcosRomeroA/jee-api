@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\Create;
 
@@ -18,7 +20,8 @@ final readonly class UserCreator
     public function __construct(
         private UserRepository $userRepository,
         private EventBus $bus,
-    ) {}
+    ) {
+    }
 
     public function __invoke(
         Uuid $id,
@@ -49,6 +52,9 @@ final readonly class UserCreator
 
             // Validar que no exista otro usuario con el mismo username
             $this->userRepository->checkIfUsernameExists($username);
+
+            // Validar que no exista otro usuario con el mismo email
+            $this->userRepository->checkIfEmailExists($email);
 
             $user = User::create(
                 $id,

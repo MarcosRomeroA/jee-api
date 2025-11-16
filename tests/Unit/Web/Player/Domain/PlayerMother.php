@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Web\Player\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\Game\Domain\GameRank;
-use App\Contexts\Web\Game\Domain\GameRole;
-use App\Contexts\Web\Game\Domain\Role;
 use App\Contexts\Web\Player\Domain\Player;
 use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
 use App\Contexts\Web\User\Domain\User;

@@ -31,7 +31,8 @@ Feature: Create User
         "confirmationPassword": "SecurePassword123!"
       }
       """
-    Then the response status code should be 500
+    Then the response status code should be 400
+    And the JSON response should have "code" with value "email_already_exists_exception"
 
   Scenario: Create user with missing required fields
     Given I send a PUT request to "/api/user/550e8400-e29b-41d4-a716-446655440702" with body:

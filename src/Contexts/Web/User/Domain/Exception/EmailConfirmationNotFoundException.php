@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Domain\Exception;
 
@@ -9,10 +11,9 @@ final class EmailConfirmationNotFoundException extends ApiException
 {
     public function __construct(
         string $message = "Email confirmation not found",
-        string $uniqueCode = "email_confirmation_not_found",
+        string $uniqueCode = "email_confirmation_not_found_exception",
         int $statusCode = Response::HTTP_NOT_FOUND
     ) {
         parent::__construct($message, $uniqueCode, $statusCode);
     }
 }
-

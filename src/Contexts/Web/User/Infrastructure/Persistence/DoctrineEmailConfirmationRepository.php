@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Infrastructure\Persistence;
 
@@ -9,9 +11,7 @@ use App\Contexts\Web\User\Domain\ValueObject\EmailConfirmationToken;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineEmailConfirmationRepository
-    extends ServiceEntityRepository
-    implements EmailConfirmationRepository
+final class DoctrineEmailConfirmationRepository extends ServiceEntityRepository implements EmailConfirmationRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -32,7 +32,11 @@ final class DoctrineEmailConfirmationRepository
     public function findByToken(
         EmailConfirmationToken $token,
     ): ?EmailConfirmation {
-        return $this->findOneBy(["token.token" => $token->value()]);
+        return $this->createQueryBuilder('ec')
+            ->where('ec.token.token = :token')
+            ->setParameter('token', $token->value())
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     public function findByUserId(Uuid $userId): ?EmailConfirmation
