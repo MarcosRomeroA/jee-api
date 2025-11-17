@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Game\Application;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Game\Application\Search\GameRanksSearcher;
 use App\Contexts\Web\Game\Application\Search\SearchGameRanksQuery;
 use App\Contexts\Web\Game\Application\Search\SearchGameRanksQueryHandler;
 use App\Contexts\Web\Game\Domain\GameRankRepository;
@@ -18,7 +21,8 @@ final class SearchGameRanksQueryHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = $this->createMock(GameRankRepository::class);
-        $this->handler = new SearchGameRanksQueryHandler($this->repository);
+        $searcher = new GameRanksSearcher($this->repository);
+        $this->handler = new SearchGameRanksQueryHandler($searcher);
     }
 
     public function testItShouldSearchGameRanks(): void

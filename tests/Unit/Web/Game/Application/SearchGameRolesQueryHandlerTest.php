@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Game\Application;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Game\Application\Search\GameRolesSearcher;
 use App\Contexts\Web\Game\Application\Search\SearchGameRolesQuery;
 use App\Contexts\Web\Game\Application\Search\SearchGameRolesQueryHandler;
 use App\Contexts\Web\Game\Domain\GameRoleRepository;
@@ -18,7 +21,8 @@ final class SearchGameRolesQueryHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = $this->createMock(GameRoleRepository::class);
-        $this->handler = new SearchGameRolesQueryHandler($this->repository);
+        $searcher = new GameRolesSearcher($this->repository);
+        $this->handler = new SearchGameRolesQueryHandler($searcher);
     }
 
     public function testItShouldSearchGameRoles(): void

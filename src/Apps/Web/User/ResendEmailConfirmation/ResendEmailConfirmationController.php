@@ -1,31 +1,25 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\User\ResendEmailConfirmation;
 
-use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Apps\Web\User\ResendEmailConfirmation\Request\ResendEmailConfirmationRequest;
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\User\Application\ResendEmailConfirmation\EmailConfirmationResender;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 final class ResendEmailConfirmationController extends ApiController
 {
-    public function __construct(
-        private readonly EmailConfirmationResender $emailConfirmationResender
-    ) {
-    }
-
-    #[Route('/api/auth/resend-confirmation', name: 'resend_email_confirmation', methods: ['POST'])]
     public function __invoke(Request $request): Response
     {
-        $data = json_decode($request->getContent(), true);
+        $resendRequest = ResendEmailConfirmationRequest::fromHttp($request);
 
-        $userId = new Uuid($data['userId'] ?? '');
+        $this->validateRequest($resendRequest);
 
-        $this->emailConfirmationResender->resend($userId);
+        $command = $resendRequest->toCommand();
+        $this->dispatch($command);
 
-        return new Response('', Response::HTTP_OK);
+        return $this->successEmptyResponse();
     }
 }
-

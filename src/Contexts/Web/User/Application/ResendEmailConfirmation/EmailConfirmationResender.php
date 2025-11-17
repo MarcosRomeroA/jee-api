@@ -25,7 +25,7 @@ final class EmailConfirmationResender
     ) {
     }
 
-    public function resend(Uuid $userId): void
+    public function __invoke(Uuid $userId): void
     {
         $user = $this->userRepository->findById($userId);
 
