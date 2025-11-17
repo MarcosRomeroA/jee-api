@@ -11,6 +11,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<PostResource>
+ *
+ * @method PostResource|null find($id, $lockMode = null, $lockVersion = null)
+ * @method PostResource|null findOneBy(array $criteria, array $orderBy = null)
+ * @method PostResource[]    findAll()
+ * @method PostResource[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 final class MysqlPostResourceRepository extends ServiceEntityRepository implements PostResourceRepository
 {

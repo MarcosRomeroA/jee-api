@@ -6,7 +6,6 @@ namespace App\Contexts\Web\User\Application\Create;
 
 use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\User\Domain\Exception\UsernameAlreadyExistsException;
 use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Domain\ValueObject\EmailValue;

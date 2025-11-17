@@ -15,6 +15,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<TeamGame>
+ *
+ * @method TeamGame|null find($id, $lockMode = null, $lockVersion = null)
+ * @method TeamGame|null findOneBy(array $criteria, array $orderBy = null)
+ * @method TeamGame[]    findAll()
+ * @method TeamGame[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 final class MysqlTeamGameRepository extends ServiceEntityRepository implements TeamGameRepository
 {

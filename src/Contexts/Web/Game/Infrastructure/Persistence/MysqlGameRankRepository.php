@@ -13,6 +13,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<GameRank>
+ *
+ * @method GameRank|null find($id, $lockMode = null, $lockVersion = null)
+ * @method GameRank|null findOneBy(array $criteria, array $orderBy = null)
+ * @method GameRank[]    findAll()
+ * @method GameRank[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 final class MysqlGameRankRepository extends ServiceEntityRepository implements GameRankRepository
 {
