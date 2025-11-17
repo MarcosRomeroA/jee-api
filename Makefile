@@ -1,4 +1,4 @@
-.PHONY: dev build-dev build start stop down exec logs clean-cache migration migrate test behat unit test-player
+.PHONY: dev build-dev build start stop down exec logs clean-cache migration migrate test behat unit test-player messenger-retry messenger-stats messenger-consume
 
 dev:
 	@docker compose -f compose.yaml -f compose.dev.yaml up -d
@@ -89,26 +89,80 @@ deploy:
 	make start
 	make clean-cache
 
+messenger-stats: ## Ver estadísticas de colas de RabbitMQ
+	@echo "📊 RabbitMQ Queue Statistics"
+	@echo "============================"
+	@docker compose exec -T rabbitmq rabbitmqctl list_queues name messages messages_ready messages_unacknowledged
+
+messenger-retry-low: ## Reintentar todos los mensajes fallidos de low_priority
+	@echo "🔄 Retrying all failed messages from low_priority queue..."
+	@docker compose exec -T symfony php bin/console messenger:stop-workers
+	@sleep 2
+	@docker compose exec -T symfony php bin/console messenger:consume failed_low_priority --limit=100 --time-limit=60 -vv
+	@docker compose exec -T symfony supervisorctl restart messenger-consume-low-priority:messenger-consume-low-priority_00
+	@echo "✅ Failed messages processed. Worker restarted."
+
+messenger-retry-high: ## Reintentar todos los mensajes fallidos de high_priority
+	@echo "🔄 Retrying all failed messages from high_priority queue..."
+	@docker compose exec -T symfony php bin/console messenger:stop-workers
+	@sleep 2
+	@docker compose exec -T symfony php bin/console messenger:consume failed_high_priority --limit=100 --time-limit=60 -vv
+	@docker compose exec -T symfony supervisorctl restart messenger-consume-high-priority:messenger-consume-high-priority_00
+	@echo "✅ Failed messages processed. Worker restarted."
+
+messenger-consume-low: ## Consumir manualmente mensajes de low_priority (útil para debugging)
+	@docker compose exec -T symfony php bin/console messenger:consume low_priority -vv
+
+messenger-consume-high: ## Consumir manualmente mensajes de high_priority (útil para debugging)
+	@docker compose exec -T symfony php bin/console messenger:consume high_priority -vv
+
+messenger-worker-status: ## Ver estado de los workers de Supervisor
+	@docker compose exec -T symfony supervisorctl status
+
+messenger-worker-restart: ## Reiniciar todos los workers de Messenger
+	@echo "🔄 Restarting all Messenger workers..."
+	@docker compose exec -T symfony supervisorctl restart all
+	@echo "✅ All workers restarted."
+
+messenger-worker-logs: ## Ver logs de los workers
+	@echo "📋 Low Priority Worker Logs:"
+	@echo "============================"
+	@docker compose exec -T symfony tail -50 /var/www/html/var/log/messenger_low_priority.log
+	@echo ""
+	@echo "📋 Low Priority Error Logs:"
+	@echo "============================"
+	@docker compose exec -T symfony tail -50 /var/www/html/var/log/messenger_low_priority_error.log
+
 help:
 	@echo "Comandos disponibles:"
+	@echo ""
+	@echo "Docker & App:"
 	@echo "  make dev              - Iniciar contenedores en modo desarrollo"
 	@echo "  make build-dev        - Reconstruir imagen de desarrollo"
 	@echo "  make stop             - Detener contenedores"
 	@echo "  make down             - Detener y eliminar contenedores"
 	@echo "  make exec             - Entrar al contenedor de Symfony"
 	@echo "  make logs             - Ver logs en tiempo real"
-	@echo "  make logs-test        - Ver logs de tests"
 	@echo "  make clean-cache      - Limpiar cache de Symfony"
+	@echo ""
+	@echo "Database:"
 	@echo "  make migration-diff   - Generar nueva migración"
 	@echo "  make migrate          - Ejecutar migraciones (dev)"
 	@echo "  make migrate-test     - Ejecutar migraciones (test)"
-	@echo "  make routes           - Ver todas las rutas"
-	@echo "  make routes-player    - Ver rutas de Player"
+	@echo ""
+	@echo "Tests:"
 	@echo "  make behat            - Ejecutar tests de Behat"
-	@echo "  make behat tag=<tag>  - Ejecutar tests con un tag específico (ej: make behat tag=mercure)"
+	@echo "  make behat tag=<tag>  - Ejecutar tests con un tag específico"
 	@echo "  make unit             - Ejecutar tests unitarios (PHPUnit)"
-	@echo "  make test             - Ejecutar todos los tests (Behat + PHPUnit)"
-	@echo "  make test-player      - Ejecutar tests de Player"
-	@echo "  make test-verbose     - Ejecutar tests con verbose"
-	@echo "  make setup            - Setup completo + tests"
+	@echo "  make test             - Ejecutar todos los tests"
+	@echo ""
+	@echo "Messenger & RabbitMQ:"
+	@echo "  make messenger-stats           - Ver estadísticas de colas"
+	@echo "  make messenger-retry-low       - Reintentar mensajes fallidos (low priority)"
+	@echo "  make messenger-retry-high      - Reintentar mensajes fallidos (high priority)"
+	@echo "  make messenger-worker-status   - Ver estado de workers"
+	@echo "  make messenger-worker-restart  - Reiniciar todos los workers"
+	@echo "  make messenger-worker-logs     - Ver logs de workers"
+	@echo "  make messenger-consume-low     - Consumir manualmente (debugging)"
+	@echo ""
 	@echo "  make help             - Mostrar esta ayuda"

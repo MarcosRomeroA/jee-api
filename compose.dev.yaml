@@ -1,66 +1,66 @@
 services:
-  symfony:
-    volumes:
-      - .:/var/www/html
-      - /var/www/html/vendor
-    ports:
-      - "8200:80"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    symfony:
+        volumes:
+            - .:/var/www/html
+            - /var/www/html/vendor
+        ports:
+            - "8200:80"
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
 
-  mariadb:
-    ports:
-      - "3336:3306"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    mariadb:
+        ports:
+            - "3336:3306"
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
 
-  traefik:
-    # Deshabilitar en desarrollo (usamos puertos directos)
-    profiles:
-      - disabled
+    traefik:
+        # Deshabilitar en desarrollo (usamos puertos directos)
+        profiles:
+            - disabled
 
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: jee_mailpit
-    restart: unless-stopped
-    volumes:
-      - ./data/mailpit:/data
-    ports:
-      - "8025:8025"
-      - "1025:1025"
-    environment:
-      MP_DATABASE: /data/mailpit.db
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
-    networks:
-      - internal
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    mailpit:
+        image: axllent/mailpit:latest
+        container_name: jee_mailpit
+        restart: unless-stopped
+        volumes:
+            - ./data/mailpit:/data
+        ports:
+            - "8025:8025"
+            - "1025:1025"
+        environment:
+            MP_DATABASE: /data/mailpit.db
+            MP_SMTP_AUTH_ACCEPT_ANY: 1
+            MP_SMTP_AUTH_ALLOW_INSECURE: 1
+        networks:
+            - internal
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
 
-  mercure:
-    ports:
-      - "9090:80"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    mercure:
+        ports:
+            - "9090:80"
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
 
-  rabbitmq:
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    rabbitmq:
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"

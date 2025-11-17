@@ -1,121 +1,131 @@
 parameters:
 
 services:
-  _defaults:
-    autowire: true
-    autoconfigure: true
+    _defaults:
+        autowire: true
+        autoconfigure: true
 
-  App\:
-    resource: "../src/"
-    exclude:
-      - "../src/Kernel.php"
+    App\:
+        resource: "../src/"
+        exclude:
+            - "../src/Kernel.php"
 
-  App\Contexts\Shared\Infrastructure\Symfony\ExceptionListener:
-    tags:
-      - { name: "kernel.event_listener", event: "kernel.exception" }
+    App\Contexts\Shared\Infrastructure\Symfony\ExceptionListener:
+        tags:
+            - { name: "kernel.event_listener", event: "kernel.exception" }
 
-  App\Contexts\Shared\Infrastructure\Symfony\EventListener\ValidationExceptionListener:
-    tags:
-      - {
-          name: "kernel.event_listener",
-          event: "kernel.exception",
-          priority: 10,
-        }
+    App\Contexts\Shared\Infrastructure\Symfony\EventListener\ValidationExceptionListener:
+        tags:
+            - {
+                  name: "kernel.event_listener",
+                  event: "kernel.exception",
+                  priority: 10,
+              }
 
-  App\Contexts\Shared\Infrastructure\Symfony\JwtAuthMiddleware:
-    tags:
-      - {
-          name: kernel.event_listener,
-          event: kernel.request,
-          method: onKernelRequest,
-        }
+    App\Contexts\Shared\Infrastructure\Symfony\JwtAuthMiddleware:
+        tags:
+            - {
+                  name: kernel.event_listener,
+                  event: kernel.request,
+                  method: onKernelRequest,
+              }
 
-  # Configure
-  _instanceof:
-    App\Contexts\Shared\Domain\CQRS\Event\DomainEventSubscriber:
-      tags: ["app.domain_event_subscriber"]
+    # Configure
+    _instanceof:
+        App\Contexts\Shared\Domain\CQRS\Event\DomainEventSubscriber:
+            tags:
+                - "app.domain_event_subscriber"
+                - {
+                      name: "messenger.message_handler",
+                      bus: "messenger.bus.default",
+                  }
 
-    App\Contexts\Shared\Domain\CQRS\Command\CommandHandler:
-      tags: ["app.command_handler"]
+        App\Contexts\Shared\Domain\CQRS\Command\CommandHandler:
+            tags: ["app.command_handler"]
 
-    App\Contexts\Shared\Domain\CQRS\Query\QueryHandler:
-      tags: ["app.query_handler"]
+        App\Contexts\Shared\Domain\CQRS\Query\QueryHandler:
+            tags: ["app.query_handler"]
 
-  #Tagging
-  App\Contexts\Shared\Infrastructure\CQRS\Event\InMemory\InMemorySymfonyEventBus:
-    arguments: [!tagged app.domain_event_subscriber]
-    lazy: true
+    #Tagging
+    App\Contexts\Shared\Infrastructure\CQRS\Event\InMemory\InMemorySymfonyEventBus:
+        arguments: [!tagged app.domain_event_subscriber]
+        lazy: true
 
-  App\Contexts\Shared\Infrastructure\CQRS\Event\DomainEventMapping:
-    arguments: [!tagged app.domain_event_subscriber]
+    App\Contexts\Shared\Infrastructure\CQRS\Event\DomainEventMapping:
+        arguments: [!tagged app.domain_event_subscriber]
 
-  App\Contexts\Shared\Infrastructure\CQRS\Event\DomainEventSubscriberLocator:
-    arguments: [!tagged app.domain_event_subscriber]
+    App\Contexts\Shared\Infrastructure\CQRS\Event\DomainEventSubscriberLocator:
+        arguments: [!tagged app.domain_event_subscriber]
 
-  App\Contexts\Shared\Infrastructure\Symfony\AddJsonBodyToRequestListener:
-    tags:
-      - {
-          name: kernel.event_listener,
-          event: kernel.request,
-          method: onKernelRequest,
-        }
+    App\Contexts\Shared\Infrastructure\Symfony\AddJsonBodyToRequestListener:
+        tags:
+            - {
+                  name: kernel.event_listener,
+                  event: kernel.request,
+                  method: onKernelRequest,
+              }
 
-  # -- APP DEFINITIONS --
-  # Command/Query Handlers
-  App\Contexts\Shared\Infrastructure\CQRS\Command\InMemorySymfonyCommandBus:
-    arguments: [!tagged app.command_handler]
+    # -- APP DEFINITIONS --
+    # Command/Query Handlers
+    App\Contexts\Shared\Infrastructure\CQRS\Command\InMemorySymfonyCommandBus:
+        arguments: [!tagged app.command_handler]
 
-  App\Contexts\Shared\Infrastructure\CQRS\Query\InMemorySymfonyQueryBus:
-    arguments: [!tagged app.query_handler]
+    App\Contexts\Shared\Infrastructure\CQRS\Query\InMemorySymfonyQueryBus:
+        arguments: [!tagged app.query_handler]
 
-  App\Contexts\Shared\Domain\CQRS\Event\EventBus: '@App\Contexts\Shared\Infrastructure\CQRS\Event\InMemory\InMemorySymfonyEventBus'
+    # Event Bus - uses Messenger for async event processing via RabbitMQ
+    App\Contexts\Shared\Infrastructure\CQRS\Event\Messenger\MessengerEventBus:
+        arguments:
+            $messageBus: "@messenger.default_bus"
 
-  # Email Configuration
-  App\Contexts\Shared\Domain\Email\EmailSender: '@App\Contexts\Shared\Infrastructure\Email\SymfonyEmailSender'
+    App\Contexts\Shared\Domain\CQRS\Event\EventBus: '@App\Contexts\Shared\Infrastructure\CQRS\Event\Messenger\MessengerEventBus'
 
-  App\Contexts\Shared\Infrastructure\Email\SymfonyEmailSender:
-    arguments:
-      $fromEmail: "%env(MAILER_FROM_EMAIL)%"
-      $fromName: "%env(MAILER_FROM_NAME)%"
+    # Email Configuration
+    App\Contexts\Shared\Domain\Email\EmailSender: '@App\Contexts\Shared\Infrastructure\Email\SymfonyEmailSender'
 
-  App\Contexts\Web\User\Application\SendEmailConfirmation\EmailConfirmationSender:
-    arguments:
-      $appUrl: "%env(APP_URL)%"
+    App\Contexts\Shared\Infrastructure\Email\SymfonyEmailSender:
+        arguments:
+            $fromEmail: "%env(MAILER_FROM_EMAIL)%"
+            $fromName: "%env(MAILER_FROM_NAME)%"
 
-  App\Contexts\Web\User\Application\ResendEmailConfirmation\EmailConfirmationResender:
-    arguments:
-      $appUrl: "%env(APP_URL)%"
+    App\Contexts\Web\User\Application\SendEmailConfirmation\EmailConfirmationSender:
+        arguments:
+            $appUrl: "%env(APP_URL)%"
 
-  # HTTP Client Configuration
-  App\Contexts\Shared\Domain\Http\HttpClient: '@App\Contexts\Shared\Infrastructure\Http\SymfonyHttpClient'
+    App\Contexts\Web\User\Application\ResendEmailConfirmation\EmailConfirmationResender:
+        arguments:
+            $appUrl: "%env(APP_URL)%"
 
-  # Riot Games API Configuration
-  App\Contexts\Web\Player\Infrastructure\RankVerification\Riot\RiotApiClient:
-    arguments:
-      $apiKey: "%env(RIOT_API_KEY)%"
-      $defaultRegion: "%env(RIOT_DEFAULT_REGION)%"
+    # HTTP Client Configuration
+    App\Contexts\Shared\Domain\Http\HttpClient: '@App\Contexts\Shared\Infrastructure\Http\SymfonyHttpClient'
 
-  # Steam API Configuration
-  App\Contexts\Web\Player\Infrastructure\RankVerification\Steam\SteamApiClient:
-    arguments:
-      $apiKey: "%env(STEAM_API_KEY)%"
+    # Riot Games API Configuration
+    App\Contexts\Web\Player\Infrastructure\RankVerification\Riot\RiotApiClient:
+        arguments:
+            $apiKey: "%env(RIOT_API_KEY)%"
+            $defaultRegion: "%env(RIOT_DEFAULT_REGION)%"
 
-  # Rank Verifier Configuration
-  # Primero definimos los verificadores específicos
-  App\Contexts\Web\Player\Infrastructure\RankVerification\Riot\RiotRankVerifier: ~
-  App\Contexts\Web\Player\Infrastructure\RankVerification\Steam\SteamRankVerifier: ~
+    # Steam API Configuration
+    App\Contexts\Web\Player\Infrastructure\RankVerification\Steam\SteamApiClient:
+        arguments:
+            $apiKey: "%env(STEAM_API_KEY)%"
 
-  # Luego el composite que los combina
-  App\Contexts\Web\Player\Infrastructure\RankVerification\CompositeRankVerifier: ~
+    # Rank Verifier Configuration
+    # Primero definimos los verificadores específicos
+    App\Contexts\Web\Player\Infrastructure\RankVerification\Riot\RiotRankVerifier: ~
+    App\Contexts\Web\Player\Infrastructure\RankVerification\Steam\SteamRankVerifier: ~
 
-  # Finalmente el decorador con caché
-  App\Contexts\Web\Player\Infrastructure\RankVerification\Decorator\CachedRankVerifier:
-    decorates: App\Contexts\Web\Player\Infrastructure\RankVerification\CompositeRankVerifier
-    arguments:
-      $inner: "@.inner"
+    # Luego el composite que los combina
+    App\Contexts\Web\Player\Infrastructure\RankVerification\CompositeRankVerifier: ~
 
-  # Alias para usar en la aplicación
-  App\Contexts\Web\Player\Domain\Service\RankVerifier: '@App\Contexts\Web\Player\Infrastructure\RankVerification\Decorator\CachedRankVerifier'
+    # Finalmente el decorador con caché
+    App\Contexts\Web\Player\Infrastructure\RankVerification\Decorator\CachedRankVerifier:
+        decorates: App\Contexts\Web\Player\Infrastructure\RankVerification\CompositeRankVerifier
+        arguments:
+            $inner: "@.inner"
 
-  # Hashtag Repository
-  App\Contexts\Web\Post\Domain\HashtagRepository: '@App\Contexts\Web\Post\Infrastructure\Persistence\MysqlHashtagRepository'
+    # Alias para usar en la aplicación
+    App\Contexts\Web\Player\Domain\Service\RankVerifier: '@App\Contexts\Web\Player\Infrastructure\RankVerification\Decorator\CachedRankVerifier'
+
+    # Hashtag Repository
+    App\Contexts\Web\Post\Domain\HashtagRepository: '@App\Contexts\Web\Post\Infrastructure\Persistence\MysqlHashtagRepository'

@@ -1,5 +1,6 @@
 framework:
-  messenger:
-    transports:
-      async: "in-memory://"
-      low_priority: "%env(RABBITMQ_DSN)%"
+    messenger:
+        # In test environment, process messages synchronously
+        transports:
+            high_priority: "sync://"
+            low_priority: "sync://"

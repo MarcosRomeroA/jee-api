@@ -1,47 +1,71 @@
 framework:
-  messenger:
-    failure_transport: failed
+    messenger:
+        failure_transport: failed
 
-    transports:
-      high_priority:
-        dsn: "%env(RABBITMQ_DSN)%"
-        options:
-          auto_setup: true
-          exchange:
-            name: high_priority
-          queues:
+        transports:
             high_priority:
-              binding_keys: [high_priority]
-        retry_strategy:
-          max_retries: 3
-          delay: 1000
-          multiplier: 2
-          max_delay: 0
-        failure_transport: failed_high_priority
+                dsn: "%env(RABBITMQ_DSN)%"
+                options:
+                    auto_setup: true
+                    exchange:
+                        name: high_priority
+                    queues:
+                        high_priority:
+                            binding_keys: [high_priority]
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+                    max_delay: 0
+                failure_transport: failed_high_priority
 
-      low_priority:
-        dsn: "%env(RABBITMQ_DSN)%"
-        options:
-          auto_setup: true
-          exchange:
-            name: low_priority
-          queues:
             low_priority:
-              binding_keys: [low_priority]
-        retry_strategy:
-          max_retries: 3
-          delay: 1000
-          multiplier: 2
-          max_delay: 0
-        failure_transport: failed_low_priority
+                dsn: "%env(RABBITMQ_DSN)%"
+                options:
+                    auto_setup: true
+                    exchange:
+                        name: low_priority
+                    queues:
+                        low_priority:
+                            binding_keys: [low_priority]
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+                    max_delay: 0
+                failure_transport: failed_low_priority
 
-      failed: "doctrine://default?queue_name=failed"
+            failed:
+                dsn: "%env(RABBITMQ_DSN)%"
+                options:
+                    auto_setup: true
+                    exchange:
+                        name: failed
+                    queues:
+                        failed:
+                            binding_keys: [failed]
 
-      failed_high_priority: "doctrine://default?queue_name=failed_high_priority"
+            failed_high_priority:
+                dsn: "%env(RABBITMQ_DSN)%"
+                options:
+                    auto_setup: true
+                    exchange:
+                        name: failed_high_priority
+                    queues:
+                        failed_high_priority:
+                            binding_keys: [failed_high_priority]
 
-      failed_low_priority: "doctrine://default?queue_name=failed_low_priority"
+            failed_low_priority:
+                dsn: "%env(RABBITMQ_DSN)%"
+                options:
+                    auto_setup: true
+                    exchange:
+                        name: failed_low_priority
+                    queues:
+                        failed_low_priority:
+                            binding_keys: [failed_low_priority]
 
-      sync: "sync://"
+            sync: "sync://"
 
-    routing:
-      'App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent': low_priority
+        routing:
+            'App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent': low_priority

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Notification\Application\Subscribers\CreateNotificationOnPostShared;
 
@@ -19,11 +21,17 @@ readonly class CreateNotificationOnPostSharedSubscriber implements DomainEventSu
         private NotificationRepository $notificationRepository,
         private NotificationTypeRepository $notificationTypeRepository,
         private EventBus $bus,
-    ) {}
+    ) {
+    }
 
     public function __invoke(PostCreatedDomainEvent $event): void
     {
-        $post = $this->postRepository->findById($event->getAggregateId());
+        // Try to find the post - it might not exist if processed asynchronously after deletion
+        $post = $this->postRepository->find($event->getAggregateId());
+
+        if (!$post) {
+            return;
+        }
 
         if (!$post->getSharedPostId()) {
             return;

@@ -1,142 +1,148 @@
 services:
-  traefik:
-    container_name: jee_traefik
-    image: traefik:v3.6
-    restart: unless-stopped
-    command:
-      - "--api.dashboard=true"
-      - "--api.insecure=false"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.email=admin@jugaenequipo.com"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--log.level=INFO"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./data/letsencrypt:/letsencrypt
-    networks:
-      - internal
-    labels:
-      - "traefik.enable=true"
-      # Dashboard
-      - "traefik.http.routers.traefik.rule=Host(`traefik.jugaenequipo.com`)"
-      - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.traefik.service=api@internal"
-      # Autenticación básica para el dashboard (usuario: admin, password: changeme)
-      # Genera tu propia contraseña con: echo $(htpasswd -nb admin tu_password) | sed -e s/\\$/\\$\\$/g
-      - "traefik.http.routers.traefik.middlewares=traefik-auth"
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$8evjzm8z$$Yf6VlVbhXj9M9v7qHJ5xN/"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    traefik:
+        container_name: jee_traefik
+        image: traefik:v3.6
+        restart: unless-stopped
+        command:
+            - "--api.dashboard=true"
+            - "--api.insecure=false"
+            - "--providers.docker=true"
+            - "--providers.docker.exposedbydefault=false"
+            - "--entrypoints.web.address=:80"
+            - "--entrypoints.websecure.address=:443"
+            - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+            - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+            - "--certificatesresolvers.letsencrypt.acme.email=admin@jugaenequipo.com"
+            - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+            - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+            - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+            - "--log.level=INFO"
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - ./data/letsencrypt:/letsencrypt
+        networks:
+            - internal
+        labels:
+            - "traefik.enable=true"
+            # Dashboard
+            - "traefik.http.routers.traefik.rule=Host(`traefik.jugaenequipo.com`)"
+            - "traefik.http.routers.traefik.entrypoints=websecure"
+            - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+            - "traefik.http.routers.traefik.service=api@internal"
+            # Autenticación básica para el dashboard (usuario: admin, password: changeme)
+            # Genera tu propia contraseña con: echo $(htpasswd -nb admin tu_password) | sed -e s/\\$/\\$\\$/g
+            - "traefik.http.routers.traefik.middlewares=traefik-auth"
+            - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$8evjzm8z$$Yf6VlVbhXj9M9v7qHJ5xN/"
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
 
-  symfony:
-    container_name: jee_symfony
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      - TZ=${TZ}
-    depends_on:
-      - mariadb
-      - mercure
-    networks:
-      - internal
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.symfony.rule=Host(`api.jugaenequipo.com`)"
-      - "traefik.http.routers.symfony.entrypoints=websecure"
-      - "traefik.http.routers.symfony.tls.certresolver=letsencrypt"
-      - "traefik.http.services.symfony.loadbalancer.server.port=80"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    symfony:
+        container_name: jee_symfony
+        build:
+            context: .
+            dockerfile: Dockerfile
+        environment:
+            - TZ=${TZ}
+        depends_on:
+            - mariadb
+            - mercure
+        networks:
+            - internal
+        restart: unless-stopped
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.symfony.rule=Host(`api.jugaenequipo.com`)"
+            - "traefik.http.routers.symfony.entrypoints=websecure"
+            - "traefik.http.routers.symfony.tls.certresolver=letsencrypt"
+            - "traefik.http.services.symfony.loadbalancer.server.port=80"
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
 
-  mariadb:
-    container_name: jee_mariadb
-    image: lscr.io/linuxserver/mariadb:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: jee
-      MYSQL_USER: jee_user
-      MYSQL_PASSWORD: jee_password
-      TZ: ${TZ}
-    volumes:
-      - jee_mariadb_data:/config
-    networks:
-      - internal
-    restart: unless-stopped
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    mariadb:
+        container_name: jee_mariadb
+        image: lscr.io/linuxserver/mariadb:latest
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: jee
+            MYSQL_USER: jee_user
+            MYSQL_PASSWORD: jee_password
+            TZ: ${TZ}
+        volumes:
+            - jee_mariadb_data:/config
+        networks:
+            - internal
+        restart: unless-stopped
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
 
-  mercure:
-    container_name: jee_mercure
-    image: dunglas/mercure:latest
-    restart: unless-stopped
-    environment:
-      SERVER_NAME: ":80"
-      MERCURE_PUBLISHER_JWT_KEY: "${MERCURE_JWT_SECRET}"
-      MERCURE_SUBSCRIBER_JWT_KEY: "${MERCURE_JWT_SECRET}"
-      MERCURE_EXTRA_DIRECTIVES: |
-        cors_origins *
-    command: /usr/bin/caddy run --config /etc/caddy/dev.Caddyfile
-    volumes:
-      - jee_mercure_data:/data
-      - jee_mercure_config:/config
-    networks:
-      - internal
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.mercure.rule=Host(`mercure.jugaenequipo.com`)"
-      - "traefik.http.routers.mercure.entrypoints=websecure"
-      - "traefik.http.routers.mercure.tls.certresolver=letsencrypt"
-      - "traefik.http.services.mercure.loadbalancer.server.port=80"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    mercure:
+        container_name: jee_mercure
+        image: dunglas/mercure:latest
+        restart: unless-stopped
+        environment:
+            SERVER_NAME: ":80"
+            MERCURE_PUBLISHER_JWT_KEY: "${MERCURE_JWT_SECRET}"
+            MERCURE_SUBSCRIBER_JWT_KEY: "${MERCURE_JWT_SECRET}"
+            MERCURE_EXTRA_DIRECTIVES: |
+                cors_origins *
+        command: /usr/bin/caddy run --config /etc/caddy/dev.Caddyfile
+        volumes:
+            - jee_mercure_data:/data
+            - jee_mercure_config:/config
+        networks:
+            - internal
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.mercure.rule=Host(`mercure.jugaenequipo.com`)"
+            - "traefik.http.routers.mercure.entrypoints=websecure"
+            - "traefik.http.routers.mercure.tls.certresolver=letsencrypt"
+            - "traefik.http.services.mercure.loadbalancer.server.port=80"
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
 
-  rabbitmq:
-    container_name: jee_rabbitmq
-    image: rabbitmq:4.0-alpine
-    restart: unless-stopped
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-    volumes:
-      - jee_rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - internal
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    rabbitmq:
+        container_name: jee_rabbitmq
+        image: rabbitmq:4.0-management-alpine
+        restart: unless-stopped
+        environment:
+            RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+        volumes:
+            - jee_rabbitmq_data:/var/lib/rabbitmq
+        networks:
+            - internal
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.jugaenequipo.com`)"
+            - "traefik.http.routers.rabbitmq.entrypoints=websecure"
+            - "traefik.http.routers.rabbitmq.tls.certresolver=letsencrypt"
+            - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
 
 networks:
-  internal:
+    internal:
 
 volumes:
-  jee_mariadb_data:
-  jee_mercure_data:
-  jee_mercure_config:
-  jee_rabbitmq_data:
+    jee_mariadb_data:
+    jee_mercure_data:
+    jee_mercure_config:
+    jee_rabbitmq_data:

@@ -21,7 +21,8 @@ final readonly class ExtractHashtagsOnPostCreatedSubscriber implements DomainEve
 
     public function __invoke(PostCreatedDomainEvent $event): void
     {
-        $post = $this->postRepository->findById($event->getAggregateId());
+        // Try to find the post - it might not exist if processed asynchronously after deletion
+        $post = $this->postRepository->find($event->getAggregateId());
 
         if (!$post) {
             return;
@@ -73,12 +74,12 @@ final readonly class ExtractHashtagsOnPostCreatedSubscriber implements DomainEve
 
         // Normalize and deduplicate
         $hashtags = array_map(
-            fn($tag) => Hashtag::normalize($tag),
+            fn ($tag) => Hashtag::normalize($tag),
             $matches[1]
         );
 
         // Remove empty strings and duplicates
-        $hashtags = array_filter($hashtags, fn($tag) => $tag !== '');
+        $hashtags = array_filter($hashtags, fn ($tag) => $tag !== '');
         $hashtags = array_unique($hashtags);
 
         return array_values($hashtags);

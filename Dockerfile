@@ -1,8 +1,9 @@
 FROM php:8.3-fpm-alpine
 
-# Instalar Nginx y extensiones PHP necesarias
+# Instalar Nginx, Supervisor y extensiones PHP necesarias
 RUN apk add --no-cache \
     nginx \
+    supervisor \
     libxml2-dev \
     libzip-dev \
     rabbitmq-c \
@@ -26,6 +27,9 @@ COPY ./docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 # Copiar configuración de Nginx (Alpine usa http.d en lugar de sites-available)
 COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/nginx/default.conf /etc/nginx/http.d/default.conf
+
+# Copiar configuración de Supervisor
+COPY ./docker/supervisor/messenger-worker.conf /etc/supervisor.d/messenger-worker.ini
 
 # Instalar Composer (usar la versión latest que existe)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -53,4 +57,4 @@ EXPOSE 80
 
 # Configurar el entrypoint y comando de inicio
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["/bin/sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "-c", "php-fpm -D && supervisord -c /etc/supervisord.conf && nginx -g 'daemon off;'"]
