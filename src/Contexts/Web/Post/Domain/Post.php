@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Domain;
 
@@ -22,6 +24,7 @@ use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbe
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 class Post extends AggregateRoot
 {
+    use Timestamps;
     #[ORM\Id]
     #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
@@ -75,8 +78,6 @@ class Post extends AggregateRoot
 
     private ?Post $sharedPost = null;
 
-    use Timestamps;
-
     public function __construct(
         Uuid $id,
         BodyValue $body,
@@ -92,6 +93,7 @@ class Post extends AggregateRoot
         $this->comments = new ArrayCollection();
         $this->resources = new ArrayCollection();
         $this->hashtags = new ArrayCollection();
+        $this->resourceUrls = [];
     }
 
     public static function create(
@@ -203,7 +205,7 @@ class Post extends AggregateRoot
 
     public function getResourceUrls(): array
     {
-        return $this->resourceUrls;
+        return $this->resourceUrls ?? [];
     }
 
     /**

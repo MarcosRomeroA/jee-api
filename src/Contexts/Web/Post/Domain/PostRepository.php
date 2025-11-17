@@ -57,4 +57,11 @@ interface PostRepository
     public function findByHashtag(string $hashtag, int $limit, int $offset): array;
 
     public function countByHashtag(string $hashtag): int;
+
+    /**
+     * @return array<Post>
+     */
+    public function findByPopularHashtag(string $hashtag, int $days, int $limit, int $offset): array;
+
+    public function countByPopularHashtag(string $hashtag, int $days): int;
 }

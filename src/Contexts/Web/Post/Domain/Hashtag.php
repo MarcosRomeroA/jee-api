@@ -6,6 +6,7 @@ namespace App\Contexts\Web\Post\Domain;
 
 use App\Contexts\Shared\Domain\Traits\Timestamps;
 use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
+use App\Contexts\Shared\Domain\ValueObject\DeletedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -26,14 +27,13 @@ class Hashtag
     #[ORM\Column(type: 'string', length: 100, unique: true)]
     private string $tag;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $count;
+
     #[ORM\ManyToMany(targetEntity: Post::class, mappedBy: 'hashtags')]
     private Collection $posts;
 
-    #[ORM\Embedded(class: CreatedAtValue::class, columnPrefix: false)]
-    private CreatedAtValue $createdAt;
 
-    #[ORM\Embedded(class: UpdatedAtValue::class, columnPrefix: false)]
-    private UpdatedAtValue $updatedAt;
 
     private function __construct(
         Uuid $id,
@@ -41,9 +41,11 @@ class Hashtag
     ) {
         $this->id = $id;
         $this->tag = self::normalize($tag);
+        $this->count = 0;
         $this->posts = new ArrayCollection();
         $this->createdAt = new CreatedAtValue();
         $this->updatedAt = new UpdatedAtValue($this->createdAt->value());
+        $this->deletedAt = new DeletedAtValue(null);
     }
 
     public static function create(Uuid $id, string $tag): self
@@ -80,13 +82,24 @@ class Hashtag
         return $this->posts;
     }
 
-    public function getCreatedAt(): CreatedAtValue
+    public function getCount(): int
     {
-        return $this->createdAt;
+        return $this->count;
     }
 
-    public function getUpdatedAt(): UpdatedAtValue
+    public function incrementCount(): void
     {
-        return $this->updatedAt;
+        $this->count++;
+        $this->updatedAt = new UpdatedAtValue(new \DateTime());
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->deletedAt !== null && $this->deletedAt->value() !== null;
+    }
+
+    public function markAsDeleted(): void
+    {
+        $this->deletedAt = new DeletedAtValue(new \DateTime());
     }
 }

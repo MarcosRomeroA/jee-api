@@ -37,4 +37,24 @@ final readonly class MysqlHashtagRepository implements HashtagRepository
             ->getRepository(Hashtag::class)
             ->find($id);
     }
+
+    public function getPopularHashtags(int $days = 30, int $limit = 10): array
+    {
+        $date = new \DateTimeImmutable();
+        $date = $date->modify("-{$days} days");
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('h.tag')
+            ->from(Hashtag::class, 'h')
+            ->where('h.updatedAt.value >= :date')
+            ->andWhere('h.deletedAt.value IS NULL')
+            ->orderBy('h.count', 'DESC')
+            ->setParameter('date', $date)
+            ->setMaxResults($limit);
+
+        $result = $qb->getQuery()->getResult();
+
+        // Extract just the tag strings from the result
+        return array_map(fn ($row) => $row['tag'], $result);
+    }
 }

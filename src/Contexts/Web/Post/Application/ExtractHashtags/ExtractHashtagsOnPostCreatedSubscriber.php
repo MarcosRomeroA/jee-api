@@ -44,8 +44,11 @@ final readonly class ExtractHashtagsOnPostCreatedSubscriber implements DomainEve
                     Uuid::random(),
                     $hashtagText
                 );
-                $this->hashtagRepository->save($hashtag);
             }
+
+            // Increment counter and update timestamp
+            $hashtag->incrementCount();
+            $this->hashtagRepository->save($hashtag);
 
             // Associate hashtag with post
             $post->addHashtag($hashtag);

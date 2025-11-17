@@ -5,6 +5,7 @@ doctrine:
         use_savepoints: true
         types:
             uuid: App\Contexts\Shared\Infrastructure\Persistence\Doctrine\UuidType
+        schema_filter: ~^(?!messenger_messages)~
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true

@@ -207,4 +207,44 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
 
         return (int) $qb->getSingleScalarResult();
     }
+
+    /**
+     * @return array<Post>
+     */
+    public function findByPopularHashtag(string $hashtag, int $days, int $limit, int $offset): array
+    {
+        $normalizedTag = \App\Contexts\Web\Post\Domain\Hashtag::normalize($hashtag);
+        $date = new \DateTimeImmutable();
+        $date = $date->modify("-{$days} days");
+
+        return $this->createQueryBuilder("p")
+            ->innerJoin("p.hashtags", "h")
+            ->where("h.tag = :tag")
+            ->andWhere("h.updatedAt.value >= :date")
+            ->setParameter("tag", $normalizedTag)
+            ->setParameter("date", $date)
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->orderBy('p.createdAt.value', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countByPopularHashtag(string $hashtag, int $days): int
+    {
+        $normalizedTag = \App\Contexts\Web\Post\Domain\Hashtag::normalize($hashtag);
+        $date = new \DateTimeImmutable();
+        $date = $date->modify("-{$days} days");
+
+        $qb = $this->createQueryBuilder("p")
+            ->select("COUNT(p.id)")
+            ->innerJoin("p.hashtags", "h")
+            ->where("h.tag = :tag")
+            ->andWhere("h.updatedAt.value >= :date")
+            ->setParameter("tag", $normalizedTag)
+            ->setParameter("date", $date)
+            ->getQuery();
+
+        return (int) $qb->getSingleScalarResult();
+    }
 }
