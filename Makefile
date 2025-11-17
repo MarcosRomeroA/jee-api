@@ -32,15 +32,6 @@ clean-cache:
 	@docker exec jee_symfony php -d memory_limit=128M bin/console doctrine:database:create --if-not-exists --env=test || true
 	@docker exec jee_symfony php -d memory_limit=128M bin/console cache:clear --env=test --no-warmup
 
-migration-diff:
-	@docker exec jee_symfony php bin/console doctrine:migrations:diff
-
-migrate:
-	@docker exec jee_symfony php bin/console doctrine:migrations:migrate -n
-
-migrate-test:
-	@docker exec jee_symfony php bin/console doctrine:migrations:migrate -n --env=test
-
 routes:
 	@docker exec jee_symfony php bin/console debug:router
 
@@ -75,23 +66,20 @@ reset-test-db: ## Reset test database completely
 
 test-clean: reset-test-db test ## Reset DB and run all tests
 
-test-player:
-	@docker exec jee_symfony vendor/bin/behat tests/Behat/Web/Player/ --format=pretty
-
-test-verbose:
-	@docker exec jee_symfony vendor/bin/behat tests/Behat/Web/Player/ --format=pretty -vv
-
-setup:
-	@./setup-and-test.sh
+migration:
+	@docker exec jee_symfony php bin/console make:migration
 
 migrate:
-	@docker compose exec symfony php bin/console doctrine:migrations:migrate
+	@docker exec jee_symfony php bin/console doctrine:migrations:migrate -n
+
+migrate-test:
+	@docker exec jee_symfony php bin/console doctrine:migrations:migrate -n --env=test
+
+migration-diff:
+	@docker exec jee_symfony php bin/console doctrine:migrations:diff
 
 empty-migration:
-	@docker compose exec symfony php bin/console doctrine:migrations:generate
-
-migration:
-	@docker compose exec symfony php bin/console make:migration
+	@docker exec jee_symfony php bin/console doctrine:migrations:generate
 
 deploy:
 	make stop
