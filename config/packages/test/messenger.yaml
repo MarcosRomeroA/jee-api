@@ -1,0 +1,5 @@
+framework:
+  messenger:
+    transports:
+      async: "in-memory://"
+      low_priority: "%env(RABBITMQ_DSN)%"

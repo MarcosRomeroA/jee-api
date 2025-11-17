@@ -175,4 +175,36 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
 
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * @return array<Post>
+     */
+    public function findByHashtag(string $hashtag, int $limit, int $offset): array
+    {
+        $normalizedTag = \App\Contexts\Web\Post\Domain\Hashtag::normalize($hashtag);
+
+        return $this->createQueryBuilder("p")
+            ->innerJoin("p.hashtags", "h")
+            ->where("h.tag = :tag")
+            ->setParameter("tag", $normalizedTag)
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->orderBy('p.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countByHashtag(string $hashtag): int
+    {
+        $normalizedTag = \App\Contexts\Web\Post\Domain\Hashtag::normalize($hashtag);
+
+        $qb = $this->createQueryBuilder("p")
+            ->select("COUNT(p.id)")
+            ->innerJoin("p.hashtags", "h")
+            ->where("h.tag = :tag")
+            ->setParameter("tag", $normalizedTag)
+            ->getQuery();
+
+        return (int) $qb->getSingleScalarResult();
+    }
 }

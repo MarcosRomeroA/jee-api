@@ -1,77 +1,83 @@
 create_post:
-    path: /post/{id}
-    controller: App\Apps\Web\Post\Create\CreatePostController
-    methods: [PUT]
-    defaults: { auth: true }
+  path: /post/{id}
+  controller: App\Apps\Web\Post\Create\CreatePostController
+  methods: [PUT]
+  defaults: { auth: true }
 
 find_post:
-    path: /post/{id}
-    controller: App\Apps\Web\Post\Find\FindPostController
-    methods: [GET]
-    defaults: { auth: true }
+  path: /post/{id}
+  controller: App\Apps\Web\Post\Find\FindPostController
+  methods: [GET]
+  defaults: { auth: true }
 
 find_posts_batch:
-    path: /posts/batch
-    controller: App\Apps\Web\Post\FindBatch\FindPostsByIdsController
-    methods: [GET]
-    defaults: { auth: true }
+  path: /posts/batch
+  controller: App\Apps\Web\Post\FindBatch\FindPostsByIdsController
+  methods: [GET]
+  defaults: { auth: true }
 
 search_posts:
-    path: /posts
-    controller: App\Apps\Web\Post\Search\SearchPostsController
-    methods: [GET]
-    defaults: { auth: true }
+  path: /posts
+  controller: App\Apps\Web\Post\Search\SearchPostsController
+  methods: [GET]
+  defaults: { auth: true }
+
+search_posts_by_hashtag:
+  path: /posts/hashtag/{hashtag}
+  controller: App\Apps\Web\Post\SearchByHashtag\SearchPostsByHashtagController
+  methods: [GET]
+  defaults: { auth: true }
 
 add_post_comment:
-    path: /post/{id}/comment
-    controller: App\Apps\Web\Post\AddPostComment\AddPostCommentController
-    methods: [PUT]
-    defaults: { auth: true }
+  path: /post/{id}/comment
+  controller: App\Apps\Web\Post\AddPostComment\AddPostCommentController
+  methods: [PUT]
+  defaults: { auth: true }
 
 like:
-    path: /post/{id}/like
-    controller: App\Apps\Web\Post\Like\LikePostController
-    methods: [PUT]
-    defaults: { auth: true }
+  path: /post/{id}/like
+  controller: App\Apps\Web\Post\Like\LikePostController
+  methods: [PUT]
+  defaults: { auth: true }
 
 dislike:
-    path: /post/{id}/dislike
-    controller: App\Apps\Web\Post\Dislike\DislikePostController
-    methods: [PUT]
-    defaults: { auth: true }
+  path: /post/{id}/dislike
+  controller: App\Apps\Web\Post\Dislike\DislikePostController
+  methods: [PUT]
+  defaults: { auth: true }
 
 delete:
-    path: /post/{id}/delete
-    controller: App\Apps\Web\Post\Delete\DeletePostController
-    methods: [DELETE]
-    defaults: { auth: true }
+  path: /post/{id}/delete
+  controller: App\Apps\Web\Post\Delete\DeletePostController
+  methods: [DELETE]
+  defaults: { auth: true }
 
 search_post_comments:
-    path: /post/{id}/comments
-    controller: App\Apps\Web\Post\SearchPostComments\SearchPostCommentsController
-    methods: [GET]
-    defaults: { auth: true }
+  path: /post/{id}/comments
+  controller: App\Apps\Web\Post\SearchPostComments\SearchPostCommentsController
+  methods: [GET]
+  defaults: { auth: true }
 
 add_resource:
-    path: /post/{id}/resource
-    controller: App\Apps\Web\Post\AddPostTempResource\AddPostTemporaryResourceController
-    methods: [POST]
-    defaults: { auth: true }
+  path: /post/{id}/resource
+  controller: App\Apps\Web\Post\AddPostTempResource\AddPostTemporaryResourceController
+  methods: [POST]
+  defaults: { auth: true }
 
 search_post_likes:
-    path: /post/{id}/likes
-    controller: App\Apps\Web\Post\SearchPostLikes\SearchPostLikesController
-    methods: [GET]
-    defaults: { auth: true }
+  path: /post/{id}/likes
+  controller: App\Apps\Web\Post\SearchPostLikes\SearchPostLikesController
+  methods: [GET]
+  defaults: { auth: true }
 
 search_post_shares:
-    path: /post/{id}/shares
-    controller: App\Apps\Web\Post\SearchPostShares\SearchPostSharesController
-    methods: [GET]
-    defaults: { auth: true }
+  path: /post/{id}/shares
+  controller: App\Apps\Web\Post\SearchPostShares\SearchPostSharesController
+  methods: [GET]
+  defaults: { auth: true }
 
 my_feed:
-    path: /my-feed
-    controller: App\Apps\Web\Post\SearchMyFeed\SearchMyFeedController
-    methods: [GET]
-    defaults: { auth: true }
+  path: /my-feed
+  controller: App\Apps\Web\Post\SearchMyFeed\SearchMyFeedController
+  methods: [GET]
+  defaults: { auth: true }

@@ -5,13 +5,16 @@ RUN apk add --no-cache \
     nginx \
     libxml2-dev \
     libzip-dev \
+    rabbitmq-c \
+    rabbitmq-c-dev \
     unzip \
     git \
     bash \
-    && docker-php-ext-install xml \
-    && docker-php-ext-install pdo pdo_mysql \
-    && docker-php-ext-install opcache \
-    && docker-php-ext-install zip
+    $PHPIZE_DEPS \
+    && docker-php-ext-install xml pdo pdo_mysql opcache zip \
+    && pecl install amqp-2.1.2 \
+    && docker-php-ext-enable amqp \
+    && apk del $PHPIZE_DEPS
 
 # Establecer la zona horaria
 ENV TZ=${TZ}

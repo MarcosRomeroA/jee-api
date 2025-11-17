@@ -50,4 +50,11 @@ interface PostRepository
     public function countSharesByPostId(Uuid $postId): int;
 
     public function countFeed(Uuid $userId): int;
+
+    /**
+     * @return array<Post>
+     */
+    public function findByHashtag(string $hashtag, int $limit, int $offset): array;
+
+    public function countByHashtag(string $hashtag): int;
 }

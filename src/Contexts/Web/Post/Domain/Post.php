@@ -63,6 +63,12 @@ class Post extends AggregateRoot
     ]
     private ?Collection $resources;
 
+    #[
+        ORM\ManyToMany(targetEntity: Hashtag::class, inversedBy: 'posts'),
+        ORM\JoinTable(name: 'post_hashtag'),
+    ]
+    private Collection $hashtags;
+
     private array $resourceUrls;
 
     private ?int $sharesQuantity = null;
@@ -85,6 +91,7 @@ class Post extends AggregateRoot
         $this->updatedAt = new UpdatedAtValue($this->createdAt->value());
         $this->comments = new ArrayCollection();
         $this->resources = new ArrayCollection();
+        $this->hashtags = new ArrayCollection();
     }
 
     public static function create(
@@ -235,5 +242,31 @@ class Post extends AggregateRoot
     public function getSharedPost(): ?Post
     {
         return $this->sharedPost;
+    }
+
+    public function addHashtag(Hashtag $hashtag): self
+    {
+        if (!$this->hashtags->contains($hashtag)) {
+            $this->hashtags[] = $hashtag;
+        }
+
+        return $this;
+    }
+
+    public function removeHashtag(Hashtag $hashtag): self
+    {
+        $this->hashtags->removeElement($hashtag);
+
+        return $this;
+    }
+
+    public function getHashtags(): Collection
+    {
+        return $this->hashtags;
+    }
+
+    public function clearHashtags(): void
+    {
+        $this->hashtags->clear();
     }
 }
