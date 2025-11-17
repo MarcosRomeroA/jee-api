@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\ConfirmEmail;
 
@@ -17,7 +19,11 @@ final class EmailConfirmer
 
     public function confirm(string $tokenValue): void
     {
-        $token = new EmailConfirmationToken($tokenValue);
+        try {
+            $token = new EmailConfirmationToken($tokenValue);
+        } catch (\InvalidArgumentException $e) {
+            throw new EmailConfirmationNotFoundException();
+        }
 
         $emailConfirmation = $this->emailConfirmationRepository->findByToken($token);
 
@@ -38,4 +44,3 @@ final class EmailConfirmer
         $this->emailConfirmationRepository->save($emailConfirmation);
     }
 }
-

@@ -9,7 +9,7 @@ refresh_token:
     methods: [POST]
 
 confirm_email:
-    path: /auth/confirm-email/{token}
+    path: /verify/{token}
     controller: App\Apps\Web\User\ConfirmEmail\ConfirmEmailController
     methods: [GET]
 

@@ -168,6 +168,16 @@ final class DatabaseContext implements Context
                 $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
                 $expiresAt = (new \DateTimeImmutable())->modify('+24 hours')->format('Y-m-d H:i:s');
 
+                // Primero eliminar confirmaciones existentes de los usuarios globales
+                $connection->executeStatement(
+                    "DELETE FROM email_confirmation WHERE user_id IN (:user1, :user2, :user3)",
+                    [
+                        "user1" => TestUsers::USER1_ID,
+                        "user2" => TestUsers::USER2_ID,
+                        "user3" => TestUsers::USER3_ID,
+                    ]
+                );
+
                 foreach ([TestUsers::USER1_ID, TestUsers::USER2_ID, TestUsers::USER3_ID] as $userId) {
                     // Generar UUID válido
                     $uuid = \sprintf(
@@ -182,14 +192,26 @@ final class DatabaseContext implements Context
                         \random_int(0, 0xffff)
                     );
 
+                    // Generate UUID v4 for token (36 characters)
+                    $tokenUuid = \sprintf(
+                        '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                        \random_int(0, 0xffff),
+                        \random_int(0, 0xffff),
+                        \random_int(0, 0xffff),
+                        \random_int(0, 0x0fff) | 0x4000,
+                        \random_int(0, 0x3fff) | 0x8000,
+                        \random_int(0, 0xffff),
+                        \random_int(0, 0xffff),
+                        \random_int(0, 0xffff)
+                    );
+
                     $connection->executeStatement(
                         "INSERT INTO email_confirmation (id, user_id, token, created_at, expires_at, confirmed_at)
-                         VALUES (:id, :user_id, :token, :created_at, :expires_at, :confirmed_at)
-                         ON DUPLICATE KEY UPDATE confirmed_at = :confirmed_at",
+                         VALUES (:id, :user_id, :token, :created_at, :expires_at, :confirmed_at)",
                         [
                             "id" => $uuid,
                             "user_id" => $userId,
-                            "token" => \bin2hex(\random_bytes(32)),
+                            "token" => $tokenUuid,
                             "created_at" => $now,
                             "expires_at" => $expiresAt,
                             "confirmed_at" => $now,
@@ -252,6 +274,16 @@ final class DatabaseContext implements Context
             $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
             $expiresAt = (new \DateTimeImmutable())->modify('+24 hours')->format('Y-m-d H:i:s');
 
+            // Primero eliminar confirmaciones existentes de los usuarios globales
+            $connection->executeStatement(
+                "DELETE FROM email_confirmation WHERE user_id IN (:user1, :user2, :user3)",
+                [
+                    "user1" => TestUsers::USER1_ID,
+                    "user2" => TestUsers::USER2_ID,
+                    "user3" => TestUsers::USER3_ID,
+                ]
+            );
+
             foreach ([TestUsers::USER1_ID, TestUsers::USER2_ID, TestUsers::USER3_ID] as $userId) {
                 // Generar UUID válido
                 $uuid = \sprintf(
@@ -266,14 +298,26 @@ final class DatabaseContext implements Context
                     \random_int(0, 0xffff)
                 );
 
+                // Generate UUID v4 for token (36 characters)
+                $tokenUuid = \sprintf(
+                    '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                    \random_int(0, 0xffff),
+                    \random_int(0, 0xffff),
+                    \random_int(0, 0xffff),
+                    \random_int(0, 0x0fff) | 0x4000,
+                    \random_int(0, 0x3fff) | 0x8000,
+                    \random_int(0, 0xffff),
+                    \random_int(0, 0xffff),
+                    \random_int(0, 0xffff)
+                );
+
                 $connection->executeStatement(
                     "INSERT INTO email_confirmation (id, user_id, token, created_at, expires_at, confirmed_at)
-                     VALUES (:id, :user_id, :token, :created_at, :expires_at, :confirmed_at)
-                     ON DUPLICATE KEY UPDATE confirmed_at = :confirmed_at",
+                     VALUES (:id, :user_id, :token, :created_at, :expires_at, :confirmed_at)",
                     [
                         "id" => $uuid,
                         "user_id" => $userId,
-                        "token" => \bin2hex(\random_bytes(32)),
+                        "token" => $tokenUuid,
                         "created_at" => $now,
                         "expires_at" => $expiresAt,
                         "confirmed_at" => $now,

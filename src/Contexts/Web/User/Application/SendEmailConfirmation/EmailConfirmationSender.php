@@ -59,7 +59,7 @@ final class EmailConfirmationSender
     private function buildEmailHtml(EmailConfirmationToken $token): string
     {
         $confirmationUrl = \sprintf(
-            '%s/api/auth/confirm-email/%s',
+            '%s/api/verify/%s',
             $this->appUrl,
             $token->value()
         );
@@ -72,7 +72,7 @@ final class EmailConfirmationSender
     private function buildEmailText(EmailConfirmationToken $token): string
     {
         $confirmationUrl = \sprintf(
-            '%s/api/auth/confirm-email/%s',
+            '%s/api/verify/%s',
             $this->appUrl,
             $token->value()
         );
