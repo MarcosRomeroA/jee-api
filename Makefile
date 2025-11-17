@@ -29,6 +29,8 @@ logs-test:
 
 clean-cache:
 	@docker exec jee_symfony php -d memory_limit=128M bin/console cache:clear --no-warmup
+
+clean-cache-test:
 	@docker exec jee_symfony php -d memory_limit=128M bin/console doctrine:database:create --if-not-exists --env=test || true
 	@docker exec jee_symfony php -d memory_limit=128M bin/console cache:clear --env=test --no-warmup
 
