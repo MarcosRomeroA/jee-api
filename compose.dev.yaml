@@ -1,8 +1,8 @@
 services:
-
   symfony:
     volumes:
       - .:/var/www/html
+      - /var/www/html/vendor
     ports:
       - "8200:80"
     logging:
@@ -54,4 +54,3 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
