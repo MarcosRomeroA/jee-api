@@ -44,9 +44,13 @@ COPY . /var/www/html
 # Instalar dependencias de composer (incluir dev ya que usamos esto también en desarrollo)
 RUN composer install --optimize-autoloader --no-interaction
 
+# Preparar caché de producción durante el build
+RUN php /var/www/html/bin/console cache:clear --env=prod --no-warmup \
+    && php /var/www/html/bin/console cache:warmup --env=prod
+
 # Configurar permisos y crear directorios necesarios
 RUN chown -R www-data:www-data /var/www/html/var \
-    && chmod -R 755 /var/www/html/var \
+    && chmod -R 775 /var/www/html/var \
     && chown -R www-data:www-data /var/www/html/public \
     && mkdir -p /var/log/nginx /run/nginx \
     && chown -R www-data:www-data /var/log/nginx \
