@@ -66,6 +66,6 @@ final readonly class UserCreator
         }
 
         $this->userRepository->save($user);
-        $this->bus->publish(...$user->pullDomainEvents());
+        $this->bus->publish($user->pullDomainEvents());
     }
 }

@@ -24,6 +24,6 @@ final readonly class UserDescriptionUpdater
 
         $user->setDescription($description);
         $this->userRepository->save($user);
-        $this->bus->publish(...$user->pullDomainEvents());
+        $this->bus->publish($user->pullDomainEvents());
     }
 }

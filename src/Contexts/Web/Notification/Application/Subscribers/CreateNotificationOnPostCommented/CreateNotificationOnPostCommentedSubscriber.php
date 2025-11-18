@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Notification\Application\Subscribers\CreateNotificationOnPostCommented;
 
@@ -21,7 +23,8 @@ readonly class CreateNotificationOnPostCommentedSubscriber implements DomainEven
         private NotificationTypeRepository $notificationTypeRepository,
         private EventBus $bus,
         private UserRepository $userRepository,
-    ) {}
+    ) {
+    }
 
     public function __invoke(PostCommentedDomainEvent $event): void
     {
@@ -43,7 +46,7 @@ readonly class CreateNotificationOnPostCommentedSubscriber implements DomainEven
 
         $this->notificationRepository->save($notification);
 
-        $this->bus->publish(...$notification->pullDomainEvents());
+        $this->bus->publish($notification->pullDomainEvents());
     }
 
     public static function subscribedTo(): array

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\Follow;
 
@@ -12,15 +14,13 @@ final readonly class UserFollower
     public function __construct(
         private UserRepository $userRepository,
         private EventBus $bus,
-    )
-    {
+    ) {
     }
 
     public function __invoke(
         Uuid $userId,
         Uuid $userToFollowId
-    ): void
-    {
+    ): void {
         $follower = $this->userRepository->findById($userId);
         $followed = $this->userRepository->findById($userToFollowId);
 
@@ -30,6 +30,6 @@ final readonly class UserFollower
 
         $this->userRepository->save($follower);
 
-        $this->bus->publish(...$follow->pullDomainEvents());
+        $this->bus->publish($follow->pullDomainEvents());
     }
 }

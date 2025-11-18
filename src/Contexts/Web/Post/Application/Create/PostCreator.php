@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\Create;
 
@@ -14,8 +16,7 @@ final readonly class PostCreator
     public function __construct(
         private PostRepository $repository,
         private EventBus $bus,
-    )
-    {
+    ) {
     }
 
     public function __invoke(
@@ -24,8 +25,7 @@ final readonly class PostCreator
         User $user,
         array $resources,
         ?Uuid $sharedPostId,
-    ): void
-    {
+    ): void {
         $this->repository->checkIsPostExists($id);
 
         if ($sharedPostId) {
@@ -35,6 +35,6 @@ final readonly class PostCreator
         $post = Post::create($id, $body, $user, $resources, $sharedPostId);
 
         $this->repository->save($post);
-        $this->bus->publish(...$post->pullDomainEvents());
+        $this->bus->publish($post->pullDomainEvents());
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Notification\Application\Create;
 
@@ -15,8 +17,7 @@ final readonly class NotificationCreator
     public function __construct(
         private NotificationRepository $notificationRepository,
         private EventBus $bus,
-    )
-    {
+    ) {
     }
 
     public function __invoke(
@@ -24,10 +25,9 @@ final readonly class NotificationCreator
         NotificationType $notificationType,
         User $user,
         ?Post $post = null,
-    ): void
-    {
+    ): void {
         $notification = Notification::create($id, $notificationType, $user, $post);
         $this->notificationRepository->save($notification);
-        $this->bus->publish(...$notification->pullDomainEvents());
+        $this->bus->publish($notification->pullDomainEvents());
     }
 }

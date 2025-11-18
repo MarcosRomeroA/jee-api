@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\AddComment;
 
@@ -16,7 +18,8 @@ final readonly class PostCommenter
         private PostRepository $repository,
         private EventBus $bus,
         private EntityManagerInterface $entityManager,
-    ) {}
+    ) {
+    }
 
     public function __invoke(
         Uuid $postId,
@@ -28,7 +31,7 @@ final readonly class PostCommenter
         $comment = Comment::create($commentId, $commentText, $user, $post);
         $post->addComment($comment);
         $this->entityManager->flush();
-        $this->bus->publish(...$post->pullDomainEvents());
-        $this->bus->publish(...$comment->pullDomainEvents());
+        $this->bus->publish($post->pullDomainEvents());
+        $this->bus->publish($comment->pullDomainEvents());
     }
 }

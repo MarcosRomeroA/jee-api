@@ -43,6 +43,6 @@ readonly class MessageCreator
         $conversation->updateLastMessage($message);
         $this->conversationRepository->save($conversation);
 
-        $this->bus->publish(...$message->pullDomainEvents());
+        $this->bus->publish($message->pullDomainEvents());
     }
 }

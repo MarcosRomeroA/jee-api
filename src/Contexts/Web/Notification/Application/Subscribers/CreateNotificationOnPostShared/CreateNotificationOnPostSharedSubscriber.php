@@ -51,7 +51,7 @@ readonly class CreateNotificationOnPostSharedSubscriber implements DomainEventSu
 
         $this->notificationRepository->save($notification);
 
-        $this->bus->publish(...$notification->pullDomainEvents());
+        $this->bus->publish($notification->pullDomainEvents());
     }
 
     public static function subscribedTo(): array

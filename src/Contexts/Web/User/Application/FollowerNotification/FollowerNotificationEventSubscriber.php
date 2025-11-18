@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\FollowerNotification;
 
@@ -21,7 +23,8 @@ readonly class FollowerNotificationEventSubscriber implements DomainEventSubscri
         private NotificationRepository $notificationRepository,
         private NotificationTypeRepository $notificationTypeRepository,
         private EventBus $bus,
-    ) {}
+    ) {
+    }
 
     public function __invoke(FollowerCreatedDomainEvent $event): void
     {
@@ -29,7 +32,7 @@ readonly class FollowerNotificationEventSubscriber implements DomainEventSubscri
         $followed = $this->userRepository->findById(new Uuid($event->toPrimitives()['followedId']));
 
         $notificationType = $this->notificationTypeRepository->findByName(NotificationType::NEW_FOLLOWER);
-        
+
         $notification = Notification::create(
             Uuid::random(),
             $notificationType,
@@ -41,7 +44,7 @@ readonly class FollowerNotificationEventSubscriber implements DomainEventSubscri
 
         $this->notificationRepository->save($notification);
 
-        $this->bus->publish(...$notification->pullDomainEvents());
+        $this->bus->publish($notification->pullDomainEvents());
     }
 
     public static function subscribedTo(): array
@@ -49,4 +52,3 @@ readonly class FollowerNotificationEventSubscriber implements DomainEventSubscri
         return [FollowerCreatedDomainEvent::class];
     }
 }
-

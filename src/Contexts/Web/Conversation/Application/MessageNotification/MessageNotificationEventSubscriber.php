@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Conversation\Application\MessageNotification;
 
@@ -20,14 +22,15 @@ readonly class MessageNotificationEventSubscriber implements DomainEventSubscrib
         private NotificationRepository $notificationRepository,
         private NotificationTypeRepository $notificationTypeRepository,
         private EventBus $bus,
-    ) {}
+    ) {
+    }
 
     public function __invoke(MessageCreatedEvent $event): void
     {
         $message = $this->messageRepository->findByIdOrFail($event->getAggregateId());
 
         $notificationType = $this->notificationTypeRepository->findByName(NotificationType::NEW_MESSAGE);
-        
+
         $notification = Notification::create(
             Uuid::random(),
             $notificationType,
@@ -39,7 +42,7 @@ readonly class MessageNotificationEventSubscriber implements DomainEventSubscrib
 
         $this->notificationRepository->save($notification);
 
-        $this->bus->publish(...$notification->pullDomainEvents());
+        $this->bus->publish($notification->pullDomainEvents());
     }
 
     public static function subscribedTo(): array

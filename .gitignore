@@ -31,3 +31,8 @@
 /.php-cs-fixer.cache
 /.php-cs-fixer.php
 ###< friendsofphp/php-cs-fixer ###
+
+###> supervisor ###
+supervisord.pid
+supervisord.log
+###< supervisor ###

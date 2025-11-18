@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\Like;
 
@@ -14,7 +16,8 @@ final readonly class PostLiker
         private PostRepository $postRepository,
         private UserRepository $userRepository,
         private EventBus $bus,
-    ) {}
+    ) {
+    }
 
     public function __invoke(Uuid $postId, Uuid $userId): void
     {
@@ -29,7 +32,7 @@ final readonly class PostLiker
 
         $this->postRepository->save($post);
 
-        $this->bus->publish(...$post->pullDomainEvents());
-        $this->bus->publish(...$like->pullDomainEvents());
+        $this->bus->publish($post->pullDomainEvents());
+        $this->bus->publish($like->pullDomainEvents());
     }
 }
