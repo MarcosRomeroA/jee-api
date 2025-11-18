@@ -138,6 +138,30 @@ services:
                 max-size: "10m"
                 max-file: "3"
 
+    adminer:
+        container_name: jee_adminer
+        image: adminer:latest
+        restart: unless-stopped
+        environment:
+            ADMINER_DEFAULT_SERVER: mariadb
+            ADMINER_DESIGN: pepa-linha
+        networks:
+            - internal
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.adminer.rule=Host(`adminer.jugaenequipo.com`)"
+            - "traefik.http.routers.adminer.entrypoints=websecure"
+            - "traefik.http.routers.adminer.tls.certresolver=letsencrypt"
+            - "traefik.http.services.adminer.loadbalancer.server.port=8080"
+            # Autenticación básica (usuario: adminer, password: adminer)
+            - "traefik.http.routers.adminer.middlewares=adminer-auth"
+            - "traefik.http.middlewares.adminer-auth.basicauth.users=adminer:$$apr1$$ewwjUdK2$$ltAH6tYxNnXU7ehbA0PlI/"
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
+
 networks:
     internal:
 
