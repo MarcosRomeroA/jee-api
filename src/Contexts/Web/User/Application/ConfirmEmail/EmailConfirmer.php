@@ -8,12 +8,14 @@ use App\Contexts\Web\User\Domain\EmailConfirmationRepository;
 use App\Contexts\Web\User\Domain\Exception\EmailAlreadyConfirmedException;
 use App\Contexts\Web\User\Domain\Exception\EmailConfirmationExpiredException;
 use App\Contexts\Web\User\Domain\Exception\EmailConfirmationNotFoundException;
+use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Domain\ValueObject\EmailConfirmationToken;
 
-final class EmailConfirmer
+final readonly class EmailConfirmer
 {
     public function __construct(
-        private readonly EmailConfirmationRepository $emailConfirmationRepository
+        private EmailConfirmationRepository $emailConfirmationRepository,
+        private UserRepository $userRepository
     ) {
     }
 
@@ -31,7 +33,10 @@ final class EmailConfirmer
             throw new EmailConfirmationNotFoundException();
         }
 
-        if ($emailConfirmation->isConfirmed()) {
+        $user = $emailConfirmation->user();
+
+        // Check if user is already verified
+        if ($user->isVerified()) {
             throw new EmailAlreadyConfirmedException();
         }
 
@@ -39,8 +44,11 @@ final class EmailConfirmer
             throw new EmailConfirmationExpiredException();
         }
 
-        $emailConfirmation->confirm();
+        // Mark user as verified
+        $user->markAsVerified();
+        $this->userRepository->save($user);
 
-        $this->emailConfirmationRepository->save($emailConfirmation);
+        // Delete email confirmation record
+        $this->emailConfirmationRepository->delete($emailConfirmation);
     }
 }

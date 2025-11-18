@@ -10,6 +10,7 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\User\Domain\EmailConfirmation;
 use App\Contexts\Web\User\Domain\EmailConfirmationRepository;
 use App\Contexts\Web\User\Domain\Exception\EmailAlreadyConfirmedException;
+use App\Contexts\Web\User\Domain\Exception\EmailConfirmationResendTooSoonException;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Domain\ValueObject\EmailConfirmationToken;
 
@@ -29,6 +30,11 @@ final class EmailConfirmationResender
     {
         $user = $this->userRepository->findById($userId);
 
+        // Si el usuario ya está verificado, no permitir reenvío
+        if ($user->isVerified()) {
+            throw new EmailAlreadyConfirmedException();
+        }
+
         // Buscar confirmación anterior
         $existingConfirmation = $this->emailConfirmationRepository->findByUserId($userId);
 
@@ -36,8 +42,12 @@ final class EmailConfirmationResender
             throw new EmailAlreadyConfirmedException();
         }
 
-        // Si existe una confirmación pendiente, la eliminamos
+        // Si existe una confirmación pendiente, validar que hayan pasado 24 horas
         if ($existingConfirmation !== null) {
+            if (!$existingConfirmation->canBeResent()) {
+                throw new EmailConfirmationResendTooSoonException();
+            }
+
             $this->emailConfirmationRepository->delete($existingConfirmation);
         }
 

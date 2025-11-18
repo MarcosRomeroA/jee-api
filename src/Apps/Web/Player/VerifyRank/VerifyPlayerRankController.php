@@ -1,23 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\Player\VerifyRank;
 
-use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\Player\Domain\Service\RankVerifier;
+use App\Contexts\Web\Player\Application\VerifyRank\VerifyPlayerRankQuery;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 final class VerifyPlayerRankController extends ApiController
 {
-    public function __construct(
-        private readonly RankVerifier $rankVerifier
-    ) {
-    }
-
-    #[Route('/api/player/verify-rank', name: 'verify_player_rank', methods: ['POST'])]
     public function __invoke(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -32,7 +26,8 @@ final class VerifyPlayerRankController extends ApiController
         }
 
         try {
-            $rankInfo = $this->rankVerifier->getRankInfo($username, $gameIdentifier);
+            $query = new VerifyPlayerRankQuery($username, $gameIdentifier);
+            $rankInfo = $this->queryBus->ask($query);
 
             return new JsonResponse([
                 'verified' => true,
@@ -50,4 +45,3 @@ final class VerifyPlayerRankController extends ApiController
         }
     }
 }
-

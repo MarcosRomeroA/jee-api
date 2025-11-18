@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\User\Domain;
 
@@ -44,7 +46,18 @@ final class EmailConfirmationMother
 
     public static function confirmed(): EmailConfirmation
     {
-        return self::create(null, null, null, true);
+        $user = UserMother::random();
+        $user->markAsVerified();
+
+        $emailConfirmation = new EmailConfirmation(
+            Uuid::random(),
+            $user,
+            EmailConfirmationToken::generate(),
+            (new \DateTimeImmutable())->modify('+24 hours')
+        );
+
+        $emailConfirmation->confirm();
+
+        return $emailConfirmation;
     }
 }
-

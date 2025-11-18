@@ -9,7 +9,6 @@ use App\Contexts\Shared\Domain\Jwt\JwtGenerator;
 use App\Contexts\Shared\Infrastructure\Jwt\MercureJwtGenerator;
 use App\Contexts\Web\Auth\Application\Shared\LoginUserResponse;
 use App\Contexts\Web\Auth\Domain\Exception\EmailNotVerifiedException;
-use App\Contexts\Web\User\Domain\EmailConfirmationRepository;
 use App\Contexts\Web\User\Domain\Exception\UserNotFoundException;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
@@ -20,7 +19,6 @@ final readonly class UserAuthenticator
     public function __construct(
         private UserRepository $userRepository,
         private JwtGenerator $jwtGenerator,
-        private EmailConfirmationRepository $emailConfirmationRepository,
     ) {
     }
 
@@ -40,9 +38,7 @@ final readonly class UserAuthenticator
         }
 
         // Check if email is verified
-        $emailConfirmation = $this->emailConfirmationRepository->findByUserId($user->getId());
-
-        if ($emailConfirmation === null || !$emailConfirmation->isConfirmed()) {
+        if (!$user->isVerified()) {
             throw new EmailNotVerifiedException();
         }
 

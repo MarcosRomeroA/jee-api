@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Notification\Domain;
 
@@ -15,8 +17,14 @@ interface NotificationRepository
      */
     public function findById(Uuid $id): Notification;
 
+    /**
+     * @return array<Notification>
+     */
     public function findByUser(User $user): array;
 
+    /**
+     * @return array<Notification>
+     */
     public function findUnreadByUser(User $user): array;
 
     public function exists(Uuid $id): bool;
@@ -31,7 +39,7 @@ interface NotificationRepository
      * @param int $offset
      * @return array<Notification>
      */
-    public function searchByCriteria(?array $criteria): array;
+    public function searchByCriteria(?array $criteria, int $limit = 20, int $offset = 0): array;
 
     /**
      * @param array|null $criteria

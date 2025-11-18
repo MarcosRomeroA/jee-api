@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Domain;
 
@@ -50,6 +52,9 @@ class User extends AggregateRoot
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $verifiedAt = null;
+
     /**
      * @var ArrayCollection<Follow>
      */
@@ -71,8 +76,7 @@ class User extends AggregateRoot
         UsernameValue $username,
         EmailValue $email,
         PasswordValue $password,
-    )
-    {
+    ) {
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
         $this->id = $id;
@@ -93,8 +97,7 @@ class User extends AggregateRoot
         UsernameValue $username,
         EmailValue $email,
         PasswordValue $password,
-    ): self
-    {
+    ): self {
         $user = new self($id, $firstname, $lastname, $username, $email, $password);
 
         $user->record(new UserCreatedDomainEvent(
@@ -228,5 +231,25 @@ class User extends AggregateRoot
     public function setUrlProfileImage(?string $urlProfileImage): void
     {
         $this->urlProfileImage = $urlProfileImage;
+    }
+
+    public function getVerifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->verifiedAt;
+    }
+
+    public function setVerifiedAt(?\DateTimeImmutable $verifiedAt): void
+    {
+        $this->verifiedAt = $verifiedAt;
+    }
+
+    public function markAsVerified(): void
+    {
+        $this->verifiedAt = new \DateTimeImmutable();
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->verifiedAt !== null;
     }
 }

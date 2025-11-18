@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Notification\Infrastructure\Persistence;
 
@@ -81,16 +83,17 @@ class MysqlNotificationRepository implements NotificationRepository
         $this->entityManager->flush();
     }
 
-    public function searchByCriteria(?array $criteria): array
+    public function searchByCriteria(?array $criteria, int $limit = 20, int $offset = 0): array
     {
         $queryBuilder = $this->repository->createQueryBuilder("n");
 
         $queryBuilder->orderBy("n.createdAt", "DESC");
 
-        $limit = isset($criteria["limit"]) ? (int) $criteria["limit"] : 10;
-        $offset = isset($criteria["offset"]) ? (int) $criteria["offset"] : 0;
+        // Usar los parámetros directamente, pero permitir override desde criteria
+        $finalLimit = $criteria["limit"] ?? $limit;
+        $finalOffset = $criteria["offset"] ?? $offset;
 
-        $queryBuilder->setMaxResults($limit)->setFirstResult($offset);
+        $queryBuilder->setMaxResults($finalLimit)->setFirstResult($finalOffset);
 
         return $queryBuilder->getQuery()->getResult();
     }

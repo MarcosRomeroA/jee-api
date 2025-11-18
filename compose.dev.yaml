@@ -69,3 +69,20 @@ services:
         # Deshabilitar en desarrollo (solo para staging/producción)
         profiles:
             - disabled
+
+    ofelia:
+        image: mcuadros/ofelia:latest
+        container_name: jee_ofelia
+        restart: unless-stopped
+        depends_on:
+            - symfony
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - ./docker/ofelia/config.ini:/etc/ofelia/config.ini
+        networks:
+            - internal
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Domain;
 
@@ -86,6 +88,14 @@ class EmailConfirmation extends AggregateRoot
         return new \DateTimeImmutable() > $this->expiresAt;
     }
 
+    public function canBeResent(): bool
+    {
+        $now = new \DateTimeImmutable();
+        $hoursSinceCreation = ($now->getTimestamp() - $this->createdAt->getTimestamp()) / 3600;
+
+        return $hoursSinceCreation >= 24;
+    }
+
     public function confirm(): void
     {
         if ($this->isConfirmed()) {
@@ -99,4 +109,3 @@ class EmailConfirmation extends AggregateRoot
         $this->confirmedAt = new \DateTimeImmutable();
     }
 }
-
