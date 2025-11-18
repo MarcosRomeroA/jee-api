@@ -10,7 +10,7 @@ final class SearchSocialNetworksQuery implements Query
 {
     public function __construct(
         private readonly string $userId,
-        private readonly bool $mine
+        private readonly bool $available
     ) {
     }
 
@@ -19,8 +19,8 @@ final class SearchSocialNetworksQuery implements Query
         return $this->userId;
     }
 
-    public function mine(): bool
+    public function available(): bool
     {
-        return $this->mine;
+        return $this->available;
     }
 }

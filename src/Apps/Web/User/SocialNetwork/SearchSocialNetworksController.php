@@ -13,9 +13,9 @@ final class SearchSocialNetworksController extends ApiController
 {
     public function __invoke(Request $request, string $sessionId): Response
     {
-        $mine = filter_var($request->query->get('mine', 'false'), FILTER_VALIDATE_BOOLEAN);
+        $available = filter_var($request->query->get('available', 'false'), FILTER_VALIDATE_BOOLEAN);
 
-        $query = new SearchSocialNetworksQuery($sessionId, $mine);
+        $query = new SearchSocialNetworksQuery($sessionId, $available);
 
         $response = $this->queryBus->ask($query);
 

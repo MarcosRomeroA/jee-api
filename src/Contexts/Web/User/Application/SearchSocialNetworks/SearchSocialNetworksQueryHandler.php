@@ -19,6 +19,6 @@ final readonly class SearchSocialNetworksQueryHandler implements QueryHandler
     {
         $userId = new Uuid($query->userId());
 
-        return ($this->searcher)($userId, $query->mine());
+        return ($this->searcher)($userId, $query->available());
     }
 }

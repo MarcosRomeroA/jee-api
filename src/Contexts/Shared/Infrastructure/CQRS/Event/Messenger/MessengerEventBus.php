@@ -6,6 +6,7 @@ namespace App\Contexts\Shared\Infrastructure\CQRS\Event\Messenger;
 
 use App\Contexts\Shared\Domain\CQRS\Event\DomainEvent;
 use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
+use Symfony\Component\Messenger\Exception\NoHandlerForMessageException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -19,10 +20,16 @@ final readonly class MessengerEventBus implements EventBus
     ) {
     }
 
-    public function publish(DomainEvent|array ...$events): void
+    public function publish(DomainEvent|array $events): void
     {
-        foreach ($events as $event) {
-            $this->messageBus->dispatch($event);
+        $eventList = is_array($events) ? $events : [$events];
+
+        foreach ($eventList as $event) {
+            try {
+                $this->messageBus->dispatch($event);
+            } catch (NoHandlerForMessageException) {
+                // Silently ignore events without handlers
+            }
         }
     }
 }

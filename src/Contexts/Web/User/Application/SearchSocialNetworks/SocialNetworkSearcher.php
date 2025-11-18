@@ -23,15 +23,14 @@ final readonly class SocialNetworkSearcher
     ) {
     }
 
-    public function __invoke(Uuid $userId, bool $mine): Response
+    public function __invoke(Uuid $userId, bool $available): Response
     {
-        $user = $this->findUser($userId);
-
-        if ($mine) {
-            return $this->findUserSocialNetworks($user);
+        if ($available) {
+            $user = $this->findUser($userId);
+            return $this->findAvailableSocialNetworks($user);
         }
 
-        return $this->findAvailableSocialNetworks($user);
+        return $this->findAllSocialNetworks();
     }
 
     private function findUser(Uuid $userId): User
@@ -45,15 +44,15 @@ final readonly class SocialNetworkSearcher
         return $user;
     }
 
-    private function findUserSocialNetworks(User $user): UserSocialNetworkCollectionResponse
-    {
-        $userSocialNetworks = $this->userSocialNetworkRepository->findByUser($user);
-        return new UserSocialNetworkCollectionResponse($userSocialNetworks);
-    }
-
     private function findAvailableSocialNetworks(User $user): SocialNetworkCollectionResponse
     {
         $socialNetworks = $this->socialNetworkRepository->findAvailableForUser($user);
+        return new SocialNetworkCollectionResponse($socialNetworks);
+    }
+
+    private function findAllSocialNetworks(): SocialNetworkCollectionResponse
+    {
+        $socialNetworks = $this->socialNetworkRepository->findAll();
         return new SocialNetworkCollectionResponse($socialNetworks);
     }
 }

@@ -32,10 +32,10 @@ services:
             - "traefik.http.routers.traefik.entrypoints=websecure"
             - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
             - "traefik.http.routers.traefik.service=api@internal"
-            # Autenticación básica para el dashboard (usuario: admin, password: changeme)
+            # Autenticación básica para el dashboard (usuario: admin, password: admin)
             # Genera tu propia contraseña con: echo $(htpasswd -nb admin tu_password) | sed -e s/\\$/\\$\\$/g
             - "traefik.http.routers.traefik.middlewares=traefik-auth"
-            - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$8evjzm8z$$Yf6VlVbhXj9M9v7qHJ5xN/"
+            - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$pDj7/HKa$$EVK1nX3XBcH4FvQ4AE7MQ."
         logging:
             driver: "json-file"
             options:
