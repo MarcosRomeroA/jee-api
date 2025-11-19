@@ -15,17 +15,18 @@ final class PlayersSearcher
     ) {
     }
 
-    public function search(?string $query, ?Uuid $gameId, ?Uuid $userId, Pagination $pagination): PaginatedResponse
+    public function search(?string $query, ?Uuid $gameId, ?Uuid $teamId, ?Uuid $userId, Pagination $pagination): PaginatedResponse
     {
         $players = $this->repository->searchWithPagination(
             $query,
             $gameId,
+            $teamId,
             $userId,
             $pagination->limit(),
             $pagination->offset()
         );
 
-        $totalItems = $this->repository->countSearch($query, $gameId, $userId);
+        $totalItems = $this->repository->countSearch($query, $gameId, $teamId, $userId);
 
         $data = array_map(
             fn($player) => PlayerResponse::fromPlayer($player)->toArray(),
@@ -40,4 +41,3 @@ final class PlayersSearcher
         );
     }
 }
-

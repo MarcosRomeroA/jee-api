@@ -30,7 +30,7 @@ final readonly class SearchPostsByHashtagQueryHandler implements QueryHandler
         $total = $this->repository->countByHashtag($query->hashtag());
 
         $postsData = array_map(
-            fn($post) => PostResponse::fromEntity($post)->toArray(),
+            fn($post) => PostResponse::fromEntity($post, true)->toArray(),
             $posts
         );
 

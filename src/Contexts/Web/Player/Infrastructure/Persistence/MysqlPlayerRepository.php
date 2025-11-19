@@ -82,6 +82,7 @@ final class MysqlPlayerRepository extends ServiceEntityRepository implements Pla
     public function searchWithPagination(
         ?string $query,
         ?Uuid $gameId,
+        ?Uuid $teamId,
         ?Uuid $userId,
         int $limit,
         int $offset,
@@ -102,6 +103,13 @@ final class MysqlPlayerRepository extends ServiceEntityRepository implements Pla
                 ->setParameter("gameId", $gameId);
         }
 
+        if ($teamId !== null) {
+            $qb->join("p.teamPlayers", "tp")
+                ->join("tp.team", "t")
+                ->andWhere("t.id = :teamId")
+                ->setParameter("teamId", $teamId);
+        }
+
         if ($userId !== null) {
             $qb->andWhere("p.user = :userId")->setParameter("userId", $userId);
         }
@@ -117,6 +125,7 @@ final class MysqlPlayerRepository extends ServiceEntityRepository implements Pla
     public function countSearch(
         ?string $query,
         ?Uuid $gameId,
+        ?Uuid $teamId,
         ?Uuid $userId,
     ): int {
         $qb = $this->createQueryBuilder("p")->select("COUNT(p.id)");
@@ -133,6 +142,13 @@ final class MysqlPlayerRepository extends ServiceEntityRepository implements Pla
                 ->join("gr.game", "g")
                 ->andWhere("g.id = :gameId")
                 ->setParameter("gameId", $gameId);
+        }
+
+        if ($teamId !== null) {
+            $qb->join("p.teamPlayers", "tp")
+                ->join("tp.team", "t")
+                ->andWhere("t.id = :teamId")
+                ->setParameter("teamId", $teamId);
         }
 
         if ($userId !== null) {

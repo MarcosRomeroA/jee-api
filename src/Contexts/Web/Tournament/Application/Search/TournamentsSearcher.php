@@ -13,19 +13,19 @@ final class TournamentsSearcher
     }
 
     public function search(
-        ?string $query,
+        ?string $name,
         ?Uuid $gameId,
+        ?Uuid $statusId,
         ?Uuid $responsibleId,
         bool $open,
         int $limit,
         int $offset
     ): array {
-        return $this->repository->search($query, $gameId, $responsibleId, $open, $limit, $offset);
+        return $this->repository->search($name, $gameId, $statusId, $responsibleId, $open, $limit, $offset);
     }
 
-    public function count(?string $query, ?Uuid $gameId, ?Uuid $responsibleId, bool $open): int
+    public function count(?string $name, ?Uuid $gameId, ?Uuid $statusId, ?Uuid $responsibleId, bool $open): int
     {
-        return $this->repository->countSearch($query, $gameId, $responsibleId, $open);
+        return $this->repository->countSearch($name, $gameId, $statusId, $responsibleId, $open);
     }
 }
-

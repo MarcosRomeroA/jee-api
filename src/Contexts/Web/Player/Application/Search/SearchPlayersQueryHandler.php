@@ -21,9 +21,9 @@ final class SearchPlayersQueryHandler implements QueryHandler
         return $this->searcher->search(
             $query->query,
             $query->gameId ? new Uuid($query->gameId) : null,
+            $query->teamId ? new Uuid($query->teamId) : null,
             $query->userId ? new Uuid($query->userId) : null,
             $pagination
         );
     }
 }
-

@@ -37,8 +37,9 @@ final class DoctrineTournamentRepository
     }
 
     public function search(
-        ?string $query,
+        ?string $name,
         ?Uuid $gameId,
+        ?Uuid $statusId,
         ?Uuid $responsibleId,
         bool $open,
         int $limit,
@@ -46,10 +47,10 @@ final class DoctrineTournamentRepository
     ): array {
         $qb = $this->createQueryBuilder("t")->andWhere("t.deletedAt IS NULL");
 
-        if ($query !== null) {
-            $qb->andWhere("t.name LIKE :query")->setParameter(
-                "query",
-                "%" . $query . "%",
+        if ($name !== null) {
+            $qb->andWhere("t.name LIKE :name")->setParameter(
+                "name",
+                "%" . $name . "%",
             );
         }
 
@@ -59,6 +60,12 @@ final class DoctrineTournamentRepository
                 ->setParameter("gameId", $gameId);
         }
 
+        if ($statusId !== null) {
+            $qb->join("t.status", "s")
+                ->andWhere("s.id = :statusId")
+                ->setParameter("statusId", $statusId);
+        }
+
         if ($responsibleId !== null) {
             $qb->join("t.responsible", "r")
                 ->andWhere("r.id = :responsibleId")
@@ -66,8 +73,10 @@ final class DoctrineTournamentRepository
         }
 
         if ($open) {
-            $qb->join("t.status", "s")
-                ->andWhere("s.name = :statusName")
+            if ($statusId === null) {
+                $qb->join("t.status", "s");
+            }
+            $qb->andWhere("s.name = :statusName")
                 ->setParameter("statusName", "active")
                 ->andWhere("t.registeredTeams < t.maxTeams");
         }
@@ -80,8 +89,9 @@ final class DoctrineTournamentRepository
     }
 
     public function countSearch(
-        ?string $query,
+        ?string $name,
         ?Uuid $gameId,
+        ?Uuid $statusId,
         ?Uuid $responsibleId,
         bool $open,
     ): int {
@@ -89,10 +99,10 @@ final class DoctrineTournamentRepository
             ->select("COUNT(t.id)")
             ->andWhere("t.deletedAt IS NULL");
 
-        if ($query !== null) {
-            $qb->andWhere("t.name LIKE :query")->setParameter(
-                "query",
-                "%" . $query . "%",
+        if ($name !== null) {
+            $qb->andWhere("t.name LIKE :name")->setParameter(
+                "name",
+                "%" . $name . "%",
             );
         }
 
@@ -102,6 +112,12 @@ final class DoctrineTournamentRepository
                 ->setParameter("gameId", $gameId);
         }
 
+        if ($statusId !== null) {
+            $qb->join("t.status", "s")
+                ->andWhere("s.id = :statusId")
+                ->setParameter("statusId", $statusId);
+        }
+
         if ($responsibleId !== null) {
             $qb->join("t.responsible", "r")
                 ->andWhere("r.id = :responsibleId")
@@ -109,8 +125,10 @@ final class DoctrineTournamentRepository
         }
 
         if ($open) {
-            $qb->join("t.status", "s")
-                ->andWhere("s.name = :statusName")
+            if ($statusId === null) {
+                $qb->join("t.status", "s");
+            }
+            $qb->andWhere("s.name = :statusName")
                 ->setParameter("statusName", "active")
                 ->andWhere("t.registeredTeams < t.maxTeams");
         }

@@ -5,6 +5,7 @@ namespace App\Contexts\Web\Tournament\Application\Create;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\GameRankRepository;
 use App\Contexts\Web\Game\Domain\GameRepository;
+use App\Contexts\Web\Tournament\Application\Shared\TournamentImageUploader;
 use App\Contexts\Web\Tournament\Domain\Exception\GameNotFoundException;
 use App\Contexts\Web\Tournament\Domain\Exception\GameRankNotFoundException;
 use App\Contexts\Web\Tournament\Domain\Exception\TournamentStatusNotFoundException;
@@ -23,6 +24,7 @@ final class TournamentCreator
         private readonly UserRepository $userRepository,
         private readonly TournamentStatusRepository $statusRepository,
         private readonly GameRankRepository $gameRankRepository,
+        private readonly TournamentImageUploader $imageUploader,
     ) {}
 
     public function create(
@@ -41,50 +43,80 @@ final class TournamentCreator
         ?Uuid $minGameRankId = null,
         ?Uuid $maxGameRankId = null,
     ): void {
-        $game = $this->gameRepository->findById($gameId);
-        $responsible = $this->userRepository->findById($responsibleId);
-
-        $status = $this->statusRepository->findByName(
-            TournamentStatus::CREATED,
-        );
-        if ($status === null) {
-            throw new TournamentStatusNotFoundException(
-                TournamentStatus::CREATED,
-            );
-        }
-
-        $minGameRank = null;
-        if ($minGameRankId !== null) {
-            $minGameRank = $this->gameRankRepository->findById($minGameRankId);
-        }
-
-        $maxGameRank = null;
-        if ($maxGameRankId !== null) {
-            $maxGameRank = $this->gameRankRepository->findById($maxGameRankId);
-        }
-
         // Set default values for optional fields
         $finalMaxTeams = $maxTeams ?? 16;
         $finalStartAt = $startAt ?? new \DateTimeImmutable();
         $finalEndAt = $endAt ?? new \DateTimeImmutable("+30 days");
 
-        $tournament = new Tournament(
-            $id,
-            $game,
-            $status,
-            $responsible,
-            $name,
-            $description,
-            $finalMaxTeams,
-            $isOfficial,
-            $image,
-            $prize,
-            $region,
-            $finalStartAt,
-            $finalEndAt,
-            $minGameRank,
-            $maxGameRank,
-        );
+        // Procesar imagen base64 si se proporciona
+        $imageFilename = null;
+        if ($image !== null && str_starts_with($image, 'data:image/')) {
+            try {
+                $imageFilename = $this->imageUploader->uploadBase64Image($id->value(), $image);
+            } catch (\Exception $e) {
+                // Si falla la subida de la imagen, continuamos sin ella
+                $imageFilename = null;
+            }
+        }
+
+        // Upsert logic: try to find and update, or create new
+        try {
+            $tournament = $this->tournamentRepository->findById($id);
+
+            // Update existing tournament
+            $tournament->update(
+                $name,
+                $description,
+                $finalMaxTeams,
+                $isOfficial,
+                $imageFilename ?? $tournament->image(),
+                $prize,
+                $region,
+                $finalStartAt,
+                $finalEndAt
+            );
+        } catch (\Exception $e) {
+            // Tournament doesn't exist, create new one
+            $game = $this->gameRepository->findById($gameId);
+            $responsible = $this->userRepository->findById($responsibleId);
+
+            $status = $this->statusRepository->findByName(
+                TournamentStatus::CREATED,
+            );
+            if ($status === null) {
+                throw new TournamentStatusNotFoundException(
+                    TournamentStatus::CREATED,
+                );
+            }
+
+            $minGameRank = null;
+            if ($minGameRankId !== null) {
+                $minGameRank = $this->gameRankRepository->findById($minGameRankId);
+            }
+
+            $maxGameRank = null;
+            if ($maxGameRankId !== null) {
+                $maxGameRank = $this->gameRankRepository->findById($maxGameRankId);
+            }
+
+            $tournament = new Tournament(
+                $id,
+                $game,
+                $status,
+                $responsible,
+                $name,
+                $description,
+                $finalMaxTeams,
+                $isOfficial,
+                $imageFilename,
+                $prize,
+                $region,
+                $finalStartAt,
+                $finalEndAt,
+                $minGameRank,
+                $maxGameRank,
+            );
+        }
 
         $this->tournamentRepository->save($tournament);
     }

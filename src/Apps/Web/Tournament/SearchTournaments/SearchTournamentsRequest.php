@@ -10,10 +10,13 @@ final readonly class SearchTournamentsRequest
 {
     public function __construct(
         #[Assert\Type("string")]
-        public ?string $q = null,
+        public ?string $name = null,
 
         #[Assert\Type("string")]
         public ?string $gameId = null,
+
+        #[Assert\Type("string")]
+        public ?string $statusId = null,
 
         #[Assert\Type("bool")]
         public bool $mine = false,
@@ -31,8 +34,9 @@ final readonly class SearchTournamentsRequest
     public static function fromHttp(Request $request): self
     {
         return new self(
-            $request->query->get('q'),
+            $request->query->get('name'),
             $request->query->get('gameId'),
+            $request->query->get('statusId'),
             (bool) $request->query->get('mine', false),
             (bool) $request->query->get('open', false),
             (int) $request->query->get('limit', 20),
@@ -43,8 +47,9 @@ final readonly class SearchTournamentsRequest
     public function toQuery(string $userId): SearchTournamentsQuery
     {
         return new SearchTournamentsQuery(
-            $this->q,
+            $this->name,
             $this->gameId,
+            $this->statusId,
             $this->mine ? $userId : null,
             $this->open,
             $this->limit,
@@ -52,4 +57,3 @@ final readonly class SearchTournamentsRequest
         );
     }
 }
-

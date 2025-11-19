@@ -21,8 +21,9 @@ interface TournamentRepository
     public function existsById(Uuid $id): bool;
 
     /**
-     * @param string|null $query
+     * @param string|null $name
      * @param Uuid|null $gameId
+     * @param Uuid|null $statusId
      * @param Uuid|null $responsibleId
      * @param bool $open
      * @param int $limit
@@ -30,8 +31,9 @@ interface TournamentRepository
      * @return array<Tournament>
      */
     public function search(
-        ?string $query,
+        ?string $name,
         ?Uuid $gameId,
+        ?Uuid $statusId,
         ?Uuid $responsibleId,
         bool $open,
         int $limit,
@@ -39,8 +41,9 @@ interface TournamentRepository
     ): array;
 
     public function countSearch(
-        ?string $query,
+        ?string $name,
         ?Uuid $gameId,
+        ?Uuid $statusId,
         ?Uuid $responsibleId,
         bool $open
     ): int;

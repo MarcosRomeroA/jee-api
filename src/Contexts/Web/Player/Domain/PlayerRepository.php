@@ -41,6 +41,7 @@ interface PlayerRepository
     /**
      * @param string|null $query
      * @param Uuid|null $gameId
+     * @param Uuid|null $teamId
      * @param Uuid|null $userId
      * @param int $limit
      * @param int $offset
@@ -49,12 +50,13 @@ interface PlayerRepository
     public function searchWithPagination(
         ?string $query,
         ?Uuid $gameId,
+        ?Uuid $teamId,
         ?Uuid $userId,
         int $limit,
         int $offset
     ): array;
 
-    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $userId): int;
+    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $teamId, ?Uuid $userId): int;
 
     public function existsByUserIdAndUsernameAndGameId(
         Uuid $userId,
