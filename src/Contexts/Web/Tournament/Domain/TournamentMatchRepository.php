@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Domain;
 
@@ -10,10 +12,18 @@ interface TournamentMatchRepository
 
     public function findById(Uuid $id): ?TournamentMatch;
 
+    /**
+     * @param Uuid $tournamentId
+     * @return array<TournamentMatch>
+     */
     public function findByTournamentId(Uuid $tournamentId): array;
 
+    /**
+     * @param Uuid $tournamentId
+     * @param int $round
+     * @return array<TournamentMatch>
+     */
     public function findByTournamentIdAndRound(Uuid $tournamentId, int $round): array;
 
     public function delete(TournamentMatch $match): void;
 }
-

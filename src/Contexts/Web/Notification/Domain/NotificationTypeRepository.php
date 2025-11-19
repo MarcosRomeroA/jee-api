@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Notification\Domain;
 
@@ -12,8 +14,8 @@ interface NotificationTypeRepository
 
     /**
      * @param string $name
-     * @return NotificationType
-     * 
+     * @return NotificationType|null
+     *
      * @throws NotificationTypeNotFoundException
      */
     public function findByName(string $name): ?NotificationType;
@@ -22,6 +24,9 @@ interface NotificationTypeRepository
 
     public function existsByName(string $name): bool;
 
+    /**
+     * @return array<NotificationType>
+     */
     public function searchAll(): array;
 
     public function delete(Uuid $id): void;
