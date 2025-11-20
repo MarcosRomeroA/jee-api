@@ -21,6 +21,8 @@
 ###> IDE ###
 /.idea/
 /.vscode/
+/.zed/
+CLAUDE.md
 ###< IDE ###
 
 ###> DOCKER ###

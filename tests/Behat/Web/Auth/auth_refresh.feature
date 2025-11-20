@@ -8,8 +8,8 @@ Feature: Refresh Token
     Given I send a POST request to "/api/login" with body:
       """
       {
-        "email": "test@example.com",
-        "password": "password123"
+        "email": "tester1@test.com",
+        "password": "12345678"
       }
       """
     Then the response status code should be 200
@@ -39,8 +39,8 @@ Feature: Refresh Token
     Given I send a POST request to "/api/login" with body:
       """
       {
-        "email": "test@example.com",
-        "password": "password123"
+        "email": "tester1@test.com",
+        "password": "12345678"
       }
       """
     Then the response status code should be 200

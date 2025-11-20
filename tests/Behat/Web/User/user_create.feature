@@ -26,7 +26,7 @@ Feature: Create User
         "firstname": "Jane",
         "lastname": "Smith",
         "username": "janesmithnew",
-        "email": "test@example.com",
+        "email": "tester1@test.com",
         "password": "SecurePassword123!",
         "confirmationPassword": "SecurePassword123!"
       }

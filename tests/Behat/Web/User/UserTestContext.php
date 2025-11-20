@@ -26,62 +26,34 @@ final class UserTestContext implements Context
     /** @BeforeScenario @user */
     public function createTestData(): void
     {
-        // Los usuarios globales ya fueron creados en DatabaseContext::setupDatabase()
-        // No necesitamos crear usuarios aquí
+        // Los usuarios estáticos (tester1, tester2, tester3) ya existen en la base de datos
+        // Son creados por la migración Version20251119000001 y NO deben ser modificados
         $this->entityManager->clear();
     }
 
-    /** @AfterScenario */
+    /** @AfterScenario @user */
     public function cleanupTestData(): void
     {
         /** @var Connection $connection */
         $connection = $this->entityManager->getConnection();
 
         try {
-            // Limpiar SOLO relaciones de seguimiento de usuarios de prueba
-            // NO eliminar usuarios, otros contextos los necesitan
+            // Limpiar SOLO relaciones de seguimiento creadas durante los tests
+            // Los usuarios estáticos NO se modifican, solo sus relaciones temporales
             $connection->executeStatement(
-                "DELETE FROM user_follow WHERE follower_id IN (:id1, :id2) OR followed_id IN (:id3, :id4)",
+                "DELETE FROM user_follow WHERE follower_id IN (:id1, :id2, :id3) OR followed_id IN (:id4, :id5, :id6)",
                 [
                     "id1" => TestUsers::USER1_ID,
                     "id2" => TestUsers::USER2_ID,
-                    "id3" => TestUsers::USER1_ID,
-                    "id4" => TestUsers::USER2_ID,
+                    "id3" => TestUsers::USER3_ID,
+                    "id4" => TestUsers::USER1_ID,
+                    "id5" => TestUsers::USER2_ID,
+                    "id6" => TestUsers::USER3_ID,
                 ],
             );
 
-            // Restaurar emails originales de los usuarios de prueba
-            // NO actualizar la contraseña para evitar cambiar el hash
-            $connection->executeStatement(
-                "UPDATE user SET email = :email1, username = :username1, firstname = :firstname1, lastname = :lastname1 WHERE id = :id1",
-                [
-                    "id1" => TestUsers::USER1_ID,
-                    "email1" => "test@example.com",
-                    "username1" => "testuser",
-                    "firstname1" => "Test",
-                    "lastname1" => "User",
-                ]
-            );
-            $connection->executeStatement(
-                "UPDATE user SET email = :email2, username = :username2, firstname = :firstname2, lastname = :lastname2 WHERE id = :id2",
-                [
-                    "id2" => TestUsers::USER2_ID,
-                    "email2" => "jane@example.com",
-                    "username2" => "janesmith",
-                    "firstname2" => "Jane",
-                    "lastname2" => "Smith",
-                ]
-            );
-            $connection->executeStatement(
-                "UPDATE user SET email = :email3, username = :username3, firstname = :firstname3, lastname = :lastname3 WHERE id = :id3",
-                [
-                    "id3" => TestUsers::USER3_ID,
-                    "email3" => "bob@example.com",
-                    "username3" => "bobtest",
-                    "firstname3" => "Bob",
-                    "lastname3" => "Test",
-                ]
-            );
+            // NO restaurar datos de usuarios - son estáticos y no deben modificarse
+            // Si un test necesita modificar un usuario, debe crear uno temporal
         } catch (\Exception $e) {
             // Ignorar si no existe
         }

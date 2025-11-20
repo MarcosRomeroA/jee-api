@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Tournament\Application;
 
@@ -6,6 +8,7 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\GameRankRepository;
 use App\Contexts\Web\Game\Domain\GameRepository;
 use App\Contexts\Web\Tournament\Application\Create\TournamentCreator;
+use App\Contexts\Web\Tournament\Application\Shared\TournamentImageUploader;
 use App\Contexts\Web\Tournament\Domain\Exception\GameNotFoundException;
 use App\Contexts\Web\Tournament\Domain\Tournament;
 use App\Contexts\Web\Tournament\Domain\TournamentRepository;
@@ -25,6 +28,7 @@ final class TournamentCreatorTest extends TestCase
     private UserRepository|MockObject $userRepository;
     private TournamentStatusRepository|MockObject $statusRepository;
     private GameRankRepository|MockObject $gameRankRepository;
+    private TournamentImageUploader $imageUploader;
     private TournamentCreator $creator;
 
     protected function setUp(): void
@@ -41,12 +45,18 @@ final class TournamentCreatorTest extends TestCase
             GameRankRepository::class,
         );
 
+        // TournamentImageUploader is final readonly, so we need to create a real instance
+        $fileManager = $this->createMock(\App\Contexts\Shared\Domain\FileManager\FileManager::class);
+        $kernel = $this->createMock(\Symfony\Component\HttpKernel\KernelInterface::class);
+        $this->imageUploader = new TournamentImageUploader($fileManager, $kernel);
+
         $this->creator = new TournamentCreator(
             $this->tournamentRepository,
             $this->gameRepository,
             $this->userRepository,
             $this->statusRepository,
             $this->gameRankRepository,
+            $this->imageUploader,
         );
     }
 
@@ -64,6 +74,14 @@ final class TournamentCreatorTest extends TestCase
         $responsible = UserMother::create($responsibleId);
         $status = TournamentStatusMother::created();
 
+        // First, findById is called to check if tournament exists (upsert logic)
+        // It should throw an exception to indicate it doesn't exist
+        $this->tournamentRepository
+            ->expects($this->once())
+            ->method("findById")
+            ->with($id)
+            ->willThrowException(new \Exception("Tournament not found"));
+
         $this->gameRepository
             ->expects($this->once())
             ->method("findById")
@@ -78,8 +96,10 @@ final class TournamentCreatorTest extends TestCase
 
         $this->statusRepository
             ->expects($this->once())
-            ->method("findByName")
-            ->with("created")
+            ->method("findById")
+            ->with($this->callback(function (Uuid $uuid) {
+                return $uuid->value() === 'a50e8400-e29b-41d4-a716-446655440001'; // CREATED UUID
+            }))
             ->willReturn($status);
 
         $this->tournamentRepository
@@ -117,6 +137,13 @@ final class TournamentCreatorTest extends TestCase
         $gameId = Uuid::random();
         $responsibleId = Uuid::random();
 
+        // First, findById is called to check if tournament exists (upsert logic)
+        $this->tournamentRepository
+            ->expects($this->once())
+            ->method("findById")
+            ->with($id)
+            ->willThrowException(new \Exception("Tournament not found"));
+
         $this->gameRepository
             ->expects($this->once())
             ->method("findById")
@@ -148,6 +175,13 @@ final class TournamentCreatorTest extends TestCase
         $responsibleId = Uuid::random();
 
         $game = GameMother::create($gameId);
+
+        // First, findById is called to check if tournament exists (upsert logic)
+        $this->tournamentRepository
+            ->expects($this->once())
+            ->method("findById")
+            ->with($id)
+            ->willThrowException(new \Exception("Tournament not found"));
 
         $this->gameRepository
             ->expects($this->once())

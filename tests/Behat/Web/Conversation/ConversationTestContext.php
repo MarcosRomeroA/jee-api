@@ -151,7 +151,35 @@ final class ConversationTestContext implements Context
     {
         $this->cleanupMessages();
 
-        // NO eliminar la conversación ni los participantes - persisten durante toda la suite
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        try {
+            // Limpiar participantes
+            $connection->executeStatement(
+                "DELETE FROM participant WHERE conversation_id = :id",
+                ["id" => self::CONVERSATION_ID]
+            );
+        } catch (\Exception $e) {
+        }
+
+        try {
+            // Limpiar conversación
+            $connection->executeStatement(
+                "DELETE FROM conversation WHERE id = :id",
+                ["id" => self::CONVERSATION_ID]
+            );
+        } catch (\Exception $e) {
+        }
+
+        try {
+            // Limpiar notification_type de test
+            $connection->executeStatement(
+                "DELETE FROM notification_type WHERE id = :id",
+                ["id" => "550e8400-e29b-41d4-a716-446655440099"]
+            );
+        } catch (\Exception $e) {}
+
         $this->entityManager->clear();
     }
 

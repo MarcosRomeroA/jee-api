@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\AssignResponsible;
 
@@ -30,9 +32,8 @@ final readonly class TournamentResponsibleAssigner
             throw new UnauthorizedException('Solo el responsable actual puede cambiar el responsable del torneo');
         }
 
-        // Verificar que el torneo está activo
-        $validStatuses = ['created', 'active'];
-        if (!in_array($tournament->status()->name(), $validStatuses)) {
+        // Verificar que el torneo está en estado created o active
+        if (!$tournament->status()->isCreated() && !$tournament->status()->isActive()) {
             throw new InvalidTournamentStateException('No se puede cambiar el responsable en el estado actual del torneo');
         }
 

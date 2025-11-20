@@ -14,7 +14,6 @@ final class TeamRequestAccessController extends ApiController
         string $sessionId,
     ): Response {
         $input = TeamRequestAccessRequest::fromHttp(
-            $request,
             $teamId,
             $sessionId,
         );

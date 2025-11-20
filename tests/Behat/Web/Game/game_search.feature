@@ -5,14 +5,14 @@ Feature: Search Games
   I want to search for games with filters
 
   Scenario: Search all games without filters
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a GET request to "/api/games"
     Then the response status code should be 200
     And the response should contain pagination structure
     And the response should have "data" property as array
 
   Scenario: Search games by name query
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a GET request to "/api/games?q=League"
     Then the response status code should be 200
     And the response should contain pagination structure

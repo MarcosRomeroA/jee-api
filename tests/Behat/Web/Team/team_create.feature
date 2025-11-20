@@ -5,7 +5,7 @@ Feature: Create Team
   I want to create a new team
 
   Scenario: Successfully create a team
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/team/550e8400-e29b-41d4-a716-446655440070" with body:
       """
       {
@@ -18,7 +18,7 @@ Feature: Create Team
     And the response should be empty
 
   Scenario: Create team with empty description
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/team/550e8400-e29b-41d4-a716-446655440075" with body:
       """
       {
@@ -31,7 +31,7 @@ Feature: Create Team
     And the response should be empty
 
   Scenario: Create team without optional fields
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/team/550e8400-e29b-41d4-a716-446655440076" with body:
       """
       {
@@ -42,7 +42,7 @@ Feature: Create Team
     And the response should be empty
 
   Scenario: Create team with missing required fields
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/team/550e8400-e29b-41d4-a716-446655440071" with body:
       """
       {

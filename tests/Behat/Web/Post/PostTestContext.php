@@ -7,13 +7,7 @@ namespace App\Tests\Behat\Web\Post;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Domain\Post;
 use App\Contexts\Web\Post\Domain\ValueObject\BodyValue;
-use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\User\Domain\UserRepository;
-use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
-use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
-use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
-use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
-use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
 use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
 use Doctrine\DBAL\Connection;
@@ -35,37 +29,10 @@ final class PostTestContext implements Context
         /** @var Connection $connection */
         $connection = $this->entityManager->getConnection();
 
-        // Crear notification_type para POST_LIKED si no existe
-        $notificationTypeLikedExists = $connection->fetchOne(
-            "SELECT COUNT(*) FROM notification_type WHERE name = :name",
-            ["name" => "POST_LIKED"],
-        );
-
-        if ($notificationTypeLikedExists == 0) {
-            $connection->executeStatement(
-                "INSERT INTO notification_type (id, name) VALUES (:id, :name)",
-                [
-                    "id" => "850e8400-e29b-41d4-a716-446655440001",
-                    "name" => "POST_LIKED",
-                ],
-            );
-        }
-
-        // Crear notification_type para POST_COMMENTED si no existe
-        $notificationTypeCommentedExists = $connection->fetchOne(
-            "SELECT COUNT(*) FROM notification_type WHERE name = :name",
-            ["name" => "POST_COMMENTED"],
-        );
-
-        if ($notificationTypeCommentedExists == 0) {
-            $connection->executeStatement(
-                "INSERT INTO notification_type (id, name) VALUES (:id, :name)",
-                [
-                    "id" => "850e8400-e29b-41d4-a716-446655440002",
-                    "name" => "POST_COMMENTED",
-                ],
-            );
-        }
+        // Los notification_types ya existen en la base de datos creados por la migración Version20251116054200
+        // - post_liked (ID: 850e8400-e29b-41d4-a716-446655440001)
+        // - post_commented (ID: 850e8400-e29b-41d4-a716-446655440002)
+        // NO necesitamos crearlos aquí.
 
         // Los usuarios globales ya existen, solo obtenerlos
         $user = $this->userRepository->findById(
@@ -140,8 +107,9 @@ final class PostTestContext implements Context
             // Ignorar si no existe
         }
 
-        // NO eliminar el usuario - es compartido entre contextos
-        // Limpiar el entity manager
+        // NO limpiar notification_types - son datos de migración y NO deben eliminarse
+        // Los notification_types (post_liked, post_commented, etc.) vienen de Version20251116054200
+
         $this->entityManager->clear();
     }
 }

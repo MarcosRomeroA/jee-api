@@ -8,7 +8,7 @@ Feature: Resend Email Confirmation
   # Scenario: Successfully resend email confirmation after 24 hours
   #   Given the following users exist:
   #     | id                                   | firstname | lastname | username      | email                 | password    |
-  #     | 850e8400-e29b-41d4-a716-446655440900 | Resend    | User     | resenduser900 | resend900@example.com | password123 |
+  #     | 850e8400-e29b-41d4-a716-446655440900 | Resend    | User     | resenduser900 | resend900@example.com | 12345678 |
   #   And the following email confirmations exist:
   #     | user_id                              | token                                | confirmed_at | created_at          |
   #     | 850e8400-e29b-41d4-a716-446655440900 | 923e4567-e89b-42d3-a456-426614174900 | null         | 2020-01-01 12:00:00 |
@@ -22,8 +22,8 @@ Feature: Resend Email Confirmation
 
   Scenario: Try to resend email confirmation before 24 hours
     Given the following users exist:
-      | id                                   | firstname | lastname | username      | email                 | password    |
-      | 850e8400-e29b-41d4-a716-446655440901 | Recent    | User     | recentuser901 | recent901@example.com | password123 |
+      | id                                   | firstname | lastname | username      | email                 | password |
+      | 850e8400-e29b-41d4-a716-446655440901 | Recent    | User     | recentuser901 | recent901@example.com | 12345678 |
     And the following email confirmations exist:
       | user_id                              | token                                | confirmed_at |
       | 850e8400-e29b-41d4-a716-446655440901 | 923e4567-e89b-42d3-a456-426614174901 | null         |

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Domain;
 
@@ -10,12 +12,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'tournament_status')]
 class TournamentStatus extends AggregateRoot
 {
-    public const string CREATED = 'created';
-    public const string ACTIVE = 'active';
-    public const string DELETED = 'deleted';
-    public const string ARCHIVED = 'archived';
-    public const string FINALIZED = 'finalized';
-    public const string SUSPENDED = 'suspended';
+    // UUID constants (after Version20251119000002.php migration)
+    public const string CREATED = 'a50e8400-e29b-41d4-a716-446655440001';
+    public const string ACTIVE = 'a50e8400-e29b-41d4-a716-446655440002';
+    public const string DELETED = 'a50e8400-e29b-41d4-a716-446655440003';
+    public const string ARCHIVED = 'a50e8400-e29b-41d4-a716-446655440004';
+    public const string FINALIZED = 'a50e8400-e29b-41d4-a716-446655440005';
+    public const string SUSPENDED = 'a50e8400-e29b-41d4-a716-446655440006';
 
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', length: 36)]
@@ -70,4 +73,3 @@ class TournamentStatus extends AggregateRoot
         return $this->id->value() === self::ARCHIVED;
     }
 }
-

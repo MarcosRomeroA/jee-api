@@ -5,7 +5,7 @@ Feature: Update Player
   I want to update a player profile
 
   Scenario: Successfully update an existing player
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440200" with body:
       """
       {
@@ -27,7 +27,7 @@ Feature: Update Player
     And the response should be empty
 
   Scenario: Update player changes role and rank
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440201" with body:
       """
       {
@@ -48,7 +48,7 @@ Feature: Update Player
     Then the response status code should be 200
 
   Scenario: Update player with missing required fields
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440202" with body:
       """
       {
@@ -58,7 +58,7 @@ Feature: Update Player
     Then the response status code should be 422
 
   Scenario: Update player with non-existent game role
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440203" with body:
       """
       {

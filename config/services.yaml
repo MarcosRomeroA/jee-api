@@ -48,14 +48,14 @@ services:
 
     #Tagging
     App\Contexts\Shared\Infrastructure\CQRS\Event\InMemory\InMemorySymfonyEventBus:
-        arguments: [!tagged app.domain_event_subscriber]
+        arguments: [!tagged_iterator app.domain_event_subscriber]
         lazy: true
 
     App\Contexts\Shared\Infrastructure\CQRS\Event\DomainEventMapping:
-        arguments: [!tagged app.domain_event_subscriber]
+        arguments: [!tagged_iterator app.domain_event_subscriber]
 
     App\Contexts\Shared\Infrastructure\CQRS\Event\DomainEventSubscriberLocator:
-        arguments: [!tagged app.domain_event_subscriber]
+        arguments: [!tagged_iterator app.domain_event_subscriber]
 
     App\Contexts\Shared\Infrastructure\Symfony\AddJsonBodyToRequestListener:
         tags:
@@ -68,10 +68,10 @@ services:
     # -- APP DEFINITIONS --
     # Command/Query Handlers
     App\Contexts\Shared\Infrastructure\CQRS\Command\InMemorySymfonyCommandBus:
-        arguments: [!tagged app.command_handler]
+        arguments: [!tagged_iterator app.command_handler]
 
     App\Contexts\Shared\Infrastructure\CQRS\Query\InMemorySymfonyQueryBus:
-        arguments: [!tagged app.query_handler]
+        arguments: [!tagged_iterator app.query_handler]
 
     # Event Bus - uses Messenger for async event processing via RabbitMQ
     App\Contexts\Shared\Infrastructure\CQRS\Event\Messenger\MessengerEventBus:

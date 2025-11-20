@@ -5,7 +5,7 @@ Feature: Mercure Notification Real-time
   I want to verify that notifications are published to Mercure
 
   Background:
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
 
   Scenario: Verify Mercure configuration is present
     Then I should be able to subscribe to Mercure notifications
@@ -18,7 +18,7 @@ Feature: Mercure Notification Real-time
   @realtime @post
   Scenario: Receive real-time notification when someone likes my post (POST_LIKED)
     Given I am listening to Mercure notifications for user "550e8400-e29b-41d4-a716-446655440001"
-    And I am authenticated as "jane@example.com" with password "password456"
+    And I am authenticated as "tester2@test.com" with password "12345678"
     When I send a PUT request to "/api/post/550e8400-e29b-41d4-a716-446655440010/like" with body:
       """
       {}
@@ -29,7 +29,7 @@ Feature: Mercure Notification Real-time
   @realtime @post
   Scenario: Receive real-time notification when someone comments my post (POST_COMMENTED)
     Given I am listening to Mercure notifications for user "550e8400-e29b-41d4-a716-446655440001"
-    And I am authenticated as "jane@example.com" with password "password456"
+    And I am authenticated as "tester2@test.com" with password "12345678"
     When I send a PUT request to "/api/post/550e8400-e29b-41d4-a716-446655440010/comment" with body:
       """
       {
@@ -43,7 +43,7 @@ Feature: Mercure Notification Real-time
   @realtime @user
   Scenario: Receive real-time notification when someone follows me (NEW_FOLLOWER)
     Given I am listening to Mercure notifications for user "550e8400-e29b-41d4-a716-446655440001"
-    And I am authenticated as "jane@example.com" with password "password456"
+    And I am authenticated as "tester2@test.com" with password "12345678"
     When I send a PUT request to "/api/user/550e8400-e29b-41d4-a716-446655440001/follow" with body:
       """
       {}
@@ -54,7 +54,7 @@ Feature: Mercure Notification Real-time
   @realtime @conversation
   Scenario: Receive real-time notification when someone sends me a message (NEW_MESSAGE)
     Given I am listening to Mercure notifications for user "550e8400-e29b-41d4-a716-446655440001"
-    And I am authenticated as "jane@example.com" with password "password456"
+    And I am authenticated as "tester2@test.com" with password "12345678"
     When I send a PUT request to "/api/conversation/550e8400-e29b-41d4-a716-446655440040/message/950e8400-e29b-41d4-a716-446655440999" with body:
       """
       {

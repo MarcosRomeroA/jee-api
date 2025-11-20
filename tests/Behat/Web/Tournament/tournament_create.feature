@@ -5,7 +5,7 @@ Feature: Create Tournament
   I want to create a new tournament
 
   Scenario: Successfully create a tournament with all fields
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/tournament/750e8400-e29b-41d4-a716-446655440100" with body:
       """
       {
@@ -25,7 +25,7 @@ Feature: Create Tournament
     And the response should be empty
 
   Scenario: Create tournament with minimal required fields
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/tournament/750e8400-e29b-41d4-a716-446655440101" with body:
       """
       {
@@ -38,7 +38,7 @@ Feature: Create Tournament
     And the response should be empty
 
   Scenario: Create tournament using sessionId as responsibleId
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/tournament/750e8400-e29b-41d4-a716-446655440102" with body:
       """
       {
@@ -51,7 +51,7 @@ Feature: Create Tournament
     And the response should be empty
 
   Scenario: Create tournament with missing required fields
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/tournament/750e8400-e29b-41d4-a716-446655440103" with body:
       """
       {

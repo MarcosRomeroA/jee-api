@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Behat\Web\Tournament;
 
@@ -13,6 +15,8 @@ use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
+use App\Tests\Behat\Shared\Fixtures\MigrationData;
+use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -31,25 +35,16 @@ final class TournamentTestContext implements Context
         // Limpiar caché antes de verificar
         $this->entityManager->clear();
 
-        // Usar el usuario de autenticación compartido (test@example.com)
-        $userId = new Uuid("550e8400-e29b-41d4-a716-446655440001");
+        // Los usuarios globales ya existen, solo obtenerlos
+        $connection = $this->entityManager->getConnection();
+        $userId = new Uuid(TestUsers::USER1_ID);
         $existingUser = $this->entityManager->find(User::class, $userId);
 
         if (!$existingUser) {
-            $user = new User(
-                $userId,
-                new FirstnameValue("Test"),
-                new LastnameValue("User"),
-                new UsernameValue("testuser"),
-                new EmailValue("test@example.com"),
-                new PasswordValue(
-                    password_hash("password123", PASSWORD_BCRYPT),
-                ),
-            );
-            $this->entityManager->persist($user);
-        } else {
-            $user = $existingUser;
+            throw new \RuntimeException("Global test user USER1 not found. Run migrations first.");
         }
+
+        $user = $existingUser;
 
         // Crear un juego de prueba
         $gameId = new Uuid("750e8400-e29b-41d4-a716-446655440001");
@@ -122,18 +117,15 @@ final class TournamentTestContext implements Context
             $maxRank = $existingMaxRank;
         }
 
-        // Crear estado de torneo (usar el ID de "created" de la migración)
-        $statusId = new Uuid("01234567-89ab-cdef-0123-000000000001");
-        $existingStatus = $this->entityManager->find(
+        // Usar el estado de torneo "created" de la migración
+        $statusId = new Uuid(MigrationData::TOURNAMENT_STATUS_CREATED_ID);
+        $status = $this->entityManager->find(
             TournamentStatus::class,
             $statusId,
         );
 
-        if (!$existingStatus) {
-            $status = new TournamentStatus($statusId, "created");
-            $this->entityManager->persist($status);
-        } else {
-            $status = $existingStatus;
+        if (!$status) {
+            throw new \RuntimeException("Tournament status 'created' not found. Run migrations first.");
         }
 
         // Crear un torneo de prueba
@@ -170,8 +162,6 @@ final class TournamentTestContext implements Context
     /** @AfterScenario @tournament */
     public function cleanupTestData(): void
     {
-        // Limpiar en orden inverso respetando foreign keys
-
         // Limpiar torneos (esto también limpiará tournament_teams por cascade)
         $this->entityManager
             ->createQuery(
@@ -179,19 +169,15 @@ final class TournamentTestContext implements Context
             )
             ->execute();
 
-        // Limpiar estados de torneo
-        $this->entityManager
-            ->createQuery(
-                "DELETE FROM App\Contexts\Web\Tournament\Domain\TournamentStatus",
-            )
-            ->execute();
+        // NO limpiar:
+        // - tournament_status (vienen de la migración)
+        // - game_rank (vienen de la migración)
+        // - rank (vienen de la migración)
+        // - game (vienen de la migración)
+        // - role (vienen de la migración)
+        // - game_role (vienen de la migración)
+        // Estos son datos de referencia estáticos y NUNCA deben eliminarse
 
-        // NO eliminar GameRank, Rank, GameRole ni Game porque están en las migraciones
-        // y son datos compartidos que se usan en múltiples tests
-
-        // NO eliminar usuario porque es compartido con AuthTestContext
-
-        // Limpiar caché del EntityManager
         $this->entityManager->clear();
     }
 }

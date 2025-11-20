@@ -5,7 +5,7 @@ Feature: Search My Players
   I want to search for my players with filters
 
   Scenario: Search all my players without filters
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/player/650e8400-e29b-41d4-a716-446655440600" with body:
       """
       {
@@ -21,7 +21,7 @@ Feature: Search My Players
     And the response should have "data" property as array
 
   Scenario: Search my players by username query
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/player/650e8400-e29b-41d4-a716-446655440601" with body:
       """
       {
@@ -37,7 +37,7 @@ Feature: Search My Players
     And the response should have "data" property as array
 
   Scenario: Search my players with pagination
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a GET request to "/api/players?mine=true&page=1&limit=5"
     Then the response status code should be 200
     And the response should contain pagination structure

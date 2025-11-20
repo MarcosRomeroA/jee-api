@@ -28,8 +28,8 @@ final class AuthTestContext implements Context
     /** @BeforeScenario @auth */
     public function createTestData(): void
     {
-        // Los usuarios globales ya fueron creados en DatabaseContext::setupDatabase()
-        // No necesitamos crear usuarios aquí
+        // Los usuarios estáticos (tester1, tester2, tester3) ya existen en la base de datos
+        // Son creados por la migración Version20251119000001 y NO deben ser modificados
         $this->entityManager->clear();
     }
 

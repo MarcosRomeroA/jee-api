@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\Create;
 
@@ -25,7 +27,8 @@ final class TournamentCreator
         private readonly TournamentStatusRepository $statusRepository,
         private readonly GameRankRepository $gameRankRepository,
         private readonly TournamentImageUploader $imageUploader,
-    ) {}
+    ) {
+    }
 
     public function create(
         Uuid $id,
@@ -80,8 +83,8 @@ final class TournamentCreator
             $game = $this->gameRepository->findById($gameId);
             $responsible = $this->userRepository->findById($responsibleId);
 
-            $status = $this->statusRepository->findByName(
-                TournamentStatus::CREATED,
+            $status = $this->statusRepository->findById(
+                new Uuid(TournamentStatus::CREATED),
             );
             if ($status === null) {
                 throw new TournamentStatusNotFoundException(

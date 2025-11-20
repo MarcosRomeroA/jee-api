@@ -15,10 +15,18 @@ final class DatabaseContext implements Context
 {
     private static bool $initialized = false;
     private array $createdUserIds = [];
+    private array $createdEmailConfirmationIds = [];
 
     private const USER1_ID = "550e8400-e29b-41d4-a716-446655440001";
     private const USER2_ID = "550e8400-e29b-41d4-a716-446655440002";
     private const USER3_ID = "550e8400-e29b-41d4-a716-446655440003";
+
+    // IDs de usuarios de migración que NO deben modificarse
+    private const MIGRATION_USER_IDS = [
+        self::USER1_ID,
+        self::USER2_ID,
+        self::USER3_ID,
+    ];
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -29,45 +37,9 @@ final class DatabaseContext implements Context
     /** @BeforeScenario */
     public function ensureDefaultUsers(): void
     {
-        $connection = $this->entityManager->getConnection();
-
-        try {
-            // Restaurar emails originales de los usuarios de prueba antes de cada escenario
-            // NO actualizar la contraseña para evitar cambiar el hash
-            $connection->executeStatement(
-                "UPDATE user SET email = :email1, username = :username1, firstname = :firstname1, lastname = :lastname1 WHERE id = :id1",
-                [
-                    "id1" => self::USER1_ID,
-                    "email1" => "test@example.com",
-                    "username1" => "testuser",
-                    "firstname1" => "Test",
-                    "lastname1" => "User",
-                ]
-            );
-            $connection->executeStatement(
-                "UPDATE user SET email = :email2, username = :username2, firstname = :firstname2, lastname = :lastname2 WHERE id = :id2",
-                [
-                    "id2" => self::USER2_ID,
-                    "email2" => "jane@example.com",
-                    "username2" => "janesmith",
-                    "firstname2" => "Jane",
-                    "lastname2" => "Smith",
-                ]
-            );
-            $connection->executeStatement(
-                "UPDATE user SET email = :email3, username = :username3, firstname = :firstname3, lastname = :lastname3 WHERE id = :id3",
-                [
-                    "id3" => self::USER3_ID,
-                    "email3" => "bob@example.com",
-                    "username3" => "bobtest",
-                    "firstname3" => "Bob",
-                    "lastname3" => "Test",
-                ]
-            );
-        } catch (\Exception $e) {
-            // Ignorar si no existe
-        }
-
+        // Los usuarios estáticos (tester1, tester2, tester3) ya existen en la base de datos
+        // Son creados por la migración Version20251119000001 y NO deben ser modificados
+        // Solo limpiamos el entity manager
         $this->entityManager->clear();
     }
 
@@ -80,17 +52,30 @@ final class DatabaseContext implements Context
 
         echo "\n🔧 Inicializando base de datos para tests...\n";
 
-        // Crear la base de datos si no existe y ejecutar migraciones
+        // SIEMPRE eliminar y recrear la base de datos para tener un estado limpio
+        echo "🗑️  Eliminando base de datos existente...\n";
+        $dropResult = self::executeCommand([
+            "php",
+            "bin/console",
+            "doctrine:database:drop",
+            "--force",
+            "--env=test",
+        ]);
+
+        if ($dropResult["success"]) {
+            echo "✓ Base de datos eliminada\n";
+        }
+
+        // Crear la base de datos
         $createResult = self::executeCommand([
             "php",
             "bin/console",
             "doctrine:database:create",
-            "--if-not-exists",
             "--env=test",
         ]);
 
         if ($createResult["success"]) {
-            echo "✓ Base de datos verificada/creada\n";
+            echo "✓ Base de datos creada\n";
         }
 
         // Ejecutar migraciones
@@ -109,7 +94,7 @@ final class DatabaseContext implements Context
             echo $migrateResult["error"];
         }
 
-        // Crear usuarios globales para todos los tests
+        // Verificar usuarios globales creados por migración
         self::createGlobalTestUsers();
 
         echo "✅ Base de datos inicializada correctamente\n\n";
@@ -118,9 +103,8 @@ final class DatabaseContext implements Context
     }
 
     /**
-     * Crea los 3 usuarios globales que se usarán en TODOS los tests.
-     * Estos usuarios se crean UNA SOLA VEZ al inicio de la suite y persisten durante todos los tests.
-     * Los passwords se hashean aquí y nunca se modifican, garantizando autenticación consistente.
+     * Verifica que los 3 usuarios estáticos existan en la base de datos.
+     * Estos usuarios son creados por la migración Version20251119000001 y NO deben modificarse.
      */
     private static function createGlobalTestUsers(): void
     {
@@ -131,174 +115,25 @@ final class DatabaseContext implements Context
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $connection = $entityManager->getConnection();
 
-        echo "👥 Creando usuarios globales para tests...\n";
-
-        // Calcular hashes UNA SOLA VEZ para passwords conocidos
-        $user1Hash = password_hash(TestUsers::USER1_PASSWORD, PASSWORD_BCRYPT);
-        $user2Hash = password_hash(TestUsers::USER2_PASSWORD, PASSWORD_BCRYPT);
-        $user3Hash = password_hash(TestUsers::USER3_PASSWORD, PASSWORD_BCRYPT);
+        echo "👥 Verificando usuarios estáticos para tests...\n";
 
         try {
-            // Verificar si los usuarios ya existen
+            // Verificar que los usuarios estáticos existan
             $user1Exists = $connection->fetchOne(
                 "SELECT COUNT(*) FROM user WHERE id = :id",
                 ["id" => TestUsers::USER1_ID]
             );
 
             if ($user1Exists > 0) {
-                // Los usuarios ya existen, actualizar sus passwords para asegurar que sean correctos
-                echo "  🔄 Usuarios globales ya existen, actualizando passwords...\n";
-
-                $connection->executeStatement(
-                    "UPDATE user SET password = :password WHERE id = :id",
-                    ["id" => TestUsers::USER1_ID, "password" => $user1Hash]
-                );
-                $connection->executeStatement(
-                    "UPDATE user SET password = :password WHERE id = :id",
-                    ["id" => TestUsers::USER2_ID, "password" => $user2Hash]
-                );
-                $connection->executeStatement(
-                    "UPDATE user SET password = :password WHERE id = :id",
-                    ["id" => TestUsers::USER3_ID, "password" => $user3Hash]
-                );
-
-                echo "  ✓ Passwords actualizados correctamente\n";
-
-                // Asegurar que tengan email confirmado
-                $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
-                $expiresAt = (new \DateTimeImmutable())->modify('+24 hours')->format('Y-m-d H:i:s');
-
-                // Marcar usuarios globales como verificados (nuevo sistema)
-                $connection->executeStatement(
-                    "UPDATE user SET verified_at = :verified_at WHERE id IN (:user1, :user2, :user3)",
-                    [
-                        "verified_at" => $now,
-                        "user1" => TestUsers::USER1_ID,
-                        "user2" => TestUsers::USER2_ID,
-                        "user3" => TestUsers::USER3_ID,
-                    ]
-                );
-
-                // Eliminar confirmaciones existentes de los usuarios globales (ya no necesarias)
-                $connection->executeStatement(
-                    "DELETE FROM email_confirmation WHERE user_id IN (:user1, :user2, :user3)",
-                    [
-                        "user1" => TestUsers::USER1_ID,
-                        "user2" => TestUsers::USER2_ID,
-                        "user3" => TestUsers::USER3_ID,
-                    ]
-                );
-
-                echo "  ✓ Email confirmations verificadas\n";
-
-                $kernel->shutdown();
-                return;
+                echo "  ✓ Usuarios estáticos (tester1, tester2, tester3) encontrados\n";
+                echo "  ℹ  Estos usuarios fueron creados por la migración y son READ-ONLY\n";
+            } else {
+                echo "  ⚠  ADVERTENCIA: Usuarios estáticos NO encontrados!\n";
+                echo "  ℹ  Ejecuta las migraciones: php bin/console doctrine:migrations:migrate --env=test\n";
             }
-
-            // Crear USER1 (test@example.com)
-            $connection->executeStatement(
-                "INSERT INTO user (id, firstname, lastname, username, email, password, profile_image, created_at)
-                 VALUES (:id, :firstname, :lastname, :username, :email, :password, '', NOW())",
-                [
-                    "id" => TestUsers::USER1_ID,
-                    "firstname" => TestUsers::USER1_FIRSTNAME,
-                    "lastname" => TestUsers::USER1_LASTNAME,
-                    "username" => TestUsers::USER1_USERNAME,
-                    "email" => TestUsers::USER1_EMAIL,
-                    "password" => $user1Hash,
-                ]
-            );
-            echo "  ✓ USER1 creado: {" . TestUsers::USER1_EMAIL . "}\n";
-
-            // Crear USER2 (jane@example.com)
-            $connection->executeStatement(
-                "INSERT INTO user (id, firstname, lastname, username, email, password, profile_image, created_at)
-                 VALUES (:id, :firstname, :lastname, :username, :email, :password, '', NOW())",
-                [
-                    "id" => TestUsers::USER2_ID,
-                    "firstname" => TestUsers::USER2_FIRSTNAME,
-                    "lastname" => TestUsers::USER2_LASTNAME,
-                    "username" => TestUsers::USER2_USERNAME,
-                    "email" => TestUsers::USER2_EMAIL,
-                    "password" => $user2Hash,
-                ]
-            );
-            echo "  ✓ USER2 creado: {" . TestUsers::USER2_EMAIL . "}\n";
-
-            // Crear USER3 (bob@example.com)
-            $connection->executeStatement(
-                "INSERT INTO user (id, firstname, lastname, username, email, password, profile_image, created_at)
-                 VALUES (:id, :firstname, :lastname, :username, :email, :password, '', NOW())",
-                [
-                    "id" => TestUsers::USER3_ID,
-                    "firstname" => TestUsers::USER3_FIRSTNAME,
-                    "lastname" => TestUsers::USER3_LASTNAME,
-                    "username" => TestUsers::USER3_USERNAME,
-                    "email" => TestUsers::USER3_EMAIL,
-                    "password" => $user3Hash,
-                ]
-            );
-            echo "  ✓ USER3 creado: {" . TestUsers::USER3_EMAIL . "}\n";
-
-            // Crear confirmaciones de email para los 3 usuarios (ya confirmados)
-            $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
-            $expiresAt = (new \DateTimeImmutable())->modify('+24 hours')->format('Y-m-d H:i:s');
-
-            // Primero eliminar confirmaciones existentes de los usuarios globales
-            $connection->executeStatement(
-                "DELETE FROM email_confirmation WHERE user_id IN (:user1, :user2, :user3)",
-                [
-                    "user1" => TestUsers::USER1_ID,
-                    "user2" => TestUsers::USER2_ID,
-                    "user3" => TestUsers::USER3_ID,
-                ]
-            );
-
-            foreach ([TestUsers::USER1_ID, TestUsers::USER2_ID, TestUsers::USER3_ID] as $userId) {
-                // Generar UUID válido
-                $uuid = \sprintf(
-                    '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-                    \random_int(0, 0xffff),
-                    \random_int(0, 0xffff),
-                    \random_int(0, 0xffff),
-                    \random_int(0, 0x0fff) | 0x4000,
-                    \random_int(0, 0x3fff) | 0x8000,
-                    \random_int(0, 0xffff),
-                    \random_int(0, 0xffff),
-                    \random_int(0, 0xffff)
-                );
-
-                // Generate UUID v4 for token (36 characters)
-                $tokenUuid = \sprintf(
-                    '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-                    \random_int(0, 0xffff),
-                    \random_int(0, 0xffff),
-                    \random_int(0, 0xffff),
-                    \random_int(0, 0x0fff) | 0x4000,
-                    \random_int(0, 0x3fff) | 0x8000,
-                    \random_int(0, 0xffff),
-                    \random_int(0, 0xffff),
-                    \random_int(0, 0xffff)
-                );
-
-                $connection->executeStatement(
-                    "INSERT INTO email_confirmation (id, user_id, token, created_at, expires_at, confirmed_at)
-                     VALUES (:id, :user_id, :token, :created_at, :expires_at, :confirmed_at)",
-                    [
-                        "id" => $uuid,
-                        "user_id" => $userId,
-                        "token" => $tokenUuid,
-                        "created_at" => $now,
-                        "expires_at" => $expiresAt,
-                        "confirmed_at" => $now,
-                    ]
-                );
-            }
-
-            echo "  ✓ Email confirmations creadas para usuarios globales\n";
 
         } catch (\Exception $e) {
-            echo "  ✗ Error creando usuarios globales: " . $e->getMessage() . "\n";
+            echo "  ✗ Error verificando usuarios estáticos: " . $e->getMessage() . "\n";
         }
 
         $kernel->shutdown();
@@ -312,81 +147,50 @@ final class DatabaseContext implements Context
         $connection = $this->entityManager->getConnection();
 
         foreach ($table->getHash() as $row) {
-            // Check if this is a global test user (should stay verified)
-            $isGlobalUser = in_array($row['id'], [
-                TestUsers::USER1_ID,
-                TestUsers::USER2_ID,
-                TestUsers::USER3_ID,
-            ]);
+            $userId = $row['id'];
 
-            // Verificar si el usuario ya existe y obtener su email
+            // Verificar si es un usuario de migración (NO debe modificarse)
+            $isMigrationUser = in_array($userId, self::MIGRATION_USER_IDS);
+
+            // Verificar si el usuario ya existe
             $existingEmail = $connection->fetchOne(
                 "SELECT email FROM user WHERE id = :id",
-                ["id" => $row['id']]
+                ["id" => $userId]
             );
+
+            // Si es un usuario de migración, NO modificarlo
+            if ($isMigrationUser && $existingEmail) {
+                // Usuario de migración ya existe - NO modificar, solo continuar
+                continue;
+            }
 
             // Hashear la contraseña
             $hashedPassword = password_hash($row['password'], PASSWORD_BCRYPT);
 
-            if ($existingEmail) {
-                // Usuario existe - siempre limpiar relaciones de seguimiento y actualizar
-                try {
-                    // Limpiar relaciones de seguimiento antes de actualizar
-                    $connection->executeStatement(
-                        "DELETE FROM user_follow WHERE follower_id = :id OR followed_id = :id",
-                        ["id" => $row['id']]
-                    );
-
-                    // Actualizar el usuario con los nuevos datos si el email es diferente
-                    // Solo resetear verified_at si NO es un usuario global
-                    if ($existingEmail !== $row['email']) {
-                        if ($isGlobalUser) {
-                            $connection->executeStatement(
-                                "UPDATE user SET firstname = :firstname, lastname = :lastname, username = :username, email = :email, password = :password WHERE id = :id",
-                                [
-                                    "id" => $row['id'],
-                                    "firstname" => $row['firstname'],
-                                    "lastname" => $row['lastname'],
-                                    "username" => $row['username'],
-                                    "email" => $row['email'],
-                                    "password" => $hashedPassword,
-                                ]
-                            );
-                        } else {
-                            $connection->executeStatement(
-                                "UPDATE user SET firstname = :firstname, lastname = :lastname, username = :username, email = :email, password = :password, verified_at = NULL WHERE id = :id",
-                                [
-                                    "id" => $row['id'],
-                                    "firstname" => $row['firstname'],
-                                    "lastname" => $row['lastname'],
-                                    "username" => $row['username'],
-                                    "email" => $row['email'],
-                                    "password" => $hashedPassword,
-                                ]
-                            );
-                        }
-                    }
-                } catch (\Exception $e) {
-                    // Ignorar errores al actualizar
-                }
+            if ($existingEmail && !$isMigrationUser) {
+                // Usuario NO es de migración pero ya existe - esto no debería pasar
+                // porque cada test debe limpiar sus datos
+                throw new \RuntimeException(
+                    "Usuario con ID {$userId} ya existe pero NO es un usuario de migración. " .
+                    "El contexto anterior no limpió correctamente sus datos."
+                );
             } else {
-                // Usuario no existe - crearlo
-                try {
-                    $connection->executeStatement(
-                        "INSERT INTO user (id, firstname, lastname, username, email, password, profile_image, created_at)
-                         VALUES (:id, :firstname, :lastname, :username, :email, :password, '', NOW())",
-                        [
-                            "id" => $row['id'],
-                            "firstname" => $row['firstname'],
-                            "lastname" => $row['lastname'],
-                            "username" => $row['username'],
-                            "email" => $row['email'],
-                            "password" => $hashedPassword,
-                        ]
-                    );
-                } catch (\Exception $e) {
-                    // Ignorar si hay error
-                }
+                // Usuario no existe - crearlo sin verified_at (no verificado por defecto)
+                $connection->executeStatement(
+                    "INSERT INTO user (id, firstname, lastname, username, email, password, profile_image, description, created_at)
+                     VALUES (:id, :firstname, :lastname, :username, :email, :password, '', '', NOW())",
+                    [
+                        "id" => $userId,
+                        "firstname" => $row['firstname'],
+                        "lastname" => $row['lastname'],
+                        "username" => $row['username'],
+                        "email" => $row['email'],
+                        "password" => $hashedPassword,
+                    ]
+                );
+
+                // Registrar que este contexto creó este usuario
+                $this->createdUserIds[] = $userId;
             }
         }
     }
@@ -399,6 +203,18 @@ final class DatabaseContext implements Context
         $connection = $this->entityManager->getConnection();
 
         foreach ($table->getHash() as $row) {
+            $userId = $row['user_id'];
+
+            // Verificar si es un usuario de migración (NO debe modificarse)
+            $isMigrationUser = in_array($userId, self::MIGRATION_USER_IDS);
+
+            if ($isMigrationUser) {
+                throw new \RuntimeException(
+                    "No se puede crear email_confirmation para usuario de migración {$userId}. " .
+                    "Los usuarios de migración (tester1, tester2, tester3) ya están verificados y NO deben modificarse."
+                );
+            }
+
             // Generar UUID para el email confirmation
             $uuid = \sprintf(
                 '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
@@ -430,24 +246,25 @@ final class DatabaseContext implements Context
                 // Primero eliminar cualquier confirmación existente para este usuario
                 $connection->executeStatement(
                     "DELETE FROM email_confirmation WHERE user_id = :user_id",
-                    ["user_id" => $row['user_id']]
+                    ["user_id" => $userId]
                 );
 
                 // Actualizar el verified_at del usuario según confirmed_at
+                // Solo para usuarios NO de migración
                 if ($confirmedAt !== null) {
                     // Si confirmed_at no es null, marcar al usuario como verificado
                     $connection->executeStatement(
                         "UPDATE user SET verified_at = :verified_at WHERE id = :user_id",
                         [
                             "verified_at" => $confirmedAt,
-                            "user_id" => $row['user_id']
+                            "user_id" => $userId
                         ]
                     );
                 } else {
                     // Si confirmed_at es null, resetear verified_at (usuario no verificado)
                     $connection->executeStatement(
                         "UPDATE user SET verified_at = NULL WHERE id = :user_id",
-                        ["user_id" => $row['user_id']]
+                        ["user_id" => $userId]
                     );
                 }
 
@@ -457,13 +274,16 @@ final class DatabaseContext implements Context
                      VALUES (:id, :user_id, :token, :created_at, :expires_at, :confirmed_at)",
                     [
                         "id" => $uuid,
-                        "user_id" => $row['user_id'],
+                        "user_id" => $userId,
                         "token" => $row['token'],
                         "created_at" => $createdAt,
                         "expires_at" => $expiresAt,
                         "confirmed_at" => $confirmedAt,
                     ]
                 );
+
+                // Registrar que este contexto creó este email_confirmation
+                $this->createdEmailConfirmationIds[] = $uuid;
             } catch (\Exception $e) {
                 // Ignorar si hay error
             }
@@ -473,11 +293,53 @@ final class DatabaseContext implements Context
     /** @AfterScenario */
     public function cleanupDynamicUsers(): void
     {
-        // NO limpiar usuarios que fueron creados dinámicamente si usan IDs de TestUsers
-        // Estos usuarios son compartidos entre tests y no deben eliminarse
-        // El cleanup lo harán sus respectivos contextos (UserTestContext, etc.)
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
 
+        // Limpiar email_confirmations creados por ESTE contexto
+        if (!empty($this->createdEmailConfirmationIds)) {
+            try {
+                $placeholders = implode(',', array_fill(0, count($this->createdEmailConfirmationIds), '?'));
+                $connection->executeStatement(
+                    "DELETE FROM email_confirmation WHERE id IN ({$placeholders})",
+                    $this->createdEmailConfirmationIds
+                );
+            } catch (\Exception $e) {
+                // Ignorar errores
+            }
+        }
+
+        // Limpiar usuarios creados por ESTE contexto (NO los de migración)
+        if (!empty($this->createdUserIds)) {
+            try {
+                // Primero limpiar relaciones
+                $placeholders = implode(',', array_fill(0, count($this->createdUserIds), '?'));
+
+                // Limpiar user_follow
+                $connection->executeStatement(
+                    "DELETE FROM user_follow WHERE follower_id IN ({$placeholders}) OR followed_id IN ({$placeholders})",
+                    array_merge($this->createdUserIds, $this->createdUserIds)
+                );
+
+                // Limpiar email_confirmation
+                $connection->executeStatement(
+                    "DELETE FROM email_confirmation WHERE user_id IN ({$placeholders})",
+                    $this->createdUserIds
+                );
+
+                // Finalmente eliminar usuarios
+                $connection->executeStatement(
+                    "DELETE FROM user WHERE id IN ({$placeholders})",
+                    $this->createdUserIds
+                );
+            } catch (\Exception $e) {
+                // Ignorar errores
+            }
+        }
+
+        // Resetear arrays de seguimiento
         $this->createdUserIds = [];
+        $this->createdEmailConfirmationIds = [];
         $this->entityManager->clear();
     }
 

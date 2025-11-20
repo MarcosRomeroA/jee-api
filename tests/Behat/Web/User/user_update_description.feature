@@ -5,7 +5,7 @@ Feature: Update User Description
   I want to update my description
 
   Scenario: Successfully update user description
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PATCH request to "/api/user/description" with body:
       """
       {
@@ -16,7 +16,7 @@ Feature: Update User Description
     And the response should be empty
 
   Scenario: Update user description to empty string
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PATCH request to "/api/user/description" with body:
       """
       {
@@ -36,7 +36,7 @@ Feature: Update User Description
     Then the response status code should be 401
 
   Scenario: Update user description with invalid data type
-    Given I am authenticated as "test@example.com" with password "password123"
+    Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PATCH request to "/api/user/description" with body:
       """
       {

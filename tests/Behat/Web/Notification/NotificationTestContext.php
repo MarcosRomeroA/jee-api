@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Behat\Web\Notification;
 
@@ -25,7 +27,8 @@ final class NotificationTestContext implements Context
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
-    ) {}
+    ) {
+    }
 
     /** @BeforeScenario @notification */
     public function createTestData(): void
@@ -128,6 +131,24 @@ final class NotificationTestContext implements Context
             $connection->executeStatement(
                 "DELETE FROM notification_type WHERE id = :typeId",
                 ["typeId" => self::TEST_NOTIFICATION_TYPE_ID],
+            );
+        } catch (\Exception $e) {
+            // Ignorar si no existe
+        }
+
+        try {
+            // Limpiar relaciones de follow creadas durante tests de notificaciones
+            // (el test de Mercure NEW_FOLLOWER crea un follow de tester2 a tester1)
+            $connection->executeStatement(
+                "DELETE FROM user_follow WHERE follower_id IN (:id1, :id2, :id3) OR followed_id IN (:id4, :id5, :id6)",
+                [
+                    "id1" => TestUsers::USER1_ID,
+                    "id2" => TestUsers::USER2_ID,
+                    "id3" => TestUsers::USER3_ID,
+                    "id4" => TestUsers::USER1_ID,
+                    "id5" => TestUsers::USER2_ID,
+                    "id6" => TestUsers::USER3_ID,
+                ],
             );
         } catch (\Exception $e) {
             // Ignorar si no existe

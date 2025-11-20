@@ -10,13 +10,13 @@ final readonly class TeamRequestAccessRequest
 {
     public function __construct(
         public string $teamId,
-
-        #[Assert\NotBlank] #[Assert\Type("string")] public string $playerId,
+        public string $playerId,
     ) {}
 
+    # TODO: sessionId debe verificarse que el jugar sea del usuario logueado
     public static function fromHttp(
-        Request $request,
         string $teamId,
+        string $playerId,
         string $sessionId,
     ): self {
         return new self($teamId, $sessionId);
