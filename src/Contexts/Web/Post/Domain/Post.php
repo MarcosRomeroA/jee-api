@@ -91,6 +91,7 @@ class Post extends AggregateRoot
         $this->createdAt = new CreatedAtValue();
         $this->updatedAt = new UpdatedAtValue($this->createdAt->value());
         $this->comments = new ArrayCollection();
+        $this->likes = new ArrayCollection();
         $this->resources = new ArrayCollection();
         $this->hashtags = new ArrayCollection();
         $this->resourceUrls = [];

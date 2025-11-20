@@ -22,9 +22,10 @@ final readonly class ExtractHashtagsOnPostCreatedSubscriber implements DomainEve
     public function __invoke(PostCreatedDomainEvent $event): void
     {
         // Try to find the post - it might not exist if processed asynchronously after deletion
-        $post = $this->postRepository->find($event->getAggregateId());
-
-        if (!$post) {
+        try {
+            $post = $this->postRepository->findById($event->getAggregateId());
+        } catch (\Exception $e) {
+            // Post was deleted before async processing
             return;
         }
 
