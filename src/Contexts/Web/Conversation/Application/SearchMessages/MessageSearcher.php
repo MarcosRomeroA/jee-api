@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Conversation\Application\SearchMessages;
 
@@ -16,16 +18,15 @@ final readonly class MessageSearcher
         private ConversationRepository $conversationRepository,
         private MessageRepository $messageRepository,
         private UserRepository $userRepository
-    )
-    {
+    ) {
     }
 
     public function __invoke(Uuid $userId, Uuid $conversationId): MessagesResponse
     {
-        $conversation = $this->conversationRepository->find($conversationId);
-        $user = $this->userRepository->find($userId);
+        $conversation = $this->conversationRepository->findById($conversationId);
+        $user = $this->userRepository->findById($userId);
 
-        if (!$conversation->containsParticipant($user)){
+        if (!$conversation->containsParticipant($user)) {
             throw new UserNotExistsInConversationException();
         }
 

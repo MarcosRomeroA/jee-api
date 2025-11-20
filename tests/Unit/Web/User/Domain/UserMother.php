@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\User\Domain;
 
@@ -78,5 +80,30 @@ final class UserMother
             new PasswordValue(password_hash('password123', PASSWORD_BCRYPT))
         );
     }
-}
 
+    public static function withVerifiedEmail(): User
+    {
+        $user = self::create();
+
+        // Mark email as verified using reflection
+        $reflection = new \ReflectionClass($user);
+        $property = $reflection->getProperty('verifiedAt');
+        $property->setAccessible(true);
+        $property->setValue($user, new \DateTimeImmutable());
+
+        return $user;
+    }
+
+    public static function withUnverifiedEmail(): User
+    {
+        $user = self::create();
+
+        // Ensure verifiedAt is null
+        $reflection = new \ReflectionClass($user);
+        $property = $reflection->getProperty('verifiedAt');
+        $property->setAccessible(true);
+        $property->setValue($user, null);
+
+        return $user;
+    }
+}
