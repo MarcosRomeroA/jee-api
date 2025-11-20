@@ -49,7 +49,8 @@ RUN php /var/www/html/bin/console cache:clear --env=prod --no-warmup \
     && php /var/www/html/bin/console cache:warmup --env=prod
 
 # Configurar permisos y crear directorios necesarios
-RUN chown -R www-data:www-data /var/www/html/var \
+RUN mkdir -p /var/www/html/var/log \
+    && chown -R www-data:www-data /var/www/html/var \
     && chmod -R 775 /var/www/html/var \
     && chown -R www-data:www-data /var/www/html/public \
     && mkdir -p /var/log/nginx /run/nginx \
