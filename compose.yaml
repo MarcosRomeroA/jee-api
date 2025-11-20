@@ -10,13 +10,15 @@ services:
             - "--providers.docker.exposedbydefault=false"
             - "--entrypoints.web.address=:80"
             - "--entrypoints.websecure.address=:443"
-            - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-            - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-            - "--certificatesresolvers.letsencrypt.acme.email=admin@jugaenequipo.com"
-            - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
             - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
             - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+            - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
+            - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare"
+            - "--certificatesresolvers.letsencrypt.acme.email=admin@jugaenequipo.com"
+            - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
             - "--log.level=INFO"
+        environment:
+            - CF_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
         ports:
             - "80:80"
             - "443:443"
@@ -57,10 +59,18 @@ services:
         restart: unless-stopped
         labels:
             - "traefik.enable=true"
+            # HTTP router (redirect to HTTPS)
+            - "traefik.http.routers.symfony-http.rule=Host(`api.jugaenequipo.com`)"
+            - "traefik.http.routers.symfony-http.entrypoints=web"
+            - "traefik.http.routers.symfony-http.middlewares=redirect-to-https"
+            # HTTPS router
             - "traefik.http.routers.symfony.rule=Host(`api.jugaenequipo.com`)"
             - "traefik.http.routers.symfony.entrypoints=websecure"
             - "traefik.http.routers.symfony.tls.certresolver=letsencrypt"
             - "traefik.http.services.symfony.loadbalancer.server.port=80"
+            # Redirect middleware
+            - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+            - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
         logging:
             driver: "json-file"
             options:
