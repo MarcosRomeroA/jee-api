@@ -12,7 +12,6 @@ use App\Contexts\Web\Team\Domain\ValueObject\TeamDescriptionValue;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamImageValue;
 use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\User\Domain\UserRepository;
-use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -53,15 +52,21 @@ final class TeamTestContext implements Context
             // Ignorar si no existe
         }
 
-        // Los usuarios de migración ya existen (tester1, tester2, tester3)
-        // NO crearlos, solo obtenerlos
-        $user = $this->userRepository->findById(new Uuid(TestUsers::USER1_ID));
+        // Obtener el primer usuario disponible (creado por el test via DatabaseContext)
+        $user = $connection->fetchOne("SELECT id FROM user ORDER BY created_at ASC LIMIT 1");
+
+        if (!$user) {
+            // Si no hay usuario, no crear datos de test
+            return;
+        }
+
+        $user = $this->userRepository->findById(new Uuid($user));
 
         // Los datos de referencia (games, roles, ranks, game_roles, game_ranks)
         // ya existen en la base de datos creados por la migración Version20251116054200
         // Sin embargo, necesitamos crear algunos players y teams específicos para los tests
 
-        // Crear Players para USER2 y USER3 si no existen (usando datos de migración existentes)
+        // Crear Players si no existen (usando datos de migración existentes)
         $this->createPlayers($connection);
 
         // Crear Games adicionales para tests de Team (no están en migración)
@@ -79,66 +84,45 @@ final class TeamTestContext implements Context
         // Usar game_rank de la migración: Valorant Gold 2 (ID: 850e8400-e29b-41d4-a716-446655440011)
         // Usar game_role de la migración: Valorant Duelist (ID: 750e8400-e29b-41d4-a716-446655440001)
 
-        // Crear Player para USER2 si no existe
-        $player2Exists = $connection->fetchOne(
-            "SELECT COUNT(*) FROM player WHERE id = :id",
-            ["id" => TestUsers::USER2_ID],
+        // Obtener usuarios creados dinámicamente por el test
+        $users = $connection->fetchAllAssociative(
+            "SELECT id, username FROM user ORDER BY created_at ASC"
         );
 
-        if ($player2Exists == 0) {
-            $connection->executeStatement(
-                "INSERT INTO player (id, user_id, game_rank_id, username, verified, created_at)
-                 VALUES (:id, :userId, :gameRankId, :username, :verified, NOW())",
-                [
-                    "id" => TestUsers::USER2_ID,
-                    "userId" => TestUsers::USER2_ID,
-                    "gameRankId" => "850e8400-e29b-41d4-a716-446655440011", // Valorant Gold 2 (migración)
-                    "username" => TestUsers::USER2_USERNAME, // "tester2"
-                    "verified" => 0,
-                ],
+        // Crear players para cada usuario si no existen
+        foreach ($users as $userData) {
+            $userId = $userData['id'];
+            $username = $userData['username'];
+
+            $playerExists = $connection->fetchOne(
+                "SELECT COUNT(*) FROM player WHERE id = :id",
+                ["id" => $userId],
             );
 
-            // Crear relación player_game_role
-            $connection->executeStatement(
-                "INSERT INTO player_game_role (player_id, game_role_id) VALUES (:playerId, :gameRoleId)",
-                [
-                    "playerId" => TestUsers::USER2_ID,
-                    "gameRoleId" => "750e8400-e29b-41d4-a716-446655440001", // Valorant Duelist (migración)
-                ],
-            );
+            if ($playerExists == 0) {
+                $connection->executeStatement(
+                    "INSERT INTO player (id, user_id, game_rank_id, username, verified, created_at)
+                     VALUES (:id, :userId, :gameRankId, :username, :verified, NOW())",
+                    [
+                        "id" => $userId,
+                        "userId" => $userId,
+                        "gameRankId" => "850e8400-e29b-41d4-a716-446655440011", // Valorant Gold 2 (migración)
+                        "username" => $username,
+                        "verified" => 0,
+                    ],
+                );
 
-            $this->createdPlayerIds[] = TestUsers::USER2_ID;
-        }
+                // Crear relación player_game_role
+                $connection->executeStatement(
+                    "INSERT INTO player_game_role (player_id, game_role_id) VALUES (:playerId, :gameRoleId)",
+                    [
+                        "playerId" => $userId,
+                        "gameRoleId" => "750e8400-e29b-41d4-a716-446655440001", // Valorant Duelist (migración)
+                    ],
+                );
 
-        // Crear Player para USER3 si no existe
-        $player3Exists = $connection->fetchOne(
-            "SELECT COUNT(*) FROM player WHERE id = :id",
-            ["id" => TestUsers::USER3_ID],
-        );
-
-        if ($player3Exists == 0) {
-            $connection->executeStatement(
-                "INSERT INTO player (id, user_id, game_rank_id, username, verified, created_at)
-                 VALUES (:id, :userId, :gameRankId, :username, :verified, NOW())",
-                [
-                    "id" => TestUsers::USER3_ID,
-                    "userId" => TestUsers::USER3_ID,
-                    "gameRankId" => "850e8400-e29b-41d4-a716-446655440011", // Valorant Gold 2 (migración)
-                    "username" => TestUsers::USER3_USERNAME, // "tester3"
-                    "verified" => 0,
-                ],
-            );
-
-            // Crear relación player_game_role
-            $connection->executeStatement(
-                "INSERT INTO player_game_role (player_id, game_role_id) VALUES (:playerId, :gameRoleId)",
-                [
-                    "playerId" => TestUsers::USER3_ID,
-                    "gameRoleId" => "750e8400-e29b-41d4-a716-446655440001", // Valorant Duelist (migración)
-                ],
-            );
-
-            $this->createdPlayerIds[] = TestUsers::USER3_ID;
+                $this->createdPlayerIds[] = $userId;
+            }
         }
     }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat\Web\Player;
 
-use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,17 +31,20 @@ final class PlayerTestContext implements Context
         /** @var Connection $connection */
         $connection = $this->entityManager->getConnection();
 
+        // ID del usuario tester1 (de la migración Version20251119000001)
+        $tester1Id = '550e8400-e29b-41d4-a716-446655440001';
+
         try {
             // 1. Limpiar player_game_role del usuario de prueba
             $connection->executeStatement(
                 "DELETE FROM player_game_role WHERE player_id IN (SELECT id FROM player WHERE user_id = :userId)",
-                ["userId" => TestUsers::USER1_ID],
+                ["userId" => $tester1Id],
             );
 
             // 2. Limpiar players del usuario de prueba
             $connection->executeStatement(
                 "DELETE FROM player WHERE user_id = :userId",
-                ["userId" => TestUsers::USER1_ID],
+                ["userId" => $tester1Id],
             );
         } catch (\Exception $e) {
             // Ignorar si no existe

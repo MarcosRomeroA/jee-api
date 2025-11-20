@@ -8,13 +8,15 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Domain\Post;
 use App\Contexts\Web\Post\Domain\ValueObject\BodyValue;
 use App\Contexts\Web\User\Domain\UserRepository;
-use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class PostTestContext implements Context
 {
+    // IDs de usuarios de la migración Version20251119000001
+    private const USER1_ID = '550e8400-e29b-41d4-a716-446655440001';
+
     private const TEST_POST_ID = "550e8400-e29b-41d4-a716-446655440010";
 
     public function __construct(
@@ -36,7 +38,7 @@ final class PostTestContext implements Context
 
         // Los usuarios globales ya existen, solo obtenerlos
         $user = $this->userRepository->findById(
-            new Uuid(TestUsers::USER1_ID),
+            new Uuid(self::USER1_ID),
         );
 
         // Verificar si el post ya existe
@@ -71,7 +73,7 @@ final class PostTestContext implements Context
             // Limpiar notificaciones de todos los posts del usuario de prueba
             $connection->executeStatement(
                 "DELETE FROM notification WHERE post_id IN (SELECT id FROM post WHERE user_id = :userId)",
-                ["userId" => TestUsers::USER1_ID],
+                ["userId" => self::USER1_ID],
             );
         } catch (\Exception $e) {
             // Ignorar si no existe
@@ -81,7 +83,7 @@ final class PostTestContext implements Context
             // Limpiar comentarios de todos los posts del usuario de prueba
             $connection->executeStatement(
                 "DELETE FROM post_comment WHERE post_id IN (SELECT id FROM post WHERE user_id = :userId)",
-                ["userId" => TestUsers::USER1_ID],
+                ["userId" => self::USER1_ID],
             );
         } catch (\Exception $e) {
             // Ignorar si no existe
@@ -91,7 +93,7 @@ final class PostTestContext implements Context
             // Limpiar likes/dislikes de todos los posts del usuario de prueba
             $connection->executeStatement(
                 "DELETE FROM post_like WHERE post_id IN (SELECT id FROM post WHERE user_id = :userId)",
-                ["userId" => TestUsers::USER1_ID],
+                ["userId" => self::USER1_ID],
             );
         } catch (\Exception $e) {
             // Ignorar si no existe
@@ -101,7 +103,7 @@ final class PostTestContext implements Context
             // Limpiar todos los posts del usuario de prueba
             $connection->executeStatement(
                 "DELETE FROM post WHERE user_id = :userId",
-                ["userId" => TestUsers::USER1_ID],
+                ["userId" => self::USER1_ID],
             );
         } catch (\Exception $e) {
             // Ignorar si no existe

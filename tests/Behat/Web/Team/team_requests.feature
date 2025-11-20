@@ -5,7 +5,7 @@ Feature: Team Requests
   I want to view and manage pending team requests
 
   Scenario: Get all pending team requests
-    # Create a team as tester1
+    # Los usuarios tester1, tester2, tester3 ya existen en la BD (migración Version20251119000001)
     Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/team/750e8400-e29b-41d4-a716-446655440001" with body:
       """
@@ -46,7 +46,7 @@ Feature: Team Requests
     And the response should contain a request for team "Beta Team" by player "tester3" with status "pending"
 
   Scenario: Get pending requests shows only pending ones
-    # Create a team as tester1
+    # Los usuarios tester1, tester2 ya existen en la BD (migración Version20251119000001)
     Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/team/750e8400-e29b-41d4-a716-446655440003" with body:
       """
@@ -85,6 +85,7 @@ Feature: Team Requests
     And the JSON node "requests" should have 0 elements
 
   Scenario: Empty pending requests list when no requests exist
+    # El usuario tester1 ya existe en la BD (migración Version20251119000001)
     Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a GET request to "/api/team/requests"
     Then the response status code should be 200

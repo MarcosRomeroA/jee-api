@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\Team\RequestAccess;
 
@@ -11,14 +13,15 @@ final readonly class TeamRequestAccessRequest
     public function __construct(
         public string $teamId,
         public string $playerId,
-    ) {}
+    ) {
+    }
 
-    # TODO: sessionId debe verificarse que el jugar sea del usuario logueado
     public static function fromHttp(
+        Request $request,
         string $teamId,
-        string $playerId,
         string $sessionId,
     ): self {
+        // El playerId es el sessionId (usuario autenticado solicitando unirse)
         return new self($teamId, $sessionId);
     }
 

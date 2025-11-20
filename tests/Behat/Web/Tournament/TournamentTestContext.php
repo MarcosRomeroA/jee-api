@@ -16,12 +16,14 @@ use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
 use App\Tests\Behat\Shared\Fixtures\MigrationData;
-use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class TournamentTestContext implements Context
 {
+    // IDs de usuarios de la migración Version20251119000001
+    private const USER1_ID = '550e8400-e29b-41d4-a716-446655440001';
+
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -37,7 +39,7 @@ final class TournamentTestContext implements Context
 
         // Los usuarios globales ya existen, solo obtenerlos
         $connection = $this->entityManager->getConnection();
-        $userId = new Uuid(TestUsers::USER1_ID);
+        $userId = new Uuid(self::USER1_ID);
         $existingUser = $this->entityManager->find(User::class, $userId);
 
         if (!$existingUser) {

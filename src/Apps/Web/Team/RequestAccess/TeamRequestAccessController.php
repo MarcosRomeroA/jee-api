@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\Team\RequestAccess;
 
@@ -14,6 +16,7 @@ final class TeamRequestAccessController extends ApiController
         string $sessionId,
     ): Response {
         $input = TeamRequestAccessRequest::fromHttp(
+            $request,
             $teamId,
             $sessionId,
         );

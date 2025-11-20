@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Behat\Shared\Infrastructure\Behat;
 
 use App\Contexts\Web\User\Domain\UserRepository;
-use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Doctrine\ORM\EntityManagerInterface;
@@ -94,49 +93,9 @@ final class DatabaseContext implements Context
             echo $migrateResult["error"];
         }
 
-        // Verificar usuarios globales creados por migración
-        self::createGlobalTestUsers();
-
         echo "✅ Base de datos inicializada correctamente\n\n";
 
         self::$initialized = true;
-    }
-
-    /**
-     * Verifica que los 3 usuarios estáticos existan en la base de datos.
-     * Estos usuarios son creados por la migración Version20251119000001 y NO deben modificarse.
-     */
-    private static function createGlobalTestUsers(): void
-    {
-        // Obtener la conexión directamente desde el EntityManager bootstrap
-        $kernel = new \App\Kernel($_ENV['APP_ENV'] ?? 'test', (bool) ($_ENV['APP_DEBUG'] ?? false));
-        $kernel->boot();
-        $container = $kernel->getContainer();
-        $entityManager = $container->get('doctrine.orm.entity_manager');
-        $connection = $entityManager->getConnection();
-
-        echo "👥 Verificando usuarios estáticos para tests...\n";
-
-        try {
-            // Verificar que los usuarios estáticos existan
-            $user1Exists = $connection->fetchOne(
-                "SELECT COUNT(*) FROM user WHERE id = :id",
-                ["id" => TestUsers::USER1_ID]
-            );
-
-            if ($user1Exists > 0) {
-                echo "  ✓ Usuarios estáticos (tester1, tester2, tester3) encontrados\n";
-                echo "  ℹ  Estos usuarios fueron creados por la migración y son READ-ONLY\n";
-            } else {
-                echo "  ⚠  ADVERTENCIA: Usuarios estáticos NO encontrados!\n";
-                echo "  ℹ  Ejecuta las migraciones: php bin/console doctrine:migrations:migrate --env=test\n";
-            }
-
-        } catch (\Exception $e) {
-            echo "  ✗ Error verificando usuarios estáticos: " . $e->getMessage() . "\n";
-        }
-
-        $kernel->shutdown();
     }
 
     /**

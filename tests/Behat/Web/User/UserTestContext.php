@@ -11,13 +11,17 @@ use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
-use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class UserTestContext implements Context
 {
+    // IDs de usuarios de la migración Version20251119000001
+    private const USER1_ID = '550e8400-e29b-41d4-a716-446655440001';
+    private const USER2_ID = '550e8400-e29b-41d4-a716-446655440002';
+    private const USER3_ID = '550e8400-e29b-41d4-a716-446655440003';
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
     ) {
@@ -43,12 +47,12 @@ final class UserTestContext implements Context
             $connection->executeStatement(
                 "DELETE FROM user_follow WHERE follower_id IN (:id1, :id2, :id3) OR followed_id IN (:id4, :id5, :id6)",
                 [
-                    "id1" => TestUsers::USER1_ID,
-                    "id2" => TestUsers::USER2_ID,
-                    "id3" => TestUsers::USER3_ID,
-                    "id4" => TestUsers::USER1_ID,
-                    "id5" => TestUsers::USER2_ID,
-                    "id6" => TestUsers::USER3_ID,
+                    "id1" => self::USER1_ID,
+                    "id2" => self::USER2_ID,
+                    "id3" => self::USER3_ID,
+                    "id4" => self::USER1_ID,
+                    "id5" => self::USER2_ID,
+                    "id6" => self::USER3_ID,
                 ],
             );
 

@@ -12,13 +12,17 @@ use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
-use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class AuthTestContext implements Context
 {
+    // IDs de usuarios de la migración Version20251119000001
+    private const USER1_ID = '550e8400-e29b-41d4-a716-446655440001';
+    private const USER2_ID = '550e8400-e29b-41d4-a716-446655440002';
+    private const USER3_ID = '550e8400-e29b-41d4-a716-446655440003';
+
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,

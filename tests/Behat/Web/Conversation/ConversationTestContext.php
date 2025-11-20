@@ -17,13 +17,16 @@ use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
-use App\Tests\Behat\Shared\Fixtures\TestUsers;
 use Behat\Behat\Context\Context;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class ConversationTestContext implements Context
 {
+    // IDs de usuarios de la migración Version20251119000001
+    private const USER1_ID = '550e8400-e29b-41d4-a716-446655440001';
+    private const USER2_ID = '550e8400-e29b-41d4-a716-446655440002';
+
     private const CONVERSATION_ID = "550e8400-e29b-41d4-a716-446655440040";
     private const PARTICIPANT1_ID = "550e8400-e29b-41d4-a716-446655440041";
     private const PARTICIPANT2_ID = "550e8400-e29b-41d4-a716-446655440042";
@@ -57,11 +60,11 @@ final class ConversationTestContext implements Context
 
         // Los usuarios globales ya existen, solo obtenerlos
         $user1 = $this->userRepository->findById(
-            new Uuid(TestUsers::USER1_ID),
+            new Uuid(self::USER1_ID),
         );
 
         $user2 = $this->userRepository->findById(
-            new Uuid(TestUsers::USER2_ID),
+            new Uuid(self::USER2_ID),
         );
 
         // Verificar si la conversación ya existe
@@ -178,7 +181,8 @@ final class ConversationTestContext implements Context
                 "DELETE FROM notification_type WHERE id = :id",
                 ["id" => "550e8400-e29b-41d4-a716-446655440099"]
             );
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         $this->entityManager->clear();
     }
