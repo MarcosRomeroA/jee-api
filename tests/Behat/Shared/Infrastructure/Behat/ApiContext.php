@@ -996,6 +996,177 @@ final class ApiContext extends RawMinkContext
     }
 
     /**
+     * @Then all posts in response should belong to username :username
+     */
+    public function allPostsInResponseShouldBelongToUsername(string $username): void
+    {
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!\is_array($response)) {
+            throw new RuntimeException("Response is not a valid JSON object");
+        }
+
+        if (!\array_key_exists("data", $response)) {
+            throw new RuntimeException("Response does not contain 'data' field");
+        }
+
+        if (!\is_array($response["data"])) {
+            throw new RuntimeException('The "data" field must be an array');
+        }
+
+        foreach ($response["data"] as $index => $post) {
+            if (!\is_array($post)) {
+                throw new RuntimeException(
+                    \sprintf("Item at index %d is not a valid post object", $index),
+                );
+            }
+
+            if (!isset($post["username"])) {
+                throw new RuntimeException(
+                    \sprintf("Post at index %d does not have 'username' field", $index),
+                );
+            }
+
+            if ($post["username"] !== $username) {
+                throw new RuntimeException(
+                    \sprintf(
+                        "Post at index %d belongs to '%s', expected '%s'",
+                        $index,
+                        $post["username"],
+                        $username,
+                    ),
+                );
+            }
+        }
+    }
+
+    /**
+     * @Then all posts in response should have username containing :substring
+     */
+    public function allPostsInResponseShouldHaveUsernameContaining(string $substring): void
+    {
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!\is_array($response)) {
+            throw new RuntimeException("Response is not a valid JSON object");
+        }
+
+        if (!\array_key_exists("data", $response)) {
+            throw new RuntimeException("Response does not contain 'data' field");
+        }
+
+        if (!\is_array($response["data"])) {
+            throw new RuntimeException('The "data" field must be an array');
+        }
+
+        foreach ($response["data"] as $index => $post) {
+            if (!\is_array($post)) {
+                throw new RuntimeException(
+                    \sprintf("Item at index %d is not a valid post object", $index),
+                );
+            }
+
+            if (!isset($post["username"])) {
+                throw new RuntimeException(
+                    \sprintf("Post at index %d does not have 'username' field", $index),
+                );
+            }
+
+            if (\stripos($post["username"], $substring) === false) {
+                throw new RuntimeException(
+                    \sprintf(
+                        "Post at index %d has username '%s' which does not contain '%s'",
+                        $index,
+                        $post["username"],
+                        $substring,
+                    ),
+                );
+            }
+        }
+    }
+
+    /**
+     * @Then all posts in response should have body or username containing :substring
+     */
+    public function allPostsInResponseShouldHaveBodyOrUsernameContaining(string $substring): void
+    {
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!\is_array($response)) {
+            throw new RuntimeException("Response is not a valid JSON object");
+        }
+
+        if (!\array_key_exists("data", $response)) {
+            throw new RuntimeException("Response does not contain 'data' field");
+        }
+
+        if (!\is_array($response["data"])) {
+            throw new RuntimeException('The "data" field must be an array');
+        }
+
+        foreach ($response["data"] as $index => $post) {
+            if (!\is_array($post)) {
+                throw new RuntimeException(
+                    \sprintf("Item at index %d is not a valid post object", $index),
+                );
+            }
+
+            $bodyContains = isset($post["body"]) && \stripos($post["body"], $substring) !== false;
+            $usernameContains = isset($post["username"]) && \stripos($post["username"], $substring) !== false;
+
+            if (!$bodyContains && !$usernameContains) {
+                throw new RuntimeException(
+                    \sprintf(
+                        "Post at index %d has body '%s' and username '%s', neither contains '%s'",
+                        $index,
+                        $post["body"] ?? "null",
+                        $post["username"] ?? "null",
+                        $substring,
+                    ),
+                );
+            }
+        }
+    }
+
+    /**
+     * @Then the response should have :property property as empty array
+     */
+    public function theResponseShouldHavePropertyAsEmptyArray(string $property): void
+    {
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!\is_array($response)) {
+            throw new RuntimeException("Response is not a valid JSON object");
+        }
+
+        if (!\array_key_exists($property, $response)) {
+            throw new RuntimeException(
+                \sprintf(
+                    "Response does not contain property '%s'. Response: %s",
+                    $property,
+                    \json_encode($response),
+                ),
+            );
+        }
+
+        if (!\is_array($response[$property])) {
+            throw new RuntimeException(
+                \sprintf("The '%s' property must be an array", $property),
+            );
+        }
+
+        if (!empty($response[$property])) {
+            throw new RuntimeException(
+                \sprintf(
+                    "The '%s' property is not empty, it contains %d items",
+                    $property,
+                    \count($response[$property]),
+                ),
+            );
+        }
+    }
+
+    /**
      * @Then the response should contain a request for team :teamName by player :playerNickname with status :status
      */
     public function theResponseShouldContainARequestForTeamByPlayerWithStatus(

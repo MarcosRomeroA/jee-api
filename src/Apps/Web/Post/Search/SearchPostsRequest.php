@@ -9,17 +9,33 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class SearchPostsRequest
 {
     public function __construct(
-        #[Assert\Type("array")] public ?array $q = null,
+        #[Assert\Type("array")] public ?array $criteria = null,
     ) {}
 
     public static function fromHttp(Request $request): self
     {
+        $criteria = [];
+
         $q = $request->query->get("q");
-        return new self($q ? ["q" => $q] : null);
+        if ($q) {
+            $criteria["q"] = $q;
+        }
+
+        $username = $request->query->get("username");
+        if ($username) {
+            $criteria["username"] = $username;
+        }
+
+        $userId = $request->query->get("userId");
+        if ($userId) {
+            $criteria["userId"] = $userId;
+        }
+
+        return new self(!empty($criteria) ? $criteria : null);
     }
 
     public function toQuery(): SearchPostQuery
     {
-        return new SearchPostQuery($this->q);
+        return new SearchPostQuery($this->criteria);
     }
 }

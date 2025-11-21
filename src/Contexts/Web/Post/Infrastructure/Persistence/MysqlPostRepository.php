@@ -108,8 +108,14 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
     {
         $qb = $this->createQueryBuilder("p")->innerJoin("p.user", "u");
 
-        if (isset($criteria["q"])) {
-            $qb->where(
+        if (isset($criteria["userId"])) {
+            $qb->andWhere("u.id = :userId")
+                ->setParameter("userId", $criteria["userId"]);
+        } elseif (isset($criteria["username"])) {
+            $qb->andWhere("u.username.value LIKE :username")
+                ->setParameter("username", "%" . $criteria["username"] . "%");
+        } elseif (isset($criteria["q"])) {
+            $qb->andWhere(
                 "p.body.value LIKE :query OR u.username.value LIKE :query",
             )->setParameter("query", "%" . $criteria["q"] . "%");
         }
@@ -156,11 +162,23 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
 
     public function countByCriteria(array $criteria): int
     {
-        $dql = $this->createQueryBuilder("p")
+        $qb = $this->createQueryBuilder("p")
             ->select("COUNT(p.id)")
-            ->getQuery();
+            ->innerJoin("p.user", "u");
 
-        return (int) $dql->getSingleScalarResult();
+        if (isset($criteria["userId"])) {
+            $qb->andWhere("u.id = :userId")
+                ->setParameter("userId", $criteria["userId"]);
+        } elseif (isset($criteria["username"])) {
+            $qb->andWhere("u.username.value LIKE :username")
+                ->setParameter("username", "%" . $criteria["username"] . "%");
+        } elseif (isset($criteria["q"])) {
+            $qb->andWhere(
+                "p.body.value LIKE :query OR u.username.value LIKE :query",
+            )->setParameter("query", "%" . $criteria["q"] . "%");
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     public function countFeed(Uuid $userId): int

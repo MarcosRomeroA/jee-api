@@ -38,13 +38,7 @@ class Post extends AggregateRoot
     #[ORM\Column(type: "uuid", length: 36, nullable: true)]
     private ?Uuid $sharedPostId = null;
 
-    #[
-        ORM\OneToMany(
-            targetEntity: Comment::class,
-            mappedBy: "post",
-            cascade: ["persist", "remove"],
-        ),
-    ]
+    #[ORM\OneToMany(targetEntity: Comment::class,mappedBy: "post", cascade: ["persist", "remove"])]
     private ?Collection $comments;
 
     #[
