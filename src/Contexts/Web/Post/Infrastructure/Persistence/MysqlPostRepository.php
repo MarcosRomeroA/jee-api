@@ -144,7 +144,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             ->setParameter("postId", $postId)
             ->setMaxResults($limit)
             ->setFirstResult($offset)
-            ->orderBy('p.createdAt', 'DESC')
+            ->orderBy('p.createdAt.value', 'DESC')
             ->getQuery()
             ->getResult();
     }

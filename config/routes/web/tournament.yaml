@@ -16,6 +16,12 @@ search_tournaments:
     methods: [GET]
     defaults: { auth: true }
 
+search_tournament_status:
+    path: /tournament-status
+    controller: App\Apps\Web\Tournament\SearchStatus\SearchTournamentStatusController
+    methods: [GET]
+    defaults: { auth: true }
+
 delete_tournament:
     path: /tournament/{id}
     controller: App\Apps\Web\Tournament\Delete\DeleteTournamentController

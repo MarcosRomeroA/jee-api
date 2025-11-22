@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\AddPostTempResource;
 
@@ -15,13 +13,17 @@ final readonly class PostTempResourceAdder
         string $postId,
         string $type,
         UploadedFile $file,
-        string $projectDir
+        string $projectDir,
     ): void {
         PostResource::checkIsValidResourceType($type);
 
         $fileName = (new Uuid($resourceId))->value() . '.' . $file->getClientOriginalExtension();
-        $tempFolder = '/var/tmp/resource/' . (new \DateTimeImmutable())->format('Ymd') . '/' . $postId . '/' . $type;
-        $uploadDir = $projectDir . $tempFolder;
+        $dateFolder = (new \DateTimeImmutable())->format('Ymd');
+        $uploadDir = $projectDir . '/var/tmp/resource/' . $dateFolder . '/' . $postId . '/' . $type;
+
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
 
         $file->move($uploadDir, $fileName);
     }

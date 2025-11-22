@@ -16,6 +16,6 @@ class SearchPostCommentsController extends ApiController
 
         $response = $this->queryBus->ask($query);
 
-        return $this->successResponse($response);
+        return $this->collectionResponse($response);
     }
 }
