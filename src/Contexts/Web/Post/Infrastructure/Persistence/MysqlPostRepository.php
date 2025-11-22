@@ -265,4 +265,19 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
 
         return (int) $qb->getSingleScalarResult();
     }
+
+    public function hasUserSharedPost(Uuid $postId, Uuid $userId): bool
+    {
+        $count = $this->createQueryBuilder("p")
+            ->select("COUNT(p.id)")
+            ->innerJoin("p.user", "u")
+            ->where("p.sharedPostId = :postId")
+            ->andWhere("u.id = :userId")
+            ->setParameter("postId", $postId)
+            ->setParameter("userId", $userId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $count > 0;
+    }
 }

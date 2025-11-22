@@ -21,7 +21,7 @@ final readonly class PostSearcher implements QueryHandler
     /**
      * @throws Exception
      */
-    public function __invoke(?array $criteria): PostCollectionResponse
+    public function __invoke(?array $criteria, ?string $currentUserId = null): PostCollectionResponse
     {
         // Merge default pagination values
         $criteriaWithDefaults = array_merge(
@@ -62,6 +62,14 @@ final readonly class PostSearcher implements QueryHandler
                 $post->getId(),
             );
             $post->setSharesQuantity($sharesQuantity);
+
+            if ($currentUserId !== null) {
+                $hasShared = $this->repository->hasUserSharedPost(
+                    $post->getId(),
+                    new \App\Contexts\Shared\Domain\ValueObject\Uuid($currentUserId),
+                );
+                $post->setHasShared($hasShared);
+            }
         }
 
         $total = $this->repository->countByCriteria($criteriaWithDefaults);
@@ -70,6 +78,7 @@ final readonly class PostSearcher implements QueryHandler
             $posts,
             $criteriaWithDefaults,
             $total,
+            $currentUserId,
         );
     }
 }

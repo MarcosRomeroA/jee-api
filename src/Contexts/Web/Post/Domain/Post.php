@@ -72,6 +72,8 @@ class Post extends AggregateRoot
 
     private ?Post $sharedPost = null;
 
+    private bool $hasShared = false;
+
     public function __construct(
         Uuid $id,
         BodyValue $body,
@@ -265,5 +267,15 @@ class Post extends AggregateRoot
     public function clearHashtags(): void
     {
         $this->hashtags->clear();
+    }
+
+    public function hasBeenSharedByUser(): bool
+    {
+        return $this->hasShared;
+    }
+
+    public function setHasShared(bool $hasShared): void
+    {
+        $this->hasShared = $hasShared;
     }
 }

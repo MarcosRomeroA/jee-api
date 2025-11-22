@@ -8,9 +8,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SearchPostsController extends ApiController
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, ?string $sessionId = null): Response
     {
-        $input = SearchPostsRequest::fromHttp($request);
+        $input = SearchPostsRequest::fromHttp($request, $sessionId);
         $this->validateRequest($input);
 
         $query = $input->toQuery();
@@ -19,5 +19,3 @@ class SearchPostsController extends ApiController
         return $this->collectionResponse($response);
     }
 }
-
-

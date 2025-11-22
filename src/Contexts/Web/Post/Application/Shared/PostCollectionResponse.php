@@ -12,18 +12,21 @@ class PostCollectionResponse extends Response
     public int $limit;
     public int $offset;
     public int $total;
+    public ?string $currentUserId;
 
     /**
      * @param array<Post> $posts
      * @param array{limit: int, offset: int} $criteria
      * @param int $total
+     * @param string|null $currentUserId
      */
-    public function __construct(array $posts, array $criteria, int $total = 0)
+    public function __construct(array $posts, array $criteria, int $total = 0, ?string $currentUserId = null)
     {
         $this->posts = $posts;
         $this->limit = $criteria["limit"];
         $this->offset = $criteria["offset"];
         $this->total = $total;
+        $this->currentUserId = $currentUserId;
     }
 
     public function toArray(): array
@@ -31,7 +34,7 @@ class PostCollectionResponse extends Response
         $response = [];
 
         foreach($this->posts as $post){
-            $response[] = PostResponse::fromEntity($post, true)->toArray();
+            $response[] = PostResponse::fromEntity($post, true, $this->currentUserId)->toArray();
         }
 
         return [

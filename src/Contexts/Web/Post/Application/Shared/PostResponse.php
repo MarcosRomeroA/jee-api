@@ -17,16 +17,31 @@ final class PostResponse extends Response
         public readonly ?array $sharedPost,
         public readonly ?int $likesQuantity,
         public readonly ?int $sharesQuantity,
-        public readonly ?int $commentsQuantity
-    )
-    {
+        public readonly ?int $commentsQuantity,
+        public readonly bool $hasLiked = false,
+        public readonly bool $hasShared = false,
+    ) {
     }
 
-    public static function fromEntity(Post $post, bool $hasShared = false): self
+    public static function fromEntity(Post $post, bool $includeSharedPost = false, ?string $currentUserId = null): self
     {
         $sharedPostResponse = null;
-        if ($post->getSharedPost() && $hasShared){
-            $sharedPostResponse = self::fromEntity($post->getSharedPost());
+        if ($post->getSharedPost() && $includeSharedPost) {
+            $sharedPostResponse = self::fromEntity($post->getSharedPost(), false, $currentUserId);
+        }
+
+        $hasLiked = false;
+        $hasShared = false;
+
+        if ($currentUserId !== null) {
+            foreach ($post->getLikes()->toArray() as $like) {
+                if ($like->getUser()->getId()->value() === $currentUserId) {
+                    $hasLiked = true;
+                    break;
+                }
+            }
+
+            $hasShared = $post->hasBeenSharedByUser();
         }
 
         return new self(
@@ -39,7 +54,9 @@ final class PostResponse extends Response
             $sharedPostResponse?->toArray(),
             count($post->getLikes()->toArray()),
             $post->getSharesQuantity(),
-            count($post->getComments()->toArray())
+            count($post->getComments()->toArray()),
+            $hasLiked,
+            $hasShared,
         );
     }
 

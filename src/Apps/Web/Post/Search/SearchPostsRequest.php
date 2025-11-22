@@ -10,9 +10,10 @@ final readonly class SearchPostsRequest
 {
     public function __construct(
         #[Assert\Type("array")] public ?array $criteria = null,
+        public ?string $currentUserId = null,
     ) {}
 
-    public static function fromHttp(Request $request): self
+    public static function fromHttp(Request $request, ?string $sessionId = null): self
     {
         $criteria = [];
 
@@ -31,11 +32,11 @@ final readonly class SearchPostsRequest
             $criteria["userId"] = $userId;
         }
 
-        return new self(!empty($criteria) ? $criteria : null);
+        return new self(!empty($criteria) ? $criteria : null, $sessionId);
     }
 
     public function toQuery(): SearchPostQuery
     {
-        return new SearchPostQuery($this->criteria);
+        return new SearchPostQuery($this->criteria, $this->currentUserId);
     }
 }
