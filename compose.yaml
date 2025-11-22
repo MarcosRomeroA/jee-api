@@ -51,6 +51,8 @@ services:
             dockerfile: Dockerfile
         environment:
             - TZ=${TZ}
+        volumes:
+            - jee_jwt_keys:/var/www/html/config/jwt
         depends_on:
             - mariadb
             - mercure
@@ -197,3 +199,4 @@ volumes:
     jee_mercure_data:
     jee_mercure_config:
     jee_rabbitmq_data:
+    jee_jwt_keys:

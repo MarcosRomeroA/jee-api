@@ -55,7 +55,10 @@ RUN mkdir -p /var/www/html/var/log \
     && chown -R www-data:www-data /var/www/html/public \
     && mkdir -p /var/log/nginx /run/nginx \
     && chown -R www-data:www-data /var/log/nginx \
-    && chown -R nginx:nginx /run/nginx
+    && chown -R nginx:nginx /run/nginx \
+    && mkdir -p /var/www/html/config/jwt \
+    && chown -R www-data:www-data /var/www/html/config/jwt \
+    && chmod 755 /var/www/html/config/jwt
 
 # Exponer el puerto 80 para Nginx
 EXPOSE 80
