@@ -1,4 +1,4 @@
-.PHONY: dev build-dev build start stop down exec logs clean-cache migration migrate test behat unit test-player messenger-retry messenger-stats messenger-consume
+.PHONY: dev build-dev build start stop down exec logs clean-cache migration migrate test behat unit test-player messenger-retry messenger-stats messenger-consume deploy deploy-symfony
 
 dev:
 	@docker compose -f compose.yaml -f compose.dev.yaml up -d
@@ -89,6 +89,13 @@ deploy:
 	make start
 	make clean-cache
 
+deploy-symfony: ## Deploy solo el contenedor symfony en producción (usar con sudo)
+	@echo "🚀 Deploying symfony container..."
+	@docker compose -f compose.yaml stop symfony
+	@docker compose -f compose.yaml build --no-cache symfony
+	@docker compose -f compose.yaml up -d symfony
+	@echo "✅ Symfony deployed successfully!"
+
 messenger-stats: ## Ver estadísticas de colas de RabbitMQ
 	@echo "📊 RabbitMQ Queue Statistics"
 	@echo "============================"
@@ -144,6 +151,7 @@ help:
 	@echo "  make exec             - Entrar al contenedor de Symfony"
 	@echo "  make logs             - Ver logs en tiempo real"
 	@echo "  make clean-cache      - Limpiar cache de Symfony"
+	@echo "  make deploy-symfony   - Deploy solo symfony en producción (sudo)"
 	@echo ""
 	@echo "Database:"
 	@echo "  make migration-diff   - Generar nueva migración"
