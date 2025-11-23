@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Tournament\Domain;
 
@@ -23,6 +25,7 @@ final class TournamentMother
             UserMother::random(),
             $name ?? 'Test Tournament',
             'Tournament description',
+            'Tournament rules',
             $maxTeams ?? 16,
             $isOfficial ?? false,
             null,
@@ -65,6 +68,7 @@ final class TournamentMother
             UserMother::create($responsibleId),
             'Test Tournament',
             'Tournament description',
+            'Tournament rules',
             16,
             false,
             null,
@@ -75,4 +79,3 @@ final class TournamentMother
         );
     }
 }
-

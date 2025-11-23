@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\Shared;
 
@@ -11,12 +13,13 @@ final class TeamRequestResponse extends Response
         public readonly string $id,
         public readonly string $teamId,
         public readonly string $teamName,
-        public readonly string $playerId,
-        public readonly string $playerNickname,
+        public readonly string $userId,
+        public readonly string $userNickname,
         public readonly string $status,
         public readonly string $createdAt,
         public readonly ?string $acceptedAt,
-    ) {}
+    ) {
+    }
 
     public static function fromTeamRequest(TeamRequest $teamRequest): self
     {
@@ -24,8 +27,8 @@ final class TeamRequestResponse extends Response
             $teamRequest->id()->value(),
             $teamRequest->team()->id()->value(),
             $teamRequest->team()->name(),
-            $teamRequest->player()->id()->value(),
-            $teamRequest->player()->username()->value(),
+            $teamRequest->user()->getId()->value(),
+            $teamRequest->user()->getUsername()->value(),
             $teamRequest->status(),
             $teamRequest->createdAt()->format(\DateTimeInterface::ATOM),
             $teamRequest->acceptedAt()?->format(\DateTimeInterface::ATOM),
@@ -38,8 +41,8 @@ final class TeamRequestResponse extends Response
             "id" => $this->id,
             "teamId" => $this->teamId,
             "teamName" => $this->teamName,
-            "playerId" => $this->playerId,
-            "playerNickname" => $this->playerNickname,
+            "userId" => $this->userId,
+            "userNickname" => $this->userNickname,
             "status" => $this->status,
             "createdAt" => $this->createdAt,
             "acceptedAt" => $this->acceptedAt,

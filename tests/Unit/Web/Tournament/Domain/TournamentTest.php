@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Tournament\Domain;
 
@@ -23,6 +25,7 @@ final class TournamentTest extends TestCase
             UserMother::random(),
             $name,
             'Championship description',
+            'Championship rules',
             $maxTeams,
             true,
             'https://example.com/tournament.jpg',
@@ -51,6 +54,7 @@ final class TournamentTest extends TestCase
         $tournament->update(
             $newName,
             'Updated description',
+            'Updated rules',
             $newMaxTeams,
             true,
             'https://example.com/new-image.jpg',
@@ -118,4 +122,3 @@ final class TournamentTest extends TestCase
         $this->assertNotNull($tournament->deletedAt());
     }
 }
-

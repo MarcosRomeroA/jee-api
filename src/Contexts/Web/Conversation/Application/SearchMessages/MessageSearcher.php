@@ -23,7 +23,7 @@ final readonly class MessageSearcher
 
     public function __invoke(Uuid $userId, Uuid $conversationId): MessagesResponse
     {
-        $conversation = $this->conversationRepository->findById($conversationId);
+        $conversation = $this->conversationRepository->findByIdOrFail($conversationId);
         $user = $this->userRepository->findById($userId);
 
         if (!$conversation->containsParticipant($user)) {

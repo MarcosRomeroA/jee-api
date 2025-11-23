@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Domain;
 
@@ -44,6 +46,9 @@ class Tournament extends AggregateRoot
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $rules;
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $registeredTeams;
@@ -91,6 +96,7 @@ class Tournament extends AggregateRoot
         User $responsible,
         string $name,
         ?string $description,
+        ?string $rules,
         int $maxTeams,
         bool $isOfficial,
         ?string $image,
@@ -107,6 +113,7 @@ class Tournament extends AggregateRoot
         $this->responsible = $responsible;
         $this->name = $name;
         $this->description = $description;
+        $this->rules = $rules;
         $this->registeredTeams = 0;
         $this->maxTeams = $maxTeams;
         $this->isOfficial = $isOfficial;
@@ -124,31 +131,96 @@ class Tournament extends AggregateRoot
     }
 
     // Getters
-    public function id(): Uuid { return $this->id; }
-    public function game(): Game { return $this->game; }
-    public function status(): TournamentStatus { return $this->status; }
-    public function minGameRank(): ?GameRank { return $this->minGameRank; }
-    public function maxGameRank(): ?GameRank { return $this->maxGameRank; }
-    public function responsible(): User { return $this->responsible; }
-    public function name(): string { return $this->name; }
-    public function description(): ?string { return $this->description; }
-    public function registeredTeams(): int { return $this->registeredTeams; }
-    public function maxTeams(): int { return $this->maxTeams; }
-    public function isOfficial(): bool { return $this->isOfficial; }
-    public function image(): ?string { return $this->image; }
-    public function prize(): ?string { return $this->prize; }
-    public function region(): ?string { return $this->region; }
-    public function startAt(): \DateTimeImmutable { return $this->startAt; }
-    public function endAt(): \DateTimeImmutable { return $this->endAt; }
-    public function createdAt(): \DateTimeImmutable { return $this->createdAt; }
-    public function updatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
-    public function deletedAt(): ?\DateTimeImmutable { return $this->deletedAt; }
-    public function tournamentTeams(): Collection { return $this->tournamentTeams; }
+    public function id(): Uuid
+    {
+        return $this->id;
+    }
+    public function game(): Game
+    {
+        return $this->game;
+    }
+    public function status(): TournamentStatus
+    {
+        return $this->status;
+    }
+    public function minGameRank(): ?GameRank
+    {
+        return $this->minGameRank;
+    }
+    public function maxGameRank(): ?GameRank
+    {
+        return $this->maxGameRank;
+    }
+    public function responsible(): User
+    {
+        return $this->responsible;
+    }
+    public function name(): string
+    {
+        return $this->name;
+    }
+    public function description(): ?string
+    {
+        return $this->description;
+    }
+    public function rules(): ?string
+    {
+        return $this->rules;
+    }
+    public function registeredTeams(): int
+    {
+        return $this->registeredTeams;
+    }
+    public function maxTeams(): int
+    {
+        return $this->maxTeams;
+    }
+    public function isOfficial(): bool
+    {
+        return $this->isOfficial;
+    }
+    public function image(): ?string
+    {
+        return $this->image;
+    }
+    public function prize(): ?string
+    {
+        return $this->prize;
+    }
+    public function region(): ?string
+    {
+        return $this->region;
+    }
+    public function startAt(): \DateTimeImmutable
+    {
+        return $this->startAt;
+    }
+    public function endAt(): \DateTimeImmutable
+    {
+        return $this->endAt;
+    }
+    public function createdAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+    public function updatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+    public function deletedAt(): ?\DateTimeImmutable
+    {
+        return $this->deletedAt;
+    }
+    public function tournamentTeams(): Collection
+    {
+        return $this->tournamentTeams;
+    }
 
     // Business logic
     public function update(
         string $name,
         ?string $description,
+        ?string $rules,
         int $maxTeams,
         bool $isOfficial,
         ?string $image,
@@ -159,6 +231,7 @@ class Tournament extends AggregateRoot
     ): void {
         $this->name = $name;
         $this->description = $description;
+        $this->rules = $rules;
         $this->maxTeams = $maxTeams;
         $this->isOfficial = $isOfficial;
         if ($image !== null) {
@@ -231,4 +304,3 @@ class Tournament extends AggregateRoot
         return new \DateTimeImmutable() >= $this->endAt;
     }
 }
-

@@ -10,6 +10,8 @@ use App\Contexts\Web\Team\Domain\Team;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamNameValue;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamDescriptionValue;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamImageValue;
+use App\Contexts\Web\Tournament\Domain\Tournament;
+use App\Contexts\Web\Tournament\Domain\TournamentTeam;
 use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\User\Domain\UserRepository;
 use Behat\Behat\Context\Context;
@@ -243,8 +245,14 @@ final class TeamTestContext implements Context
         }
 
         try {
-            // 2. Limpiar team_players
+            // 2. Limpiar team_players (deprecado)
             $connection->executeStatement("DELETE FROM team_player");
+        } catch (\Exception $e) {
+        }
+
+        try {
+            // 2b. Limpiar team_user (nueva tabla de membresía)
+            $connection->executeStatement("DELETE FROM team_user");
         } catch (\Exception $e) {
         }
 
@@ -328,5 +336,66 @@ final class TeamTestContext implements Context
         $this->createdTeamIds = [];
 
         $this->entityManager->clear();
+    }
+
+    /**
+     * @Given a team :teamId exists with name :teamName
+     */
+    public function aTeamExistsWithName(string $teamId, string $teamName): void
+    {
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        $user = $connection->fetchOne("SELECT id FROM user ORDER BY created_at ASC LIMIT 1");
+
+        if (!$user) {
+            throw new \RuntimeException("No user found for creating team");
+        }
+
+        $userEntity = $this->userRepository->findById(new Uuid($user));
+
+        $teamExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM team WHERE id = :id",
+            ["id" => $teamId],
+        );
+
+        if (!$teamExists) {
+            $team = Team::create(
+                new Uuid($teamId),
+                new TeamNameValue($teamName),
+                new TeamDescriptionValue("Test team for tournament filter"),
+                new TeamImageValue("https://example.com/team.png"),
+                $userEntity,
+            );
+            $this->entityManager->persist($team);
+            $this->entityManager->flush();
+            $this->createdTeamIds[] = $teamId;
+        }
+    }
+
+    /**
+     * @Given the team :teamId is registered in tournament :tournamentId
+     */
+    public function theTeamIsRegisteredInTournament(string $teamId, string $tournamentId): void
+    {
+        $team = $this->entityManager->find(Team::class, new Uuid($teamId));
+        $tournament = $this->entityManager->find(Tournament::class, new Uuid($tournamentId));
+
+        if (!$team) {
+            throw new \RuntimeException("Team with id $teamId not found");
+        }
+
+        if (!$tournament) {
+            throw new \RuntimeException("Tournament with id $tournamentId not found");
+        }
+
+        $tournamentTeam = new TournamentTeam(
+            Uuid::random(),
+            $tournament,
+            $team,
+        );
+
+        $this->entityManager->persist($tournamentTeam);
+        $this->entityManager->flush();
     }
 }

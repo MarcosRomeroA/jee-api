@@ -1,10 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Domain;
 
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Player\Domain\Player;
+use App\Contexts\Web\User\Domain\User;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -25,15 +28,28 @@ class TeamRequest extends AggregateRoot
     ]
     private Team $team;
 
+    /**
+     * @deprecated Use $user instead
+     */
     #[ORM\ManyToOne(targetEntity: Player::class)]
     #[
         ORM\JoinColumn(
             name: "player_id",
             referencedColumnName: "id",
+            nullable: true,
+        ),
+    ]
+    private ?Player $player = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[
+        ORM\JoinColumn(
+            name: "user_id",
+            referencedColumnName: "id",
             nullable: false,
         ),
     ]
-    private Player $player;
+    private User $user;
 
     #[ORM\Column(type: "string", length: 20)]
     private string $status;
@@ -44,11 +60,12 @@ class TeamRequest extends AggregateRoot
     #[ORM\Column(type: "datetime_immutable", nullable: true)]
     private ?\DateTimeImmutable $acceptedAt;
 
-    public function __construct(Uuid $id, Team $team, Player $player)
+    public function __construct(Uuid $id, Team $team, User $user)
     {
         $this->id = $id;
         $this->team = $team;
-        $this->player = $player;
+        $this->user = $user;
+        $this->player = null;
         $this->status = "pending";
         $this->createdAt = new \DateTimeImmutable();
         $this->acceptedAt = null;
@@ -64,9 +81,17 @@ class TeamRequest extends AggregateRoot
         return $this->team;
     }
 
-    public function player(): Player
+    /**
+     * @deprecated Use user() instead
+     */
+    public function player(): ?Player
     {
         return $this->player;
+    }
+
+    public function user(): User
+    {
+        return $this->user;
     }
 
     public function status(): string

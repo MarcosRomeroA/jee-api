@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\Create;
 
@@ -7,7 +9,9 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 
 final class CreateTournamentCommandHandler implements CommandHandler
 {
-    public function __construct(private readonly TournamentCreator $creator) {}
+    public function __construct(private readonly TournamentCreator $creator)
+    {
+    }
 
     public function __invoke(CreateTournamentCommand $command): void
     {
@@ -18,6 +22,7 @@ final class CreateTournamentCommandHandler implements CommandHandler
             $command->isOfficial,
             new Uuid($command->responsibleId),
             $command->description,
+            $command->rules,
             $command->maxTeams,
             $command->image,
             $command->prize,

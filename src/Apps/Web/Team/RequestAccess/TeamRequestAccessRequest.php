@@ -12,7 +12,7 @@ final readonly class TeamRequestAccessRequest
 {
     public function __construct(
         public string $teamId,
-        public string $playerId,
+        public string $userId,
     ) {
     }
 
@@ -21,12 +21,12 @@ final readonly class TeamRequestAccessRequest
         string $teamId,
         string $sessionId,
     ): self {
-        // El playerId es el sessionId (usuario autenticado solicitando unirse)
+        // El userId es el sessionId (usuario autenticado solicitando unirse)
         return new self($teamId, $sessionId);
     }
 
     public function toCommand(): TeamRequestAccessCommand
     {
-        return new TeamRequestAccessCommand($this->teamId, $this->playerId);
+        return new TeamRequestAccessCommand($this->teamId, $this->userId);
     }
 }

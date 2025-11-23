@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Domain;
 
@@ -62,6 +64,7 @@ class Team extends AggregateRoot
 
     /**
      * @var Collection<int, TeamPlayer>
+     * @deprecated Use $teamUsers instead
      */
     #[
         ORM\OneToMany(
@@ -71,6 +74,18 @@ class Team extends AggregateRoot
         ),
     ]
     private Collection $teamPlayers;
+
+    /**
+     * @var Collection<int, TeamUser>
+     */
+    #[
+        ORM\OneToMany(
+            targetEntity: TeamUser::class,
+            mappedBy: "team",
+            cascade: ["persist", "remove"],
+        ),
+    ]
+    private Collection $teamUsers;
 
     /**
      * @var Collection<int, TeamGame>
@@ -98,6 +113,7 @@ class Team extends AggregateRoot
         $this->creator = $creator;
         $this->leader = $creator;
         $this->teamPlayers = new ArrayCollection();
+        $this->teamUsers = new ArrayCollection();
         $this->teamGames = new ArrayCollection();
         $this->createdAt = new CreatedAtValue();
         $this->updatedAt = new UpdatedAtValue($this->createdAt->value());
@@ -161,15 +177,42 @@ class Team extends AggregateRoot
 
     /**
      * @return Collection<int, TeamPlayer>
+     * @deprecated Use teamUsers() instead
      */
     public function teamPlayers(): Collection
     {
         return $this->teamPlayers;
     }
 
+    /**
+     * @deprecated Use usersQuantity() instead
+     */
     public function playersQuantity(): int
     {
         return $this->teamPlayers->count();
+    }
+
+    /**
+     * @return Collection<int, TeamUser>
+     */
+    public function teamUsers(): Collection
+    {
+        return $this->teamUsers;
+    }
+
+    public function usersQuantity(): int
+    {
+        return $this->teamUsers->count();
+    }
+
+    public function isMember(Uuid $userId): bool
+    {
+        foreach ($this->teamUsers as $teamUser) {
+            if ($teamUser->user()->getId()->equals($userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

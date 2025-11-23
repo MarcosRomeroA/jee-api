@@ -1,19 +1,21 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\AcceptRequest;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\Exception\RequestNotFoundException;
 use App\Contexts\Web\Team\Domain\Exception\UnauthorizedException;
-use App\Contexts\Web\Team\Domain\TeamPlayerRepository;
-use App\Contexts\Web\Team\Domain\TeamPlayer;
+use App\Contexts\Web\Team\Domain\TeamUserRepository;
+use App\Contexts\Web\Team\Domain\TeamUser;
 use App\Contexts\Web\Team\Domain\TeamRequestRepository;
 
 final readonly class TeamRequestAcceptor
 {
     public function __construct(
         private TeamRequestRepository $teamRequestRepository,
-        private TeamPlayerRepository  $teamPlayerRepository
+        private TeamUserRepository $teamUserRepository
     ) {
     }
 
@@ -38,14 +40,14 @@ final readonly class TeamRequestAcceptor
         // Aceptar la solicitud
         $request->accept();
 
-        // Agregar el jugador al equipo
-        $teamPlayer = new TeamPlayer(
+        // Agregar el usuario al equipo
+        $teamUser = new TeamUser(
             Uuid::random(),
             $request->team(),
-            $request->player()
+            $request->user()
         );
 
-        $this->teamPlayerRepository->save($teamPlayer);
+        $this->teamUserRepository->save($teamUser);
         $this->teamRequestRepository->save($request);
     }
 }

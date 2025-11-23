@@ -36,6 +36,9 @@ final class MysqlTeamRequestRepository extends ServiceEntityRepository implement
         return $this->findOneBy(["id" => $id->value()]);
     }
 
+    /**
+     * @deprecated Use findPendingByTeamAndUser instead
+     */
     public function findPendingByTeamAndPlayer(
         Uuid $teamId,
         Uuid $playerId,
@@ -46,6 +49,21 @@ final class MysqlTeamRequestRepository extends ServiceEntityRepository implement
             ->andWhere("tr.status = :status")
             ->setParameter("teamId", $teamId)
             ->setParameter("playerId", $playerId)
+            ->setParameter("status", "pending")
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findPendingByTeamAndUser(
+        Uuid $teamId,
+        Uuid $userId,
+    ): ?TeamRequest {
+        return $this->createQueryBuilder("tr")
+            ->where("tr.team = :teamId")
+            ->andWhere("tr.user = :userId")
+            ->andWhere("tr.status = :status")
+            ->setParameter("teamId", $teamId)
+            ->setParameter("userId", $userId)
             ->setParameter("status", "pending")
             ->getQuery()
             ->getOneOrNullResult();
@@ -63,12 +81,27 @@ final class MysqlTeamRequestRepository extends ServiceEntityRepository implement
             ->getResult();
     }
 
+    /**
+     * @deprecated Use findPendingByUser instead
+     */
     public function findPendingByPlayer(Uuid $playerId): array
     {
         return $this->createQueryBuilder("tr")
             ->where("tr.player = :playerId")
             ->andWhere("tr.status = :status")
             ->setParameter("playerId", $playerId)
+            ->setParameter("status", "pending")
+            ->orderBy("tr.createdAt", "DESC")
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findPendingByUser(Uuid $userId): array
+    {
+        return $this->createQueryBuilder("tr")
+            ->where("tr.user = :userId")
+            ->andWhere("tr.status = :status")
+            ->setParameter("userId", $userId)
             ->setParameter("status", "pending")
             ->orderBy("tr.createdAt", "DESC")
             ->getQuery()

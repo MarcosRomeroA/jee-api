@@ -11,6 +11,7 @@ Feature: Find Tournament
     And the response should have "id" property
     And the response should have "name" property
     And the response should have "description" property
+    And the response should have "rules" property
 
   Scenario: Find tournament with non-existent id
     Given I am authenticated as "tester1@test.com" with password "12345678"

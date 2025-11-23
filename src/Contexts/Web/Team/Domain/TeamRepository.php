@@ -37,6 +37,8 @@ interface TeamRepository
      * @param string|null $query
      * @param Uuid|null $gameId
      * @param Uuid|null $creatorId
+     * @param Uuid|null $userId Filter by user membership (teams where user is a member)
+     * @param Uuid|null $tournamentId Filter by tournament participation (teams registered in the tournament)
      * @param int $limit
      * @param int $offset
      * @return array<Team>
@@ -45,9 +47,11 @@ interface TeamRepository
         ?string $query,
         ?Uuid $gameId,
         ?Uuid $creatorId,
+        ?Uuid $userId,
+        ?Uuid $tournamentId,
         int $limit,
         int $offset
     ): array;
 
-    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $creatorId): int;
+    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $creatorId, ?Uuid $userId, ?Uuid $tournamentId): int;
 }

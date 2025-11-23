@@ -1,3 +1,16 @@
+# Tournament Requests (must be before routes with {id} parameter)
+find_pending_tournament_requests:
+    path: /tournament/requests
+    controller: App\Apps\Web\Tournament\FindPendingRequests\FindPendingTournamentRequestsController
+    methods: [GET]
+    defaults: { auth: true }
+
+tournament_accept_request:
+    path: /tournament/request/{requestId}/accept
+    controller: App\Apps\Web\Tournament\AcceptRequest\TournamentAcceptRequestController
+    methods: [PUT]
+    defaults: { auth: true }
+
 create_tournament:
     path: /tournament/{id}
     controller: App\Apps\Web\Tournament\Create\CreateTournamentController
@@ -43,6 +56,12 @@ tournament_remove_team:
 tournament_assign_responsible:
     path: /tournament/{tournamentId}/responsible/{userId}
     controller: App\Apps\Web\Tournament\AssignResponsible\TournamentAssignResponsibleController
+    methods: [PUT]
+    defaults: { auth: true }
+
+tournament_request_access:
+    path: /tournament/{tournamentId}/team/{teamId}/request-access
+    controller: App\Apps\Web\Tournament\RequestAccess\TournamentRequestAccessController
     methods: [PUT]
     defaults: { auth: true }
 

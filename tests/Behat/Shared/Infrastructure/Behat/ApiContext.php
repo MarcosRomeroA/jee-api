@@ -1167,11 +1167,31 @@ final class ApiContext extends RawMinkContext
     }
 
     /**
+     * @Then the response :path should be :value
+     */
+    public function theResponsePathShouldBe(string $path, string $value): void
+    {
+        $this->theJsonNodeShouldBeEqualTo($path, $value);
+    }
+
+    /**
      * @Then the response should contain a request for team :teamName by player :playerNickname with status :status
+     * @deprecated Use theResponseShouldContainARequestForTeamByUserWithStatus instead
      */
     public function theResponseShouldContainARequestForTeamByPlayerWithStatus(
         string $teamName,
         string $playerNickname,
+        string $status
+    ): void {
+        $this->theResponseShouldContainARequestForTeamByUserWithStatus($teamName, $playerNickname, $status);
+    }
+
+    /**
+     * @Then the response should contain a request for team :teamName by user :userNickname with status :status
+     */
+    public function theResponseShouldContainARequestForTeamByUserWithStatus(
+        string $teamName,
+        string $userNickname,
         string $status
     ): void {
         $responseContent = $this->sessionHelper->getResponse();
@@ -1185,10 +1205,10 @@ final class ApiContext extends RawMinkContext
         foreach ($response['requests'] as $request) {
             if (
                 isset($request['teamName']) &&
-                isset($request['playerNickname']) &&
+                isset($request['userNickname']) &&
                 isset($request['status']) &&
                 $request['teamName'] === $teamName &&
-                $request['playerNickname'] === $playerNickname &&
+                $request['userNickname'] === $userNickname &&
                 $request['status'] === $status
             ) {
                 $found = true;
@@ -1199,9 +1219,9 @@ final class ApiContext extends RawMinkContext
         if (!$found) {
             throw new RuntimeException(
                 \sprintf(
-                    'Could not find a request for team "%s" by player "%s" with status "%s" in the response',
+                    'Could not find a request for team "%s" by user "%s" with status "%s" in the response',
                     $teamName,
-                    $playerNickname,
+                    $userNickname,
                     $status
                 )
             );

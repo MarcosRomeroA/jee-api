@@ -37,6 +37,7 @@ final class TournamentCreator
         bool $isOfficial,
         Uuid $responsibleId,
         ?string $description = null,
+        ?string $rules = null,
         ?int $maxTeams = null,
         ?string $image = null,
         ?string $prize = null,
@@ -70,6 +71,7 @@ final class TournamentCreator
             $tournament->update(
                 $name,
                 $description,
+                $rules,
                 $finalMaxTeams,
                 $isOfficial,
                 $imageFilename ?? $tournament->image(),
@@ -109,6 +111,7 @@ final class TournamentCreator
                 $responsible,
                 $name,
                 $description,
+                $rules,
                 $finalMaxTeams,
                 $isOfficial,
                 $imageFilename,

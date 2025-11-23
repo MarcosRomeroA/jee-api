@@ -19,7 +19,7 @@ Feature: Search Messages
   Scenario: Retrieve messages from non-existent conversation
     Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a GET request to "/api/conversation/999e9999-e99b-99d9-a999-999999999999/messages"
-    Then the response status code should be 500
+    Then the response status code should be 404
 
   Scenario: Retrieve messages with invalid conversation id format
     Given I am authenticated as "tester1@test.com" with password "12345678"

@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\Team\SearchTeams;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\Team\Application\SearchTeams\SearchTeamsQuery;
+use App\Contexts\Web\Team\Application\Search\SearchTeamsQuery;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

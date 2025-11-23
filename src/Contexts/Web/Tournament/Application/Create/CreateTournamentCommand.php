@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\Create;
 
@@ -13,6 +15,7 @@ final readonly class CreateTournamentCommand implements Command
         public bool $isOfficial,
         public string $responsibleId,
         public ?string $description = null,
+        public ?string $rules = null,
         public ?int $maxTeams = null,
         public ?string $image = null,
         public ?string $prize = null,
@@ -21,5 +24,6 @@ final readonly class CreateTournamentCommand implements Command
         public ?string $endAt = null,
         public ?string $minGameRankId = null,
         public ?string $maxGameRankId = null,
-    ) {}
+    ) {
+    }
 }

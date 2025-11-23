@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\Shared;
 
@@ -18,6 +20,7 @@ final class TournamentResponse extends Response
         public readonly string $responsibleId,
         public readonly string $name,
         public readonly ?string $description,
+        public readonly ?string $rules,
         public readonly int $registeredTeams,
         public readonly int $maxTeams,
         public readonly bool $isOfficial,
@@ -52,6 +55,7 @@ final class TournamentResponse extends Response
             $tournament->responsible()->getId()->value(),
             $tournament->name(),
             $tournament->description(),
+            $tournament->rules(),
             $tournament->registeredTeams(),
             $tournament->maxTeams(),
             $tournament->isOfficial(),
@@ -78,6 +82,7 @@ final class TournamentResponse extends Response
             'responsibleId' => $this->responsibleId,
             'name' => $this->name,
             'description' => $this->description,
+            'rules' => $this->rules,
             'registeredTeams' => $this->registeredTeams,
             'maxTeams' => $this->maxTeams,
             'isOfficial' => $this->isOfficial,

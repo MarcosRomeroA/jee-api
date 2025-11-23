@@ -77,6 +77,8 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
         ?string $query,
         ?Uuid $gameId,
         ?Uuid $creatorId,
+        ?Uuid $userId,
+        ?Uuid $tournamentId,
         int $limit,
         int $offset,
     ): array {
@@ -102,6 +104,18 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
                 ->setParameter("creatorId", $creatorId);
         }
 
+        if ($userId !== null) {
+            $qb->join("t.teamUsers", "tu")
+                ->andWhere("tu.user = :userId")
+                ->setParameter("userId", $userId);
+        }
+
+        if ($tournamentId !== null) {
+            $qb->join("App\Contexts\Web\Tournament\Domain\TournamentTeam", "tt", "WITH", "tt.team = t.id")
+                ->andWhere("tt.tournament = :tournamentId")
+                ->setParameter("tournamentId", $tournamentId);
+        }
+
         return $qb
             ->setMaxResults($limit)
             ->setFirstResult($offset)
@@ -113,6 +127,8 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
         ?string $query,
         ?Uuid $gameId,
         ?Uuid $creatorId,
+        ?Uuid $userId,
+        ?Uuid $tournamentId,
     ): int {
         $qb = $this->createQueryBuilder("t")->select("COUNT(DISTINCT t.id)");
 
@@ -134,6 +150,18 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
             $qb->join("t.creator", "u")
                 ->andWhere("u.id = :creatorId")
                 ->setParameter("creatorId", $creatorId);
+        }
+
+        if ($userId !== null) {
+            $qb->join("t.teamUsers", "tu")
+                ->andWhere("tu.user = :userId")
+                ->setParameter("userId", $userId);
+        }
+
+        if ($tournamentId !== null) {
+            $qb->join("App\Contexts\Web\Tournament\Domain\TournamentTeam", "tt", "WITH", "tt.team = t.id")
+                ->andWhere("tt.tournament = :tournamentId")
+                ->setParameter("tournamentId", $tournamentId);
         }
 
         try {

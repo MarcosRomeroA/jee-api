@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace App\Contexts\Web\Team\Application\SearchTeams;
+declare(strict_types=1);
+
+namespace App\Contexts\Web\Team\Application\Search;
 
 use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
@@ -18,19 +20,23 @@ final readonly class SearchTeamsQueryHandler implements QueryHandler
     {
         $gameId = $query->gameId ? new Uuid($query->gameId) : null;
         $creatorId = $query->creatorId ? new Uuid($query->creatorId) : null;
+        $userId = $query->userId ? new Uuid($query->userId) : null;
+        $tournamentId = $query->tournamentId ? new Uuid($query->tournamentId) : null;
 
         $teams = $this->searcher->search(
             $query->query,
             $gameId,
             $creatorId,
+            $userId,
+            $tournamentId,
             $query->limit,
             $query->offset
         );
 
-        $total = $this->searcher->count($query->query, $gameId, $creatorId);
+        $total = $this->searcher->count($query->query, $gameId, $creatorId, $userId, $tournamentId);
 
         $teamsResponse = !empty($teams)
-            ? array_map(static fn($team) => TeamResponse::fromTeam($team), $teams)
+            ? array_map(static fn ($team) => TeamResponse::fromTeam($team), $teams)
             : [];
 
         return new TeamCollectionResponse($teamsResponse, $total, $query->limit, $query->offset);

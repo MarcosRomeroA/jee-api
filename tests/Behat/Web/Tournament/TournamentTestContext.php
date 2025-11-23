@@ -145,6 +145,7 @@ final class TournamentTestContext implements Context
                 $user,
                 "Summer Championship 2025",
                 "Annual summer tournament",
+                "Standard tournament rules apply",
                 16,
                 true,
                 "https://example.com/tournament-image.png",
@@ -164,7 +165,21 @@ final class TournamentTestContext implements Context
     /** @AfterScenario @tournament */
     public function cleanupTestData(): void
     {
-        // Limpiar torneos (esto también limpiará tournament_teams por cascade)
+        // Limpiar tournament_request primero
+        $this->entityManager
+            ->createQuery(
+                "DELETE FROM App\Contexts\Web\Tournament\Domain\TournamentRequest",
+            )
+            ->execute();
+
+        // Limpiar tournament_team antes de tournament
+        $this->entityManager
+            ->createQuery(
+                "DELETE FROM App\Contexts\Web\Tournament\Domain\TournamentTeam",
+            )
+            ->execute();
+
+        // Limpiar torneos
         $this->entityManager
             ->createQuery(
                 "DELETE FROM App\Contexts\Web\Tournament\Domain\Tournament",

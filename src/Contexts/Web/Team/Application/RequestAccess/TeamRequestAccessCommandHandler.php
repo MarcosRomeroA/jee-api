@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\RequestAccess;
 
@@ -16,8 +18,7 @@ final class TeamRequestAccessCommandHandler implements CommandHandler
     {
         $this->requester->request(
             new Uuid($command->teamId),
-            new Uuid($command->playerId)
+            new Uuid($command->userId)
         );
     }
 }
-

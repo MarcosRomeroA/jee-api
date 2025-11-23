@@ -38,3 +38,16 @@ Feature: Search Teams
     Then the response status code should be 200
     And the response should contain pagination structure
     And the response should have "data" property as array
+
+  @tournament
+  Scenario: Search teams by tournament id
+    Given I am authenticated as "tester1@test.com" with password "12345678"
+    And a team "750e8400-e29b-41d4-a716-446655440001" exists with name "Team In Tournament"
+    And the team "750e8400-e29b-41d4-a716-446655440001" is registered in tournament "750e8400-e29b-41d4-a716-446655440000"
+    And a team "750e8400-e29b-41d4-a716-446655440002" exists with name "Team Not In Tournament"
+    When I send a GET request to "/api/teams?tournamentId=750e8400-e29b-41d4-a716-446655440000"
+    Then the response status code should be 200
+    And the response should contain pagination structure
+    And the response should have "data" property as array
+    And the response "metadata.total" should be 1
+    And the response "data[0].name" should be "Team In Tournament"

@@ -12,6 +12,7 @@ Feature: Create Tournament
         "gameId": "550e8400-e29b-41d4-a716-446655440080",
         "name": "Summer Championship 2025",
         "description": "A competitive summer tournament",
+        "rules": "No toxicity allowed. All players must be verified.",
         "maxTeams": 16,
         "isOfficial": true,
         "image": "https://example.com/tournament.jpg",

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Domain;
 
@@ -10,9 +12,17 @@ interface TeamRequestRepository
 
     public function findById(Uuid $id): ?TeamRequest;
 
+    /**
+     * @deprecated Use findPendingByTeamAndUser instead
+     */
     public function findPendingByTeamAndPlayer(
         Uuid $teamId,
         Uuid $playerId,
+    ): ?TeamRequest;
+
+    public function findPendingByTeamAndUser(
+        Uuid $teamId,
+        Uuid $userId,
     ): ?TeamRequest;
 
     /**
@@ -22,8 +32,14 @@ interface TeamRequestRepository
 
     /**
      * @return TeamRequest[]
+     * @deprecated Use findPendingByUser instead
      */
     public function findPendingByPlayer(Uuid $playerId): array;
+
+    /**
+     * @return TeamRequest[]
+     */
+    public function findPendingByUser(Uuid $userId): array;
 
     /**
      * @return TeamRequest[]

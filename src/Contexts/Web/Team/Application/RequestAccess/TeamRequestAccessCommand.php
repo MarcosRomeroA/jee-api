@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\RequestAccess;
 
@@ -8,8 +10,7 @@ final readonly class TeamRequestAccessCommand implements Command
 {
     public function __construct(
         public string $teamId,
-        public string $playerId
+        public string $userId
     ) {
     }
 }
-
