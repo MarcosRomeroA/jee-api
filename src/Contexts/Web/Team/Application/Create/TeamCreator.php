@@ -1,8 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\Create;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Team\Domain\Exception\TeamNotFoundException;
+use App\Contexts\Web\Team\Domain\Exception\UnauthorizedException;
 use App\Contexts\Web\Team\Domain\Team;
 use App\Contexts\Web\Team\Domain\TeamRepository;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamNameValue;
@@ -15,9 +19,24 @@ final class TeamCreator
     public function __construct(
         private readonly TeamRepository $teamRepository,
         private readonly UserRepository $userRepository,
-    ) {}
+    ) {
+    }
 
-    public function create(
+    public function createOrUpdate(
+        Uuid $id,
+        string $name,
+        ?string $description,
+        ?string $image,
+        Uuid $requesterId,
+    ): void {
+        if ($this->teamRepository->existsById($id)) {
+            $this->update($id, $name, $description, $image, $requesterId);
+        } else {
+            $this->create($id, $name, $description, $image, $requesterId);
+        }
+    }
+
+    private function create(
         Uuid $id,
         string $name,
         ?string $description,
@@ -32,6 +51,28 @@ final class TeamCreator
             new TeamDescriptionValue($description),
             new TeamImageValue($image),
             $creator,
+        );
+
+        $this->teamRepository->save($team);
+    }
+
+    private function update(
+        Uuid $id,
+        string $name,
+        ?string $description,
+        ?string $image,
+        Uuid $requesterId,
+    ): void {
+        $team = $this->teamRepository->findById($id);
+
+        if (!$team->canEdit($requesterId)) {
+            throw new UnauthorizedException('Only the team creator or leader can update the team');
+        }
+
+        $team->update(
+            new TeamNameValue($name),
+            new TeamDescriptionValue($description),
+            new TeamImageValue($image),
         );
 
         $this->teamRepository->save($team);

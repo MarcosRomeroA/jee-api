@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\Create;
 
@@ -11,6 +13,7 @@ final readonly class CreateTeamCommand implements Command
         public string $name,
         public ?string $description = null,
         public ?string $image = null,
-        public string $creatorId = "",
-    ) {}
+        public string $requesterId = "",
+    ) {
+    }
 }

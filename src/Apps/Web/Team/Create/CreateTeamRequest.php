@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\Team\Create;
 
@@ -10,15 +12,12 @@ final readonly class CreateTeamRequest
 {
     public function __construct(
         #[Assert\NotBlank] #[Assert\Type("string")] public string $id,
-
         #[Assert\NotBlank] #[Assert\Type("string")] public string $name,
-
-        #[Assert\NotBlank] #[Assert\Type("string")] public string $creatorId,
-
+        #[Assert\NotBlank] #[Assert\Type("string")] public string $requesterId,
         #[Assert\Type("string")] public ?string $description = null,
-
         #[Assert\Type("string")] public ?string $image = null,
-    ) {}
+    ) {
+    }
 
     public static function fromHttp(
         Request $request,
@@ -43,7 +42,7 @@ final readonly class CreateTeamRequest
             $this->name,
             $this->description,
             $this->image,
-            $this->creatorId,
+            $this->requesterId,
         );
     }
 }

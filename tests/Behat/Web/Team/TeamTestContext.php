@@ -374,6 +374,44 @@ final class TeamTestContext implements Context
     }
 
     /**
+     * @Given a team :teamId exists with name :teamName created by :email
+     */
+    public function aTeamExistsWithNameCreatedBy(string $teamId, string $teamName, string $email): void
+    {
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        $userId = $connection->fetchOne(
+            "SELECT id FROM user WHERE email = :email",
+            ["email" => $email]
+        );
+
+        if (!$userId) {
+            throw new \RuntimeException("User with email $email not found");
+        }
+
+        $userEntity = $this->userRepository->findById(new Uuid($userId));
+
+        $teamExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM team WHERE id = :id",
+            ["id" => $teamId],
+        );
+
+        if (!$teamExists) {
+            $team = Team::create(
+                new Uuid($teamId),
+                new TeamNameValue($teamName),
+                new TeamDescriptionValue("Test team"),
+                new TeamImageValue("https://example.com/team.png"),
+                $userEntity,
+            );
+            $this->entityManager->persist($team);
+            $this->entityManager->flush();
+            $this->createdTeamIds[] = $teamId;
+        }
+    }
+
+    /**
      * @Given the team :teamId is registered in tournament :tournamentId
      */
     public function theTeamIsRegisteredInTournament(string $teamId, string $tournamentId): void
@@ -396,6 +434,36 @@ final class TeamTestContext implements Context
         );
 
         $this->entityManager->persist($tournamentTeam);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @Given user :email is the leader of team :teamId
+     */
+    public function userIsTheLeaderOfTeam(string $email, string $teamId): void
+    {
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        // Find user by email
+        $userId = $connection->fetchOne(
+            "SELECT id FROM user WHERE email = :email",
+            ["email" => $email]
+        );
+
+        if (!$userId) {
+            throw new \RuntimeException("User with email $email not found");
+        }
+
+        $team = $this->entityManager->find(Team::class, new Uuid($teamId));
+
+        if (!$team) {
+            throw new \RuntimeException("Team with id $teamId not found");
+        }
+
+        $user = $this->userRepository->findById(new Uuid($userId));
+        $team->setLeader($user);
+
         $this->entityManager->flush();
     }
 }

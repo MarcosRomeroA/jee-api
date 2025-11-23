@@ -243,6 +243,11 @@ class Team extends AggregateRoot
         return $this->leader->getId()->equals($userId);
     }
 
+    public function canEdit(Uuid $userId): bool
+    {
+        return $this->isOwner($userId) || $this->isLeader($userId);
+    }
+
     public function addGame(Game $game): void
     {
         // Check if game already exists

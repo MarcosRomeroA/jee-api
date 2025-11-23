@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Team\Application;
 
@@ -39,6 +41,12 @@ final class TeamCreatorTest extends TestCase
 
         $creator = UserMother::create($creatorId);
 
+        $this->teamRepository
+            ->expects($this->once())
+            ->method("existsById")
+            ->with($id)
+            ->willReturn(false);
+
         $this->userRepository
             ->expects($this->once())
             ->method("findById")
@@ -60,13 +68,19 @@ final class TeamCreatorTest extends TestCase
                 }),
             );
 
-        $this->creator->create($id, $name, $description, $image, $creatorId);
+        $this->creator->createOrUpdate($id, $name, $description, $image, $creatorId);
     }
 
     public function testItShouldThrowExceptionWhenUserNotFound(): void
     {
         $id = Uuid::random();
         $creatorId = Uuid::random();
+
+        $this->teamRepository
+            ->expects($this->once())
+            ->method("existsById")
+            ->with($id)
+            ->willReturn(false);
 
         $this->userRepository
             ->expects($this->once())
@@ -78,7 +92,7 @@ final class TeamCreatorTest extends TestCase
 
         $this->expectException(UserNotFoundException::class);
 
-        $this->creator->create(
+        $this->creator->createOrUpdate(
             $id,
             "Team Name",
             "Team description",
