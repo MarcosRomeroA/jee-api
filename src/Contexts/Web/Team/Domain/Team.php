@@ -145,49 +145,49 @@ class Team extends AggregateRoot
         $this->record(new TeamUpdatedDomainEvent($this->id));
     }
 
-    public function id(): Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function creator(): User
+    public function getCreator(): User
     {
         return $this->creator;
     }
 
-    public function leader(): User
+    public function getLeader(): User
     {
         return $this->leader;
     }
 
-    public function name(): string
+    public function getName(): string
     {
         return $this->name->value();
     }
 
-    public function description(): ?string
+    public function getDescription(): ?string
     {
         return $this->description->value();
     }
 
-    public function image(): ?string
+    public function getImage(): ?string
     {
         return $this->image->value();
     }
 
     /**
      * @return Collection<int, TeamPlayer>
-     * @deprecated Use teamUsers() instead
+     * @deprecated Use getTeamUsers() instead
      */
-    public function teamPlayers(): Collection
+    public function getTeamPlayers(): Collection
     {
         return $this->teamPlayers;
     }
 
     /**
-     * @deprecated Use usersQuantity() instead
+     * @deprecated Use getUsersQuantity() instead
      */
-    public function playersQuantity(): int
+    public function getPlayersQuantity(): int
     {
         return $this->teamPlayers->count();
     }
@@ -195,12 +195,12 @@ class Team extends AggregateRoot
     /**
      * @return Collection<int, TeamUser>
      */
-    public function teamUsers(): Collection
+    public function getTeamUsers(): Collection
     {
         return $this->teamUsers;
     }
 
-    public function usersQuantity(): int
+    public function getUsersQuantity(): int
     {
         return $this->teamUsers->count();
     }
@@ -208,7 +208,7 @@ class Team extends AggregateRoot
     public function isMember(Uuid $userId): bool
     {
         foreach ($this->teamUsers as $teamUser) {
-            if ($teamUser->user()->getId()->equals($userId)) {
+            if ($teamUser->getUser()->getId()->equals($userId)) {
                 return true;
             }
         }
@@ -218,12 +218,12 @@ class Team extends AggregateRoot
     /**
      * @return Collection<int, TeamGame>
      */
-    public function teamGames(): Collection
+    public function getTeamGames(): Collection
     {
         return $this->teamGames;
     }
 
-    public function gamesQuantity(): int
+    public function getGamesQuantity(): int
     {
         return $this->teamGames->count();
     }
@@ -252,7 +252,7 @@ class Team extends AggregateRoot
     {
         // Check if game already exists
         foreach ($this->teamGames as $teamGame) {
-            if ($teamGame->game()->getId()->equals($game->getId())) {
+            if ($teamGame->getGame()->getId()->equals($game->getId())) {
                 return; // Game already exists, don't add duplicate
             }
         }
@@ -265,7 +265,7 @@ class Team extends AggregateRoot
     public function removeGame(Game $game): void
     {
         foreach ($this->teamGames as $teamGame) {
-            if ($teamGame->game()->getId()->equals($game->getId())) {
+            if ($teamGame->getGame()->getId()->equals($game->getId())) {
                 $this->teamGames->removeElement($teamGame);
                 return;
             }
@@ -275,7 +275,7 @@ class Team extends AggregateRoot
     public function hasGame(Game $game): bool
     {
         foreach ($this->teamGames as $teamGame) {
-            if ($teamGame->game()->getId()->equals($game->getId())) {
+            if ($teamGame->getGame()->getId()->equals($game->getId())) {
                 return true;
             }
         }

@@ -28,12 +28,12 @@ final readonly class TournamentResponsibleAssigner
         }
 
         // Verificar permisos (solo el responsable actual puede cambiar)
-        if ($tournament->responsible()->getId()->value() !== $currentResponsibleId->value()) {
+        if ($tournament->getResponsible()->getId()->value() !== $currentResponsibleId->value()) {
             throw new UnauthorizedException('Solo el responsable actual puede cambiar el responsable del torneo');
         }
 
         // Verificar que el torneo está en estado created o active
-        if (!$tournament->status()->isCreated() && !$tournament->status()->isActive()) {
+        if (!$tournament->getStatus()->isCreated() && !$tournament->getStatus()->isActive()) {
             throw new InvalidTournamentStateException('No se puede cambiar el responsable en el estado actual del torneo');
         }
 

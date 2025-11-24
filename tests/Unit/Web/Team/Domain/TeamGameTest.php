@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Team\Domain;
 
@@ -18,10 +20,10 @@ final class TeamGameTest extends TestCase
 
         $teamGame = new TeamGame($id, $team, $game);
 
-        $this->assertEquals($id, $teamGame->id());
-        $this->assertEquals($team, $teamGame->team());
-        $this->assertEquals($game, $teamGame->game());
-        $this->assertInstanceOf(\DateTimeImmutable::class, $teamGame->addedAt());
+        $this->assertEquals($id, $teamGame->getId());
+        $this->assertEquals($team, $teamGame->getTeam());
+        $this->assertEquals($game, $teamGame->getGame());
+        $this->assertInstanceOf(\DateTimeImmutable::class, $teamGame->getAddedAt());
     }
 
     public function testTeamShouldAddGame(): void
@@ -29,11 +31,11 @@ final class TeamGameTest extends TestCase
         $team = TeamMother::create();
         $game = GameMother::random();
 
-        $this->assertEquals(0, $team->gamesQuantity());
-        
+        $this->assertEquals(0, $team->getGamesQuantity());
+
         $team->addGame($game);
-        
-        $this->assertEquals(1, $team->gamesQuantity());
+
+        $this->assertEquals(1, $team->getGamesQuantity());
         $this->assertTrue($team->hasGame($game));
     }
 
@@ -44,8 +46,8 @@ final class TeamGameTest extends TestCase
 
         $team->addGame($game);
         $team->addGame($game); // Try to add same game again
-        
-        $this->assertEquals(1, $team->gamesQuantity());
+
+        $this->assertEquals(1, $team->getGamesQuantity());
     }
 
     public function testTeamShouldRemoveGame(): void
@@ -54,11 +56,11 @@ final class TeamGameTest extends TestCase
         $game = GameMother::random();
 
         $team->addGame($game);
-        $this->assertEquals(1, $team->gamesQuantity());
-        
+        $this->assertEquals(1, $team->getGamesQuantity());
+
         $team->removeGame($game);
-        
-        $this->assertEquals(0, $team->gamesQuantity());
+
+        $this->assertEquals(0, $team->getGamesQuantity());
         $this->assertFalse($team->hasGame($game));
     }
 
@@ -78,8 +80,8 @@ final class TeamGameTest extends TestCase
 
         $team->addGame($game1);
         $team->addGame($game2);
-        
-        $this->assertEquals(2, $team->gamesQuantity());
+
+        $this->assertEquals(2, $team->getGamesQuantity());
         $this->assertTrue($team->hasGame($game1));
         $this->assertTrue($team->hasGame($game2));
     }

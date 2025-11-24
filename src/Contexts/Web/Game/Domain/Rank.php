@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Game\Domain;
 
@@ -30,17 +32,17 @@ class Rank extends AggregateRoot
         $this->description = $description;
     }
 
-    public function id(): Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function name(): string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function description(): ?string
+    public function getDescription(): ?string
     {
         return $this->description;
     }

@@ -1,10 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Domain;
 
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\Team;
+use App\Contexts\Web\Tournament\Domain\Events\TournamentRequestCreatedDomainEvent;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -29,7 +32,7 @@ class TournamentRequest extends AggregateRoot
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    public function __construct(
+    private function __construct(
         Uuid $id,
         Tournament $tournament,
         Team $team
@@ -41,27 +44,38 @@ class TournamentRequest extends AggregateRoot
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function id(): Uuid
+    public static function create(Uuid $id, Tournament $tournament, Team $team): self
+    {
+        $request = new self($id, $tournament, $team);
+        $request->record(new TournamentRequestCreatedDomainEvent(
+            $id,
+            $tournament->getId(),
+            $team->getId(),
+        ));
+        return $request;
+    }
+
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function tournament(): Tournament
+    public function getTournament(): Tournament
     {
         return $this->tournament;
     }
 
-    public function team(): Team
+    public function getTeam(): Team
     {
         return $this->team;
     }
 
-    public function status(): string
+    public function getStatus(): string
     {
         return $this->status;
     }
 
-    public function createdAt(): \DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -81,4 +95,3 @@ class TournamentRequest extends AggregateRoot
         return $this->status === 'pending';
     }
 }
-

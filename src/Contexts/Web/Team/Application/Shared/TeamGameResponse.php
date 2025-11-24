@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\Shared;
 
@@ -19,11 +21,11 @@ final class TeamGameResponse extends Response
     public static function fromTeamGame(TeamGame $teamGame): self
     {
         return new self(
-            $teamGame->id()->value(),
-            $teamGame->team()->id()->value(),
-            $teamGame->game()->getId()->value(),
-            $teamGame->game()->getName(),
-            $teamGame->addedAt()->format(\DateTimeInterface::ATOM)
+            $teamGame->getId()->value(),
+            $teamGame->getTeam()->getId()->value(),
+            $teamGame->getGame()->getId()->value(),
+            $teamGame->getGame()->getName(),
+            $teamGame->getAddedAt()->format(\DateTimeInterface::ATOM)
         );
     }
 

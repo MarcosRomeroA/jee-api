@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Tournament\Application;
 
@@ -35,7 +37,7 @@ final class TournamentFinderTest extends TestCase
         $result = $this->finder->find($id);
 
         $this->assertEquals($tournament, $result);
-        $this->assertEquals("Championship 2025", $result->name());
+        $this->assertEquals("Championship 2025", $result->getName());
     }
 
     public function testItShouldThrowExceptionWhenTournamentNotFound(): void

@@ -34,7 +34,7 @@ interface TeamRepository
     public function existsById(Uuid $id): bool;
 
     /**
-     * @param string|null $query
+     * @param string|null $name Filter by name (LIKE search)
      * @param Uuid|null $gameId
      * @param Uuid|null $creatorId
      * @param Uuid|null $userId Filter by user membership (teams where user is a member)
@@ -44,7 +44,7 @@ interface TeamRepository
      * @return array<Team>
      */
     public function searchWithPagination(
-        ?string $query,
+        ?string $name,
         ?Uuid $gameId,
         ?Uuid $creatorId,
         ?Uuid $userId,
@@ -53,5 +53,5 @@ interface TeamRepository
         int $offset
     ): array;
 
-    public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $creatorId, ?Uuid $userId, ?Uuid $tournamentId): int;
+    public function countSearch(?string $name, ?Uuid $gameId, ?Uuid $creatorId, ?Uuid $userId, ?Uuid $tournamentId): int;
 }

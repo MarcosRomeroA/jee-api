@@ -12,7 +12,7 @@ final readonly class SearchTeamsRequest
 {
     public function __construct(
         #[Assert\Type("string")]
-        public ?string $q = null,
+        public ?string $name = null,
         #[Assert\Type("string")]
         public ?string $gameId = null,
         #[Assert\Type("string")]
@@ -31,7 +31,7 @@ final readonly class SearchTeamsRequest
     public static function fromHttp(Request $request): self
     {
         return new self(
-            $request->query->get('q'),
+            $request->query->get('name'),
             $request->query->get('gameId'),
             $request->query->get('creatorId'),
             $request->query->get('userId'),
@@ -44,7 +44,7 @@ final readonly class SearchTeamsRequest
     public function toQuery(): SearchTeamsQuery
     {
         return new SearchTeamsQuery(
-            $this->q,
+            $this->name,
             $this->gameId,
             $this->creatorId,
             $this->userId,

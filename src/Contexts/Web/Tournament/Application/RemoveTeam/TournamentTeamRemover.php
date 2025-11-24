@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\RemoveTeam;
 
@@ -15,7 +17,8 @@ final class TournamentTeamRemover
     public function __construct(
         private readonly TournamentRepository $tournamentRepository,
         private readonly TournamentTeamRepository $tournamentTeamRepository,
-    ) {}
+    ) {
+    }
 
     public function remove(
         Uuid $tournamentId,
@@ -41,11 +44,11 @@ final class TournamentTeamRemover
 
         // Verificar permisos (responsable del torneo o creador del equipo)
         $isResponsible =
-            $tournament->responsible()->getId()->value() ===
+            $tournament->getResponsible()->getId()->value() ===
             $removedByUserId->value();
         $isCreator =
-            $tournamentTeam->team()->creator() !== null &&
-            $tournamentTeam->team()->creator()->getId()->value() ===
+            $tournamentTeam->getTeam()->getCreator() !== null &&
+            $tournamentTeam->getTeam()->getCreator()->getId()->value() ===
                 $removedByUserId->value();
 
         if (!$isResponsible && !$isCreator) {
@@ -55,7 +58,7 @@ final class TournamentTeamRemover
         }
 
         // Verificar que el torneo no ha finalizado
-        if ($tournament->status()->name() === "finalized") {
+        if ($tournament->getStatus()->getName() === "Finalized") {
             throw new InvalidTournamentStateException(
                 "No se pueden eliminar equipos de un torneo finalizado",
             );

@@ -20,7 +20,7 @@ final readonly class UserTournamentsFinder
 
         $tournaments = [];
         foreach ($tournamentTeams as $tournamentTeam) {
-            $tournament = $tournamentTeam->tournament();
+            $tournament = $tournamentTeam->getTournament();
 
             $tournaments[] = $this->buildTournamentArray($tournament);
         }
@@ -31,16 +31,16 @@ final readonly class UserTournamentsFinder
     private function buildTournamentArray($tournament): array
     {
         return [
-            'id' => $tournament->id()->value(),
-            'name' => $tournament->name(),
-            'description' => $tournament->description(),
-            'isOfficial' => $tournament->isOfficial(),
-            'maxTeams' => $tournament->maxTeams(),
-            'startAt' => $tournament->startAt()?->format('Y-m-d\TH:i:s\Z'),
-            'endAt' => $tournament->endAt()?->format('Y-m-d\TH:i:s\Z'),
+            'id' => $tournament->getId()->value(),
+            'name' => $tournament->getName(),
+            'description' => $tournament->getDescription(),
+            'isOfficial' => $tournament->getIsOfficial(),
+            'maxTeams' => $tournament->getMaxTeams(),
+            'startAt' => $tournament->getStartAt()?->format('Y-m-d\TH:i:s\Z'),
+            'endAt' => $tournament->getEndAt()?->format('Y-m-d\TH:i:s\Z'),
             'game' => [
-                'id' => $tournament->game()->id()->value(),
-                'name' => $tournament->game()->name(),
+                'id' => $tournament->getGame()->getId()->value(),
+                'name' => $tournament->getGame()->getName(),
             ],
         ];
     }

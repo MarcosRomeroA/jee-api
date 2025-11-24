@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\Tournament\Find;
 
@@ -8,9 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class FindTournamentController extends ApiController
 {
-    public function __invoke(string $id): Response
+    public function __invoke(string $id, string $sessionId): Response
     {
-        $input = FindTournamentRequest::fromId($id);
+        $input = FindTournamentRequest::fromId($id, $sessionId);
         $this->validateRequest($input);
 
         $query = $input->toQuery();
@@ -19,4 +21,3 @@ final class FindTournamentController extends ApiController
         return $this->successResponse($tournamentResponse->toArray());
     }
 }
-

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Notification\Domain;
 
@@ -8,11 +10,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class NotificationType
 {
-    const NEW_MESSAGE = "new_message";
-    const NEW_FOLLOWER = "new_follower";
-    const POST_COMMENTED = "post_commented";
-    const POST_LIKED = "post_liked";
-    const POST_SHARED = "post_shared";
+    public const NEW_MESSAGE = "new_message";
+    public const NEW_FOLLOWER = "new_follower";
+    public const POST_COMMENTED = "post_commented";
+    public const POST_LIKED = "post_liked";
+    public const POST_SHARED = "post_shared";
+    public const TEAM_REQUEST_RECEIVED = "team_request_received";
+    public const TOURNAMENT_REQUEST_RECEIVED = "tournament_request_received";
 
     #[ORM\Id]
     #[ORM\Column(type: "uuid", length: 36)]

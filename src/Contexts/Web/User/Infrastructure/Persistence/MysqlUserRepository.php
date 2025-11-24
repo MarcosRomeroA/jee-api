@@ -89,12 +89,7 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
     {
         $qb = $this->createQueryBuilder("u");
 
-        if (isset($criteria["username"]) && $criteria["username"] !== "") {
-            $qb->andWhere("u.username.value LIKE :username")->setParameter(
-                "username",
-                "%" . $criteria["username"] . "%",
-            );
-        }
+        $this->applyCriteriaFilters($qb, $criteria);
 
         $limit = $criteria["limit"] ?? null;
         $offset = $criteria["offset"] ?? null;
@@ -123,14 +118,32 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
     {
         $qb = $this->createQueryBuilder("u")->select("COUNT(u.id)");
 
-        if (isset($criteria["username"]) && $criteria["username"] !== "") {
-            $qb->andWhere("u.username.value LIKE :username")->setParameter(
-                "username",
-                "%" . $criteria["username"] . "%",
-            );
-        }
+        $this->applyCriteriaFilters($qb, $criteria);
 
         return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    private function applyCriteriaFilters(\Doctrine\ORM\QueryBuilder $qb, array $criteria): void
+    {
+        if (isset($criteria["firstname"]) && $criteria["firstname"] !== "") {
+            $qb->andWhere("u.firstname.value LIKE :firstname")
+                ->setParameter("firstname", "%" . $criteria["firstname"] . "%");
+        }
+
+        if (isset($criteria["lastname"]) && $criteria["lastname"] !== "") {
+            $qb->andWhere("u.lastname.value LIKE :lastname")
+                ->setParameter("lastname", "%" . $criteria["lastname"] . "%");
+        }
+
+        if (isset($criteria["username"]) && $criteria["username"] !== "") {
+            $qb->andWhere("u.username.value LIKE :username")
+                ->setParameter("username", "%" . $criteria["username"] . "%");
+        }
+
+        if (isset($criteria["email"]) && $criteria["email"] !== "") {
+            $qb->andWhere("u.email.value LIKE :email")
+                ->setParameter("email", "%" . $criteria["email"] . "%");
+        }
     }
 
     public function delete(User $user): void

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Game\Application\Shared;
 
@@ -19,11 +21,11 @@ final class GameRankResponse extends Response
     public static function fromGameRank(GameRank $gameRank): self
     {
         return new self(
-            $gameRank->id()->value(),
-            $gameRank->rank()->id()->value(),
-            $gameRank->rank()->name(),
-            $gameRank->rank()->description(),
-            $gameRank->level()
+            $gameRank->getId()->value(),
+            $gameRank->getRank()->getId()->value(),
+            $gameRank->getRank()->getName(),
+            $gameRank->getRank()->getDescription(),
+            $gameRank->getLevel()
         );
     }
 

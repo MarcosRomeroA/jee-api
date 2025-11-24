@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Domain;
 
@@ -37,24 +39,23 @@ class TournamentTeam extends AggregateRoot
         $this->registeredAt = new \DateTimeImmutable();
     }
 
-    public function id(): Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function tournament(): Tournament
+    public function getTournament(): Tournament
     {
         return $this->tournament;
     }
 
-    public function team(): Team
+    public function getTeam(): Team
     {
         return $this->team;
     }
 
-    public function registeredAt(): \DateTimeImmutable
+    public function getRegisteredAt(): \DateTimeImmutable
     {
         return $this->registeredAt;
     }
 }
-

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Team\Application;
 
@@ -35,7 +37,7 @@ final class TeamFinderTest extends TestCase
         $result = $this->finder->find($id);
 
         $this->assertEquals($team, $result);
-        $this->assertEquals('Test Team', $result->name());
+        $this->assertEquals('Test Team', $result->getName());
     }
 
     public function testItShouldThrowExceptionWhenTeamNotFound(): void
@@ -53,4 +55,3 @@ final class TeamFinderTest extends TestCase
         $this->finder->find($id);
     }
 }
-

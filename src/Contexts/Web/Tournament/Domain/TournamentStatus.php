@@ -33,12 +33,12 @@ class TournamentStatus extends AggregateRoot
         $this->name = $name;
     }
 
-    public function id(): Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function name(): string
+    public function getName(): string
     {
         return $this->name;
     }

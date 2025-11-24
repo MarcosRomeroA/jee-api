@@ -35,11 +35,11 @@ final class TournamentTest extends TestCase
             $endAt
         );
 
-        $this->assertEquals($id, $tournament->id());
-        $this->assertEquals($name, $tournament->name());
-        $this->assertEquals($maxTeams, $tournament->maxTeams());
-        $this->assertEquals(0, $tournament->registeredTeams());
-        $this->assertTrue($tournament->isOfficial());
+        $this->assertEquals($id, $tournament->getId());
+        $this->assertEquals($name, $tournament->getName());
+        $this->assertEquals($maxTeams, $tournament->getMaxTeams());
+        $this->assertEquals(0, $tournament->getRegisteredTeams());
+        $this->assertTrue($tournament->getIsOfficial());
         $this->assertFalse($tournament->isDeleted());
     }
 
@@ -64,20 +64,20 @@ final class TournamentTest extends TestCase
             $newEndAt
         );
 
-        $this->assertEquals($newName, $tournament->name());
-        $this->assertEquals($newMaxTeams, $tournament->maxTeams());
-        $this->assertTrue($tournament->isOfficial());
-        $this->assertNotNull($tournament->updatedAt());
+        $this->assertEquals($newName, $tournament->getName());
+        $this->assertEquals($newMaxTeams, $tournament->getMaxTeams());
+        $this->assertTrue($tournament->getIsOfficial());
+        $this->assertNotNull($tournament->getUpdatedAt());
     }
 
     public function testItShouldIncrementRegisteredTeams(): void
     {
         $tournament = TournamentMother::create();
-        $initialTeams = $tournament->registeredTeams();
+        $initialTeams = $tournament->getRegisteredTeams();
 
         $tournament->incrementRegisteredTeams();
 
-        $this->assertEquals($initialTeams + 1, $tournament->registeredTeams());
+        $this->assertEquals($initialTeams + 1, $tournament->getRegisteredTeams());
     }
 
     public function testItShouldDecrementRegisteredTeams(): void
@@ -86,10 +86,10 @@ final class TournamentTest extends TestCase
         $tournament->incrementRegisteredTeams();
         $tournament->incrementRegisteredTeams();
 
-        $teamsAfterIncrement = $tournament->registeredTeams();
+        $teamsAfterIncrement = $tournament->getRegisteredTeams();
         $tournament->decrementRegisteredTeams();
 
-        $this->assertEquals($teamsAfterIncrement - 1, $tournament->registeredTeams());
+        $this->assertEquals($teamsAfterIncrement - 1, $tournament->getRegisteredTeams());
     }
 
     public function testItShouldNotDecrementBelowZero(): void
@@ -98,7 +98,7 @@ final class TournamentTest extends TestCase
 
         $tournament->decrementRegisteredTeams();
 
-        $this->assertEquals(0, $tournament->registeredTeams());
+        $this->assertEquals(0, $tournament->getRegisteredTeams());
     }
 
     public function testItShouldAssignResponsible(): void
@@ -108,8 +108,8 @@ final class TournamentTest extends TestCase
 
         $tournament->assignResponsible($newResponsible);
 
-        $this->assertEquals($newResponsible, $tournament->responsible());
-        $this->assertNotNull($tournament->updatedAt());
+        $this->assertEquals($newResponsible, $tournament->getResponsible());
+        $this->assertNotNull($tournament->getUpdatedAt());
     }
 
     public function testItShouldMarkAsDeleted(): void
@@ -119,6 +119,6 @@ final class TournamentTest extends TestCase
         $tournament->delete();
 
         $this->assertTrue($tournament->isDeleted());
-        $this->assertNotNull($tournament->deletedAt());
+        $this->assertNotNull($tournament->getDeletedAt());
     }
 }

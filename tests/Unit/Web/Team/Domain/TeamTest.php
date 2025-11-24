@@ -29,14 +29,14 @@ final class TeamTest extends TestCase
             $creator
         );
 
-        $this->assertEquals($id, $team->id());
-        $this->assertEquals($name, $team->name());
-        $this->assertEquals($description, $team->description());
-        $this->assertEquals($image, $team->image());
-        $this->assertEquals(0, $team->playersQuantity());
-        $this->assertEquals(0, $team->gamesQuantity());
-        $this->assertEquals($creator, $team->creator());
-        $this->assertEquals($creator, $team->leader());
+        $this->assertEquals($id, $team->getId());
+        $this->assertEquals($name, $team->getName());
+        $this->assertEquals($description, $team->getDescription());
+        $this->assertEquals($image, $team->getImage());
+        $this->assertEquals(0, $team->getPlayersQuantity());
+        $this->assertEquals(0, $team->getGamesQuantity());
+        $this->assertEquals($creator, $team->getCreator());
+        $this->assertEquals($creator, $team->getLeader());
     }
 
     public function testItShouldUpdateTeam(): void
@@ -52,9 +52,9 @@ final class TeamTest extends TestCase
             new TeamImageValue($newImage)
         );
 
-        $this->assertEquals($newName, $team->name());
-        $this->assertEquals($newDescription, $team->description());
-        $this->assertEquals($newImage, $team->image());
+        $this->assertEquals($newName, $team->getName());
+        $this->assertEquals($newDescription, $team->getDescription());
+        $this->assertEquals($newImage, $team->getImage());
     }
 
     public function testItShouldSetLeader(): void
@@ -65,7 +65,7 @@ final class TeamTest extends TestCase
 
         $team->setLeader($leader);
 
-        $this->assertEquals($leader, $team->leader());
+        $this->assertEquals($leader, $team->getLeader());
         $this->assertTrue($team->isLeader($leaderId));
     }
 
@@ -73,7 +73,7 @@ final class TeamTest extends TestCase
     {
         $team = TeamMother::create();
 
-        $this->assertEquals(0, $team->playersQuantity());
+        $this->assertEquals(0, $team->getPlayersQuantity());
     }
 
     public function testItShouldAddGame(): void
@@ -83,7 +83,7 @@ final class TeamTest extends TestCase
 
         $team->addGame($game);
 
-        $this->assertEquals(1, $team->gamesQuantity());
+        $this->assertEquals(1, $team->getGamesQuantity());
         $this->assertTrue($team->hasGame($game));
     }
 
@@ -95,7 +95,7 @@ final class TeamTest extends TestCase
         $team->addGame($game);
         $team->addGame($game);
 
-        $this->assertEquals(1, $team->gamesQuantity());
+        $this->assertEquals(1, $team->getGamesQuantity());
     }
 
     public function testItShouldRemoveGame(): void
@@ -104,10 +104,10 @@ final class TeamTest extends TestCase
         $game = GameMother::random();
 
         $team->addGame($game);
-        $this->assertEquals(1, $team->gamesQuantity());
+        $this->assertEquals(1, $team->getGamesQuantity());
 
         $team->removeGame($game);
-        $this->assertEquals(0, $team->gamesQuantity());
+        $this->assertEquals(0, $team->getGamesQuantity());
         $this->assertFalse($team->hasGame($game));
     }
 }

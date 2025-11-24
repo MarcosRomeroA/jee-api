@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\Tournament\SearchTournaments;
 
@@ -11,25 +13,20 @@ final readonly class SearchTournamentsRequest
     public function __construct(
         #[Assert\Type("string")]
         public ?string $name = null,
-
         #[Assert\Type("string")]
         public ?string $gameId = null,
-
         #[Assert\Type("string")]
         public ?string $statusId = null,
-
         #[Assert\Type("bool")]
         public bool $mine = false,
-
         #[Assert\Type("bool")]
         public bool $open = false,
-
         #[Assert\Type("int")]
         public int $limit = 20,
-
         #[Assert\Type("int")]
         public int $offset = 0,
-    ) {}
+    ) {
+    }
 
     public static function fromHttp(Request $request): self
     {
@@ -53,7 +50,8 @@ final readonly class SearchTournamentsRequest
             $this->mine ? $userId : null,
             $this->open,
             $this->limit,
-            $this->offset
+            $this->offset,
+            $userId,
         );
     }
 }

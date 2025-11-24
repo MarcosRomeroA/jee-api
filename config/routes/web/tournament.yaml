@@ -65,6 +65,12 @@ tournament_request_access:
     methods: [PUT]
     defaults: { auth: true }
 
+tournament_leave:
+    path: /tournament/{tournamentId}/team/{teamId}/leave
+    controller: App\Apps\Web\Tournament\LeaveTournament\LeaveTournamentController
+    methods: [POST]
+    defaults: { auth: true }
+
 # Matches
 create_match:
     path: /match

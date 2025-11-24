@@ -40,22 +40,22 @@ class TeamUser extends AggregateRoot
         $this->joinedAt = new \DateTimeImmutable();
     }
 
-    public function id(): Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function team(): Team
+    public function getTeam(): Team
     {
         return $this->team;
     }
 
-    public function user(): User
+    public function getUser(): User
     {
         return $this->user;
     }
 
-    public function joinedAt(): \DateTimeImmutable
+    public function getJoinedAt(): \DateTimeImmutable
     {
         return $this->joinedAt;
     }

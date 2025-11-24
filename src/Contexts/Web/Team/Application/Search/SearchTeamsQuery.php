@@ -9,7 +9,7 @@ use App\Contexts\Shared\Domain\CQRS\Query\Query;
 final readonly class SearchTeamsQuery implements Query
 {
     public function __construct(
-        public ?string $query = null,
+        public ?string $name = null,
         public ?string $gameId = null,
         public ?string $creatorId = null,
         public ?string $userId = null,

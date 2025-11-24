@@ -27,4 +27,16 @@ interface TournamentTeamRepository
     public function findByUserId(Uuid $userId): array;
 
     public function delete(TournamentTeam $tournamentTeam): void;
+
+    /**
+     * Checks if a user is registered in a tournament through any of their teams
+     */
+    public function isUserRegisteredInTournament(Uuid $tournamentId, Uuid $userId): bool;
+
+    /**
+     * Returns tournament IDs where the user is registered through any of their teams
+     * @param array<Uuid> $tournamentIds
+     * @return array<string> Tournament IDs where user is registered
+     */
+    public function findUserRegisteredTournamentIds(array $tournamentIds, Uuid $userId): array;
 }

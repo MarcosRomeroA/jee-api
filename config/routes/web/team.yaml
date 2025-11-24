@@ -63,3 +63,9 @@ update_team_leader:
     controller: App\Apps\Web\Team\UpdateLeader\UpdateTeamLeaderController
     methods: [PUT]
     defaults: { auth: true }
+
+leave_team:
+    path: /team/{id}/leave
+    controller: App\Apps\Web\Team\LeaveTeam\LeaveTeamController
+    methods: [POST]
+    defaults: { auth: true }

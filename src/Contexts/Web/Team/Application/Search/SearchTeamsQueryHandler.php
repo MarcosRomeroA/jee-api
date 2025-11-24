@@ -24,7 +24,7 @@ final readonly class SearchTeamsQueryHandler implements QueryHandler
         $tournamentId = $query->tournamentId ? new Uuid($query->tournamentId) : null;
 
         $teams = $this->searcher->search(
-            $query->query,
+            $query->name,
             $gameId,
             $creatorId,
             $userId,
@@ -33,7 +33,7 @@ final readonly class SearchTeamsQueryHandler implements QueryHandler
             $query->offset
         );
 
-        $total = $this->searcher->count($query->query, $gameId, $creatorId, $userId, $tournamentId);
+        $total = $this->searcher->count($query->name, $gameId, $creatorId, $userId, $tournamentId);
 
         $teamsResponse = !empty($teams)
             ? array_map(static fn ($team) => TeamResponse::fromTeam($team), $teams)

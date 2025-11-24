@@ -7,6 +7,7 @@ namespace App\Contexts\Web\Team\Domain;
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Player\Domain\Player;
+use App\Contexts\Web\Team\Domain\Events\TeamRequestCreatedDomainEvent;
 use App\Contexts\Web\User\Domain\User;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -60,7 +61,7 @@ class TeamRequest extends AggregateRoot
     #[ORM\Column(type: "datetime_immutable", nullable: true)]
     private ?\DateTimeImmutable $acceptedAt;
 
-    public function __construct(Uuid $id, Team $team, User $user)
+    private function __construct(Uuid $id, Team $team, User $user)
     {
         $this->id = $id;
         $this->team = $team;
@@ -71,40 +72,51 @@ class TeamRequest extends AggregateRoot
         $this->acceptedAt = null;
     }
 
-    public function id(): Uuid
+    public static function create(Uuid $id, Team $team, User $user): self
+    {
+        $request = new self($id, $team, $user);
+        $request->record(new TeamRequestCreatedDomainEvent(
+            $id,
+            $team->getId(),
+            $user->getId(),
+        ));
+        return $request;
+    }
+
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function team(): Team
+    public function getTeam(): Team
     {
         return $this->team;
     }
 
     /**
-     * @deprecated Use user() instead
+     * @deprecated Use getUser() instead
      */
-    public function player(): ?Player
+    public function getPlayer(): ?Player
     {
         return $this->player;
     }
 
-    public function user(): User
+    public function getUser(): User
     {
         return $this->user;
     }
 
-    public function status(): string
+    public function getStatus(): string
     {
         return $this->status;
     }
 
-    public function createdAt(): \DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function acceptedAt(): ?\DateTimeImmutable
+    public function getAcceptedAt(): ?\DateTimeImmutable
     {
         return $this->acceptedAt;
     }

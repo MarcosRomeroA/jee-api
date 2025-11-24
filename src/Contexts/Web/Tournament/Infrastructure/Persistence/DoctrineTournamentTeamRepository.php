@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Infrastructure\Persistence;
 
@@ -8,9 +10,7 @@ use App\Contexts\Web\Tournament\Domain\TournamentTeamRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineTournamentTeamRepository
-    extends ServiceEntityRepository
-    implements TournamentTeamRepository
+final class DoctrineTournamentTeamRepository extends ServiceEntityRepository implements TournamentTeamRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -67,5 +67,46 @@ final class DoctrineTournamentTeamRepository
     {
         $this->getEntityManager()->remove($tournamentTeam);
         $this->getEntityManager()->flush();
+    }
+
+    public function isUserRegisteredInTournament(Uuid $tournamentId, Uuid $userId): bool
+    {
+        // Check if user is a member, creator, or leader of any team registered in the tournament
+        $result = $this->createQueryBuilder("tt")
+            ->select("COUNT(tt.id)")
+            ->join("tt.team", "t")
+            ->leftJoin("t.teamUsers", "tu")
+            ->where("tt.tournament = :tournamentId")
+            ->andWhere("(tu.user = :userId OR t.creator = :userId OR t.leader = :userId)")
+            ->setParameter("tournamentId", $tournamentId)
+            ->setParameter("userId", $userId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $result > 0;
+    }
+
+    public function findUserRegisteredTournamentIds(array $tournamentIds, Uuid $userId): array
+    {
+        if (empty($tournamentIds)) {
+            return [];
+        }
+
+        $tournamentIdValues = array_map(fn (Uuid $id) => $id->value(), $tournamentIds);
+
+        // Check if user is a member, creator, or leader of any team registered in the tournaments
+        $results = $this->createQueryBuilder("tt")
+            ->select("IDENTITY(tt.tournament) as tournamentId")
+            ->join("tt.team", "t")
+            ->leftJoin("t.teamUsers", "tu")
+            ->where("tt.tournament IN (:tournamentIds)")
+            ->andWhere("(tu.user = :userId OR t.creator = :userId OR t.leader = :userId)")
+            ->setParameter("tournamentIds", $tournamentIdValues)
+            ->setParameter("userId", $userId)
+            ->groupBy("tt.tournament")
+            ->getQuery()
+            ->getResult();
+
+        return array_column($results, 'tournamentId');
     }
 }

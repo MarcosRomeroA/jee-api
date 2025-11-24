@@ -31,42 +31,47 @@ final class TournamentResponse extends Response
         public readonly ?string $endAt,
         public readonly string $createdAt,
         public readonly ?string $updatedAt,
-        public readonly ?string $deletedAt
+        public readonly ?string $deletedAt,
+        public readonly bool $isUserRegistered = false,
     ) {
     }
 
-    public static function fromTournament(Tournament $tournament, ?FileManager $fileManager = null): self
-    {
+    public static function fromTournament(
+        Tournament $tournament,
+        ?FileManager $fileManager = null,
+        bool $isUserRegistered = false,
+    ): self {
         $imageUrl = null;
-        if ($tournament->image() !== null && $fileManager !== null) {
+        if ($tournament->getImage() !== null && $fileManager !== null) {
             $imageUrl = $fileManager->generateTemporaryUrl(
-                'tournament/' . $tournament->id()->value(),
-                $tournament->image()
+                'tournament/' . $tournament->getId()->value(),
+                $tournament->getImage()
             );
         }
 
         return new self(
-            $tournament->id()->value(),
-            $tournament->game()->getId()->value(),
-            $tournament->game()->getName(),
-            $tournament->status()->id()->value(),
-            $tournament->minGameRank()?->id()->value(),
-            $tournament->maxGameRank()?->id()->value(),
-            $tournament->responsible()->getId()->value(),
-            $tournament->name(),
-            $tournament->description(),
-            $tournament->rules(),
-            $tournament->registeredTeams(),
-            $tournament->maxTeams(),
-            $tournament->isOfficial(),
-            $imageUrl ?? $tournament->image(),
-            $tournament->prize(),
-            $tournament->region(),
-            $tournament->startAt()?->format(\DateTimeInterface::ATOM),
-            $tournament->endAt()?->format(\DateTimeInterface::ATOM),
-            $tournament->createdAt()->format(\DateTimeInterface::ATOM),
-            $tournament->updatedAt()?->format(\DateTimeInterface::ATOM),
-            $tournament->deletedAt()?->format(\DateTimeInterface::ATOM)
+            $tournament->getId()->value(),
+            $tournament->getGame()->getId()->value(),
+            $tournament->getGame()->getName(),
+            $tournament->getStatus()->getId()->value(),
+            $tournament->getMinGameRank()?->getId()->value(),
+            $tournament->getMaxGameRank()?->getId()->value(),
+            $tournament->getResponsible()->getId()->value(),
+            $tournament->getName(),
+            $tournament->getDescription(),
+            $tournament->getRules(),
+            $tournament->getRegisteredTeams(),
+            $tournament->getMaxTeams(),
+            $tournament->getIsOfficial(),
+            $imageUrl ?? $tournament->getImage(),
+            $tournament->getPrize(),
+            $tournament->getRegion(),
+            $tournament->getStartAt()?->format(\DateTimeInterface::ATOM),
+            $tournament->getEndAt()?->format(\DateTimeInterface::ATOM),
+            $tournament->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            $tournament->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
+            $tournament->getDeletedAt()?->format(\DateTimeInterface::ATOM),
+            $isUserRegistered,
         );
     }
 
@@ -93,7 +98,8 @@ final class TournamentResponse extends Response
             'endAt' => $this->endAt,
             'createdAt' => $this->createdAt,
             'updatedAt' => $this->updatedAt,
-            'deletedAt' => $this->deletedAt
+            'deletedAt' => $this->deletedAt,
+            'isUserRegistered' => $this->isUserRegistered,
         ];
     }
 }

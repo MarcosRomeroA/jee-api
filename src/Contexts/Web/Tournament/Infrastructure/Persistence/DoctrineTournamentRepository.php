@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Infrastructure\Persistence;
 
@@ -10,9 +12,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
-final class DoctrineTournamentRepository
-    extends ServiceEntityRepository
-    implements TournamentRepository
+final class DoctrineTournamentRepository extends ServiceEntityRepository implements TournamentRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -77,7 +77,7 @@ final class DoctrineTournamentRepository
                 $qb->join("t.status", "s");
             }
             $qb->andWhere("s.name = :statusName")
-                ->setParameter("statusName", "active")
+                ->setParameter("statusName", "Active")
                 ->andWhere("t.registeredTeams < t.maxTeams");
         }
 
@@ -129,7 +129,7 @@ final class DoctrineTournamentRepository
                 $qb->join("t.status", "s");
             }
             $qb->andWhere("s.name = :statusName")
-                ->setParameter("statusName", "active")
+                ->setParameter("statusName", "Active")
                 ->andWhere("t.registeredTeams < t.maxTeams");
         }
 

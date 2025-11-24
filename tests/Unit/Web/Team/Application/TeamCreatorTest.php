@@ -62,9 +62,9 @@ final class TeamCreatorTest extends TestCase
                     $name,
                     $description,
                 ) {
-                    return $team->id()->equals($id) &&
-                        $team->name() === $name &&
-                        $team->description() === $description;
+                    return $team->getId()->equals($id) &&
+                        $team->getName() === $name &&
+                        $team->getDescription() === $description;
                 }),
             );
 

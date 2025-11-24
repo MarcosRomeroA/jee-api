@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\SearchStatus;
 
@@ -16,8 +18,8 @@ final class TournamentStatusResponse extends Response
     public static function fromEntity(TournamentStatus $status): self
     {
         return new self(
-            $status->id()->value(),
-            $status->name(),
+            $status->getId()->value(),
+            $status->getName(),
         );
     }
 

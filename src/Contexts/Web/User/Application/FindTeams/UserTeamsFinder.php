@@ -20,14 +20,14 @@ final readonly class UserTeamsFinder
 
         $teams = [];
         foreach ($teamPlayers as $teamPlayer) {
-            $team = $teamPlayer->team();
+            $team = $teamPlayer->getTeam();
 
             $games = $this->buildGamesArray($team);
 
             $teams[] = [
-                "id" => $team->id()->value(),
-                "name" => $team->name(),
-                "image" => $team->image(),
+                "id" => $team->getId()->value(),
+                "name" => $team->getName(),
+                "image" => $team->getImage(),
                 "games" => $games,
             ];
         }
@@ -39,10 +39,10 @@ final readonly class UserTeamsFinder
     {
         $games = [];
 
-        foreach ($team->teamGames() as $teamGame) {
+        foreach ($team->getTeamGames() as $teamGame) {
             $games[] = [
-                "id" => $teamGame->game()->getId()->value(),
-                "name" => $teamGame->game()->getName(),
+                "id" => $teamGame->getGame()->getId()->value(),
+                "name" => $teamGame->getGame()->getName(),
             ];
         }
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\Shared;
 
@@ -21,26 +23,27 @@ final class TeamResponse extends Response
         public readonly string $createdAt,
         public readonly ?string $updatedAt,
         public readonly ?string $deletedAt,
-    ) {}
+    ) {
+    }
 
     public static function fromTeam(Team $team): self
     {
         $games = [];
-        foreach ($team->teamGames() as $teamGame) {
+        foreach ($team->getTeamGames() as $teamGame) {
             $games[] = [
-                "id" => $teamGame->game()->getId()->value(),
-                "name" => $teamGame->game()->getName(),
+                "id" => $teamGame->getGame()->getId()->value(),
+                "name" => $teamGame->getGame()->getName(),
             ];
         }
 
         return new self(
-            $team->id()->value(),
+            $team->getId()->value(),
             $games,
-            $team->name(),
-            $team->description(),
-            $team->image(),
-            $team->creator()?->getId()->value(),
-            $team->leader()?->getId()->value(),
+            $team->getName(),
+            $team->getDescription(),
+            $team->getImage(),
+            $team->getCreator()?->getId()->value(),
+            $team->getLeader()?->getId()->value(),
             $team->getCreatedAt()->value()->format(\DateTimeInterface::ATOM),
             $team->getUpdatedAt()?->value()->format(\DateTimeInterface::ATOM),
             $team->getDeletedAt()?->value()?->format(\DateTimeInterface::ATOM),

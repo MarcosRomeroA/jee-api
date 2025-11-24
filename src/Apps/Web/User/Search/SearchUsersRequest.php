@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\User\Search;
 
@@ -9,19 +11,32 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class SearchUsersRequest
 {
     public function __construct(
-        #[Assert\Type("string")] public ?string $q = null,
-        #[Assert\Type("int")] public ?int $limit = null,
-        #[Assert\Type("int")] public ?int $offset = null,
-    ) {}
+        #[Assert\Type("string")]
+        public ?string $firstname = null,
+        #[Assert\Type("string")]
+        public ?string $lastname = null,
+        #[Assert\Type("string")]
+        public ?string $username = null,
+        #[Assert\Type("string")]
+        public ?string $email = null,
+        #[Assert\Type("int")]
+        public ?int $limit = null,
+        #[Assert\Type("int")]
+        public ?int $offset = null,
+    ) {
+    }
 
     public static function fromHttp(Request $request): self
     {
         return new self(
-            $request->query->get("q"),
-            $request->query->get("limit")
+            firstname: $request->query->get("firstname"),
+            lastname: $request->query->get("lastname"),
+            username: $request->query->get("username"),
+            email: $request->query->get("email"),
+            limit: $request->query->get("limit")
                 ? (int) $request->query->get("limit")
                 : null,
-            $request->query->get("offset")
+            offset: $request->query->get("offset")
                 ? (int) $request->query->get("offset")
                 : null,
         );
@@ -31,8 +46,20 @@ final readonly class SearchUsersRequest
     {
         $criteria = [];
 
-        if ($this->q !== null) {
-            $criteria["username"] = $this->q;
+        if ($this->firstname !== null) {
+            $criteria["firstname"] = $this->firstname;
+        }
+
+        if ($this->lastname !== null) {
+            $criteria["lastname"] = $this->lastname;
+        }
+
+        if ($this->username !== null) {
+            $criteria["username"] = $this->username;
+        }
+
+        if ($this->email !== null) {
+            $criteria["email"] = $this->email;
         }
 
         if ($this->limit !== null) {

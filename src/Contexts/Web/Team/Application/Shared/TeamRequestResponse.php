@@ -24,14 +24,14 @@ final class TeamRequestResponse extends Response
     public static function fromTeamRequest(TeamRequest $teamRequest): self
     {
         return new self(
-            $teamRequest->id()->value(),
-            $teamRequest->team()->id()->value(),
-            $teamRequest->team()->name(),
-            $teamRequest->user()->getId()->value(),
-            $teamRequest->user()->getUsername()->value(),
-            $teamRequest->status(),
-            $teamRequest->createdAt()->format(\DateTimeInterface::ATOM),
-            $teamRequest->acceptedAt()?->format(\DateTimeInterface::ATOM),
+            $teamRequest->getId()->value(),
+            $teamRequest->getTeam()->getId()->value(),
+            $teamRequest->getTeam()->getName(),
+            $teamRequest->getUser()->getId()->value(),
+            $teamRequest->getUser()->getUsername()->value(),
+            $teamRequest->getStatus(),
+            $teamRequest->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            $teamRequest->getAcceptedAt()?->format(\DateTimeInterface::ATOM),
         );
     }
 

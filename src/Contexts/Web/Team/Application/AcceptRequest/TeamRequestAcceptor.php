@@ -28,12 +28,12 @@ final readonly class TeamRequestAcceptor
         }
 
         // Verificar que quien acepta es el creador del equipo
-        if ($request->team()->creator() === null || $request->team()->creator()->getId()->value() !== $acceptedByUserId->value()) {
+        if ($request->getTeam()->getCreator() === null || $request->getTeam()->getCreator()->getId()->value() !== $acceptedByUserId->value()) {
             throw new UnauthorizedException('Solo el creador del equipo puede aceptar solicitudes');
         }
 
         // Verificar que la solicitud está pendiente
-        if ($request->status() !== 'pending') {
+        if ($request->getStatus() !== 'pending') {
             throw new UnauthorizedException('La solicitud ya fue procesada');
         }
 
@@ -43,8 +43,8 @@ final readonly class TeamRequestAcceptor
         // Agregar el usuario al equipo
         $teamUser = new TeamUser(
             Uuid::random(),
-            $request->team(),
-            $request->user()
+            $request->getTeam(),
+            $request->getUser()
         );
 
         $this->teamUserRepository->save($teamUser);

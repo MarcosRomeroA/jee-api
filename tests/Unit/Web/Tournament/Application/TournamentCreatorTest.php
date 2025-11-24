@@ -110,8 +110,8 @@ final class TournamentCreatorTest extends TestCase
                     $id,
                     $name,
                 ) {
-                    return $tournament->id()->equals($id) &&
-                        $tournament->name() === $name;
+                    return $tournament->getId()->equals($id) &&
+                        $tournament->getName() === $name;
                 }),
             );
 

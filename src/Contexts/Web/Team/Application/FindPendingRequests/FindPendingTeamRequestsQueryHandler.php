@@ -16,6 +16,6 @@ final readonly class FindPendingTeamRequestsQueryHandler implements QueryHandler
 
     public function __invoke(FindPendingTeamRequestsQuery $query): TeamRequestCollectionResponse
     {
-        return ($this->finder)();
+        return ($this->finder)($query->teamId);
     }
 }

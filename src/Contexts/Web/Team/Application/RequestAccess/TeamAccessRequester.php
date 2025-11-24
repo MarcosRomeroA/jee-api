@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\RequestAccess;
 
+use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\Exception\RequestAlreadyExistsException;
 use App\Contexts\Web\Team\Domain\TeamRepository;
@@ -17,6 +18,7 @@ final class TeamAccessRequester
         private readonly TeamRepository $teamRepository,
         private readonly UserRepository $userRepository,
         private readonly TeamRequestRepository $teamRequestRepository,
+        private readonly EventBus $eventBus,
     ) {
     }
 
@@ -40,8 +42,9 @@ final class TeamAccessRequester
         }
 
         // Crear la solicitud
-        $request = new TeamRequest(Uuid::random(), $team, $user);
+        $request = TeamRequest::create(Uuid::random(), $team, $user);
 
         $this->teamRequestRepository->save($request);
+        $this->eventBus->publish($request->pullDomainEvents());
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\AddTeam;
 
@@ -20,7 +22,8 @@ final class TournamentTeamAdder
         private readonly TournamentRepository $tournamentRepository,
         private readonly TeamRepository $teamRepository,
         private readonly TournamentTeamRepository $tournamentTeamRepository,
-    ) {}
+    ) {
+    }
 
     public function add(
         Uuid $tournamentId,
@@ -41,11 +44,11 @@ final class TournamentTeamAdder
 
         // Verificar permisos (responsable del torneo o creador del equipo)
         $isResponsible =
-            $tournament->responsible()->getId()->value() ===
+            $tournament->getResponsible()->getId()->value() ===
             $addedByUserId->value();
         $isCreator =
-            $team->creator() !== null &&
-            $team->creator()->getId()->value() === $addedByUserId->value();
+            $team->getCreator() !== null &&
+            $team->getCreator()->getId()->value() === $addedByUserId->value();
 
         if (!$isResponsible && !$isCreator) {
             throw new UnauthorizedException(
@@ -54,15 +57,15 @@ final class TournamentTeamAdder
         }
 
         // Verificar que el torneo está activo o creado
-        $validStatuses = ["created", "active"];
-        if (!in_array($tournament->status()->name(), $validStatuses)) {
+        $validStatuses = ["Created", "Active"];
+        if (!in_array($tournament->getStatus()->getName(), $validStatuses)) {
             throw new InvalidTournamentStateException(
                 "El torneo no acepta equipos en su estado actual",
             );
         }
 
         // Verificar que el torneo no está lleno
-        if ($tournament->registeredTeams() >= $tournament->maxTeams()) {
+        if ($tournament->getRegisteredTeams() >= $tournament->getMaxTeams()) {
             throw new TournamentFullException(
                 "El torneo ya alcanzó el máximo de equipos",
             );
@@ -81,7 +84,7 @@ final class TournamentTeamAdder
 
         // Verificar fechas del torneo
         $now = new \DateTimeImmutable();
-        if ($tournament->startAt() < $now) {
+        if ($tournament->getStartAt() < $now) {
             throw new InvalidTournamentStateException(
                 "El torneo ya ha comenzado",
             );

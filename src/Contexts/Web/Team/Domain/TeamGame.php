@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Domain;
 
@@ -38,22 +40,22 @@ class TeamGame extends AggregateRoot
         $this->addedAt = new \DateTimeImmutable();
     }
 
-    public function id(): Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function team(): Team
+    public function getTeam(): Team
     {
         return $this->team;
     }
 
-    public function game(): Game
+    public function getGame(): Game
     {
         return $this->game;
     }
 
-    public function addedAt(): \DateTimeImmutable
+    public function getAddedAt(): \DateTimeImmutable
     {
         return $this->addedAt;
     }

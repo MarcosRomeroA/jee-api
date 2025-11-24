@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\RequestAccess;
 
+use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\Exception\TeamNotFoundException;
 use App\Contexts\Web\Team\Domain\TeamRepository;
@@ -19,6 +20,7 @@ final readonly class TournamentAccessRequester
         private TournamentRepository $tournamentRepository,
         private TeamRepository $teamRepository,
         private TournamentRequestRepository $requestRepository,
+        private EventBus $eventBus,
     ) {
     }
 
@@ -45,12 +47,13 @@ final readonly class TournamentAccessRequester
             throw new TournamentRequestAlreadyExistsException($tournamentId->value(), $teamId->value());
         }
 
-        $request = new TournamentRequest(
+        $request = TournamentRequest::create(
             Uuid::random(),
             $tournament,
             $team
         );
 
         $this->requestRepository->save($request);
+        $this->eventBus->publish($request->pullDomainEvents());
     }
 }

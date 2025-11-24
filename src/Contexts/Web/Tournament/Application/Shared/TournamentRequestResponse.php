@@ -23,13 +23,13 @@ final class TournamentRequestResponse extends Response
     public static function fromTournamentRequest(TournamentRequest $request): self
     {
         return new self(
-            $request->id()->value(),
-            $request->tournament()->id()->value(),
-            $request->tournament()->name(),
-            $request->team()->id()->value(),
-            $request->team()->name(),
-            $request->status(),
-            $request->createdAt()->format(\DateTimeInterface::ATOM),
+            $request->getId()->value(),
+            $request->getTournament()->getId()->value(),
+            $request->getTournament()->getName(),
+            $request->getTeam()->getId()->value(),
+            $request->getTeam()->getName(),
+            $request->getStatus(),
+            $request->getCreatedAt()->format(\DateTimeInterface::ATOM),
         );
     }
 

@@ -74,7 +74,7 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
     }
 
     public function searchWithPagination(
-        ?string $query,
+        ?string $name,
         ?Uuid $gameId,
         ?Uuid $creatorId,
         ?Uuid $userId,
@@ -84,10 +84,10 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
     ): array {
         $qb = $this->createQueryBuilder("t");
 
-        if ($query !== null) {
-            $qb->andWhere("t.name.value LIKE :query")->setParameter(
-                "query",
-                "%" . $query . "%",
+        if ($name !== null) {
+            $qb->andWhere("t.name.value LIKE :name")->setParameter(
+                "name",
+                "%" . $name . "%",
             );
         }
 
@@ -124,7 +124,7 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
     }
 
     public function countSearch(
-        ?string $query,
+        ?string $name,
         ?Uuid $gameId,
         ?Uuid $creatorId,
         ?Uuid $userId,
@@ -132,10 +132,10 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
     ): int {
         $qb = $this->createQueryBuilder("t")->select("COUNT(DISTINCT t.id)");
 
-        if ($query !== null) {
-            $qb->andWhere("t.name.value LIKE :query")->setParameter(
-                "query",
-                "%" . $query . "%",
+        if ($name !== null) {
+            $qb->andWhere("t.name.value LIKE :name")->setParameter(
+                "name",
+                "%" . $name . "%",
             );
         }
 

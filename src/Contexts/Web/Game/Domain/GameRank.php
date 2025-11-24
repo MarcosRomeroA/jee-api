@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Game\Domain;
 
@@ -37,24 +39,23 @@ class GameRank extends AggregateRoot
         $this->level = $level;
     }
 
-    public function id(): Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
-    public function game(): Game
+    public function getGame(): Game
     {
         return $this->game;
     }
 
-    public function rank(): Rank
+    public function getRank(): Rank
     {
         return $this->rank;
     }
 
-    public function level(): int
+    public function getLevel(): int
     {
         return $this->level;
     }
 }
-

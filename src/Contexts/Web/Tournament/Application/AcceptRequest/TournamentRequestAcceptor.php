@@ -31,17 +31,17 @@ final readonly class TournamentRequestAcceptor
             throw new TournamentRequestNotFoundException($requestId->value());
         }
 
-        $tournament = $request->tournament();
+        $tournament = $request->getTournament();
 
         // Verificar que quien acepta es el responsable del torneo
-        if ($tournament->responsible()->getId()->value() !== $acceptedByUserId->value()) {
+        if ($tournament->getResponsible()->getId()->value() !== $acceptedByUserId->value()) {
             throw new UnauthorizedException(
                 'Solo el responsable del torneo puede aceptar solicitudes'
             );
         }
 
         // Verificar que el torneo está activo o creado
-        $status = $tournament->status();
+        $status = $tournament->getStatus();
         if (!$status->isCreated() && !$status->isActive()) {
             throw new InvalidTournamentStateException(
                 'El torneo no acepta equipos en su estado actual'
@@ -49,7 +49,7 @@ final readonly class TournamentRequestAcceptor
         }
 
         // Verificar que el torneo no está lleno
-        if ($tournament->registeredTeams() >= $tournament->maxTeams()) {
+        if ($tournament->getRegisteredTeams() >= $tournament->getMaxTeams()) {
             throw new TournamentFullException(
                 'El torneo ya alcanzó el máximo de equipos'
             );
@@ -57,7 +57,7 @@ final readonly class TournamentRequestAcceptor
 
         // Verificar fechas del torneo
         $now = new \DateTimeImmutable();
-        if ($tournament->startAt() < $now) {
+        if ($tournament->getStartAt() < $now) {
             throw new InvalidTournamentStateException(
                 'El torneo ya ha comenzado'
             );
@@ -71,7 +71,7 @@ final readonly class TournamentRequestAcceptor
         $tournamentTeam = new TournamentTeam(
             Uuid::random(),
             $tournament,
-            $request->team()
+            $request->getTeam()
         );
 
         $tournament->incrementRegisteredTeams();

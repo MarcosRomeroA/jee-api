@@ -131,87 +131,87 @@ class Tournament extends AggregateRoot
     }
 
     // Getters
-    public function id(): Uuid
+    public function getId(): Uuid
     {
         return $this->id;
     }
-    public function game(): Game
+    public function getGame(): Game
     {
         return $this->game;
     }
-    public function status(): TournamentStatus
+    public function getStatus(): TournamentStatus
     {
         return $this->status;
     }
-    public function minGameRank(): ?GameRank
+    public function getMinGameRank(): ?GameRank
     {
         return $this->minGameRank;
     }
-    public function maxGameRank(): ?GameRank
+    public function getMaxGameRank(): ?GameRank
     {
         return $this->maxGameRank;
     }
-    public function responsible(): User
+    public function getResponsible(): User
     {
         return $this->responsible;
     }
-    public function name(): string
+    public function getName(): string
     {
         return $this->name;
     }
-    public function description(): ?string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
-    public function rules(): ?string
+    public function getRules(): ?string
     {
         return $this->rules;
     }
-    public function registeredTeams(): int
+    public function getRegisteredTeams(): int
     {
         return $this->registeredTeams;
     }
-    public function maxTeams(): int
+    public function getMaxTeams(): int
     {
         return $this->maxTeams;
     }
-    public function isOfficial(): bool
+    public function getIsOfficial(): bool
     {
         return $this->isOfficial;
     }
-    public function image(): ?string
+    public function getImage(): ?string
     {
         return $this->image;
     }
-    public function prize(): ?string
+    public function getPrize(): ?string
     {
         return $this->prize;
     }
-    public function region(): ?string
+    public function getRegion(): ?string
     {
         return $this->region;
     }
-    public function startAt(): \DateTimeImmutable
+    public function getStartAt(): \DateTimeImmutable
     {
         return $this->startAt;
     }
-    public function endAt(): \DateTimeImmutable
+    public function getEndAt(): \DateTimeImmutable
     {
         return $this->endAt;
     }
-    public function createdAt(): \DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
-    public function updatedAt(): ?\DateTimeImmutable
+    public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
     }
-    public function deletedAt(): ?\DateTimeImmutable
+    public function getDeletedAt(): ?\DateTimeImmutable
     {
         return $this->deletedAt;
     }
-    public function tournamentTeams(): Collection
+    public function getTournamentTeams(): Collection
     {
         return $this->tournamentTeams;
     }
@@ -291,7 +291,7 @@ class Tournament extends AggregateRoot
 
     public function isResponsible(Uuid $userId): bool
     {
-        return $this->responsible->id()->equals($userId);
+        return $this->responsible->getId()->equals($userId);
     }
 
     public function hasStarted(): bool
