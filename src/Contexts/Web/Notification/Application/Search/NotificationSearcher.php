@@ -1,7 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Notification\Application\Search;
 
+use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\Notification\Domain\NotificationRepository;
 use App\Contexts\Web\Notification\Application\Shared\NotificationResponse;
 use App\Contexts\Web\Notification\Application\Shared\NotificationCollectionResponse;
@@ -9,8 +12,10 @@ use App\Contexts\Web\Notification\Application\Shared\NotificationCollectionRespo
 final readonly class NotificationSearcher
 {
     public function __construct(
-        private NotificationRepository $repository
-    ) {}
+        private NotificationRepository $repository,
+        private FileManager $fileManager,
+    ) {
+    }
 
     public function __invoke(?array $criteria): NotificationCollectionResponse
     {
@@ -18,7 +23,16 @@ final readonly class NotificationSearcher
 
         $response = [];
         foreach ($notifications as $notification) {
-            $response[] = NotificationResponse::fromEntity($notification);
+            $profileImage = null;
+            $user = $notification->getUser();
+            if ($user !== null && $user->getProfileImage()->value() !== '') {
+                $profileImage = $this->fileManager->generateTemporaryUrl(
+                    'user/profile',
+                    $user->getProfileImage()->value()
+                );
+            }
+
+            $response[] = NotificationResponse::fromEntity($notification, $profileImage);
         }
 
         $total = $this->repository->countByCriteria($criteria);

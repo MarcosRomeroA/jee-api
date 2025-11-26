@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\Notification\SearchNotifications;
 
@@ -8,10 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class SearchNotificationsController extends ApiController
 {
-    public function __invoke(SearchNotificationsRequest $request): Response
+    public function __invoke(SearchNotificationsRequest $request, string $sessionId): Response
     {
         $criteria = [
-            "q" => $request->q ?? null,
+            "userId" => $sessionId,
             "limit" => $request->limit ?? 10,
             "offset" => $request->offset ?? 0,
         ];

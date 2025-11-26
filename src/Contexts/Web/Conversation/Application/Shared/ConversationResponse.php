@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Contexts\Web\Conversation\Application\Shared;
 
 use App\Contexts\Shared\Domain\CQRS\Query\Response;
+use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\Conversation\Domain\Conversation;
 use App\Contexts\Web\User\Domain\User;
 
@@ -22,9 +23,8 @@ final class ConversationResponse extends Response
     ) {
     }
 
-    public static function fromEntity(Conversation $conversation, ?User $currentUser = null): self
+    public static function fromEntity(Conversation $conversation, ?User $currentUser = null, ?FileManager $fileManager = null): self
     {
-        $otherParticipant = null;
         $otherUserId = null;
         $otherUsername = null;
         $otherFirstname = null;
@@ -39,7 +39,11 @@ final class ConversationResponse extends Response
                 $otherUsername = $otherUser->getUsername()->value();
                 $otherFirstname = $otherUser->getFirstname()->value();
                 $otherLastname = $otherUser->getLastname()->value();
-                $otherProfileImage = $otherUser->getProfileImage()->value();
+
+                $profileImageFilename = $otherUser->getProfileImage()->value();
+                if ($fileManager !== null && $profileImageFilename !== '') {
+                    $otherProfileImage = $fileManager->generateTemporaryUrl('user/profile', $profileImageFilename);
+                }
             }
         }
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Notification\Application\Shared;
 
@@ -11,21 +13,26 @@ final class NotificationResponse
         public string $type,
         public ?string $userId,
         public ?string $username,
+        public ?string $profileImage,
         public ?string $postId,
         public ?string $message,
         public string $date,
-    ) {}
+        public bool $read,
+    ) {
+    }
 
-    public static function fromEntity(Notification $notification): self
+    public static function fromEntity(Notification $notification, ?string $profileImage = null): self
     {
         return new self(
             $notification->getId()->value(),
             $notification->getNotificationType()->getName(),
             $notification->getUser()?->getId()?->value(),
             $notification->getUser()?->getUsername()?->value(),
+            $profileImage,
             $notification->getPost()?->getId()?->value(),
             $notification->getMessage()?->getContent()->value(),
             $notification->getCreatedAt()->format('Y-m-d H:i:s'),
+            $notification->getIsRead(),
         );
     }
 

@@ -87,9 +87,16 @@ class MysqlNotificationRepository implements NotificationRepository
     {
         $queryBuilder = $this->repository->createQueryBuilder("n");
 
+        // Filter by userToNotify (required)
+        if (!empty($criteria["userId"])) {
+            $queryBuilder
+                ->join("n.userToNotify", "u")
+                ->andWhere("u.id = :userId")
+                ->setParameter("userId", $criteria["userId"]);
+        }
+
         $queryBuilder->orderBy("n.createdAt", "DESC");
 
-        // Usar los parámetros directamente, pero permitir override desde criteria
         $finalLimit = $criteria["limit"] ?? $limit;
         $finalOffset = $criteria["offset"] ?? $offset;
 
@@ -103,6 +110,14 @@ class MysqlNotificationRepository implements NotificationRepository
         $queryBuilder = $this->repository->createQueryBuilder("n");
 
         $queryBuilder->select("COUNT(n.id)");
+
+        // Filter by userToNotify (required)
+        if (!empty($criteria["userId"])) {
+            $queryBuilder
+                ->join("n.userToNotify", "u")
+                ->andWhere("u.id = :userId")
+                ->setParameter("userId", $criteria["userId"]);
+        }
 
         return (int) $queryBuilder->getQuery()->getSingleScalarResult();
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Conversation\Application\FindConversations;
 
+use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Conversation\Application\Shared\ConversationsResponse;
 use App\Contexts\Web\Conversation\Domain\ConversationRepository;
@@ -14,6 +15,7 @@ final readonly class ConversationsFinder
     public function __construct(
         private UserRepository $userRepository,
         private ConversationRepository $conversationRepository,
+        private FileManager $fileManager,
     ) {
     }
 
@@ -23,6 +25,6 @@ final readonly class ConversationsFinder
 
         $conversations = $this->conversationRepository->searchConversations($sessionUser);
 
-        return new ConversationsResponse($conversations, $sessionUser);
+        return new ConversationsResponse($conversations, $sessionUser, $this->fileManager);
     }
 }
