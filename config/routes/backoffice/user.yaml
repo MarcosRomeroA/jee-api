@@ -1,0 +1,17 @@
+backoffice_search_users:
+    path: /backoffice/users
+    controller: App\Apps\Backoffice\User\Search\SearchUsersController
+    methods: [GET]
+    defaults: { auth_admin: true }
+
+backoffice_disable_user:
+    path: /backoffice/user/{id}/disable
+    controller: App\Apps\Backoffice\User\Disable\DisableUserController
+    methods: [POST]
+    defaults: { auth_admin: true }
+
+backoffice_enable_user:
+    path: /backoffice/user/{id}/enable
+    controller: App\Apps\Backoffice\User\Enable\EnableUserController
+    methods: [POST]
+    defaults: { auth_admin: true }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Behat\Shared\Infrastructure\Mink;
 
@@ -22,6 +24,22 @@ final class MinkHelper
         );
     }
 
+    public function sendMultipartRequest(
+        string $method,
+        string $url,
+        array $parameters,
+        array $files,
+        array $headers = []
+    ): void {
+        $this->session->getDriver()->getClient()->request(
+            $method,
+            $url,
+            $parameters,
+            $files,
+            $headers
+        );
+    }
+
     public function getResponse(): string
     {
         return $this->session->getPage()->getContent();
@@ -32,6 +50,3 @@ final class MinkHelper
         return $this->session->getResponseHeaders();
     }
 }
-
-
-

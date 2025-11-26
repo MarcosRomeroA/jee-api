@@ -16,6 +16,12 @@ default:
                 - App\Tests\Behat\Web\Game\GameTestContext
                 - App\Tests\Behat\Web\HealthCheck\HealthCheckTestContext
 
+        backoffice:
+            paths: [tests/Behat/Backoffice]
+            contexts:
+                - App\Tests\Behat\Shared\Infrastructure\Behat\DatabaseContext
+                - App\Tests\Behat\Shared\Infrastructure\Behat\ApiContext
+
     extensions:
         FriendsOfBehat\SymfonyExtension:
             bootstrap: tests/bootstrap.php

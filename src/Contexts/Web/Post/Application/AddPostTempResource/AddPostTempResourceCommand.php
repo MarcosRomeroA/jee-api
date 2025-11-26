@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\AddPostTempResource;
 
-use App\Contexts\Shared\Domain\Bus\Command\Command;
+use App\Contexts\Shared\Domain\CQRS\Command\Command;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final readonly class AddPostTempResourceCommand implements Command

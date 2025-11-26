@@ -6,7 +6,7 @@ Feature: Create Post
 
   Scenario: Successfully create a post
     Given I am authenticated as "tester1@test.com" with password "12345678"
-    When I send a PUT request to "/api/post/650e8400-e29b-41d4-a716-446655440010" with body:
+    When I send a POST request to "/api/post/650e8400-e29b-41d4-a716-446655440010" with body:
       """
       {
         "body": "This is my first post about gaming!"
@@ -17,7 +17,7 @@ Feature: Create Post
 
   Scenario: Create post with empty content
     Given I am authenticated as "tester1@test.com" with password "12345678"
-    When I send a PUT request to "/api/post/550e8400-e29b-41d4-a716-446655440011" with body:
+    When I send a POST request to "/api/post/550e8400-e29b-41d4-a716-446655440011" with body:
       """
       {
         "body": ""
@@ -27,7 +27,7 @@ Feature: Create Post
 
   Scenario: Create post with invalid user id
     Given I am authenticated as "tester1@test.com" with password "12345678"
-    When I send a PUT request to "/api/post/550e8400-e29b-41d4-a716-446655440012" with body:
+    When I send a POST request to "/api/post/550e8400-e29b-41d4-a716-446655440012" with body:
       """
       {
         "body": "This is a test post"

@@ -1,7 +1,12 @@
-.PHONY: dev build-dev build start stop down exec logs clean-cache migration migrate test behat unit test-player messenger-retry messenger-stats messenger-consume deploy deploy-symfony
+.PHONY: dev build-dev build start stop down exec logs clean-cache migration migrate test behat unit test-player messenger-retry messenger-stats messenger-consume deploy deploy-symfony fix-permissions
 
 dev:
 	@docker compose -f compose.yaml -f compose.dev.yaml up -d
+
+fix-permissions: ## Fix var directory permissions for development
+	@echo "🔧 Fixing var directory permissions..."
+	@docker compose -f compose.yaml -f compose.dev.yaml exec -T -u root symfony sh -c "mkdir -p /var/www/html/var/tmp/resource && chmod -R 777 /var/www/html/var/tmp && chmod -R 777 /var/www/html/var/cache && chmod -R 777 /var/www/html/var/log"
+	@echo "✅ Permissions fixed!"
 
 build-dev:
 	@docker compose -f compose.yaml -f compose.dev.yaml build --no-cache

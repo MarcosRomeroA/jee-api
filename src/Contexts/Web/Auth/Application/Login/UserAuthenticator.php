@@ -42,6 +42,11 @@ final readonly class UserAuthenticator
             throw new EmailNotVerifiedException();
         }
 
+        // Check if user is disabled
+        if ($user->isDisabled()) {
+            throw new UnauthorizedException();
+        }
+
         $token = $this->jwtGenerator->create([
             "id" => $user->getId()->value(),
         ]);

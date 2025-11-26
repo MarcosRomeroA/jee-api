@@ -15,10 +15,14 @@ final class DatabaseContext implements Context
     private static bool $initialized = false;
     private array $createdUserIds = [];
     private array $createdEmailConfirmationIds = [];
+    private array $createdAdminIds = [];
 
     private const USER1_ID = "550e8400-e29b-41d4-a716-446655440001";
     private const USER2_ID = "550e8400-e29b-41d4-a716-446655440002";
     private const USER3_ID = "550e8400-e29b-41d4-a716-446655440003";
+
+    // ID del admin por defecto creado por migración
+    private const DEFAULT_ADMIN_ID = "a50e8400-e29b-41d4-a716-446655440000";
 
     // IDs de usuarios de migración que NO deben modificarse
     private const MIGRATION_USER_IDS = [
@@ -134,10 +138,10 @@ final class DatabaseContext implements Context
                     "El contexto anterior no limpió correctamente sus datos."
                 );
             } else {
-                // Usuario no existe - crearlo sin verified_at (no verificado por defecto)
+                // Usuario no existe - crearlo (verificado por defecto para facilitar tests)
                 $connection->executeStatement(
-                    "INSERT INTO user (id, firstname, lastname, username, email, password, profile_image, description, created_at)
-                     VALUES (:id, :firstname, :lastname, :username, :email, :password, '', '', NOW())",
+                    "INSERT INTO user (id, firstname, lastname, username, email, password, profile_image, description, created_at, verified_at)
+                     VALUES (:id, :firstname, :lastname, :username, :email, :password, '', '', NOW(), NOW())",
                     [
                         "id" => $userId,
                         "firstname" => $row['firstname'],
@@ -249,6 +253,80 @@ final class DatabaseContext implements Context
         }
     }
 
+    /**
+     * @Given the following admins exist:
+     */
+    public function theFollowingAdminsExist(TableNode $table): void
+    {
+        $connection = $this->entityManager->getConnection();
+
+        foreach ($table->getHash() as $row) {
+            $adminId = $row['id'];
+
+            // Verificar si es el admin por defecto (NO debe modificarse)
+            if ($adminId === self::DEFAULT_ADMIN_ID) {
+                // Admin por defecto ya existe en la migración - NO modificar
+                continue;
+            }
+
+            // Verificar si el admin ya existe
+            $existingAdmin = $connection->fetchOne(
+                "SELECT user FROM admin WHERE id = :id",
+                ["id" => $adminId]
+            );
+
+            // Hashear la contraseña
+            $hashedPassword = password_hash($row['password'], PASSWORD_BCRYPT);
+
+            if ($existingAdmin) {
+                // Admin ya existe - actualizarlo y resetear deleted_at
+                $connection->executeStatement(
+                    "UPDATE admin SET name = :name, user = :user, password = :password, updated_at = NOW(), deleted_at = NULL
+                     WHERE id = :id",
+                    [
+                        "id" => $adminId,
+                        "name" => $row['name'],
+                        "user" => $row['user'],
+                        "password" => $hashedPassword,
+                    ]
+                );
+            } else {
+                // Admin no existe - crearlo
+                $connection->executeStatement(
+                    "INSERT INTO admin (id, name, user, password, created_at)
+                     VALUES (:id, :name, :user, :password, NOW())",
+                    [
+                        "id" => $adminId,
+                        "name" => $row['name'],
+                        "user" => $row['user'],
+                        "password" => $hashedPassword,
+                    ]
+                );
+            }
+
+            // Siempre registrar que este contexto maneja este admin (para limpieza)
+            if (!in_array($adminId, $this->createdAdminIds)) {
+                $this->createdAdminIds[] = $adminId;
+            }
+        }
+    }
+
+    /** @BeforeScenario */
+    public function cleanupAllAdmins(): void
+    {
+        // Limpiar TODOS los admins EXCEPTO el admin por defecto de la migración
+        $connection = $this->entityManager->getConnection();
+        try {
+            $connection->executeStatement(
+                "DELETE FROM admin WHERE id != :default_admin_id",
+                ["default_admin_id" => self::DEFAULT_ADMIN_ID]
+            );
+        } catch (\Exception $e) {
+            // Ignorar errores
+        }
+        $this->createdAdminIds = [];
+    }
+
     /** @AfterScenario */
     public function cleanupDynamicUsers(): void
     {
@@ -296,9 +374,31 @@ final class DatabaseContext implements Context
             }
         }
 
+        // Limpiar admins creados por ESTE contexto (NUNCA el admin por defecto)
+        if (!empty($this->createdAdminIds)) {
+            try {
+                // Filtrar el admin por defecto de la lista de admins a eliminar
+                $adminsToDelete = array_filter(
+                    $this->createdAdminIds,
+                    fn ($id) => $id !== self::DEFAULT_ADMIN_ID
+                );
+
+                if (!empty($adminsToDelete)) {
+                    $placeholders = implode(',', array_fill(0, count($adminsToDelete), '?'));
+                    $connection->executeStatement(
+                        "DELETE FROM admin WHERE id IN ({$placeholders})",
+                        $adminsToDelete
+                    );
+                }
+            } catch (\Exception $e) {
+                // Ignorar errores
+            }
+        }
+
         // Resetear arrays de seguimiento
         $this->createdUserIds = [];
         $this->createdEmailConfirmationIds = [];
+        $this->createdAdminIds = [];
         $this->entityManager->clear();
     }
 

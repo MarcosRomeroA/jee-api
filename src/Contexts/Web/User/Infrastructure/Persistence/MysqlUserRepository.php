@@ -144,6 +144,14 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
             $qb->andWhere("u.email.value LIKE :email")
                 ->setParameter("email", "%" . $criteria["email"] . "%");
         }
+
+        if (isset($criteria["verified"])) {
+            if ($criteria["verified"] === true) {
+                $qb->andWhere("u.verifiedAt IS NOT NULL");
+            } else {
+                $qb->andWhere("u.verifiedAt IS NULL");
+            }
+        }
     }
 
     public function delete(User $user): void

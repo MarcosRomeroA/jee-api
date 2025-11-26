@@ -70,6 +70,9 @@ Feature: Login User
     Given the following users exist:
       | id                                   | firstname  | lastname | username     | email               | password |
       | 650e8400-e29b-41d4-a716-446655440099 | Unverified | User     | unverified99 | unverified@test.com | 12345678 |
+    And the following email confirmations exist:
+      | user_id                              | token      | confirmed_at |
+      | 650e8400-e29b-41d4-a716-446655440099 | token12345 | null         |
     When I send a POST request to "/api/login" with body:
       """
       {

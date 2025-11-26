@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Behat\Shared\Infrastructure\Mink;
 
@@ -46,5 +48,24 @@ final class MinkSessionRequestHelper
             $body->getRaw()
         );
     }
-}
 
+    public function sendMultipartRequest(
+        string $method,
+        string $url,
+        array $parameters,
+        array $files
+    ): void {
+        $headers = [];
+        if ($this->authToken) {
+            $headers['HTTP_AUTHORIZATION'] = 'Bearer ' . $this->authToken;
+        }
+
+        $this->helper->sendMultipartRequest(
+            $method,
+            $url,
+            $parameters,
+            $files,
+            $headers
+        );
+    }
+}

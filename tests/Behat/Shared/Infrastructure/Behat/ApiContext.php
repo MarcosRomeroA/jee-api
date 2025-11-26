@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Mink\Session;
 use Behat\MinkExtension\Context\RawMinkContext;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class ApiContext extends RawMinkContext
 {
@@ -53,6 +54,72 @@ final class ApiContext extends RawMinkContext
             throw new RuntimeException(
                 \sprintf(
                     "Login failed. Response: %s",
+                    $this->sessionHelper->getResponse(),
+                ),
+            );
+        }
+
+        $this->accessToken = $response["data"]["token"];
+        $this->request->setAuthToken($this->accessToken);
+    }
+
+    /**
+     * @Given I am authenticated as admin with user :user and password :password
+     */
+    public function iAmAuthenticatedAsAdmin(string $user, string $password): void
+    {
+        $body = \json_encode([
+            "user" => $user,
+            "password" => $password,
+        ]);
+
+        $this->sessionHelper->sendRequest(
+            "POST",
+            $this->locatePath("/api/backoffice/login"),
+            ["CONTENT_TYPE" => "application/json"],
+            $body,
+        );
+
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
+
+        // La respuesta tiene estructura {"data": {"id": "...", "token": "...", ...}}
+        if (!isset($response["data"]["token"])) {
+            throw new RuntimeException(
+                \sprintf(
+                    "Admin login failed. Response: %s",
+                    $this->sessionHelper->getResponse(),
+                ),
+            );
+        }
+
+        $this->accessToken = $response["data"]["token"];
+        $this->request->setAuthToken($this->accessToken);
+    }
+
+    /**
+     * @Given I am authenticated as user with username :username and password :password
+     */
+    public function iAmAuthenticatedAsUserWithUsername(string $username, string $password): void
+    {
+        $body = \json_encode([
+            "username" => $username,
+            "password" => $password,
+        ]);
+
+        $this->sessionHelper->sendRequest(
+            "POST",
+            $this->locatePath("/api/login"),
+            ["CONTENT_TYPE" => "application/json"],
+            $body,
+        );
+
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
+
+        // La respuesta tiene estructura {"data": {"id": "...", "token": "...", ...}}
+        if (!isset($response["data"]["token"])) {
+            throw new RuntimeException(
+                \sprintf(
+                    "Login with username failed. Response: %s",
                     $this->sessionHelper->getResponse(),
                 ),
             );
@@ -1226,5 +1293,78 @@ final class ApiContext extends RawMinkContext
                 )
             );
         }
+    }
+
+    /**
+     * @Given I send a :method request to :url with file :fileField and parameters:
+     */
+    public function iSendARequestToWithFileAndParameters(
+        string $method,
+        string $url,
+        string $fileField,
+        PyStringNode $body
+    ): void {
+        $url = $this->replaceVariables($url);
+        $bodyString = $this->replaceVariables($body->getRaw());
+        $parameters = \json_decode($bodyString, true);
+
+        if (!\is_array($parameters)) {
+            throw new RuntimeException("Parameters must be a valid JSON object");
+        }
+
+        // Create a temporary test image file
+        $tempFile = \tempnam(\sys_get_temp_dir(), 'test_image_');
+        $tempFileWithExt = $tempFile . '.png';
+        \rename($tempFile, $tempFileWithExt);
+
+        // Create a minimal valid PNG file (1x1 transparent pixel)
+        // This is a base64-encoded 1x1 transparent PNG
+        $pngData = \base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+        );
+        \file_put_contents($tempFileWithExt, $pngData);
+
+        $file = new UploadedFile(
+            $tempFileWithExt,
+            'test_image.png',
+            'image/png',
+            null,
+            true
+        );
+
+        // Parse field name for nested arrays (e.g., "files[0]" => ['files' => [0 => $file]])
+        $files = $this->parseFieldToArray($fileField, $file);
+
+        $this->request->sendMultipartRequest(
+            $method,
+            $this->locatePath($url),
+            $parameters,
+            $files
+        );
+
+        // Clean up temp file after request
+        if (\file_exists($tempFileWithExt)) {
+            @\unlink($tempFileWithExt);
+        }
+    }
+
+    /**
+     * Parse a field name like "files[0]" into a nested array structure
+     */
+    private function parseFieldToArray(string $fieldName, mixed $value): array
+    {
+        // Handle nested array notation like "files[0]"
+        if (\preg_match('/^([^\[]+)\[([^\]]*)\]$/', $fieldName, $matches)) {
+            $key = $matches[1];
+            $index = $matches[2];
+
+            if ($index === '') {
+                return [$key => [$value]];
+            }
+
+            return [$key => [$index => $value]];
+        }
+
+        return [$fieldName => $value];
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\UpdateMatchResult;
 
-use App\Contexts\Shared\Domain\Bus\Command\Command;
+use App\Contexts\Shared\Domain\CQRS\Command\Command;
 
 final readonly class UpdateMatchResultCommand implements Command
 {

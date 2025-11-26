@@ -7,6 +7,8 @@ namespace App\Contexts\Web\User\Domain;
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\User\Domain\Events\UserCreatedDomainEvent;
+use App\Contexts\Web\User\Domain\Events\UserDisabledDomainEvent;
+use App\Contexts\Web\User\Domain\Events\UserEnabledDomainEvent;
 use App\Contexts\Web\User\Domain\Events\UserPasswordUpdatedDomainEvent;
 use App\Contexts\Web\User\Domain\Events\UserUpdatedDomainEvent;
 use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
@@ -54,6 +56,9 @@ class User extends AggregateRoot
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $verifiedAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $disabledAt = null;
 
     /**
      * @var ArrayCollection<Follow>
@@ -251,5 +256,27 @@ class User extends AggregateRoot
     public function isVerified(): bool
     {
         return $this->verifiedAt !== null;
+    }
+
+    public function disable(): void
+    {
+        $this->disabledAt = new \DateTimeImmutable();
+        $this->record(new UserDisabledDomainEvent($this->id));
+    }
+
+    public function enable(): void
+    {
+        $this->disabledAt = null;
+        $this->record(new UserEnabledDomainEvent($this->id));
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->disabledAt !== null;
+    }
+
+    public function getDisabledAt(): ?\DateTimeImmutable
+    {
+        return $this->disabledAt;
     }
 }

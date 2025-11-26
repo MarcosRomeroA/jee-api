@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\Create;
 
@@ -24,9 +26,7 @@ final readonly class PostResourceUploaderSubscriber implements DomainEventSubscr
         private FileManager            $fileManager,
         private PostRepository         $postRepository,
         private EntityManagerInterface $entityManager
-
-    )
-    {
+    ) {
     }
 
     /**
@@ -94,14 +94,45 @@ final readonly class PostResourceUploaderSubscriber implements DomainEventSubscr
                 $fileUuid = new Uuid(pathinfo($filename, PATHINFO_FILENAME));
                 $postResource = new PostResource($fileUuid, $filename, $typeId);
                 $post->addResource($postResource);
-            }
-            catch (Exception $e) {
+
+                // Delete temp file after successful upload
+                $filesystem->remove($tempFile);
+            } catch (Exception $e) {
                 $this->logger->error(
                     'Failed to upload resource of type '.$type.' for post '.$postId.': '.$filename.' - Error: '. $e->getMessage()
                 );
             }
 
             $this->entityManager->flush();
+        }
+
+        // Clean up empty directories for this post
+        foreach ($baseDirectories as $baseDirectory) {
+            $this->removeEmptyDirectories($baseDirectory, $filesystem);
+        }
+    }
+
+    /**
+     * Recursively remove empty directories
+     */
+    private function removeEmptyDirectories(string $directory, Filesystem $filesystem): void
+    {
+        if (!$filesystem->exists($directory) || !is_dir($directory)) {
+            return;
+        }
+
+        // First, clean up subdirectories
+        $iterator = new FilesystemIterator($directory, FilesystemIterator::SKIP_DOTS);
+        foreach ($iterator as $fileInfo) {
+            if ($fileInfo->isDir()) {
+                $this->removeEmptyDirectories($fileInfo->getRealPath(), $filesystem);
+            }
+        }
+
+        // Check if directory is now empty and remove it
+        $iterator = new FilesystemIterator($directory, FilesystemIterator::SKIP_DOTS);
+        if (!$iterator->valid()) {
+            $filesystem->remove($directory);
         }
     }
 

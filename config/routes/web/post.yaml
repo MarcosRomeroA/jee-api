@@ -1,7 +1,7 @@
 create_post:
     path: /post/{id}
     controller: App\Apps\Web\Post\Create\CreatePostController
-    methods: [PUT]
+    methods: [POST]
     defaults: { auth: true }
 
 find_post:
@@ -56,12 +56,6 @@ search_post_comments:
     path: /post/{id}/comments
     controller: App\Apps\Web\Post\SearchPostComments\SearchPostCommentsController
     methods: [GET]
-    defaults: { auth: true }
-
-add_resource:
-    path: /post/{id}/resource
-    controller: App\Apps\Web\Post\AddPostTempResource\AddPostTemporaryResourceController
-    methods: [POST]
     defaults: { auth: true }
 
 search_post_likes:

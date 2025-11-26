@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\AddPostTempResource;
 
-use App\Contexts\Shared\Domain\Bus\Command\CommandHandler;
+use App\Contexts\Shared\Domain\CQRS\Command\CommandHandler;
 
 final readonly class AddPostTempResourceCommandHandler implements CommandHandler
 {

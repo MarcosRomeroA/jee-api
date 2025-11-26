@@ -1,0 +1,4 @@
+backoffice_login:
+    path: /backoffice/login
+    controller: App\Apps\Backoffice\Auth\Login\LoginAdminController
+    methods: [POST]

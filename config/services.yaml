@@ -30,6 +30,14 @@ services:
                   method: onKernelRequest,
               }
 
+    App\Contexts\Shared\Infrastructure\Symfony\JwtAdminAuthMiddleware:
+        tags:
+            - {
+                  name: kernel.event_listener,
+                  event: kernel.request,
+                  method: onKernelRequest,
+              }
+
     # Configure
     _instanceof:
         App\Contexts\Shared\Domain\CQRS\Event\DomainEventSubscriber:

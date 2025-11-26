@@ -1,18 +1,22 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Shared\Infrastructure\Symfony;
 
 use App\Contexts\Shared\Domain\Exception\ExpiredTokenException;
 use App\Contexts\Shared\Domain\Exception\UnauthorizedException;
 use App\Contexts\Shared\Domain\Jwt\JwtGenerator;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\User\Domain\UserRepository;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 final readonly class JwtAuthMiddleware
 {
     public function __construct(
         private JwtGenerator $jwtGenerator,
-    )
-    {
+        private UserRepository $userRepository,
+    ) {
     }
 
     public function onKernelRequest(RequestEvent $event): void
@@ -23,13 +27,23 @@ final readonly class JwtAuthMiddleware
 
         $jwtToken = $event->getRequest()->headers->get('Authorization');
 
-        if (!$shouldAuthenticate)
+        if (!$shouldAuthenticate) {
             return;
+        }
 
-        if (!$jwtToken)
+        if (!$jwtToken) {
             throw new UnauthorizedException();
+        }
 
         $payload = $this->verify($jwtToken);
+
+        // Verificar si el usuario está deshabilitado
+        $userId = new Uuid($payload['id']);
+        $user = $this->userRepository->findById($userId);
+
+        if (!$user || $user->isDisabled()) {
+            throw new UnauthorizedException();
+        }
 
         $request->attributes->set('sessionId', $payload['id']);
     }
@@ -39,7 +53,7 @@ final readonly class JwtAuthMiddleware
         try {
             $this->jwtGenerator->verify($bearer);
 
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             throw new ExpiredTokenException();
         }
 

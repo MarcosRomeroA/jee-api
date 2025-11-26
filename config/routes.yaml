@@ -1,3 +1,7 @@
 api:
     resource: "./routes/web/*"
     prefix: "/api"
+
+backoffice:
+    resource: "./routes/backoffice/*"
+    prefix: "/api"
