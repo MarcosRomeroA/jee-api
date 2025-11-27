@@ -9,13 +9,13 @@ Feature: Delete Admin (Soft Delete)
       | id                                   | name       | user        | password |
       | 750e8400-e29b-41d4-a716-446655440072 | Test Admin | testadmin72 | admin    |
     And I am authenticated as admin with user "admin" and password "admin"
-    When I send a DELETE request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440072"
+    When I send a DELETE request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440072"
     Then the response status code should be 200
     And the response should be empty
 
   Scenario: Delete non-existent admin should fail
     And I am authenticated as admin with user "admin" and password "admin"
-    When I send a DELETE request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440099"
+    When I send a DELETE request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440099"
     Then the response status code should be 404
     And the JSON response should have "code" with value "admin_not_found_exception"
 
@@ -23,7 +23,7 @@ Feature: Delete Admin (Soft Delete)
     Given the following admins exist:
       | id                                   | name       | user        | password |
       | 750e8400-e29b-41d4-a716-446655440091 | Test Admin | testadmin91 | admin    |
-    When I send a DELETE request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440091"
+    When I send a DELETE request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440091"
     Then the response status code should be 401
 
   Scenario: Deleted admin should not appear in default search
@@ -31,9 +31,9 @@ Feature: Delete Admin (Soft Delete)
       | id                                   | name       | user         | password |
       | 750e8400-e29b-41d4-a716-446655440102 | Test Admin | testadmin102 | admin    |
     And I am authenticated as admin with user "admin" and password "admin"
-    When I send a DELETE request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440102"
+    When I send a DELETE request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440102"
     Then the response status code should be 200
-    When I send a GET request to "/api/backoffice/admins"
+    When I send a GET request to "/backoffice/admins"
     Then the response status code should be 200
     And the response metadata should have "total" property with value "1"
 
@@ -42,8 +42,8 @@ Feature: Delete Admin (Soft Delete)
       | id                                   | name       | user         | password |
       | 750e8400-e29b-41d4-a716-446655440112 | Test Admin | testadmin112 | admin    |
     And I am authenticated as admin with user "admin" and password "admin"
-    When I send a DELETE request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440112"
+    When I send a DELETE request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440112"
     Then the response status code should be 200
-    When I send a GET request to "/api/backoffice/admins?includeDeleted=true"
+    When I send a GET request to "/backoffice/admins?includeDeleted=true"
     Then the response status code should be 200
     And the response metadata should have "total" property with value "2"

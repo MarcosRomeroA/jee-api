@@ -10,7 +10,7 @@ Feature: Login Admin
       | 750e8400-e29b-41d4-a716-446655440010 | Test Admin | testadmin | admin123 |
 
   Scenario: Successfully login with valid credentials
-    Given I send a POST request to "/api/backoffice/login" with body:
+    Given I send a POST request to "/backoffice/login" with body:
       """
       {
         "user": "testadmin",
@@ -24,7 +24,7 @@ Feature: Login Admin
     And the response should have "role" property
 
   Scenario: Login with invalid user
-    Given I send a POST request to "/api/backoffice/login" with body:
+    Given I send a POST request to "/backoffice/login" with body:
       """
       {
         "user": "invaliduser",
@@ -34,7 +34,7 @@ Feature: Login Admin
     Then the response status code should be 401
 
   Scenario: Login with invalid password
-    Given I send a POST request to "/api/backoffice/login" with body:
+    Given I send a POST request to "/backoffice/login" with body:
       """
       {
         "user": "testadmin",
@@ -44,7 +44,7 @@ Feature: Login Admin
     Then the response status code should be 401
 
   Scenario: Login with missing user
-    Given I send a POST request to "/api/backoffice/login" with body:
+    Given I send a POST request to "/backoffice/login" with body:
       """
       {
         "password": "admin123"
@@ -53,7 +53,7 @@ Feature: Login Admin
     Then the response status code should be 422
 
   Scenario: Login with missing password
-    Given I send a POST request to "/api/backoffice/login" with body:
+    Given I send a POST request to "/backoffice/login" with body:
       """
       {
         "user": "testadmin"

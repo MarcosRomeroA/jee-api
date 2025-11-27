@@ -16,6 +16,7 @@ final class DatabaseContext implements Context
     private array $createdUserIds = [];
     private array $createdEmailConfirmationIds = [];
     private array $createdAdminIds = [];
+    private array $createdPostIds = [];
 
     private const USER1_ID = "550e8400-e29b-41d4-a716-446655440001";
     private const USER2_ID = "550e8400-e29b-41d4-a716-446655440002";
@@ -292,14 +293,16 @@ final class DatabaseContext implements Context
                 );
             } else {
                 // Admin no existe - crearlo
+                $role = $row['role'] ?? 'admin';
                 $connection->executeStatement(
-                    "INSERT INTO admin (id, name, user, password, created_at)
-                     VALUES (:id, :name, :user, :password, NOW())",
+                    "INSERT INTO admin (id, name, user, password, role, created_at)
+                     VALUES (:id, :name, :user, :password, :role, NOW())",
                     [
                         "id" => $adminId,
                         "name" => $row['name'],
                         "user" => $row['user'],
                         "password" => $hashedPassword,
+                        "role" => $role,
                     ]
                 );
             }
@@ -308,6 +311,41 @@ final class DatabaseContext implements Context
             if (!in_array($adminId, $this->createdAdminIds)) {
                 $this->createdAdminIds[] = $adminId;
             }
+        }
+    }
+
+    /**
+     * @Given the following posts exist:
+     */
+    public function theFollowingPostsExist(TableNode $table): void
+    {
+        $connection = $this->entityManager->getConnection();
+
+        foreach ($table->getHash() as $row) {
+            $postId = $row['id'];
+            $userId = $row['user_id'];
+            $body = $row['body'];
+            $disabled = isset($row['disabled']) && $row['disabled'] === 'true';
+
+            // moderation_reason debe ser NULL si está vacío o no definido
+            $moderationReason = null;
+            if (isset($row['moderation_reason']) && $row['moderation_reason'] !== '') {
+                $moderationReason = $row['moderation_reason'];
+            }
+
+            $connection->executeStatement(
+                "INSERT INTO post (id, user_id, body, disabled, moderation_reason, created_at, updated_at)
+                 VALUES (:id, :user_id, :body, :disabled, :moderation_reason, NOW(), NOW())",
+                [
+                    "id" => $postId,
+                    "user_id" => $userId,
+                    "body" => $body,
+                    "disabled" => $disabled ? 1 : 0,
+                    "moderation_reason" => $moderationReason,
+                ]
+            );
+
+            $this->createdPostIds[] = $postId;
         }
     }
 
@@ -332,6 +370,45 @@ final class DatabaseContext implements Context
     {
         /** @var Connection $connection */
         $connection = $this->entityManager->getConnection();
+
+        // Limpiar posts creados por ESTE contexto
+        if (!empty($this->createdPostIds)) {
+            try {
+                $placeholders = implode(',', array_fill(0, count($this->createdPostIds), '?'));
+
+                // Limpiar likes de posts
+                $connection->executeStatement(
+                    "DELETE FROM `like` WHERE post_id IN ({$placeholders})",
+                    $this->createdPostIds
+                );
+
+                // Limpiar comentarios de posts
+                $connection->executeStatement(
+                    "DELETE FROM comment WHERE post_id IN ({$placeholders})",
+                    $this->createdPostIds
+                );
+
+                // Limpiar post_hashtag
+                $connection->executeStatement(
+                    "DELETE FROM post_hashtag WHERE post_id IN ({$placeholders})",
+                    $this->createdPostIds
+                );
+
+                // Limpiar post_resource
+                $connection->executeStatement(
+                    "DELETE FROM post_resource WHERE post_id IN ({$placeholders})",
+                    $this->createdPostIds
+                );
+
+                // Finalmente eliminar posts
+                $connection->executeStatement(
+                    "DELETE FROM post WHERE id IN ({$placeholders})",
+                    $this->createdPostIds
+                );
+            } catch (\Exception $e) {
+                // Ignorar errores
+            }
+        }
 
         // Limpiar email_confirmations creados por ESTE contexto
         if (!empty($this->createdEmailConfirmationIds)) {
@@ -399,6 +476,7 @@ final class DatabaseContext implements Context
         $this->createdUserIds = [];
         $this->createdEmailConfirmationIds = [];
         $this->createdAdminIds = [];
+        $this->createdPostIds = [];
         $this->entityManager->clear();
     }
 

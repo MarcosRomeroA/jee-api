@@ -75,7 +75,7 @@ final class ApiContext extends RawMinkContext
 
         $this->sessionHelper->sendRequest(
             "POST",
-            $this->locatePath("/api/backoffice/login"),
+            $this->locatePath("/backoffice/login"),
             ["CONTENT_TYPE" => "application/json"],
             $body,
         );

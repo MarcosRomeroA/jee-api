@@ -10,7 +10,7 @@ Feature: Search Admins
       | 750e8400-e29b-41d4-a716-446655440032 | John Admin   | johnadmin32   | admin    |
       | 750e8400-e29b-41d4-a716-446655440033 | Jane Manager | janemanager33 | admin    |
     And I am authenticated as admin with user "admin" and password "admin"
-    When I send a GET request to "/api/backoffice/admins"
+    When I send a GET request to "/backoffice/admins"
     Then the response status code should be 200
     And the response should contain pagination structure
     And the response metadata should have "total" property with value "3"
@@ -21,7 +21,7 @@ Feature: Search Admins
       | 750e8400-e29b-41d4-a716-446655440042 | John Admin   | johnadmin42   | admin    |
       | 750e8400-e29b-41d4-a716-446655440043 | Jane Manager | janemanager43 | admin    |
     And I am authenticated as admin with user "admin" and password "admin"
-    When I send a GET request to "/api/backoffice/admins?name=John"
+    When I send a GET request to "/backoffice/admins?name=John"
     Then the response status code should be 200
     And the response should contain pagination structure
     And the response metadata should have "count" property with value "1"
@@ -32,7 +32,7 @@ Feature: Search Admins
       | 750e8400-e29b-41d4-a716-446655440052 | John Admin   | johnadmin52   | admin    |
       | 750e8400-e29b-41d4-a716-446655440053 | Jane Manager | janemanager53 | admin    |
     And I am authenticated as admin with user "admin" and password "admin"
-    When I send a GET request to "/api/backoffice/admins?user=admin"
+    When I send a GET request to "/backoffice/admins?user=admin"
     Then the response status code should be 200
     And the response should contain pagination structure
 
@@ -42,12 +42,12 @@ Feature: Search Admins
       | 750e8400-e29b-41d4-a716-446655440062 | John Admin   | johnadmin62   | admin    |
       | 750e8400-e29b-41d4-a716-446655440063 | Jane Manager | janemanager63 | admin    |
     And I am authenticated as admin with user "admin" and password "admin"
-    When I send a GET request to "/api/backoffice/admins?limit=2&offset=0"
+    When I send a GET request to "/backoffice/admins?limit=2&offset=0"
     Then the response status code should be 200
     And the response should contain pagination structure
     And the response metadata should have "limit" property with value "2"
     And the response metadata should have "offset" property with value "0"
 
   Scenario: Search without authentication should fail
-    When I send a GET request to "/api/backoffice/admins"
+    When I send a GET request to "/backoffice/admins"
     Then the response status code should be 401

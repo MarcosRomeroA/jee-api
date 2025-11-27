@@ -80,8 +80,8 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
         $qb = $this->createQueryBuilder("p")
             ->innerJoin("p.user", "u")
             ->leftJoin("u.followers", "f")
-            ->where("f.follower = :userId")
-            ->orWhere("u.id = :userId")
+            ->where("(f.follower = :userId OR u.id = :userId)")
+            ->andWhere("p.disabled = false")
             ->setParameter("userId", $userId);
 
         if (!is_null($criteria)) {
@@ -108,6 +108,12 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
     {
         $qb = $this->createQueryBuilder("p")->innerJoin("p.user", "u");
 
+        // Por defecto filtrar posts deshabilitados (para API web)
+        $includeDisabled = $criteria["includeDisabled"] ?? false;
+        if (!$includeDisabled) {
+            $qb->andWhere("p.disabled = false");
+        }
+
         if (isset($criteria["userId"])) {
             $qb->andWhere("u.id = :userId")
                 ->setParameter("userId", $criteria["userId"]);
@@ -119,6 +125,30 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
                 "p.body.value LIKE :query OR u.username.value LIKE :query",
             )->setParameter("query", "%" . $criteria["q"] . "%");
         }
+
+        if (isset($criteria["email"])) {
+            $qb->andWhere("u.email.value LIKE :email")
+                ->setParameter("email", "%" . $criteria["email"] . "%");
+        }
+
+        if (isset($criteria["postId"])) {
+            $qb->andWhere("p.id = :postId")
+                ->setParameter("postId", $criteria["postId"]);
+        }
+
+        if (isset($criteria["disabled"])) {
+            $qb->andWhere("p.disabled = :disabled")
+                ->setParameter("disabled", $criteria["disabled"]);
+        }
+
+        if (isset($criteria["limit"]) && (int) $criteria["limit"] > 0) {
+            $qb->setMaxResults((int) $criteria["limit"]);
+        }
+        if (isset($criteria["offset"]) && (int) $criteria["offset"] >= 0) {
+            $qb->setFirstResult((int) $criteria["offset"]);
+        }
+
+        $qb->orderBy('p.createdAt.value', 'DESC');
 
         return $qb->getQuery()->getResult();
     }
@@ -166,6 +196,12 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             ->select("COUNT(p.id)")
             ->innerJoin("p.user", "u");
 
+        // Por defecto filtrar posts deshabilitados (para API web)
+        $includeDisabled = $criteria["includeDisabled"] ?? false;
+        if (!$includeDisabled) {
+            $qb->andWhere("p.disabled = false");
+        }
+
         if (isset($criteria["userId"])) {
             $qb->andWhere("u.id = :userId")
                 ->setParameter("userId", $criteria["userId"]);
@@ -178,6 +214,21 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             )->setParameter("query", "%" . $criteria["q"] . "%");
         }
 
+        if (isset($criteria["email"])) {
+            $qb->andWhere("u.email.value LIKE :email")
+                ->setParameter("email", "%" . $criteria["email"] . "%");
+        }
+
+        if (isset($criteria["postId"])) {
+            $qb->andWhere("p.id = :postId")
+                ->setParameter("postId", $criteria["postId"]);
+        }
+
+        if (isset($criteria["disabled"])) {
+            $qb->andWhere("p.disabled = :disabled")
+                ->setParameter("disabled", $criteria["disabled"]);
+        }
+
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
@@ -187,8 +238,8 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             ->select("COUNT(p.id)")
             ->innerJoin("p.user", "u")
             ->leftJoin("u.followers", "f")
-            ->where("f.follower = :userId")
-            ->orWhere("u.id = :userId")
+            ->where("(f.follower = :userId OR u.id = :userId)")
+            ->andWhere("p.disabled = false")
             ->setParameter("userId", $userId);
 
         return (int) $qb->getQuery()->getSingleScalarResult();
@@ -204,6 +255,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
         return $this->createQueryBuilder("p")
             ->innerJoin("p.hashtags", "h")
             ->where("h.tag = :tag")
+            ->andWhere("p.disabled = false")
             ->setParameter("tag", $normalizedTag)
             ->setMaxResults($limit)
             ->setFirstResult($offset)
@@ -220,6 +272,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             ->select("COUNT(p.id)")
             ->innerJoin("p.hashtags", "h")
             ->where("h.tag = :tag")
+            ->andWhere("p.disabled = false")
             ->setParameter("tag", $normalizedTag)
             ->getQuery();
 
@@ -239,6 +292,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             ->innerJoin("p.hashtags", "h")
             ->where("h.tag = :tag")
             ->andWhere("h.updatedAt.value >= :date")
+            ->andWhere("p.disabled = false")
             ->setParameter("tag", $normalizedTag)
             ->setParameter("date", $date)
             ->setMaxResults($limit)
@@ -259,6 +313,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             ->innerJoin("p.hashtags", "h")
             ->where("h.tag = :tag")
             ->andWhere("h.updatedAt.value >= :date")
+            ->andWhere("p.disabled = false")
             ->setParameter("tag", $normalizedTag)
             ->setParameter("date", $date)
             ->getQuery();

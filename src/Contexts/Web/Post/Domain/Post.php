@@ -38,7 +38,7 @@ class Post extends AggregateRoot
     #[ORM\Column(type: "uuid", length: 36, nullable: true)]
     private ?Uuid $sharedPostId = null;
 
-    #[ORM\OneToMany(targetEntity: Comment::class,mappedBy: "post", cascade: ["persist", "remove"])]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: "post", cascade: ["persist", "remove"])]
     private ?Collection $comments;
 
     #[
@@ -65,6 +65,15 @@ class Post extends AggregateRoot
         ORM\JoinTable(name: 'post_hashtag'),
     ]
     private Collection $hashtags;
+
+    #[ORM\Column(type: "boolean", options: ["default" => false])]
+    private bool $disabled = false;
+
+    #[ORM\Column(type: "string", nullable: true, enumType: ModerationReason::class)]
+    private ?ModerationReason $moderationReason = null;
+
+    #[ORM\Column(type: "datetime_immutable", nullable: true)]
+    private ?\DateTimeImmutable $disabledAt = null;
 
     private array $resourceUrls;
 
@@ -277,5 +286,34 @@ class Post extends AggregateRoot
     public function setHasShared(bool $hasShared): void
     {
         $this->hasShared = $hasShared;
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->disabled;
+    }
+
+    public function getModerationReason(): ?ModerationReason
+    {
+        return $this->moderationReason;
+    }
+
+    public function getDisabledAt(): ?\DateTimeImmutable
+    {
+        return $this->disabledAt;
+    }
+
+    public function disable(ModerationReason $reason): void
+    {
+        $this->disabled = true;
+        $this->moderationReason = $reason;
+        $this->disabledAt = new \DateTimeImmutable();
+    }
+
+    public function enable(): void
+    {
+        $this->disabled = false;
+        $this->moderationReason = null;
+        $this->disabledAt = null;
     }
 }

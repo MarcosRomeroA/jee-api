@@ -6,7 +6,7 @@ Feature: Create Admin (UPSERT)
 
   Scenario: Successfully create an admin
     Given I am authenticated as admin with user "admin" and password "admin"
-    When I send a PUT request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440002" with body:
+    When I send a PUT request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440002" with body:
       """
       {
         "name": "John Admin",
@@ -18,7 +18,7 @@ Feature: Create Admin (UPSERT)
 
   Scenario: Successfully update an existing admin (UPSERT)
     Given I am authenticated as admin with user "admin" and password "admin"
-    When I send a PUT request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440002" with body:
+    When I send a PUT request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440002" with body:
       """
       {
         "name": "Test Admin",
@@ -27,7 +27,7 @@ Feature: Create Admin (UPSERT)
       }
       """
     Then the response status code should be 201
-    When I send a PUT request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440002" with body:
+    When I send a PUT request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440002" with body:
       """
       {
         "name": "Updated Test Admin",
@@ -39,7 +39,7 @@ Feature: Create Admin (UPSERT)
 
   Scenario: Create admin with existing user but different ID should fail
     Given I am authenticated as admin with user "admin" and password "admin"
-    When I send a PUT request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440003" with body:
+    When I send a PUT request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440003" with body:
       """
       {
         "name": "Another Admin",
@@ -51,7 +51,7 @@ Feature: Create Admin (UPSERT)
     And the JSON response should have "code" with value "admin_user_already_exists_exception"
 
   Scenario: Create admin without authentication should fail
-    When I send a PUT request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440004" with body:
+    When I send a PUT request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440004" with body:
       """
       {
         "name": "Unauthorized Admin",
@@ -63,7 +63,7 @@ Feature: Create Admin (UPSERT)
 
   Scenario: Create admin with invalid user format
     Given I am authenticated as admin with user "admin" and password "admin"
-    When I send a PUT request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440005" with body:
+    When I send a PUT request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440005" with body:
       """
       {
         "name": "Invalid Admin",
@@ -75,7 +75,7 @@ Feature: Create Admin (UPSERT)
 
   Scenario: Create admin with weak password
     Given I am authenticated as admin with user "admin" and password "admin"
-    When I send a PUT request to "/api/backoffice/admin/750e8400-e29b-41d4-a716-446655440006" with body:
+    When I send a PUT request to "/backoffice/admin/750e8400-e29b-41d4-a716-446655440006" with body:
       """
       {
         "name": "Weak Password Admin",

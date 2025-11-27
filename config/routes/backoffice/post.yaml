@@ -1,0 +1,17 @@
+backoffice_search_posts:
+    path: /posts
+    controller: App\Apps\Backoffice\Post\Search\SearchPostsController
+    methods: [GET]
+    defaults: { auth_admin: true }
+
+backoffice_disable_post:
+    path: /post/{id}/disable
+    controller: App\Apps\Backoffice\Post\Disable\DisablePostController
+    methods: [POST]
+    defaults: { auth_admin: true }
+
+backoffice_enable_post:
+    path: /post/{id}/enable
+    controller: App\Apps\Backoffice\Post\Enable\EnablePostController
+    methods: [POST]
+    defaults: { auth_admin: true }
