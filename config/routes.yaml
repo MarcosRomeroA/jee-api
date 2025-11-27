@@ -4,4 +4,4 @@ api:
 
 backoffice:
     resource: "./routes/backoffice/*"
-    prefix: "/api"
+    prefix: "/backoffice"

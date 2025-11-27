@@ -58,7 +58,7 @@ Feature: Search Users
       | user_id                              | token    | confirmed_at |
       | 850e8400-e29b-41d4-a716-446655440242 | token242 | null         |
     And I am authenticated as admin with user "admin" and password "admin"
-    When I send a GET request to "/api/backoffice/users?verified=false"
+    When I send a GET request to "/api/backoffice/users?verified=false&username=unverified242"
     Then the response status code should be 200
     And the response should contain pagination structure
     And the response metadata should have "count" property with value "1"

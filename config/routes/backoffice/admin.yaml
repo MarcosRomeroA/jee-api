@@ -1,17 +1,17 @@
 backoffice_create_admin:
-    path: /backoffice/admin/{id}
+    path: /admin/{id}
     controller: App\Apps\Backoffice\Admin\Create\CreateAdminController
     methods: [PUT]
     defaults: { auth_superadmin: true }
 
 backoffice_search_admins:
-    path: /backoffice/admins
+    path: /admins
     controller: App\Apps\Backoffice\Admin\Search\SearchAdminsController
     methods: [GET]
     defaults: { auth_superadmin: true }
 
 backoffice_delete_admin:
-    path: /backoffice/admin/{id}
+    path: /admin/{id}
     controller: App\Apps\Backoffice\Admin\Delete\DeleteAdminController
     methods: [DELETE]
     defaults: { auth_superadmin: true }
