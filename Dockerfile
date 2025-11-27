@@ -38,30 +38,27 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Copiar los archivos del proyecto Symfony al contenedor
-COPY . /var/www/html
+# Crear directorios del sistema (como root)
+RUN mkdir -p /var/log/nginx /run/nginx \
+    && chown -R nginx:nginx /run/nginx \
+    && chown -R www-data:www-data /var/log/nginx
 
-# Instalar dependencias de composer (incluir dev ya que usamos esto también en desarrollo)
+# Copiar los archivos del proyecto Symfony al contenedor
+COPY --chown=www-data:www-data . /var/www/html
+
+# Cambiar a usuario www-data para instalar dependencias y generar cache
+USER www-data
+WORKDIR /var/www/html
+
+# Instalar dependencias de composer
 RUN composer install --optimize-autoloader --no-interaction
 
 # Preparar caché de producción durante el build
-RUN php /var/www/html/bin/console cache:clear --env=prod --no-warmup \
-    && php /var/www/html/bin/console cache:warmup --env=prod
+RUN php bin/console cache:clear --env=prod --no-warmup \
+    && php bin/console cache:warmup --env=prod
 
-# Configurar permisos y crear directorios necesarios
-RUN mkdir -p /var/www/html/var/log \
-    && chown -R www-data:www-data /var/www/html/var \
-    && chmod -R 775 /var/www/html/var \
-    && chown -R www-data:www-data /var/www/html/public \
-    && mkdir -p /var/log/nginx /run/nginx \
-    && chown -R www-data:www-data /var/log/nginx \
-    && chown -R nginx:nginx /run/nginx \
-    && mkdir -p /var/www/html/config/jwt \
-    && chown -R www-data:www-data /var/www/html/config/jwt \
-    && chmod 755 /var/www/html/config/jwt \
-    && mkdir -p /var/www/html/var/tmp/resource \
-    && chown -R www-data:www-data /var/www/html/var/tmp \
-    && chmod -R 775 /var/www/html/var/tmp
+# Volver a root para el entrypoint
+USER root
 
 # Exponer el puerto 80 para Nginx
 EXPOSE 80
