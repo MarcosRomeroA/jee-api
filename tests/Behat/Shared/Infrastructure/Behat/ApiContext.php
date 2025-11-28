@@ -1196,6 +1196,66 @@ final class ApiContext extends RawMinkContext
     }
 
     /**
+     * @Then the response should contain :property with value :value
+     */
+    public function theResponseShouldContainWithValue(string $property, string $value): void
+    {
+        $response = \json_decode($this->sessionHelper->getResponse(), true);
+
+        if (!\is_array($response)) {
+            throw new RuntimeException("Response is not a valid JSON object");
+        }
+
+        $found = $this->findPropertyInResponse($response, $property);
+
+        if ($found === null) {
+            throw new RuntimeException(
+                \sprintf(
+                    "Response does not contain property '%s'. Response: %s",
+                    $property,
+                    \json_encode($response),
+                ),
+            );
+        }
+
+        $actualValue = \is_bool($found) ? ($found ? 'true' : 'false') : (string) $found;
+
+        if ($actualValue !== $value) {
+            throw new RuntimeException(
+                \sprintf(
+                    "The value of property '%s' is '%s', but expected '%s'",
+                    $property,
+                    $actualValue,
+                    $value,
+                ),
+            );
+        }
+    }
+
+    /**
+     * Recursively find a property in the response
+     */
+    private function findPropertyInResponse(array $data, string $property): mixed
+    {
+        // Check if the property exists at this level
+        if (\array_key_exists($property, $data)) {
+            return $data[$property];
+        }
+
+        // Check in nested arrays
+        foreach ($data as $value) {
+            if (\is_array($value)) {
+                $result = $this->findPropertyInResponse($value, $property);
+                if ($result !== null) {
+                    return $result;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @Then the response should have :property property as empty array
      */
     public function theResponseShouldHavePropertyAsEmptyArray(string $property): void

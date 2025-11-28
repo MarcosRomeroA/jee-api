@@ -71,13 +71,15 @@ final class DoctrineTournamentTeamRepository extends ServiceEntityRepository imp
 
     public function isUserRegisteredInTournament(Uuid $tournamentId, Uuid $userId): bool
     {
-        // Check if user is a member, creator, or leader of any team registered in the tournament
+        // Check if user is a member of any team registered in the tournament
+        // (creator and leader are now part of teamUsers with isCreator/isLeader flags)
         $result = $this->createQueryBuilder("tt")
             ->select("COUNT(tt.id)")
             ->join("tt.team", "t")
-            ->leftJoin("t.teamUsers", "tu")
+            ->join("t.teamUsers", "tu")
+            ->join("tu.user", "u")
             ->where("tt.tournament = :tournamentId")
-            ->andWhere("(tu.user = :userId OR t.creator = :userId OR t.leader = :userId)")
+            ->andWhere("u.id = :userId")
             ->setParameter("tournamentId", $tournamentId)
             ->setParameter("userId", $userId)
             ->getQuery()
@@ -94,13 +96,15 @@ final class DoctrineTournamentTeamRepository extends ServiceEntityRepository imp
 
         $tournamentIdValues = array_map(fn (Uuid $id) => $id->value(), $tournamentIds);
 
-        // Check if user is a member, creator, or leader of any team registered in the tournaments
+        // Check if user is a member of any team registered in the tournaments
+        // (creator and leader are now part of teamUsers with isCreator/isLeader flags)
         $results = $this->createQueryBuilder("tt")
             ->select("IDENTITY(tt.tournament) as tournamentId")
             ->join("tt.team", "t")
-            ->leftJoin("t.teamUsers", "tu")
+            ->join("t.teamUsers", "tu")
+            ->join("tu.user", "u")
             ->where("tt.tournament IN (:tournamentIds)")
-            ->andWhere("(tu.user = :userId OR t.creator = :userId OR t.leader = :userId)")
+            ->andWhere("u.id = :userId")
             ->setParameter("tournamentIds", $tournamentIdValues)
             ->setParameter("userId", $userId)
             ->groupBy("tt.tournament")

@@ -40,11 +40,13 @@ final readonly class TeamRequestAcceptor
         // Aceptar la solicitud
         $request->accept();
 
-        // Agregar el usuario al equipo
+        // Agregar el usuario al equipo (como miembro regular, no creator ni leader)
         $teamUser = new TeamUser(
             Uuid::random(),
             $request->getTeam(),
-            $request->getUser()
+            $request->getUser(),
+            false,
+            false
         );
 
         $this->teamUserRepository->save($teamUser);

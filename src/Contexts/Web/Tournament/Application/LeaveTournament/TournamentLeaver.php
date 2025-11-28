@@ -37,10 +37,7 @@ final readonly class TournamentLeaver
         }
 
         // Verificar que el usuario es el creador o líder del equipo
-        $isCreator = $team->getCreator()->getId()->equals($userId);
-        $isLeader = $team->getLeader()->getId()->equals($userId);
-
-        if (!$isCreator && !$isLeader) {
+        if (!$team->isOwner($userId) && !$team->isLeader($userId)) {
             throw new UnauthorizedException(
                 'Solo el creador o líder del equipo puede retirar al equipo del torneo'
             );

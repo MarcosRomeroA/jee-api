@@ -102,4 +102,10 @@ class Hashtag
     {
         $this->deletedAt = new DeletedAtValue(new \DateTime());
     }
+
+    public function enable(): void
+    {
+        $this->deletedAt = new DeletedAtValue(null);
+        $this->updatedAt = new UpdatedAtValue(new \DateTime());
+    }
 }

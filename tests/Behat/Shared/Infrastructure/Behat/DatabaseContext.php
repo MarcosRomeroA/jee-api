@@ -17,6 +17,7 @@ final class DatabaseContext implements Context
     private array $createdEmailConfirmationIds = [];
     private array $createdAdminIds = [];
     private array $createdPostIds = [];
+    private array $createdHashtagIds = [];
 
     private const USER1_ID = "550e8400-e29b-41d4-a716-446655440001";
     private const USER2_ID = "550e8400-e29b-41d4-a716-446655440002";
@@ -349,6 +350,36 @@ final class DatabaseContext implements Context
         }
     }
 
+    /**
+     * @Given the following hashtags exist:
+     */
+    public function theFollowingHashtagsExist(TableNode $table): void
+    {
+        $connection = $this->entityManager->getConnection();
+
+        foreach ($table->getHash() as $row) {
+            $hashtagId = $row['id'];
+            $tag = strtolower(ltrim($row['tag'], '#'));
+            $count = isset($row['count']) ? (int) $row['count'] : 0;
+            $disabled = isset($row['disabled']) && $row['disabled'] === 'true';
+
+            $deletedAt = $disabled ? date('Y-m-d H:i:s') : null;
+
+            $connection->executeStatement(
+                "INSERT INTO hashtag (id, tag, count, created_at, updated_at, deleted_at)
+                 VALUES (:id, :tag, :count, NOW(), NOW(), :deleted_at)",
+                [
+                    "id" => $hashtagId,
+                    "tag" => $tag,
+                    "count" => $count,
+                    "deleted_at" => $deletedAt,
+                ]
+            );
+
+            $this->createdHashtagIds[] = $hashtagId;
+        }
+    }
+
     /** @BeforeScenario */
     public function cleanupAllAdmins(): void
     {
@@ -472,11 +503,25 @@ final class DatabaseContext implements Context
             }
         }
 
+        // Limpiar hashtags creados por ESTE contexto
+        if (!empty($this->createdHashtagIds)) {
+            try {
+                $placeholders = implode(',', array_fill(0, count($this->createdHashtagIds), '?'));
+                $connection->executeStatement(
+                    "DELETE FROM hashtag WHERE id IN ({$placeholders})",
+                    $this->createdHashtagIds
+                );
+            } catch (\Exception $e) {
+                // Ignorar errores
+            }
+        }
+
         // Resetear arrays de seguimiento
         $this->createdUserIds = [];
         $this->createdEmailConfirmationIds = [];
         $this->createdAdminIds = [];
         $this->createdPostIds = [];
+        $this->createdHashtagIds = [];
         $this->entityManager->clear();
     }
 

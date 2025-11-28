@@ -39,6 +39,9 @@ interface TeamRepository
      * @param Uuid|null $creatorId
      * @param Uuid|null $userId Filter by user membership (teams where user is a member)
      * @param Uuid|null $tournamentId Filter by tournament participation (teams registered in the tournament)
+     * @param Uuid|null $ownerOrLeaderId Filter by owner (creator) OR leader (teams where user is creator or leader)
+     * @param Uuid|null $myCreatorId Filter by creator (teams where user is creator)
+     * @param Uuid|null $myLeaderId Filter by leader (teams where user is leader)
      * @param int $limit
      * @param int $offset
      * @return array<Team>
@@ -49,9 +52,21 @@ interface TeamRepository
         ?Uuid $creatorId,
         ?Uuid $userId,
         ?Uuid $tournamentId,
+        ?Uuid $ownerOrLeaderId,
+        ?Uuid $myCreatorId,
+        ?Uuid $myLeaderId,
         int $limit,
         int $offset
     ): array;
 
-    public function countSearch(?string $name, ?Uuid $gameId, ?Uuid $creatorId, ?Uuid $userId, ?Uuid $tournamentId): int;
+    public function countSearch(
+        ?string $name,
+        ?Uuid $gameId,
+        ?Uuid $creatorId,
+        ?Uuid $userId,
+        ?Uuid $tournamentId,
+        ?Uuid $ownerOrLeaderId,
+        ?Uuid $myCreatorId,
+        ?Uuid $myLeaderId
+    ): int;
 }

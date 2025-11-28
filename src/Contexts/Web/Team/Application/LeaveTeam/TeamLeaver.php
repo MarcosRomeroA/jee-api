@@ -28,7 +28,7 @@ final readonly class TeamLeaver
         }
 
         // El creador/owner no puede salirse del equipo
-        if ($team->getCreator()->getId()->equals($userId)) {
+        if ($team->isOwner($userId)) {
             throw new CannotLeaveAsOwnerException($teamId->value());
         }
 

@@ -14,6 +14,9 @@ final readonly class SearchTeamsQuery implements Query
         public ?string $creatorId = null,
         public ?string $userId = null,
         public ?string $tournamentId = null,
+        public ?string $ownerOrLeaderId = null,
+        public ?string $myCreatorId = null,
+        public ?string $myLeaderId = null,
         public int $limit = 10,
         public int $offset = 0
     ) {

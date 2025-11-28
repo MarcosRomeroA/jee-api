@@ -33,26 +33,6 @@ class Team extends AggregateRoot
     #[ORM\Column(type: "uuid", length: 36)]
     private Uuid $id;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[
-        ORM\JoinColumn(
-            name: "creator_id",
-            referencedColumnName: "id",
-            nullable: false,
-        ),
-    ]
-    private User $creator;
-
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[
-        ORM\JoinColumn(
-            name: "leader_id",
-            referencedColumnName: "id",
-            nullable: false,
-        ),
-    ]
-    private User $leader;
-
     #[Embedded(class: TeamNameValue::class, columnPrefix: false)]
     private TeamNameValue $name;
 
@@ -99,19 +79,16 @@ class Team extends AggregateRoot
     ]
     private Collection $teamGames;
 
-    public function __construct(
+    private function __construct(
         Uuid $id,
         TeamNameValue $name,
         TeamDescriptionValue $description,
         TeamImageValue $image,
-        User $creator,
     ) {
         $this->id = $id;
         $this->name = $name;
         $this->description = $description;
         $this->image = $image;
-        $this->creator = $creator;
-        $this->leader = $creator;
         $this->teamPlayers = new ArrayCollection();
         $this->teamUsers = new ArrayCollection();
         $this->teamGames = new ArrayCollection();
@@ -126,7 +103,11 @@ class Team extends AggregateRoot
         TeamImageValue $image,
         User $creator,
     ): self {
-        $team = new self($id, $name, $description, $image, $creator);
+        $team = new self($id, $name, $description, $image);
+
+        // Add creator as first member with creator and leader flags
+        $teamUser = new TeamUser(Uuid::random(), $team, $creator, true, true);
+        $team->teamUsers->add($teamUser);
 
         $team->record(new TeamCreatedDomainEvent($id));
 
@@ -150,14 +131,24 @@ class Team extends AggregateRoot
         return $this->id;
     }
 
-    public function getCreator(): User
+    public function getCreator(): ?User
     {
-        return $this->creator;
+        foreach ($this->teamUsers as $teamUser) {
+            if ($teamUser->isCreator()) {
+                return $teamUser->getUser();
+            }
+        }
+        return null;
     }
 
-    public function getLeader(): User
+    public function getLeader(): ?User
     {
-        return $this->leader;
+        foreach ($this->teamUsers as $teamUser) {
+            if ($teamUser->isLeader()) {
+                return $teamUser->getUser();
+            }
+        }
+        return null;
     }
 
     public function getName(): string
@@ -228,24 +219,78 @@ class Team extends AggregateRoot
         return $this->teamGames->count();
     }
 
-    public function setLeader(User $leader): void
+    public function setLeader(User $newLeader): void
     {
-        $this->leader = $leader;
+        // Remove leader flag from current leader
+        foreach ($this->teamUsers as $teamUser) {
+            if ($teamUser->isLeader()) {
+                $teamUser->setLeader(false);
+            }
+        }
+
+        // Check if new leader is already a member
+        foreach ($this->teamUsers as $teamUser) {
+            if ($teamUser->getUser()->getId()->equals($newLeader->getId())) {
+                $teamUser->setLeader(true);
+                return;
+            }
+        }
+
+        // If not a member, add them as leader
+        $teamUser = new TeamUser(Uuid::random(), $this, $newLeader, false, true);
+        $this->teamUsers->add($teamUser);
     }
 
     public function isOwner(Uuid $userId): bool
     {
-        return $this->creator->getId()->equals($userId);
+        foreach ($this->teamUsers as $teamUser) {
+            if ($teamUser->isCreator() && $teamUser->getUser()->getId()->equals($userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function isLeader(Uuid $userId): bool
     {
-        return $this->leader->getId()->equals($userId);
+        foreach ($this->teamUsers as $teamUser) {
+            if ($teamUser->isLeader() && $teamUser->getUser()->getId()->equals($userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function canEdit(Uuid $userId): bool
     {
         return $this->isOwner($userId) || $this->isLeader($userId);
+    }
+
+    public function addMember(User $user): void
+    {
+        // Check if user is already a member
+        foreach ($this->teamUsers as $teamUser) {
+            if ($teamUser->getUser()->getId()->equals($user->getId())) {
+                return; // Already a member
+            }
+        }
+
+        $teamUser = new TeamUser(Uuid::random(), $this, $user, false, false);
+        $this->teamUsers->add($teamUser);
+    }
+
+    public function removeMember(Uuid $userId): void
+    {
+        foreach ($this->teamUsers as $teamUser) {
+            if ($teamUser->getUser()->getId()->equals($userId)) {
+                // Don't allow removing the creator
+                if ($teamUser->isCreator()) {
+                    return;
+                }
+                $this->teamUsers->removeElement($teamUser);
+                return;
+            }
+        }
     }
 
     public function addGame(Game $game): void

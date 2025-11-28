@@ -35,8 +35,12 @@ final class TeamTest extends TestCase
         $this->assertEquals($image, $team->getImage());
         $this->assertEquals(0, $team->getPlayersQuantity());
         $this->assertEquals(0, $team->getGamesQuantity());
+        $this->assertEquals(1, $team->getUsersQuantity()); // Creator is automatically added as TeamUser
         $this->assertEquals($creator, $team->getCreator());
         $this->assertEquals($creator, $team->getLeader());
+        $this->assertTrue($team->isOwner($creator->getId()));
+        $this->assertTrue($team->isLeader($creator->getId()));
+        $this->assertTrue($team->isMember($creator->getId()));
     }
 
     public function testItShouldUpdateTeam(): void

@@ -20,14 +20,17 @@ final class TeamsSearcher
         ?Uuid $creatorId,
         ?Uuid $userId,
         ?Uuid $tournamentId,
+        ?Uuid $ownerOrLeaderId,
+        ?Uuid $myCreatorId,
+        ?Uuid $myLeaderId,
         int $limit,
         int $offset
     ): array {
-        return $this->repository->searchWithPagination($name, $gameId, $creatorId, $userId, $tournamentId, $limit, $offset);
+        return $this->repository->searchWithPagination($name, $gameId, $creatorId, $userId, $tournamentId, $ownerOrLeaderId, $myCreatorId, $myLeaderId, $limit, $offset);
     }
 
-    public function count(?string $name, ?Uuid $gameId, ?Uuid $creatorId, ?Uuid $userId, ?Uuid $tournamentId): int
+    public function count(?string $name, ?Uuid $gameId, ?Uuid $creatorId, ?Uuid $userId, ?Uuid $tournamentId, ?Uuid $ownerOrLeaderId, ?Uuid $myCreatorId, ?Uuid $myLeaderId): int
     {
-        return $this->repository->countSearch($name, $gameId, $creatorId, $userId, $tournamentId);
+        return $this->repository->countSearch($name, $gameId, $creatorId, $userId, $tournamentId, $ownerOrLeaderId, $myCreatorId, $myLeaderId);
     }
 }

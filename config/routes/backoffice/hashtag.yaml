@@ -1,0 +1,17 @@
+backoffice_search_hashtags:
+    path: /hashtags
+    controller: App\Apps\Backoffice\Hashtag\Search\SearchHashtagsController
+    methods: [GET]
+    defaults: { auth_admin: true }
+
+backoffice_disable_hashtag:
+    path: /hashtag/{id}/disable
+    controller: App\Apps\Backoffice\Hashtag\Disable\DisableHashtagController
+    methods: [POST]
+    defaults: { auth_admin: true }
+
+backoffice_enable_hashtag:
+    path: /hashtag/{id}/enable
+    controller: App\Apps\Backoffice\Hashtag\Enable\EnableHashtagController
+    methods: [POST]
+    defaults: { auth_admin: true }

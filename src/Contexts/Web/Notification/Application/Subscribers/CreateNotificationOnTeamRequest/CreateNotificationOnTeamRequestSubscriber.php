@@ -37,11 +37,14 @@ final readonly class CreateNotificationOnTeamRequestSubscriber implements Domain
         );
 
         // Notificar al creador del equipo
-        $this->createNotification($notificationType, $team->getCreator(), $requester);
+        $creator = $team->getCreator();
+        if ($creator !== null) {
+            $this->createNotification($notificationType, $creator, $requester);
+        }
 
         // Notificar al líder si existe y es diferente al creador
         $leader = $team->getLeader();
-        if ($leader !== null && !$leader->getId()->equals($team->getCreator()->getId())) {
+        if ($leader !== null && ($creator === null || !$leader->getId()->equals($creator->getId()))) {
             $this->createNotification($notificationType, $leader, $requester);
         }
     }

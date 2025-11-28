@@ -21,4 +21,18 @@ interface HashtagRepository
      * @return array<string>
      */
     public function getPopularHashtags(int $days = 30, int $limit = 10): array;
+
+    /**
+     * Search hashtags by criteria
+     * @param array $criteria
+     * @return array<Hashtag>
+     */
+    public function searchByCriteria(array $criteria): array;
+
+    /**
+     * Count hashtags by criteria
+     * @param array $criteria
+     * @return int
+     */
+    public function countByCriteria(array $criteria): int;
 }

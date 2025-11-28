@@ -47,7 +47,10 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
     public function findByCreatorId(Uuid $creatorId): array
     {
         return $this->createQueryBuilder("t")
-            ->andWhere("t.creator = :creatorId")
+            ->join("t.teamUsers", "tu")
+            ->join("tu.user", "u")
+            ->andWhere("tu.isCreator = true")
+            ->andWhere("u.id = :creatorId")
             ->setParameter("creatorId", $creatorId)
             ->getQuery()
             ->getResult();
@@ -79,6 +82,9 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
         ?Uuid $creatorId,
         ?Uuid $userId,
         ?Uuid $tournamentId,
+        ?Uuid $ownerOrLeaderId,
+        ?Uuid $myCreatorId,
+        ?Uuid $myLeaderId,
         int $limit,
         int $offset,
     ): array {
@@ -99,14 +105,17 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
         }
 
         if ($creatorId !== null) {
-            $qb->join("t.creator", "u")
-                ->andWhere("u.id = :creatorId")
+            $qb->join("t.teamUsers", "tuCreator")
+                ->join("tuCreator.user", "creatorUser")
+                ->andWhere("tuCreator.isCreator = true")
+                ->andWhere("creatorUser.id = :creatorId")
                 ->setParameter("creatorId", $creatorId);
         }
 
         if ($userId !== null) {
             $qb->join("t.teamUsers", "tu")
-                ->andWhere("tu.user = :userId")
+                ->join("tu.user", "tuUser")
+                ->andWhere("tuUser.id = :userId")
                 ->setParameter("userId", $userId);
         }
 
@@ -114,6 +123,30 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
             $qb->join("App\Contexts\Web\Tournament\Domain\TournamentTeam", "tt", "WITH", "tt.team = t.id")
                 ->andWhere("tt.tournament = :tournamentId")
                 ->setParameter("tournamentId", $tournamentId);
+        }
+
+        if ($ownerOrLeaderId !== null) {
+            $qb->join("t.teamUsers", "tuOwnerLeader")
+                ->join("tuOwnerLeader.user", "ownerLeaderUser")
+                ->andWhere("(tuOwnerLeader.isCreator = true OR tuOwnerLeader.isLeader = true)")
+                ->andWhere("ownerLeaderUser.id = :ownerOrLeaderId")
+                ->setParameter("ownerOrLeaderId", $ownerOrLeaderId);
+        }
+
+        if ($myCreatorId !== null) {
+            $qb->join("t.teamUsers", "tuMyCreator")
+                ->join("tuMyCreator.user", "myCreatorUser")
+                ->andWhere("tuMyCreator.isCreator = true")
+                ->andWhere("myCreatorUser.id = :myCreatorId")
+                ->setParameter("myCreatorId", $myCreatorId);
+        }
+
+        if ($myLeaderId !== null) {
+            $qb->join("t.teamUsers", "tuMyLeader")
+                ->join("tuMyLeader.user", "myLeaderUser")
+                ->andWhere("tuMyLeader.isLeader = true")
+                ->andWhere("myLeaderUser.id = :myLeaderId")
+                ->setParameter("myLeaderId", $myLeaderId);
         }
 
         return $qb
@@ -129,6 +162,9 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
         ?Uuid $creatorId,
         ?Uuid $userId,
         ?Uuid $tournamentId,
+        ?Uuid $ownerOrLeaderId,
+        ?Uuid $myCreatorId,
+        ?Uuid $myLeaderId,
     ): int {
         $qb = $this->createQueryBuilder("t")->select("COUNT(DISTINCT t.id)");
 
@@ -147,14 +183,17 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
         }
 
         if ($creatorId !== null) {
-            $qb->join("t.creator", "u")
-                ->andWhere("u.id = :creatorId")
+            $qb->join("t.teamUsers", "tuCreator")
+                ->join("tuCreator.user", "creatorUser")
+                ->andWhere("tuCreator.isCreator = true")
+                ->andWhere("creatorUser.id = :creatorId")
                 ->setParameter("creatorId", $creatorId);
         }
 
         if ($userId !== null) {
             $qb->join("t.teamUsers", "tu")
-                ->andWhere("tu.user = :userId")
+                ->join("tu.user", "tuUser")
+                ->andWhere("tuUser.id = :userId")
                 ->setParameter("userId", $userId);
         }
 
@@ -162,6 +201,30 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
             $qb->join("App\Contexts\Web\Tournament\Domain\TournamentTeam", "tt", "WITH", "tt.team = t.id")
                 ->andWhere("tt.tournament = :tournamentId")
                 ->setParameter("tournamentId", $tournamentId);
+        }
+
+        if ($ownerOrLeaderId !== null) {
+            $qb->join("t.teamUsers", "tuOwnerLeader")
+                ->join("tuOwnerLeader.user", "ownerLeaderUser")
+                ->andWhere("(tuOwnerLeader.isCreator = true OR tuOwnerLeader.isLeader = true)")
+                ->andWhere("ownerLeaderUser.id = :ownerOrLeaderId")
+                ->setParameter("ownerOrLeaderId", $ownerOrLeaderId);
+        }
+
+        if ($myCreatorId !== null) {
+            $qb->join("t.teamUsers", "tuMyCreator")
+                ->join("tuMyCreator.user", "myCreatorUser")
+                ->andWhere("tuMyCreator.isCreator = true")
+                ->andWhere("myCreatorUser.id = :myCreatorId")
+                ->setParameter("myCreatorId", $myCreatorId);
+        }
+
+        if ($myLeaderId !== null) {
+            $qb->join("t.teamUsers", "tuMyLeader")
+                ->join("tuMyLeader.user", "myLeaderUser")
+                ->andWhere("tuMyLeader.isLeader = true")
+                ->andWhere("myLeaderUser.id = :myLeaderId")
+                ->setParameter("myLeaderId", $myLeaderId);
         }
 
         try {
