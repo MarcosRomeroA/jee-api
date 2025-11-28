@@ -13,6 +13,7 @@ final readonly class FindPostsByIdsQuery implements Query
      */
     public function __construct(
         public array $ids,
+        public ?string $currentUserId = null,
     ) {
     }
 }

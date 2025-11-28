@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\Find;
 
@@ -11,8 +13,7 @@ final readonly class FindPostQueryHandler implements QueryHandler
 {
     public function __construct(
         private PostFinder $finder
-    )
-    {
+    ) {
     }
 
     /**
@@ -22,6 +23,6 @@ final readonly class FindPostQueryHandler implements QueryHandler
     {
         $id = new Uuid($query->id);
 
-        return $this->finder->__invoke($id);
+        return $this->finder->__invoke($id, $query->currentUserId);
     }
 }

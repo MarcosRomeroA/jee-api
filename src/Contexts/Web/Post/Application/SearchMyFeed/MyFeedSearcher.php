@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\SearchMyFeed;
 
@@ -15,8 +17,7 @@ final readonly class MyFeedSearcher
         private PostRepository $repository,
         private GetPostResources $getPostResources,
         private FileManager $fileManager,
-    )
-    {
+    ) {
     }
 
     /**
@@ -36,7 +37,7 @@ final readonly class MyFeedSearcher
             }
 
             $sharedPost = null;
-            if ($post->getSharedPostId()){
+            if ($post->getSharedPostId()) {
                 $sharedPost = $this->repository->findById($post->getSharedPostId());
                 $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
                 $post->setSharedPost($sharedPost);
@@ -48,6 +49,6 @@ final readonly class MyFeedSearcher
 
         $total = $this->repository->countFeed($userId);
 
-        return new PostCollectionResponse($posts, $criteria ?? ["limit" => 0, "offset" => 0], $total);
+        return new PostCollectionResponse($posts, $criteria ?? ["limit" => 0, "offset" => 0], $total, $userId->value());
     }
 }

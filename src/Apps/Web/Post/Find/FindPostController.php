@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Apps\Web\Post\Find;
 
@@ -8,9 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class FindPostController extends ApiController
 {
-    public function __invoke(string $id): Response
+    public function __invoke(string $id, ?string $sessionId = null): Response
     {
-        $query = new FindPostQuery($id);
+        $query = new FindPostQuery($id, $sessionId);
 
         $response = $this->queryBus->ask($query);
 

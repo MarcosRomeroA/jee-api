@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\Find;
 
@@ -15,14 +17,13 @@ final readonly class PostFinder
         private PostRepository $repository,
         private GetPostResources $getPostResources,
         private FileManager $fileManager
-    )
-    {
+    ) {
     }
 
     /**
      * @throws Exception
      */
-    public function __invoke(Uuid $id): PostResponse
+    public function __invoke(Uuid $id, ?string $currentUserId = null): PostResponse
     {
         $post = $this->repository->findById($id);
         $post->setResourceUrls($this->getPostResources->__invoke($post));
@@ -33,7 +34,7 @@ final readonly class PostFinder
             );
         }
 
-        if ($post->getSharedPostId()){
+        if ($post->getSharedPostId()) {
             $sharedPost = $this->repository->findById($post->getSharedPostId());
             $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
             $post->setSharedPost($sharedPost);
@@ -42,6 +43,6 @@ final readonly class PostFinder
         $sharesQuantity = $this->repository->findSharesQuantity($id);
         $post->setSharesQuantity($sharesQuantity);
 
-        return PostResponse::fromEntity($post, true);
+        return PostResponse::fromEntity($post, true, $currentUserId);
     }
 }

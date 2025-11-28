@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class FindPostsByIdsController extends ApiController
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, ?string $sessionId = null): Response
     {
         $ids = $request->query->all('ids');
 
@@ -23,7 +23,7 @@ final class FindPostsByIdsController extends ApiController
         // Clean up the array
         $ids = array_filter(array_map('trim', $ids));
 
-        $query = new FindPostsByIdsQuery($ids);
+        $query = new FindPostsByIdsQuery($ids, $sessionId);
 
         $response = $this->queryBus->ask($query);
 

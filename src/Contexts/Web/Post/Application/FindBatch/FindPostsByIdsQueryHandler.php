@@ -22,6 +22,6 @@ final readonly class FindPostsByIdsQueryHandler implements QueryHandler
     {
         $ids = array_map(fn (string $id) => new Uuid($id), $query->ids);
 
-        return $this->finder->__invoke($ids);
+        return $this->finder->__invoke($ids, $query->currentUserId);
     }
 }

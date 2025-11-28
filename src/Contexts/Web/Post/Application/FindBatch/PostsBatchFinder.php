@@ -23,43 +23,33 @@ final readonly class PostsBatchFinder
      * @param array<Uuid> $ids
      * @return array<PostResponse>
      */
-    public function __invoke(array $ids): array
+    public function __invoke(array $ids, ?string $currentUserId = null): array
     {
         $posts = $this->postRepository->findByIds($ids);
         $responses = [];
 
         foreach ($posts as $post) {
-            $resourceUrls = $this->getPostResources->__invoke($post);
+            $post->setResourceUrls($this->getPostResources->__invoke($post));
 
-            $urlProfileImage = null;
             if ($post->getUser()->getProfileImage()->value() !== null) {
-                $urlProfileImage = $this->fileManager->generateTemporaryUrl(
-                    'user/profile',
-                    $post->getUser()->getProfileImage()->value()
+                $post->getUser()->setUrlProfileImage(
+                    $this->fileManager->generateTemporaryUrl(
+                        'user/profile',
+                        $post->getUser()->getProfileImage()->value()
+                    )
                 );
             }
 
-            $sharedPost = null;
             if ($post->getSharedPostId() !== null) {
                 $sharedPostEntity = $this->postRepository->findById($post->getSharedPostId());
-                $sharedPostResponse = PostResponse::fromEntity($sharedPostEntity);
-                $sharedPost = $sharedPostResponse->toArray();
+                $sharedPostEntity->setResourceUrls($this->getPostResources->__invoke($sharedPostEntity));
+                $post->setSharedPost($sharedPostEntity);
             }
 
             $sharesQuantity = $this->postRepository->findSharesQuantity($post->getId());
+            $post->setSharesQuantity($sharesQuantity);
 
-            $responses[] = new PostResponse(
-                $post->getId()->value(),
-                $post->getBody()->value(),
-                $post->getUser()->getUsername()->value(),
-                $resourceUrls,
-                $post->getCreatedAt()->value()->format('Y-m-d H:i:s'),
-                $urlProfileImage,
-                $sharedPost,
-                $post->getLikes()->count(),
-                $sharesQuantity,
-                $post->getComments()->count()
-            );
+            $responses[] = PostResponse::fromEntity($post, true, $currentUserId);
         }
 
         return $responses;
