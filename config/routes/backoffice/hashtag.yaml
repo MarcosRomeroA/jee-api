@@ -7,11 +7,11 @@ backoffice_search_hashtags:
 backoffice_disable_hashtag:
     path: /hashtag/{id}/disable
     controller: App\Apps\Backoffice\Hashtag\Disable\DisableHashtagController
-    methods: [POST]
+    methods: [PUT]
     defaults: { auth_admin: true }
 
 backoffice_enable_hashtag:
     path: /hashtag/{id}/enable
     controller: App\Apps\Backoffice\Hashtag\Enable\EnableHashtagController
-    methods: [POST]
+    methods: [PUT]
     defaults: { auth_admin: true }
