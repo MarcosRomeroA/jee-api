@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\Delete;
 
@@ -12,21 +14,21 @@ final readonly class PostDeleter
     public function __construct(
         private PostRepository         $postRepository,
         private EntityManagerInterface $entityManager
-    )
-    {
+    ) {
     }
 
     public function __invoke(
         Uuid $postId,
         Uuid $userId,
-    ): void
-    {
+    ): void {
 
         $post = $this->postRepository->findById($postId);
 
         if ($post->getUser()->getId()->value() !== $userId->value()) {
             throw new PostDeletionNotAllowedException();
         }
+
+        $this->postRepository->nullifySharedPostIdByPostId($postId);
 
         $this->entityManager->remove($post);
 

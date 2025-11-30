@@ -70,4 +70,6 @@ interface PostRepository
     public function deleteByUserId(Uuid $userId): void;
 
     public function nullifySharedPostIdByUserId(Uuid $userId): void;
+
+    public function nullifySharedPostIdByPostId(Uuid $postId): void;
 }

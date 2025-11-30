@@ -36,10 +36,16 @@ final readonly class MyFeedSearcher
                 );
             }
 
-            $sharedPost = null;
             if ($post->getSharedPostId()) {
                 $sharedPost = $this->repository->findById($post->getSharedPostId());
                 $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
+
+                if (!empty($sharedPost->getUser()->getProfileImage()->value())) {
+                    $sharedPost->getUser()->setUrlProfileImage(
+                        $this->fileManager->generateTemporaryUrl('user/profile', $sharedPost->getUser()->getProfileImage()->value())
+                    );
+                }
+
                 $post->setSharedPost($sharedPost);
             }
 

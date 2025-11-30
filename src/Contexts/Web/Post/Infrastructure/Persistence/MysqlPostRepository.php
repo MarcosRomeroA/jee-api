@@ -382,4 +382,16 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             ->getQuery()
             ->execute();
     }
+
+    public function nullifySharedPostIdByPostId(Uuid $postId): void
+    {
+        $this->createQueryBuilder("p")
+            ->update()
+            ->set("p.sharedPostId", ":null")
+            ->where("p.sharedPostId = :postId")
+            ->setParameter("null", null)
+            ->setParameter("postId", $postId)
+            ->getQuery()
+            ->execute();
+    }
 }

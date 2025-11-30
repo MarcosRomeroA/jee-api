@@ -43,6 +43,16 @@ final readonly class PostsBatchFinder
             if ($post->getSharedPostId() !== null) {
                 $sharedPostEntity = $this->postRepository->findById($post->getSharedPostId());
                 $sharedPostEntity->setResourceUrls($this->getPostResources->__invoke($sharedPostEntity));
+
+                if (!empty($sharedPostEntity->getUser()->getProfileImage()->value())) {
+                    $sharedPostEntity->getUser()->setUrlProfileImage(
+                        $this->fileManager->generateTemporaryUrl(
+                            'user/profile',
+                            $sharedPostEntity->getUser()->getProfileImage()->value()
+                        )
+                    );
+                }
+
                 $post->setSharedPost($sharedPostEntity);
             }
 

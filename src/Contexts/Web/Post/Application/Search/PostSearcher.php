@@ -49,7 +49,6 @@ final readonly class PostSearcher implements QueryHandler
                     );
             }
 
-            $sharedPost = null;
             if ($post->getSharedPostId()) {
                 $sharedPost = $this->repository->findById(
                     $post->getSharedPostId(),
@@ -57,6 +56,16 @@ final readonly class PostSearcher implements QueryHandler
                 $sharedPost->setResourceUrls(
                     $this->getPostResources->__invoke($sharedPost),
                 );
+
+                if (!empty($sharedPost->getUser()->getProfileImage()->value())) {
+                    $sharedPost->getUser()->setUrlProfileImage(
+                        $this->fileManager->generateTemporaryUrl(
+                            'user/profile',
+                            $sharedPost->getUser()->getProfileImage()->value(),
+                        ),
+                    );
+                }
+
                 $post->setSharedPost($sharedPost);
             }
 
