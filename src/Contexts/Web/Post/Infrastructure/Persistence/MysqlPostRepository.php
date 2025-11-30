@@ -93,8 +93,11 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             }
         }
 
+        $qb->orderBy("p.createdAt.value", "DESC");
+
         return $qb->getQuery()->getResult();
     }
+
     public function checkIsPostExists(Uuid $id): void
     {
         $post = $this->find($id);
