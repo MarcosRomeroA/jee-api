@@ -104,6 +104,10 @@ services:
         arguments:
             $appUrl: "%env(APP_URL)%"
 
+    App\Contexts\Web\Auth\Application\ForgotPassword\PasswordResetRequestor:
+        arguments:
+            $appUrl: "%env(APP_URL)%"
+
     # HTTP Client Configuration
     App\Contexts\Shared\Domain\Http\HttpClient: '@App\Contexts\Shared\Infrastructure\Http\SymfonyHttpClient'
 

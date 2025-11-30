@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Domain\ValueObject;
 
@@ -13,7 +15,6 @@ class TeamImageValue
     public function __construct(?string $value)
     {
         if ($value !== null) {
-            $this->ensureIsValidUrl($value);
             $this->ensureIsNotTooLong($value);
         }
         $this->value = $value;
@@ -24,20 +25,11 @@ class TeamImageValue
         return $this->value;
     }
 
-    private function ensureIsValidUrl(string $value): void
-    {
-        if (!empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) {
-            throw new \InvalidArgumentException(
-                "Team image must be a valid URL",
-            );
-        }
-    }
-
     private function ensureIsNotTooLong(string $value): void
     {
         if (mb_strlen($value) > 255) {
             throw new \InvalidArgumentException(
-                "Team image URL cannot exceed 255 characters",
+                "Team image filename cannot exceed 255 characters",
             );
         }
     }

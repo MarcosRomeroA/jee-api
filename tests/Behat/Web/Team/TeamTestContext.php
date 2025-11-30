@@ -182,7 +182,7 @@ final class TeamTestContext implements Context
                 new Uuid(self::TEST_TEAM_ID),
                 new TeamNameValue("Test Gaming Team"),
                 new TeamDescriptionValue("Test team description"),
-                new TeamImageValue("https://example.com/team-image.png"),
+                new TeamImageValue(null),
                 $user,
             );
             $this->entityManager->persist($team);
@@ -201,7 +201,7 @@ final class TeamTestContext implements Context
                 new Uuid(self::TEST_TEAM_ID_2),
                 new TeamNameValue("Team to Delete"),
                 new TeamDescriptionValue("Team to be deleted"),
-                new TeamImageValue("https://example.com/team-image-2.png"),
+                new TeamImageValue(null),
                 $user,
             );
             $this->entityManager->persist($team2);
@@ -364,7 +364,7 @@ final class TeamTestContext implements Context
                 new Uuid($teamId),
                 new TeamNameValue($teamName),
                 new TeamDescriptionValue("Test team for tournament filter"),
-                new TeamImageValue("https://example.com/team.png"),
+                new TeamImageValue(null),
                 $userEntity,
             );
             $this->entityManager->persist($team);
@@ -402,7 +402,7 @@ final class TeamTestContext implements Context
                 new Uuid($teamId),
                 new TeamNameValue($teamName),
                 new TeamDescriptionValue("Test team"),
-                new TeamImageValue("https://example.com/team.png"),
+                new TeamImageValue(null),
                 $userEntity,
             );
             $this->entityManager->persist($team);

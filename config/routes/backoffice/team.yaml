@@ -1,0 +1,17 @@
+search_teams:
+  path: /teams
+  controller: App\Apps\Backoffice\Team\Search\SearchTeamsController
+  methods: [GET]
+  defaults: { auth_admin: true }
+
+disable_team:
+  path: /team/{id}/disable
+  controller: App\Apps\Backoffice\Team\Disable\DisableTeamController
+  methods: [POST]
+  defaults: { auth_admin: true }
+
+enable_team:
+  path: /team/{id}/enable
+  controller: App\Apps\Backoffice\Team\Enable\EnableTeamController
+  methods: [POST]
+  defaults: { auth_admin: true }

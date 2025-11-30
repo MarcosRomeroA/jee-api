@@ -6,7 +6,7 @@ namespace App\Contexts\Backoffice\Post\Application\Disable;
 
 use App\Contexts\Shared\Domain\CQRS\Command\CommandHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Post\Domain\ModerationReason;
+use App\Contexts\Shared\Domain\Moderation\ModerationReason;
 
 final readonly class DisablePostCommandHandler implements CommandHandler
 {

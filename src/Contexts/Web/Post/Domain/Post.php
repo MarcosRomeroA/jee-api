@@ -19,6 +19,7 @@ use App\Contexts\Web\Post\Domain\Events\PostLikedDomainEvent;
 use App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent;
 use App\Contexts\Web\Post\Domain\Events\PostCommentedDomainEvent;
 use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
+use App\Contexts\Shared\Domain\Moderation\ModerationReason;
 
 #[ContainsNullableEmbeddable]
 #[ORM\Entity(repositoryClass: PostRepository::class)]

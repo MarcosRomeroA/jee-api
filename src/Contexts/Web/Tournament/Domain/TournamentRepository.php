@@ -28,6 +28,8 @@ interface TournamentRepository
      * @param bool $open
      * @param int $limit
      * @param int $offset
+     * @param bool $upcoming
+     * @param Uuid|null $excludeUserId
      * @return array<Tournament>
      */
     public function search(
@@ -37,7 +39,9 @@ interface TournamentRepository
         ?Uuid $responsibleId,
         bool $open,
         int $limit,
-        int $offset
+        int $offset,
+        bool $upcoming = false,
+        ?Uuid $excludeUserId = null,
     ): array;
 
     public function countSearch(
@@ -45,6 +49,16 @@ interface TournamentRepository
         ?Uuid $gameId,
         ?Uuid $statusId,
         ?Uuid $responsibleId,
-        bool $open
+        bool $open,
+        bool $upcoming = false,
+        ?Uuid $excludeUserId = null,
     ): int;
+
+    /**
+     * @param array $criteria
+     * @return array<Tournament>
+     */
+    public function searchByCriteria(array $criteria): array;
+
+    public function countByCriteria(array $criteria): int;
 }

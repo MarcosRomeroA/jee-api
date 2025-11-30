@@ -17,6 +17,7 @@ use App\Contexts\Web\Team\Domain\ValueObject\TeamNameValue;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamDescriptionValue;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamImageValue;
 use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
+use App\Contexts\Shared\Domain\Moderation\ModerationReason;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -78,6 +79,15 @@ class Team extends AggregateRoot
         ),
     ]
     private Collection $teamGames;
+
+    #[ORM\Column(type: "boolean", options: ["default" => false])]
+    private bool $isDisabled = false;
+
+    #[ORM\Column(type: "datetime_immutable", nullable: true)]
+    private ?\DateTimeImmutable $disabledAt = null;
+
+    #[ORM\Column(type: "string", length: 50, nullable: true, enumType: ModerationReason::class)]
+    private ?ModerationReason $moderationReason = null;
 
     private function __construct(
         Uuid $id,
@@ -325,5 +335,34 @@ class Team extends AggregateRoot
             }
         }
         return false;
+    }
+
+    public function disable(ModerationReason $reason): void
+    {
+        $this->isDisabled = true;
+        $this->moderationReason = $reason;
+        $this->disabledAt = new \DateTimeImmutable();
+    }
+
+    public function enable(): void
+    {
+        $this->isDisabled = false;
+        $this->moderationReason = null;
+        $this->disabledAt = null;
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->isDisabled;
+    }
+
+    public function getModerationReason(): ?ModerationReason
+    {
+        return $this->moderationReason;
+    }
+
+    public function getDisabledAt(): ?\DateTimeImmutable
+    {
+        return $this->disabledAt;
     }
 }

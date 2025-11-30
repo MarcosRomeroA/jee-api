@@ -45,6 +45,9 @@ final readonly class MyFeedSearcher
 
             $sharesQuantity = $this->repository->findSharesQuantity($post->getId());
             $post->setSharesQuantity($sharesQuantity);
+
+            $hasShared = $this->repository->hasUserSharedPost($post->getId(), $userId);
+            $post->setHasShared($hasShared);
         }
 
         $total = $this->repository->countFeed($userId);

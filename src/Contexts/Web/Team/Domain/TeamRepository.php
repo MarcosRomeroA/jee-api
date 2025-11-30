@@ -69,4 +69,11 @@ interface TeamRepository
         ?Uuid $myCreatorId,
         ?Uuid $myLeaderId
     ): int;
+
+    /**
+     * @return array<Team>
+     */
+    public function searchByCriteria(array $criteria): array;
+
+    public function countByCriteria(array $criteria): int;
 }

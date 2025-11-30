@@ -40,6 +40,12 @@ team_accept_request:
     methods: [PUT]
     defaults: { auth: true }
 
+team_decline_request:
+    path: /team/request/{requestId}/decline
+    controller: App\Apps\Web\Team\DeclineRequest\TeamDeclineRequestController
+    methods: [PUT]
+    defaults: { auth: true }
+
 add_game:
     path: /team/{id}/game/{gameId}
     controller: App\Apps\Web\Team\AddGame\AddGameToTeamController
@@ -68,4 +74,10 @@ leave_team:
     path: /team/{id}/leave
     controller: App\Apps\Web\Team\LeaveTeam\LeaveTeamController
     methods: [POST]
+    defaults: { auth: true }
+
+find_team_members:
+    path: /team/{id}/members
+    controller: App\Apps\Web\Team\FindMembers\FindTeamMembersController
+    methods: [GET]
     defaults: { auth: true }

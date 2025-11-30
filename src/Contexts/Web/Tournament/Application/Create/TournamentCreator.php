@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\Create;
 
+use App\Contexts\Shared\Domain\FileManager\ImageUploader;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\GameRankRepository;
 use App\Contexts\Web\Game\Domain\GameRepository;
-use App\Contexts\Web\Tournament\Application\Shared\TournamentImageUploader;
-use App\Contexts\Web\Tournament\Domain\Exception\GameNotFoundException;
-use App\Contexts\Web\Tournament\Domain\Exception\GameRankNotFoundException;
 use App\Contexts\Web\Tournament\Domain\Exception\TournamentStatusNotFoundException;
-use App\Contexts\Web\Tournament\Domain\Exception\UserNotFoundException;
 use App\Contexts\Web\Tournament\Domain\Tournament;
 use App\Contexts\Web\Tournament\Domain\TournamentRepository;
 use App\Contexts\Web\Tournament\Domain\TournamentStatus;
@@ -26,7 +23,7 @@ final class TournamentCreator
         private readonly UserRepository $userRepository,
         private readonly TournamentStatusRepository $statusRepository,
         private readonly GameRankRepository $gameRankRepository,
-        private readonly TournamentImageUploader $imageUploader,
+        private readonly ImageUploader $imageUploader,
     ) {
     }
 
@@ -52,20 +49,12 @@ final class TournamentCreator
         $finalStartAt = $startAt ?? new \DateTimeImmutable();
         $finalEndAt = $endAt ?? new \DateTimeImmutable("+30 days");
 
-        // Procesar imagen base64 si se proporciona
-        $imageFilename = null;
-        if ($image !== null && str_starts_with($image, 'data:image/')) {
-            try {
-                $imageFilename = $this->imageUploader->uploadBase64Image($id->value(), $image);
-            } catch (\Exception $e) {
-                // Si falla la subida de la imagen, continuamos sin ella
-                $imageFilename = null;
-            }
-        }
-
         // Upsert logic: try to find and update, or create new
         try {
             $tournament = $this->tournamentRepository->findById($id);
+
+            // Process image for update
+            $imageFilename = $this->processImage($id->value(), $image, $tournament->getImage());
 
             // Update existing tournament
             $tournament->update(
@@ -74,7 +63,7 @@ final class TournamentCreator
                 $rules,
                 $finalMaxTeams,
                 $isOfficial,
-                $imageFilename ?? $tournament->image(),
+                $imageFilename,
                 $prize,
                 $region,
                 $finalStartAt,
@@ -104,6 +93,9 @@ final class TournamentCreator
                 $maxGameRank = $this->gameRankRepository->findById($maxGameRankId);
             }
 
+            // Process image for create
+            $imageFilename = $this->processImage($id->value(), $image);
+
             $tournament = new Tournament(
                 $id,
                 $game,
@@ -125,5 +117,19 @@ final class TournamentCreator
         }
 
         $this->tournamentRepository->save($tournament);
+    }
+
+    private function processImage(string $tournamentId, ?string $image, ?string $currentImage = null): ?string
+    {
+        if ($image === null) {
+            return $currentImage;
+        }
+
+        if ($this->imageUploader->isBase64Image($image)) {
+            return $this->imageUploader->upload($image, 'tournament/' . $tournamentId);
+        }
+
+        // If not base64, keep the current image (don't accept URLs)
+        return $currentImage;
     }
 }

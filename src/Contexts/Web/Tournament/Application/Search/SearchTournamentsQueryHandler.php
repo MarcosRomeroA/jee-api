@@ -27,6 +27,9 @@ final readonly class SearchTournamentsQueryHandler implements QueryHandler
         $responsibleId = $query->responsibleId ? new Uuid($query->responsibleId) : null;
         $currentUserId = $query->currentUserId ? new Uuid($query->currentUserId) : null;
 
+        // Para upcoming, excluir torneos donde el usuario ya está inscrito
+        $excludeUserId = $query->upcoming && $currentUserId ? $currentUserId : null;
+
         $tournaments = $this->searcher->search(
             $query->name,
             $gameId,
@@ -34,10 +37,12 @@ final readonly class SearchTournamentsQueryHandler implements QueryHandler
             $responsibleId,
             $query->open,
             $query->limit,
-            $query->offset
+            $query->offset,
+            $query->upcoming,
+            $excludeUserId,
         );
 
-        $total = $this->searcher->count($query->name, $gameId, $statusId, $responsibleId, $query->open);
+        $total = $this->searcher->count($query->name, $gameId, $statusId, $responsibleId, $query->open, $query->upcoming, $excludeUserId);
 
         // Get tournament IDs where user is registered
         $registeredTournamentIds = [];

@@ -11,6 +11,12 @@ tournament_accept_request:
     methods: [PUT]
     defaults: { auth: true }
 
+tournament_decline_request:
+    path: /tournament/request/{requestId}/decline
+    controller: App\Apps\Web\Tournament\DeclineRequest\TournamentDeclineRequestController
+    methods: [PUT]
+    defaults: { auth: true }
+
 create_tournament:
     path: /tournament/{id}
     controller: App\Apps\Web\Tournament\Create\CreateTournamentController
@@ -23,7 +29,7 @@ find_tournament:
     methods: [GET]
     defaults: { auth: true }
 
-search_tournaments:
+web_search_tournaments:
     path: /tournaments
     controller: App\Apps\Web\Tournament\SearchTournaments\SearchTournamentsController
     methods: [GET]

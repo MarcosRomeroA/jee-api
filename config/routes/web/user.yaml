@@ -103,3 +103,9 @@ remove_user_social_network:
     controller: App\Apps\Web\User\SocialNetwork\RemoveUserSocialNetworkController
     methods: [DELETE]
     defaults: { auth: true }
+
+delete_account:
+    path: /user/delete-account
+    controller: App\Apps\Web\User\DeleteAccount\DeleteAccountController
+    methods: [DELETE]
+    defaults: { auth: true }

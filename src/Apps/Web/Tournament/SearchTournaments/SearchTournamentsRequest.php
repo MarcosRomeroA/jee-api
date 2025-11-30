@@ -25,6 +25,8 @@ final readonly class SearchTournamentsRequest
         public int $limit = 20,
         #[Assert\Type("int")]
         public int $offset = 0,
+        #[Assert\Type("bool")]
+        public bool $upcoming = false,
     ) {
     }
 
@@ -37,7 +39,8 @@ final readonly class SearchTournamentsRequest
             (bool) $request->query->get('mine', false),
             (bool) $request->query->get('open', false),
             (int) $request->query->get('limit', 20),
-            (int) $request->query->get('offset', 0)
+            (int) $request->query->get('offset', 0),
+            (bool) $request->query->get('upcoming', false),
         );
     }
 
@@ -52,6 +55,7 @@ final readonly class SearchTournamentsRequest
             $this->limit,
             $this->offset,
             $userId,
+            $this->upcoming,
         );
     }
 }

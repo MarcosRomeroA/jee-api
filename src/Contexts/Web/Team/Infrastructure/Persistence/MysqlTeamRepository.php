@@ -235,4 +235,87 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
 
         return (int) $result;
     }
+
+    public function searchByCriteria(array $criteria): array
+    {
+        $qb = $this->createQueryBuilder("t")
+            ->leftJoin("t.teamUsers", "tu", "WITH", "tu.isCreator = true")
+            ->leftJoin("tu.user", "creator");
+
+        if (isset($criteria['teamId']) && $criteria['teamId'] !== '') {
+            $qb->andWhere("t.id = :teamId")
+                ->setParameter("teamId", $criteria['teamId']);
+        }
+
+        if (isset($criteria['name']) && $criteria['name'] !== '') {
+            $qb->andWhere("t.name.value LIKE :name")
+                ->setParameter("name", "%" . $criteria['name'] . "%");
+        }
+
+        if (isset($criteria['creatorUsername']) && $criteria['creatorUsername'] !== '') {
+            $qb->andWhere("creator.username.value LIKE :creatorUsername")
+                ->setParameter("creatorUsername", "%" . $criteria['creatorUsername'] . "%");
+        }
+
+        if (isset($criteria['creatorEmail']) && $criteria['creatorEmail'] !== '') {
+            $qb->andWhere("creator.email.value LIKE :creatorEmail")
+                ->setParameter("creatorEmail", "%" . $criteria['creatorEmail'] . "%");
+        }
+
+        if (isset($criteria['disabled'])) {
+            $qb->andWhere("t.isDisabled = :disabled")
+                ->setParameter("disabled", $criteria['disabled']);
+        }
+
+        $limit = $criteria['limit'] ?? 20;
+        $offset = $criteria['offset'] ?? 0;
+
+        return $qb
+            ->orderBy("t.createdAt.value", "DESC")
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countByCriteria(array $criteria): int
+    {
+        $qb = $this->createQueryBuilder("t")
+            ->select("COUNT(DISTINCT t.id)")
+            ->leftJoin("t.teamUsers", "tu", "WITH", "tu.isCreator = true")
+            ->leftJoin("tu.user", "creator");
+
+        if (isset($criteria['teamId']) && $criteria['teamId'] !== '') {
+            $qb->andWhere("t.id = :teamId")
+                ->setParameter("teamId", $criteria['teamId']);
+        }
+
+        if (isset($criteria['name']) && $criteria['name'] !== '') {
+            $qb->andWhere("t.name.value LIKE :name")
+                ->setParameter("name", "%" . $criteria['name'] . "%");
+        }
+
+        if (isset($criteria['creatorUsername']) && $criteria['creatorUsername'] !== '') {
+            $qb->andWhere("creator.username.value LIKE :creatorUsername")
+                ->setParameter("creatorUsername", "%" . $criteria['creatorUsername'] . "%");
+        }
+
+        if (isset($criteria['creatorEmail']) && $criteria['creatorEmail'] !== '') {
+            $qb->andWhere("creator.email.value LIKE :creatorEmail")
+                ->setParameter("creatorEmail", "%" . $criteria['creatorEmail'] . "%");
+        }
+
+        if (isset($criteria['disabled'])) {
+            $qb->andWhere("t.isDisabled = :disabled")
+                ->setParameter("disabled", $criteria['disabled']);
+        }
+
+        try {
+            $result = $qb->getQuery()->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            $result = 0;
+        }
+
+        return (int) $result;
+    }
 }

@@ -44,6 +44,8 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
         bool $open,
         int $limit,
         int $offset,
+        bool $upcoming = false,
+        ?Uuid $excludeUserId = null,
     ): array {
         $qb = $this->createQueryBuilder("t")->andWhere("t.deletedAt IS NULL");
 
@@ -81,6 +83,29 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
                 ->andWhere("t.registeredTeams < t.maxTeams");
         }
 
+        if ($upcoming) {
+            $now = new \DateTimeImmutable();
+            $maxDate = $now->modify('+30 days');
+            $qb->andWhere("t.startAt > :now")
+                ->andWhere("t.startAt <= :maxDate")
+                ->setParameter("now", $now)
+                ->setParameter("maxDate", $maxDate);
+
+            // Excluir torneos donde el usuario ya está inscrito
+            if ($excludeUserId !== null) {
+                $qb->leftJoin("t.tournamentTeams", "tt")
+                    ->leftJoin("tt.team", "team")
+                    ->leftJoin("team.teamUsers", "tu")
+                    ->andWhere(
+                        $qb->expr()->orX(
+                            $qb->expr()->isNull("tu.user"),
+                            $qb->expr()->neq("tu.user", ":excludeUserId")
+                        )
+                    )
+                    ->setParameter("excludeUserId", $excludeUserId->value());
+            }
+        }
+
         return $qb
             ->setMaxResults($limit)
             ->setFirstResult($offset)
@@ -94,9 +119,11 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
         ?Uuid $statusId,
         ?Uuid $responsibleId,
         bool $open,
+        bool $upcoming = false,
+        ?Uuid $excludeUserId = null,
     ): int {
         $qb = $this->createQueryBuilder("t")
-            ->select("COUNT(t.id)")
+            ->select("COUNT(DISTINCT t.id)")
             ->andWhere("t.deletedAt IS NULL");
 
         if ($name !== null) {
@@ -133,6 +160,29 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
                 ->andWhere("t.registeredTeams < t.maxTeams");
         }
 
+        if ($upcoming) {
+            $now = new \DateTimeImmutable();
+            $maxDate = $now->modify('+30 days');
+            $qb->andWhere("t.startAt > :now")
+                ->andWhere("t.startAt <= :maxDate")
+                ->setParameter("now", $now)
+                ->setParameter("maxDate", $maxDate);
+
+            // Excluir torneos donde el usuario ya está inscrito
+            if ($excludeUserId !== null) {
+                $qb->leftJoin("t.tournamentTeams", "tt")
+                    ->leftJoin("tt.team", "team")
+                    ->leftJoin("team.teamUsers", "tu")
+                    ->andWhere(
+                        $qb->expr()->orX(
+                            $qb->expr()->isNull("tu.user"),
+                            $qb->expr()->neq("tu.user", ":excludeUserId")
+                        )
+                    )
+                    ->setParameter("excludeUserId", $excludeUserId->value());
+            }
+        }
+
         try {
             $result = $qb->getQuery()->getSingleScalarResult();
         } catch (NoResultException $e) {
@@ -151,5 +201,88 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
     public function existsById(Uuid $id): bool
     {
         return $this->count(["id" => $id]) > 0;
+    }
+
+    public function searchByCriteria(array $criteria): array
+    {
+        $qb = $this->createQueryBuilder("t")
+            ->leftJoin("t.responsible", "r")
+            ->andWhere("t.deletedAt IS NULL");
+
+        if (!empty($criteria['tournamentId'])) {
+            $qb->andWhere("t.id = :tournamentId")
+                ->setParameter("tournamentId", $criteria['tournamentId']);
+        }
+
+        if (!empty($criteria['name'])) {
+            $qb->andWhere("t.name LIKE :name")
+                ->setParameter("name", "%" . $criteria['name'] . "%");
+        }
+
+        if (!empty($criteria['responsibleUsername'])) {
+            $qb->andWhere("r.username.value LIKE :responsibleUsername")
+                ->setParameter("responsibleUsername", "%" . $criteria['responsibleUsername'] . "%");
+        }
+
+        if (!empty($criteria['responsibleEmail'])) {
+            $qb->andWhere("r.email.value LIKE :responsibleEmail")
+                ->setParameter("responsibleEmail", "%" . $criteria['responsibleEmail'] . "%");
+        }
+
+        if (isset($criteria['disabled'])) {
+            $qb->andWhere("t.isDisabled = :disabled")
+                ->setParameter("disabled", $criteria['disabled']);
+        }
+
+        $limit = $criteria['limit'] ?? 20;
+        $offset = $criteria['offset'] ?? 0;
+
+        return $qb
+            ->orderBy("t.createdAt", "DESC")
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countByCriteria(array $criteria): int
+    {
+        $qb = $this->createQueryBuilder("t")
+            ->select("COUNT(t.id)")
+            ->leftJoin("t.responsible", "r")
+            ->andWhere("t.deletedAt IS NULL");
+
+        if (!empty($criteria['tournamentId'])) {
+            $qb->andWhere("t.id = :tournamentId")
+                ->setParameter("tournamentId", $criteria['tournamentId']);
+        }
+
+        if (!empty($criteria['name'])) {
+            $qb->andWhere("t.name LIKE :name")
+                ->setParameter("name", "%" . $criteria['name'] . "%");
+        }
+
+        if (!empty($criteria['responsibleUsername'])) {
+            $qb->andWhere("r.username.value LIKE :responsibleUsername")
+                ->setParameter("responsibleUsername", "%" . $criteria['responsibleUsername'] . "%");
+        }
+
+        if (!empty($criteria['responsibleEmail'])) {
+            $qb->andWhere("r.email.value LIKE :responsibleEmail")
+                ->setParameter("responsibleEmail", "%" . $criteria['responsibleEmail'] . "%");
+        }
+
+        if (isset($criteria['disabled'])) {
+            $qb->andWhere("t.isDisabled = :disabled")
+                ->setParameter("disabled", $criteria['disabled']);
+        }
+
+        try {
+            $result = $qb->getQuery()->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            $result = 0;
+        }
+
+        return (int) $result;
     }
 }

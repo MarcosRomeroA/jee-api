@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Team\Application;
 
+use App\Contexts\Shared\Domain\FileManager\ImageUploader;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Application\Create\TeamCreator;
 use App\Contexts\Web\Team\Domain\Team;
@@ -18,16 +19,19 @@ final class TeamCreatorTest extends TestCase
 {
     private TeamRepository|MockObject $teamRepository;
     private UserRepository|MockObject $userRepository;
+    private ImageUploader|MockObject $imageUploader;
     private TeamCreator $creator;
 
     protected function setUp(): void
     {
         $this->teamRepository = $this->createMock(TeamRepository::class);
         $this->userRepository = $this->createMock(UserRepository::class);
+        $this->imageUploader = $this->createMock(ImageUploader::class);
 
         $this->creator = new TeamCreator(
             $this->teamRepository,
             $this->userRepository,
+            $this->imageUploader,
         );
     }
 
@@ -37,7 +41,6 @@ final class TeamCreatorTest extends TestCase
         $creatorId = Uuid::random();
         $name = "Los Campeones";
         $description = "A professional gaming team";
-        $image = "https://example.com/team.jpg";
 
         $creator = UserMother::create($creatorId);
 
@@ -52,6 +55,10 @@ final class TeamCreatorTest extends TestCase
             ->method("findById")
             ->with($creatorId)
             ->willReturn($creator);
+
+        $this->imageUploader
+            ->method("isBase64Image")
+            ->willReturn(false);
 
         $this->teamRepository
             ->expects($this->once())
@@ -68,7 +75,7 @@ final class TeamCreatorTest extends TestCase
                 }),
             );
 
-        $this->creator->createOrUpdate($id, $name, $description, $image, $creatorId);
+        $this->creator->createOrUpdate($id, $name, $description, null, $creatorId);
     }
 
     public function testItShouldThrowExceptionWhenUserNotFound(): void

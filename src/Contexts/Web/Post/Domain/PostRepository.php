@@ -66,4 +66,8 @@ interface PostRepository
     public function countByPopularHashtag(string $hashtag, int $days): int;
 
     public function hasUserSharedPost(Uuid $postId, Uuid $userId): bool;
+
+    public function deleteByUserId(Uuid $userId): void;
+
+    public function nullifySharedPostIdByUserId(Uuid $userId): void;
 }

@@ -10,7 +10,6 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent;
 use App\Contexts\Web\Post\Domain\PostRepository;
 use App\Contexts\Web\Post\Domain\PostResource;
-use App\Contexts\Web\Post\Domain\PostResourceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use FilesystemIterator;

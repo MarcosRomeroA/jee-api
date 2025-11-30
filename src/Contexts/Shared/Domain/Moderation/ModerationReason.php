@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Contexts\Web\Post\Domain;
+namespace App\Contexts\Shared\Domain\Moderation;
 
 enum ModerationReason: string
 {
@@ -25,8 +25,8 @@ enum ModerationReason: string
             self::HATE_SPEECH => 'Discurso de odio',
             self::VIOLENCE => 'Violencia',
             self::SEXUAL_CONTENT => 'Contenido sexual',
-            self::MISINFORMATION => 'Desinformación',
-            self::COPYRIGHT_VIOLATION => 'Violación de derechos de autor',
+            self::MISINFORMATION => 'Desinformacion',
+            self::COPYRIGHT_VIOLATION => 'Violacion de derechos de autor',
             self::OTHER => 'Otro',
         };
     }

@@ -17,6 +17,7 @@ final readonly class SearchTournamentsQuery implements Query
         public int $limit = 10,
         public int $offset = 0,
         public ?string $currentUserId = null,
+        public bool $upcoming = false,
     ) {
     }
 }

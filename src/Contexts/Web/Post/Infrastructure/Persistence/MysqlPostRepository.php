@@ -335,4 +335,48 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
 
         return (int) $count > 0;
     }
+
+    public function deleteByUserId(Uuid $userId): void
+    {
+        $posts = $this->createQueryBuilder("p")
+            ->innerJoin("p.user", "u")
+            ->where("u.id = :userId")
+            ->setParameter("userId", $userId)
+            ->getQuery()
+            ->getResult();
+
+        $em = $this->getEntityManager();
+        foreach ($posts as $post) {
+            $em->remove($post);
+        }
+        $em->flush();
+    }
+
+    public function nullifySharedPostIdByUserId(Uuid $userId): void
+    {
+        // Get all post IDs from this user
+        $postIds = $this->createQueryBuilder("p")
+            ->select("p.id")
+            ->innerJoin("p.user", "u")
+            ->where("u.id = :userId")
+            ->setParameter("userId", $userId)
+            ->getQuery()
+            ->getResult();
+
+        if (empty($postIds)) {
+            return;
+        }
+
+        $ids = array_map(fn ($row) => $row['id'], $postIds);
+
+        // Nullify sharedPostId for posts that shared any of these posts
+        $this->createQueryBuilder("p")
+            ->update()
+            ->set("p.sharedPostId", ":null")
+            ->where("p.sharedPostId IN (:postIds)")
+            ->setParameter("null", null)
+            ->setParameter("postIds", $ids)
+            ->getQuery()
+            ->execute();
+    }
 }

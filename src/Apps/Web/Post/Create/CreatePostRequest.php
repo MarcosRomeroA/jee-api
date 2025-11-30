@@ -29,11 +29,12 @@ final readonly class CreatePostRequest
     {
         $files = $request->files->all();
 
-        // Handle multipart/form-data (file uploads) - check if files are present
-        if (!empty($files)) {
-            $body = $request->request->get('body', '');
-            $sharedPostId = $request->request->get('sharedPostId');
+        // Always check form-data first (multipart/form-data)
+        $body = $request->request->get('body');
+        $sharedPostId = $request->request->get('sharedPostId');
 
+        // If body is present in form-data, use form-data values
+        if ($body !== null) {
             // Handle empty strings and literal "null" as null
             if (empty($sharedPostId) || $sharedPostId === 'null') {
                 $sharedPostId = null;
@@ -48,7 +49,7 @@ final readonly class CreatePostRequest
             );
         }
 
-        // Handle JSON (no files)
+        // Fallback to JSON (for backwards compatibility)
         $data = json_decode($request->getContent(), true) ?? [];
 
         return new self(
@@ -56,7 +57,7 @@ final readonly class CreatePostRequest
             $sessionId,
             $data['body'] ?? '',
             $data['sharedPostId'] ?? null,
-            [],
+            $files,
         );
     }
 

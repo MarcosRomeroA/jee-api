@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Apps\Backoffice\Post\Disable;
 
 use App\Contexts\Backoffice\Post\Application\Disable\DisablePostCommand;
-use App\Contexts\Web\Post\Domain\ModerationReason;
+use App\Contexts\Shared\Domain\Moderation\ModerationReason;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 

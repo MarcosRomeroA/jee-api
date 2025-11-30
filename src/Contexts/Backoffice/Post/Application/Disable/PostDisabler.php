@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Contexts\Backoffice\Post\Application\Disable;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Post\Domain\ModerationReason;
+use App\Contexts\Shared\Domain\Moderation\ModerationReason;
 use App\Contexts\Web\Post\Domain\PostRepository;
 
 final readonly class PostDisabler

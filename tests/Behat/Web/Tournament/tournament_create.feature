@@ -15,7 +15,6 @@ Feature: Create Tournament
         "rules": "No toxicity allowed. All players must be verified.",
         "maxTeams": 16,
         "isOfficial": true,
-        "image": "https://example.com/tournament.jpg",
         "prize": "$1000",
         "region": "LATAM",
         "startAt": "2025-06-01T10:00:00Z",

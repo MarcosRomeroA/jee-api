@@ -17,3 +17,18 @@ resend_email_confirmation:
     path: /auth/resend-confirmation
     controller: App\Apps\Web\User\ResendEmailConfirmation\ResendEmailConfirmationController
     methods: [POST]
+
+forgot_password:
+    path: /auth/forgot-password
+    controller: App\Apps\Web\Auth\ForgotPassword\ForgotPasswordController
+    methods: [POST]
+
+validate_reset_token:
+    path: /auth/reset-password/{token}
+    controller: App\Apps\Web\Auth\ValidateResetToken\ValidateResetTokenController
+    methods: [GET]
+
+reset_password:
+    path: /auth/reset-password
+    controller: App\Apps\Web\Auth\ResetPassword\ResetPasswordController
+    methods: [POST]

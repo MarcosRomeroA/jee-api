@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\Search;
 
@@ -19,13 +21,22 @@ final class TournamentsSearcher
         ?Uuid $responsibleId,
         bool $open,
         int $limit,
-        int $offset
+        int $offset,
+        bool $upcoming = false,
+        ?Uuid $excludeUserId = null,
     ): array {
-        return $this->repository->search($name, $gameId, $statusId, $responsibleId, $open, $limit, $offset);
+        return $this->repository->search($name, $gameId, $statusId, $responsibleId, $open, $limit, $offset, $upcoming, $excludeUserId);
     }
 
-    public function count(?string $name, ?Uuid $gameId, ?Uuid $statusId, ?Uuid $responsibleId, bool $open): int
-    {
-        return $this->repository->countSearch($name, $gameId, $statusId, $responsibleId, $open);
+    public function count(
+        ?string $name,
+        ?Uuid $gameId,
+        ?Uuid $statusId,
+        ?Uuid $responsibleId,
+        bool $open,
+        bool $upcoming = false,
+        ?Uuid $excludeUserId = null,
+    ): int {
+        return $this->repository->countSearch($name, $gameId, $statusId, $responsibleId, $open, $upcoming, $excludeUserId);
     }
 }

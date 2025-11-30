@@ -9,6 +9,7 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\Game\Domain\GameRank;
 use App\Contexts\Web\User\Domain\User;
+use App\Contexts\Shared\Domain\Moderation\ModerationReason;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -82,6 +83,15 @@ class Tournament extends AggregateRoot
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $deletedAt;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isDisabled = false;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $disabledAt = null;
+
+    #[ORM\Column(type: 'string', length: 50, nullable: true, enumType: ModerationReason::class)]
+    private ?ModerationReason $moderationReason = null;
 
     /**
      * @var Collection<int, TournamentTeam>
@@ -302,5 +312,34 @@ class Tournament extends AggregateRoot
     public function hasEnded(): bool
     {
         return new \DateTimeImmutable() >= $this->endAt;
+    }
+
+    public function disable(ModerationReason $reason): void
+    {
+        $this->isDisabled = true;
+        $this->moderationReason = $reason;
+        $this->disabledAt = new \DateTimeImmutable();
+    }
+
+    public function enable(): void
+    {
+        $this->isDisabled = false;
+        $this->moderationReason = null;
+        $this->disabledAt = null;
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->isDisabled;
+    }
+
+    public function getModerationReason(): ?ModerationReason
+    {
+        return $this->moderationReason;
+    }
+
+    public function getDisabledAt(): ?\DateTimeImmutable
+    {
+        return $this->disabledAt;
     }
 }

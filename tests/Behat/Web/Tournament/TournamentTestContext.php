@@ -10,11 +10,6 @@ use App\Contexts\Web\Game\Domain\GameRank;
 use App\Contexts\Web\Tournament\Domain\Tournament;
 use App\Contexts\Web\Tournament\Domain\TournamentStatus;
 use App\Contexts\Web\User\Domain\User;
-use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
-use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
-use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
-use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
-use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
 use App\Tests\Behat\Shared\Fixtures\MigrationData;
 use Behat\Behat\Context\Context;
 use Doctrine\ORM\EntityManagerInterface;
@@ -148,7 +143,7 @@ final class TournamentTestContext implements Context
                 "Standard tournament rules apply",
                 16,
                 true,
-                "https://example.com/tournament-image.png",
+                null,
                 "10000 USD",
                 "NA",
                 new \DateTimeImmutable("+1 week"),

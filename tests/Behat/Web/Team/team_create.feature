@@ -10,8 +10,7 @@ Feature: Create Team
       """
       {
         "name": "Pro Gamers Team",
-        "description": "A professional gaming team",
-        "image": "https://example.com/team-logo.png"
+        "description": "A professional gaming team"
       }
       """
     Then the response status code should be 200
@@ -23,8 +22,7 @@ Feature: Create Team
       """
       {
         "name": "Another Team",
-        "description": "",
-        "image": "https://example.com/team-logo2.png"
+        "description": ""
       }
       """
     Then the response status code should be 200
@@ -46,8 +44,7 @@ Feature: Create Team
     When I send a PUT request to "/api/team/550e8400-e29b-41d4-a716-446655440071" with body:
       """
       {
-        "description": "Missing name field",
-        "image": "https://example.com/logo.png"
+        "description": "Missing name field"
       }
       """
     Then the response status code should be 422
