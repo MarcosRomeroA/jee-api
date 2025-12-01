@@ -81,3 +81,9 @@ find_team_members:
     controller: App\Apps\Web\Team\FindMembers\FindTeamMembersController
     methods: [GET]
     defaults: { auth: true }
+
+remove_team_user:
+    path: /team/{teamId}/user/{userId}
+    controller: App\Apps\Web\Team\RemoveUser\RemoveTeamUserController
+    methods: [DELETE]
+    defaults: { auth: true }
