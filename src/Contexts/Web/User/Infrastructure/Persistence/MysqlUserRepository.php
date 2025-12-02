@@ -152,6 +152,33 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
                 $qb->andWhere("u.verifiedAt IS NULL");
             }
         }
+
+        // Player-related filters (gameId, gameRankId, gameRoleId)
+        $needsPlayerJoin = isset($criteria["gameId"]) || isset($criteria["gameRankId"]) || isset($criteria["gameRoleId"]);
+
+        if ($needsPlayerJoin) {
+            $qb->innerJoin("App\Contexts\Web\Player\Domain\Player", "p", "WITH", "p.user = u");
+        }
+
+        if (isset($criteria["gameId"]) && $criteria["gameId"] !== "") {
+            $qb->innerJoin("p.gameRank", "gr")
+                ->andWhere("gr.game = :gameId")
+                ->setParameter("gameId", $criteria["gameId"]);
+        }
+
+        if (isset($criteria["gameRankId"]) && $criteria["gameRankId"] !== "") {
+            if (!isset($criteria["gameId"])) {
+                $qb->innerJoin("p.gameRank", "gr");
+            }
+            $qb->andWhere("gr.id = :gameRankId")
+                ->setParameter("gameRankId", $criteria["gameRankId"]);
+        }
+
+        if (isset($criteria["gameRoleId"]) && $criteria["gameRoleId"] !== "") {
+            $qb->innerJoin("p.gameRoles", "gro")
+                ->andWhere("gro.id = :gameRoleId")
+                ->setParameter("gameRoleId", $criteria["gameRoleId"]);
+        }
     }
 
     public function delete(User $user): void

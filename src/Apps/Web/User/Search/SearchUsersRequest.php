@@ -19,6 +19,12 @@ final readonly class SearchUsersRequest
         public ?string $username = null,
         #[Assert\Type("string")]
         public ?string $email = null,
+        #[Assert\Type("string")]
+        public ?string $gameId = null,
+        #[Assert\Type("string")]
+        public ?string $gameRankId = null,
+        #[Assert\Type("string")]
+        public ?string $gameRoleId = null,
         #[Assert\Type("int")]
         public ?int $limit = null,
         #[Assert\Type("int")]
@@ -33,6 +39,9 @@ final readonly class SearchUsersRequest
             lastname: $request->query->get("lastname"),
             username: $request->query->get("username"),
             email: $request->query->get("email"),
+            gameId: $request->query->get("gameId"),
+            gameRankId: $request->query->get("gameRankId"),
+            gameRoleId: $request->query->get("gameRoleId"),
             limit: $request->query->get("limit")
                 ? (int) $request->query->get("limit")
                 : null,
@@ -60,6 +69,18 @@ final readonly class SearchUsersRequest
 
         if ($this->email !== null) {
             $criteria["email"] = $this->email;
+        }
+
+        if ($this->gameId !== null) {
+            $criteria["gameId"] = $this->gameId;
+        }
+
+        if ($this->gameRankId !== null) {
+            $criteria["gameRankId"] = $this->gameRankId;
+        }
+
+        if ($this->gameRoleId !== null) {
+            $criteria["gameRoleId"] = $this->gameRoleId;
         }
 
         if ($this->limit !== null) {
