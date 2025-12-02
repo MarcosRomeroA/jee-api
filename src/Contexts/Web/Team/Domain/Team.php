@@ -16,6 +16,7 @@ use App\Contexts\Web\Team\Domain\Events\TeamUpdatedDomainEvent;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamNameValue;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamDescriptionValue;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamImageValue;
+use App\Contexts\Web\Team\Domain\ValueObject\TeamBackgroundImageValue;
 use App\Contexts\Shared\Infrastructure\Persistence\Doctrine\ContainsNullableEmbeddable;
 use App\Contexts\Shared\Domain\Moderation\ModerationReason;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -42,6 +43,9 @@ class Team extends AggregateRoot
 
     #[Embedded(class: TeamImageValue::class, columnPrefix: false)]
     private TeamImageValue $image;
+
+    #[Embedded(class: TeamBackgroundImageValue::class, columnPrefix: false)]
+    private TeamBackgroundImageValue $backgroundImage;
 
     /**
      * @var Collection<int, TeamPlayer>
@@ -99,6 +103,7 @@ class Team extends AggregateRoot
         $this->name = $name;
         $this->description = $description;
         $this->image = $image;
+        $this->backgroundImage = new TeamBackgroundImageValue(null);
         $this->teamPlayers = new ArrayCollection();
         $this->teamUsers = new ArrayCollection();
         $this->teamGames = new ArrayCollection();
@@ -174,6 +179,16 @@ class Team extends AggregateRoot
     public function getImage(): ?string
     {
         return $this->image->value();
+    }
+
+    public function getBackgroundImage(): ?string
+    {
+        return $this->backgroundImage->value();
+    }
+
+    public function setBackgroundImage(TeamBackgroundImageValue $backgroundImage): void
+    {
+        $this->backgroundImage = $backgroundImage;
     }
 
     /**

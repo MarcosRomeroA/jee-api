@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\Shared;
 
@@ -16,8 +18,7 @@ final class UserResponse extends Response
         public readonly string $profileImage,
         public readonly ?string $description,
         public readonly string $createdAt,
-    )
-    {
+    ) {
     }
 
     public static function fromEntity(User $user, string $profileImage): self

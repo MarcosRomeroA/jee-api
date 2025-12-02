@@ -64,6 +64,9 @@ class Tournament extends AggregateRoot
     private ?string $image;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $backgroundImage;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $prize;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
@@ -128,6 +131,7 @@ class Tournament extends AggregateRoot
         $this->maxTeams = $maxTeams;
         $this->isOfficial = $isOfficial;
         $this->image = $image;
+        $this->backgroundImage = null;
         $this->prize = $prize;
         $this->region = $region;
         $this->startAt = $startAt;
@@ -192,6 +196,14 @@ class Tournament extends AggregateRoot
     public function getImage(): ?string
     {
         return $this->image;
+    }
+    public function getBackgroundImage(): ?string
+    {
+        return $this->backgroundImage;
+    }
+    public function setBackgroundImage(?string $backgroundImage): void
+    {
+        $this->backgroundImage = $backgroundImage;
     }
     public function getPrize(): ?string
     {

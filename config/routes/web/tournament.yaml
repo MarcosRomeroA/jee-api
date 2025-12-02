@@ -113,3 +113,15 @@ delete_match:
     controller: App\Apps\Web\Tournament\DeleteMatch\DeleteMatchController
     methods: [DELETE]
     defaults: { auth: true }
+
+update_tournament_background_image:
+    path: /tournament/{tournamentId}/background-image
+    controller: App\Apps\Web\Tournament\UpdateBackgroundImage\UpdateTournamentBackgroundImageController
+    methods: [PUT]
+    defaults: { auth: true }
+
+find_tournament_background_image:
+    path: /tournament/{tournamentId}/background-image
+    controller: App\Apps\Web\Tournament\FindBackgroundImage\FindTournamentBackgroundImageController
+    methods: [GET]
+    defaults: { auth: true }

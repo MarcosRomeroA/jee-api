@@ -87,3 +87,15 @@ remove_team_user:
     controller: App\Apps\Web\Team\RemoveUser\RemoveTeamUserController
     methods: [DELETE]
     defaults: { auth: true }
+
+update_team_background_image:
+    path: /team/{teamId}/background-image
+    controller: App\Apps\Web\Team\UpdateBackgroundImage\UpdateTeamBackgroundImageController
+    methods: [PUT]
+    defaults: { auth: true }
+
+find_team_background_image:
+    path: /team/{teamId}/background-image
+    controller: App\Apps\Web\Team\FindBackgroundImage\FindTeamBackgroundImageController
+    methods: [GET]
+    defaults: { auth: true }

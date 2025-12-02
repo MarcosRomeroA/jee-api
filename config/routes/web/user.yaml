@@ -1,8 +1,3 @@
-create_user:
-    path: /user/{id}
-    controller: App\Apps\Web\User\Create\CreateUserController
-    methods: [PUT]
-
 find_user:
     path: /user/{id}
     controller: App\Apps\Web\User\Find\FindUserController
@@ -54,6 +49,18 @@ update_profile_image:
     path: /user-profile-image
     controller: App\Apps\Web\User\UpdateProfilePhoto\UpdateUserProfilePhotoController
     methods: [POST]
+    defaults: { auth: true }
+
+update_user_background_image:
+    path: /user/background-image
+    controller: App\Apps\Web\User\UpdateBackgroundImage\UpdateUserBackgroundImageController
+    methods: [PUT]
+    defaults: { auth: true }
+
+find_user_background_image:
+    path: /user/{id}/background-image
+    controller: App\Apps\Web\User\FindBackgroundImage\FindUserBackgroundImageController
+    methods: [GET]
     defaults: { auth: true }
 
 follow:
@@ -109,3 +116,8 @@ delete_account:
     controller: App\Apps\Web\User\DeleteAccount\DeleteAccountController
     methods: [DELETE]
     defaults: { auth: true }
+
+create_user:
+    path: /user/{id}
+    controller: App\Apps\Web\User\Create\CreateUserController
+    methods: [PUT]

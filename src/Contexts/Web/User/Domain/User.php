@@ -15,6 +15,7 @@ use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
 use App\Contexts\Web\User\Domain\ValueObject\FirstnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\LastnameValue;
 use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
+use App\Contexts\Web\User\Domain\ValueObject\BackgroundImageValue;
 use App\Contexts\Web\User\Domain\ValueObject\ProfileImageValue;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -48,6 +49,9 @@ class User extends AggregateRoot
     #[Embedded(class: ProfileImageValue::class, columnPrefix: false)]
     private ProfileImageValue $profileImage;
 
+    #[Embedded(class: BackgroundImageValue::class, columnPrefix: false)]
+    private BackgroundImageValue $backgroundImage;
+
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
@@ -74,6 +78,8 @@ class User extends AggregateRoot
 
     private ?string $urlProfileImage = null;
 
+    private ?string $urlBackgroundImage = null;
+
     public function __construct(
         Uuid $id,
         FirstnameValue $firstname,
@@ -91,6 +97,7 @@ class User extends AggregateRoot
         $this->email = $email;
         $this->password = $password;
         $this->profileImage = new ProfileImageValue("");
+        $this->backgroundImage = new BackgroundImageValue("");
         $this->createdAt = new \DateTimeImmutable();
         $this->description = null;
     }
@@ -236,6 +243,26 @@ class User extends AggregateRoot
     public function setUrlProfileImage(?string $urlProfileImage): void
     {
         $this->urlProfileImage = $urlProfileImage;
+    }
+
+    public function getBackgroundImage(): BackgroundImageValue
+    {
+        return $this->backgroundImage;
+    }
+
+    public function setBackgroundImage(BackgroundImageValue $backgroundImage): void
+    {
+        $this->backgroundImage = $backgroundImage;
+    }
+
+    public function getUrlBackgroundImage(): ?string
+    {
+        return $this->urlBackgroundImage;
+    }
+
+    public function setUrlBackgroundImage(?string $urlBackgroundImage): void
+    {
+        $this->urlBackgroundImage = $urlBackgroundImage;
     }
 
     public function getVerifiedAt(): ?\DateTimeImmutable

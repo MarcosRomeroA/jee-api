@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Contexts\Web\User\Domain\ValueObject;
+
+use App\Contexts\Shared\Domain\ValueObject\StringValueObject;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Embeddable]
+class BackgroundImageValue extends StringValueObject
+{
+    #[ORM\Column(name: 'background_image', type: 'string', length: 255, options: ['default' => ''])]
+    protected string $value;
+
+    public function __construct(string $value)
+    {
+        parent::__construct($value);
+    }
+}
