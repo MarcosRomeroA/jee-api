@@ -6,7 +6,7 @@ namespace App\Tests\Unit\Web\Player\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Player\Domain\Player;
-use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
+use App\Contexts\Web\Player\Domain\ValueObject\GameAccountDataValue;
 use PHPUnit\Framework\TestCase;
 
 final class PlayerTest extends TestCase
@@ -15,43 +15,52 @@ final class PlayerTest extends TestCase
     {
         $id = Uuid::random();
         $user = UserMother::random();
+        $game = GameMother::random();
         $gameRole = GameRoleMother::random();
         $gameRoles = [$gameRole];
-        $gameRank = GameRankMother::random();
-        $username = 'ProGamer123';
+        $accountData = [
+            'region' => 'las',
+            'username' => 'RiotPlayer',
+            'tag' => '1234',
+        ];
 
-        $player = new Player(
+        $player = Player::create(
             $id,
             $user,
+            $game,
             $gameRoles,
-            $gameRank,
-            new UsernameValue($username),
+            new GameAccountDataValue($accountData),
             false
         );
 
         $this->assertEquals($id, $player->id());
         $this->assertEquals($user, $player->user());
+        $this->assertEquals($game, $player->game());
         $this->assertCount(1, $player->gameRoles());
         $this->assertEquals($gameRole, $player->gameRoles()[0]);
-        $this->assertEquals($gameRank, $player->gameRank());
-        $this->assertEquals($username, $player->username()->value());
+        $this->assertNull($player->gameRank());
+        $this->assertEquals('RiotPlayer', $player->username());
+        $this->assertEquals($accountData, $player->accountData()->value());
         $this->assertFalse($player->verified());
     }
 
     public function testItShouldUpdatePlayer(): void
     {
         $player = PlayerMother::create();
-        $newUsername = new UsernameValue('UpdatedGamer456');
         $newGameRole = GameRoleMother::random();
         $newGameRoles = [$newGameRole];
-        $newGameRank = GameRankMother::random();
+        $newAccountData = new GameAccountDataValue([
+            'region' => 'las',
+            'username' => 'UpdatedRiot',
+            'tag' => '5678',
+        ]);
 
-        $player->update($newUsername, $newGameRoles, $newGameRank);
+        $player->update($newGameRoles, $newAccountData);
 
-        $this->assertEquals($newUsername->value(), $player->username()->value());
+        $this->assertEquals('UpdatedRiot', $player->username());
         $this->assertCount(1, $player->gameRoles());
         $this->assertEquals($newGameRole, $player->gameRoles()[0]);
-        $this->assertEquals($newGameRank, $player->gameRank());
+        $this->assertEquals($newAccountData->value(), $player->accountData()->value());
     }
 
     public function testItShouldVerifyPlayer(): void

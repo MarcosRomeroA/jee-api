@@ -14,9 +14,8 @@ final class UpdatePlayerController extends ApiController
     {
         $command = new UpdatePlayerCommand(
             $id,
-            $request->username,
             $request->getGameRoleIds(),
-            $request->getGameRankId()
+            $request->getAccountData(),
         );
 
         $this->commandBus->dispatch($command);

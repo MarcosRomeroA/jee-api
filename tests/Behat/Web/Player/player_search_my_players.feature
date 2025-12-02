@@ -9,9 +9,13 @@ Feature: Search My Players
     When I send a PUT request to "/api/player/650e8400-e29b-41d4-a716-446655440600" with body:
       """
       {
-        "gameRoleId": "750e8400-e29b-41d4-a716-446655440001",
-        "gameRankId": "850e8400-e29b-41d4-a716-446655440011",
-        "username": "MyPlayerOne"
+        "gameId": "550e8400-e29b-41d4-a716-446655440080",
+        "gameRoleIds": ["750e8400-e29b-41d4-a716-446655440001"],
+        "accountData": {
+          "region": "las",
+          "username": "RiotPlayer1",
+          "tag": "1111"
+        }
       }
       """
     Then the response status code should be 200
@@ -25,9 +29,13 @@ Feature: Search My Players
     When I send a PUT request to "/api/player/650e8400-e29b-41d4-a716-446655440601" with body:
       """
       {
-        "gameRoleId": "750e8400-e29b-41d4-a716-446655440001",
-        "gameRankId": "850e8400-e29b-41d4-a716-446655440011",
-        "username": "MyUniquePlayer"
+        "gameId": "550e8400-e29b-41d4-a716-446655440080",
+        "gameRoleIds": ["750e8400-e29b-41d4-a716-446655440001"],
+        "accountData": {
+          "region": "las",
+          "username": "UniqueRiotPlayer",
+          "tag": "2222"
+        }
       }
       """
     Then the response status code should be 200

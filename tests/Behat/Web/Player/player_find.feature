@@ -9,9 +9,13 @@ Feature: Find Player
     When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440300" with body:
       """
       {
-        "gameRoleId": "750e8400-e29b-41d4-a716-446655440001",
-        "gameRankId": "850e8400-e29b-41d4-a716-446655440011",
-        "username": "ProGamer123"
+        "gameId": "550e8400-e29b-41d4-a716-446655440080",
+        "gameRoleIds": ["750e8400-e29b-41d4-a716-446655440001"],
+        "accountData": {
+          "region": "las",
+          "username": "RiotPlayer",
+          "tag": "1234"
+        }
       }
       """
     Then the response status code should be 200
@@ -20,6 +24,7 @@ Feature: Find Player
     And the response should have "id" property
     And the response should have "username" property
     And the response should have "verified" property
+    And the response should have "accountData" property
 
   Scenario: Find player with non-existent id
     Given I am authenticated as "tester1@test.com" with password "12345678"

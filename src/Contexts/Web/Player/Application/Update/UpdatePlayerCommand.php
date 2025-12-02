@@ -10,12 +10,12 @@ final readonly class UpdatePlayerCommand implements Command
 {
     /**
      * @param array<string> $gameRoleIds
+     * @param array<string, mixed>|null $accountData
      */
     public function __construct(
         public string $id,
-        public string $username,
         public array $gameRoleIds,
-        public ?string $gameRankId
+        public ?array $accountData,
     ) {
     }
 }

@@ -2,28 +2,28 @@ search_games:
     path: /games
     controller: App\Apps\Web\Game\Search\SearchGamesController
     methods: [GET]
-    defaults: { auth: true }
+    defaults: { auth: false }
 
 find_game:
     path: /game/{id}
     controller: App\Apps\Web\Game\Find\FindGameController
     methods: [GET]
-    defaults: { auth: true }
+    defaults: { auth: false }
 
 find_all_game_roles_by_game:
     path: /game/{gameId}/roles
     controller: App\Apps\Web\Game\FindAllByGame\FindAllGameRolesByGameController
     methods: [GET]
-    defaults: { auth: true }
+    defaults: { auth: false }
 
 find_all_game_ranks_by_game:
     path: /game/{gameId}/ranks
     controller: App\Apps\Web\Game\FindAllByGame\FindAllGameRanksByGameController
     methods: [GET]
-    defaults: { auth: true }
+    defaults: { auth: false }
 
 find_game_requirements:
     path: /game/{id}/requirements
     controller: App\Apps\Web\Game\FindRequirements\FindGameRequirementsController
     methods: [GET]
-    defaults: { auth: true }
+    defaults: { auth: false }

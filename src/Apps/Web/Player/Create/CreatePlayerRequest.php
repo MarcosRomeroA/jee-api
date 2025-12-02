@@ -12,18 +12,17 @@ final readonly class CreatePlayerRequest
 {
     /**
      * @param array<string> $gameRoleIds
+     * @param array<string, mixed>|null $accountData
      */
     public function __construct(
         public string $id,
         public string $sessionId,
         #[Assert\NotBlank]
+        public string $gameId,
         #[Assert\Type("array")]
         public array $gameRoleIds,
-        #[Assert\Type("string")]
-        public ?string $gameRankId,
-        #[Assert\NotBlank]
-        #[Assert\Type("string")]
-        public string $username,
+        #[Assert\Type("array")]
+        public ?array $accountData,
     ) {
     }
 
@@ -43,9 +42,9 @@ final readonly class CreatePlayerRequest
         return new self(
             $id,
             $sessionId,
+            $data['gameId'] ?? '',
             $gameRoleIds,
-            $data['gameRankId'] ?? null,
-            $data['username'] ?? ''
+            $data['accountData'] ?? null,
         );
     }
 
@@ -54,9 +53,9 @@ final readonly class CreatePlayerRequest
         return new CreatePlayerCommand(
             $this->id,
             $this->sessionId,
+            $this->gameId,
             $this->gameRoleIds,
-            $this->gameRankId,
-            $this->username
+            $this->accountData,
         );
     }
 }

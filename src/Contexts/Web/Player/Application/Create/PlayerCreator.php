@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Player\Application\Create;
 
+use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Game\Domain\GameRankRepository;
+use App\Contexts\Web\Game\Domain\GameAccountRequirementRepository;
+use App\Contexts\Web\Game\Domain\GameRepository;
 use App\Contexts\Web\Game\Domain\GameRoleRepository;
+use App\Contexts\Web\Player\Domain\Exception\InvalidGameAccountDataException;
+use App\Contexts\Web\Player\Domain\Exception\MaxPlayersPerUserExceededException;
 use App\Contexts\Web\Player\Domain\Exception\PlayerAlreadyExistsException;
 use App\Contexts\Web\Player\Domain\Player;
 use App\Contexts\Web\Player\Domain\PlayerRepository;
-use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
+use App\Contexts\Web\Player\Domain\ValueObject\GameAccountDataValue;
 use App\Contexts\Web\User\Domain\UserRepository;
 
 final readonly class PlayerCreator
@@ -18,66 +22,94 @@ final readonly class PlayerCreator
     public function __construct(
         private PlayerRepository $playerRepository,
         private UserRepository $userRepository,
+        private GameRepository $gameRepository,
         private GameRoleRepository $gameRoleRepository,
-        private GameRankRepository $gameRankRepository,
+        private GameAccountRequirementRepository $gameAccountRequirementRepository,
+        private EventBus $eventBus,
     ) {
     }
 
     /**
-     * @param array<string> $gameRoleIds - Array of GameRole UUIDs
+     * @param array<string> $gameRoleIds - Array of GameRole UUIDs (optional)
      */
     public function create(
         Uuid $id,
         Uuid $userId,
+        Uuid $gameId,
         array $gameRoleIds,
-        ?Uuid $gameRankId,
-        UsernameValue $username,
+        GameAccountDataValue $accountData,
     ): void {
         $user = $this->userRepository->findById($userId);
+        $game = $this->gameRepository->findById($gameId);
 
-        // Fetch all game roles
+        // Fetch all game roles (optional)
         $gameRoles = [];
         foreach ($gameRoleIds as $gameRoleId) {
             $gameRoles[] = $this->gameRoleRepository->findById(new Uuid($gameRoleId));
         }
 
-        // Fetch game rank if provided
-        $gameRank = null;
-        if ($gameRankId !== null) {
-            $gameRank = $this->gameRankRepository->findById($gameRankId);
-        }
+        // Validate account data against game requirements
+        $this->validateAccountData($gameId, $accountData);
 
         // Check if player exists without throwing exception
         try {
             $player = $this->playerRepository->findById($id);
-            $player->update($username, $gameRoles, $gameRank);
+            $player->update($gameRoles, $accountData);
         } catch (\Exception $e) {
             // Player doesn't exist, create new one
-            // Use the first game role to get the gameId for validation
-            $gameId = $gameRoles[0]->game()->getId();
             if (
-                $this->playerRepository->existsByUserIdAndUsernameAndGameId(
+                $this->playerRepository->existsByUserIdAndGameId(
                     $userId,
-                    $username,
                     $gameId,
                 )
             ) {
                 throw new PlayerAlreadyExistsException();
             }
 
+            // Check max players per user limit (8)
+            $currentPlayerCount = $this->playerRepository->countByUserId($userId);
+            if ($currentPlayerCount >= 8) {
+                throw new MaxPlayersPerUserExceededException();
+            }
+
             $player = Player::create(
                 $id,
                 $user,
+                $game,
                 $gameRoles,
-                $gameRank,
-                $username,
+                $accountData,
                 false,
             );
         }
 
         $this->playerRepository->save($player);
 
-        // TODO: Verificar rango de forma asíncrona (opcional)
-        // $this->rankVerifierService->verifyRank($player, $gameId);
+        $events = $player->pullDomainEvents();
+        if (!empty($events)) {
+            $this->eventBus->publish(...$events);
+        }
+    }
+
+    private function validateAccountData(Uuid $gameId, GameAccountDataValue $accountData): void
+    {
+        $requirement = $this->gameAccountRequirementRepository->findByGameId($gameId);
+
+        if ($requirement === null) {
+            return;
+        }
+
+        $requirements = $requirement->getRequirements();
+        $data = $accountData->value() ?? [];
+        $missingFields = [];
+
+        foreach ($requirements as $field => $required) {
+            if ($required === true && (!isset($data[$field]) || $data[$field] === '')) {
+                $missingFields[] = $field;
+            }
+        }
+
+        if (!empty($missingFields)) {
+            throw new InvalidGameAccountDataException($missingFields);
+        }
     }
 }

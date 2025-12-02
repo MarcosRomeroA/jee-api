@@ -1,30 +1,29 @@
 create_player:
-  path: /player/{id}
-  controller: App\Apps\Web\Player\Create\CreatePlayerController
-  methods: [ PUT ]
-  defaults: { auth: true }
+    path: /player/{id}
+    controller: App\Apps\Web\Player\Create\CreatePlayerController
+    methods: [PUT]
+    defaults: { auth: true }
 
 find_player:
-  path: /player/{id}
-  controller: App\Apps\Web\Player\Find\FindPlayerController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /player/{id}
+    controller: App\Apps\Web\Player\Find\FindPlayerController
+    methods: [GET]
+    defaults: { auth: true }
 
 search_players:
-  path: /players
-  controller: App\Apps\Web\Player\Search\SearchPlayersController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /players
+    controller: App\Apps\Web\Player\Search\SearchPlayersController
+    methods: [GET]
+    defaults: { auth: true }
 
 delete_player:
-  path: /player/{id}
-  controller: App\Apps\Web\Player\Delete\DeletePlayerController
-  methods: [ DELETE ]
-  defaults: { auth: true }
+    path: /player/{id}
+    controller: App\Apps\Web\Player\Delete\DeletePlayerController
+    methods: [DELETE]
+    defaults: { auth: true }
 
 verify_player_rank:
-  path: /player/verify-rank
-  controller: App\Apps\Web\Player\VerifyRank\VerifyPlayerRankController
-  methods: [ POST ]
-  defaults: { auth: true }
-
+    path: /player/{id}/verify-rank
+    controller: App\Apps\Web\Player\VerifyRank\VerifyPlayerRankController
+    methods: [POST]
+    defaults: { auth: false }

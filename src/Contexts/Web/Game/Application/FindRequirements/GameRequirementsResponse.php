@@ -25,9 +25,6 @@ final class GameRequirementsResponse extends Response
 
     public function toArray(): array
     {
-        return [
-            'gameId' => $this->gameId,
-            'requirements' => $this->requirements,
-        ];
+        return $this->requirements;
     }
 }

@@ -139,5 +139,10 @@ services:
     # Alias para usar en la aplicación
     App\Contexts\Web\Player\Domain\Service\RankVerifier: '@App\Contexts\Web\Player\Infrastructure\RankVerification\Decorator\CachedRankVerifier'
 
+    # Tracker.gg API Configuration
+    App\Contexts\Web\Player\Infrastructure\RankVerification\TrackerGg\TrackerGgApiClient:
+        arguments:
+            $apiKey: "%env(TRACKER_GG_API_KEY)%"
+
     # Hashtag Repository
     App\Contexts\Web\Post\Domain\HashtagRepository: '@App\Contexts\Web\Post\Infrastructure\Persistence\MysqlHashtagRepository'

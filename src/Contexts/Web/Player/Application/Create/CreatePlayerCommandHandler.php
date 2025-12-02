@@ -6,7 +6,7 @@ namespace App\Contexts\Web\Player\Application\Create;
 
 use App\Contexts\Shared\Domain\CQRS\Command\CommandHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
+use App\Contexts\Web\Player\Domain\ValueObject\GameAccountDataValue;
 
 final readonly class CreatePlayerCommandHandler implements CommandHandler
 {
@@ -17,14 +17,12 @@ final readonly class CreatePlayerCommandHandler implements CommandHandler
 
     public function __invoke(CreatePlayerCommand $command): void
     {
-        $gameRankId = $command->gameRankId !== null ? new Uuid($command->gameRankId) : null;
-
         $this->creator->create(
             new Uuid($command->id),
             new Uuid($command->userId),
+            new Uuid($command->gameId),
             $command->gameRoleIds,
-            $gameRankId,
-            new UsernameValue($command->username)
+            new GameAccountDataValue($command->accountData),
         );
     }
 }

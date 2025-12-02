@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Web\Player\Application;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Game\Domain\GameAccountRequirementRepository;
 use App\Contexts\Web\Player\Application\Update\PlayerUpdater;
 use App\Contexts\Web\Player\Domain\Exception\PlayerNotFoundException;
 use App\Contexts\Web\Player\Domain\PlayerRepository;
-use App\Tests\Unit\Web\Player\Domain\GameRankMother;
+use App\Contexts\Web\Player\Domain\ValueObject\GameAccountDataValue;
 use App\Tests\Unit\Web\Player\Domain\GameRoleMother;
 use App\Tests\Unit\Web\Player\Domain\PlayerMother;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,28 +20,35 @@ final class PlayerUpdaterTest extends TestCase
 {
     private PlayerRepository|MockObject $repository;
     private EntityManagerInterface|MockObject $entityManager;
+    private GameAccountRequirementRepository|MockObject $gameAccountRequirementRepository;
     private PlayerUpdater $updater;
 
     protected function setUp(): void
     {
         $this->repository = $this->createMock(PlayerRepository::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->gameAccountRequirementRepository = $this->createMock(
+            GameAccountRequirementRepository::class,
+        );
         $this->updater = new PlayerUpdater(
             $this->repository,
             $this->entityManager,
+            $this->gameAccountRequirementRepository,
         );
     }
 
     public function testItShouldUpdateAPlayer(): void
     {
         $id = Uuid::random();
-        $newUsername = "UpdatedGamer456";
         $newGameRoleId = Uuid::random();
-        $newGameRankId = Uuid::random();
+        $newAccountData = new GameAccountDataValue([
+            'region' => 'las',
+            'username' => 'UpdatedRiot',
+            'tag' => '5678',
+        ]);
 
         $player = PlayerMother::create($id);
         $gameRole = GameRoleMother::create($newGameRoleId);
-        $gameRank = GameRankMother::create($newGameRankId);
 
         $this->repository
             ->expects($this->once())
@@ -49,9 +57,14 @@ final class PlayerUpdaterTest extends TestCase
             ->willReturn($player);
 
         $this->entityManager
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method("getReference")
-            ->willReturnOnConsecutiveCalls($gameRole, $gameRank);
+            ->willReturn($gameRole);
+
+        $this->gameAccountRequirementRepository
+            ->expects($this->once())
+            ->method("findByGameId")
+            ->willReturn(null);
 
         $this->repository
             ->expects($this->once())
@@ -60,9 +73,8 @@ final class PlayerUpdaterTest extends TestCase
 
         $this->updater->update(
             $id,
-            $newUsername,
             [$newGameRoleId->value()],
-            $newGameRankId,
+            $newAccountData,
         );
     }
 
@@ -70,6 +82,11 @@ final class PlayerUpdaterTest extends TestCase
     {
         $id = Uuid::random();
         $gameRoleId = Uuid::random();
+        $accountData = new GameAccountDataValue([
+            'region' => 'las',
+            'username' => 'RiotPlayer',
+            'tag' => '1234',
+        ]);
 
         $this->repository
             ->expects($this->once())
@@ -81,9 +98,8 @@ final class PlayerUpdaterTest extends TestCase
 
         $this->updater->update(
             $id,
-            "NewUsername",
             [$gameRoleId->value()],
-            Uuid::random(),
+            $accountData,
         );
     }
 }

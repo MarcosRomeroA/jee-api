@@ -9,17 +9,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class UpdatePlayerRequest extends BaseRequest
 {
-    #[Assert\NotNull, Assert\Type("string")]
-    public mixed $username;
-
     #[Assert\Type("array")]
     public mixed $gameRoleIds;
 
     #[Assert\Type("string")]
     public mixed $gameRoleId;
 
-    #[Assert\Type("string")]
-    public mixed $gameRankId;
+    #[Assert\Type("array")]
+    public mixed $accountData;
 
     public function getGameRoleIds(): array
     {
@@ -32,8 +29,8 @@ final readonly class UpdatePlayerRequest extends BaseRequest
         return [];
     }
 
-    public function getGameRankId(): ?string
+    public function getAccountData(): ?array
     {
-        return $this->gameRankId ?? null;
+        return $this->accountData ?? null;
     }
 }

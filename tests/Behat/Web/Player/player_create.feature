@@ -4,15 +4,48 @@ Feature: Create Player
   As an authenticated user
   I want to create a new player profile
 
-  Scenario: Successfully create a player
+  Scenario: Successfully create a player for Valorant (Riot game)
     Given I am authenticated as "tester1@test.com" with password "12345678"
     When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440100" with body:
       """
       {
         "gameId": "550e8400-e29b-41d4-a716-446655440080",
-        "gameRoleId": "750e8400-e29b-41d4-a716-446655440001",
-        "gameRankId": "850e8400-e29b-41d4-a716-446655440011",
-        "username": "ProGamer123"
+        "gameRoleIds": ["750e8400-e29b-41d4-a716-446655440001"],
+        "accountData": {
+          "region": "las",
+          "username": "RiotPlayer",
+          "tag": "1234"
+        }
+      }
+      """
+    Then the response status code should be 200
+    And the response should be empty
+
+  Scenario: Successfully create a player for CS2 (Steam game)
+    Given I am authenticated as "tester1@test.com" with password "12345678"
+    When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440105" with body:
+      """
+      {
+        "gameId": "550e8400-e29b-41d4-a716-446655440082",
+        "gameRoleIds": ["750e8400-e29b-41d4-a716-446655440010"],
+        "accountData": {
+          "steamId": "76561198012345678"
+        }
+      }
+      """
+    Then the response status code should be 200
+    And the response should be empty
+
+  Scenario: Successfully create a player for CS2 with Steam profile URL
+    Given I am authenticated as "tester1@test.com" with password "12345678"
+    When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440108" with body:
+      """
+      {
+        "gameId": "550e8400-e29b-41d4-a716-446655440082",
+        "gameRoleIds": ["750e8400-e29b-41d4-a716-446655440010"],
+        "accountData": {
+          "steamId": "https://steamcommunity.com/profiles/76561198012345679"
+        }
       }
       """
     Then the response status code should be 200
@@ -24,9 +57,12 @@ Feature: Create Player
       """
       {
         "gameId": "550e8400-e29b-41d4-a716-446655440080",
-        "gameRoleId": "750e8400-e29b-41d4-a716-446655440001",
-        "gameRankId": "850e8400-e29b-41d4-a716-446655440011",
-        "username": "OriginalName"
+        "gameRoleIds": ["750e8400-e29b-41d4-a716-446655440001"],
+        "accountData": {
+          "region": "las",
+          "username": "OriginalRiot",
+          "tag": "0001"
+        }
       }
       """
     Then the response status code should be 200
@@ -34,9 +70,29 @@ Feature: Create Player
       """
       {
         "gameId": "550e8400-e29b-41d4-a716-446655440080",
-        "gameRoleId": "750e8400-e29b-41d4-a716-446655440002",
-        "gameRankId": "850e8400-e29b-41d4-a716-446655440013",
-        "username": "UpdatedName"
+        "gameRoleIds": ["750e8400-e29b-41d4-a716-446655440002"],
+        "accountData": {
+          "region": "las",
+          "username": "UpdatedRiot",
+          "tag": "0002"
+        }
+      }
+      """
+    Then the response status code should be 200
+    And the response should be empty
+
+  Scenario: Successfully create a player with empty roles
+    Given I am authenticated as "tester1@test.com" with password "12345678"
+    When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440109" with body:
+      """
+      {
+        "gameId": "550e8400-e29b-41d4-a716-446655440080",
+        "gameRoleIds": [],
+        "accountData": {
+          "region": "las",
+          "username": "NoRolesPlayer",
+          "tag": "1234"
+        }
       }
       """
     Then the response status code should be 200
@@ -47,7 +103,11 @@ Feature: Create Player
     When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440102" with body:
       """
       {
-        "username": "ProGamer123"
+        "accountData": {
+          "region": "las",
+          "username": "Test",
+          "tag": "1234"
+        }
       }
       """
     Then the response status code should be 422
@@ -58,22 +118,36 @@ Feature: Create Player
       """
       {
         "gameId": "550e8400-e29b-41d4-a716-446655440080",
-        "gameRoleId": "999e9999-e99b-99d9-a999-999999999999",
-        "gameRankId": "850e8400-e29b-41d4-a716-446655440011",
-        "username": "ProGamer123"
+        "gameRoleIds": ["999e9999-e99b-99d9-a999-999999999999"],
+        "accountData": {
+          "region": "las",
+          "username": "RiotPlayer",
+          "tag": "1234"
+        }
       }
       """
     Then the response status code should be 404
 
-  Scenario: Create player with non-existent game rank
+  Scenario: Create player with missing accountData for Riot game
     Given I am authenticated as "tester1@test.com" with password "12345678"
-    When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440104" with body:
+    When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440106" with body:
       """
       {
         "gameId": "550e8400-e29b-41d4-a716-446655440080",
-        "gameRoleId": "750e8400-e29b-41d4-a716-446655440001",
-        "gameRankId": "999e9999-e99b-99d9-a999-999999999999",
-        "username": "ProGamer123"
+        "gameRoleIds": ["750e8400-e29b-41d4-a716-446655440001"],
+        "accountData": {}
       }
       """
-    Then the response status code should be 404
+    Then the response status code should be 422
+
+  Scenario: Create player with missing accountData for Steam game
+    Given I am authenticated as "tester1@test.com" with password "12345678"
+    When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440107" with body:
+      """
+      {
+        "gameId": "550e8400-e29b-41d4-a716-446655440082",
+        "gameRoleIds": ["750e8400-e29b-41d4-a716-446655440010"],
+        "accountData": {}
+      }
+      """
+    Then the response status code should be 422

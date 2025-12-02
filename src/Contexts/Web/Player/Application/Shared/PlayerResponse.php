@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Player\Application\Shared;
 
@@ -7,10 +9,14 @@ use App\Contexts\Web\Player\Domain\Player;
 
 final class PlayerResponse extends Response
 {
+    /**
+     * @param array<string, mixed>|null $accountData
+     */
     public function __construct(
         public readonly string $id,
-        public readonly string $username,
-        public readonly bool $verified
+        public readonly ?string $username,
+        public readonly bool $verified,
+        public readonly ?array $accountData,
     ) {
     }
 
@@ -18,8 +24,9 @@ final class PlayerResponse extends Response
     {
         return new self(
             $player->id()->value(),
-            $player->username()->value(),
-            $player->verified()
+            $player->username(),
+            $player->verified(),
+            $player->accountData()->value(),
         );
     }
 
@@ -28,8 +35,8 @@ final class PlayerResponse extends Response
         return [
             'id' => $this->id,
             'username' => $this->username,
-            'verified' => $this->verified
+            'verified' => $this->verified,
+            'accountData' => $this->accountData,
         ];
     }
 }
-

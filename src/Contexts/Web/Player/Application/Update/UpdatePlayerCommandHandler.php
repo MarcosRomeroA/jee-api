@@ -6,6 +6,7 @@ namespace App\Contexts\Web\Player\Application\Update;
 
 use App\Contexts\Shared\Domain\CQRS\Command\CommandHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Player\Domain\ValueObject\GameAccountDataValue;
 
 final class UpdatePlayerCommandHandler implements CommandHandler
 {
@@ -16,13 +17,10 @@ final class UpdatePlayerCommandHandler implements CommandHandler
 
     public function __invoke(UpdatePlayerCommand $command): void
     {
-        $gameRankId = $command->gameRankId !== null ? new Uuid($command->gameRankId) : null;
-
         $this->updater->update(
             new Uuid($command->id),
-            $command->username,
             $command->gameRoleIds,
-            $gameRankId
+            new GameAccountDataValue($command->accountData),
         );
     }
 }

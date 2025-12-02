@@ -10,13 +10,14 @@ final readonly class CreatePlayerCommand implements Command
 {
     /**
      * @param array<string> $gameRoleIds
+     * @param array<string, mixed>|null $accountData
      */
     public function __construct(
         public string $id,
         public string $userId,
+        public string $gameId,
         public array $gameRoleIds,
-        public ?string $gameRankId,
-        public string $username
+        public ?array $accountData,
     ) {
     }
 }

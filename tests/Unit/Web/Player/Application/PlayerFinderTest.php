@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Player\Application;
 
@@ -24,7 +26,11 @@ final class PlayerFinderTest extends TestCase
     public function testItShouldFindAPlayer(): void
     {
         $id = Uuid::random();
-        $player = PlayerMother::create(id: $id, username: "TestPlayer");
+        $player = PlayerMother::create(id: $id, accountData: [
+            'region' => 'LAS',
+            'username' => 'TestPlayer',
+            'tag' => '1234',
+        ]);
 
         $this->repository
             ->expects($this->once())
@@ -34,7 +40,7 @@ final class PlayerFinderTest extends TestCase
 
         $response = $this->finder->find($id);
 
-        $this->assertEquals($id->value(), $response->id());
+        $this->assertEquals($id->value(), $response->id()->value());
         $this->assertEquals("TestPlayer", $response->username());
         $this->assertFalse($response->verified());
     }

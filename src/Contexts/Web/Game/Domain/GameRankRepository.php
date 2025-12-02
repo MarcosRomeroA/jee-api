@@ -22,4 +22,9 @@ interface GameRankRepository
     public function findByGame(Uuid $gameId): array;
 
     public function existsById(Uuid $id): bool;
+
+    /**
+     * Find a GameRank by game ID and rank name (case-insensitive)
+     */
+    public function findByGameAndRankName(Uuid $gameId, string $rankName, ?int $level = null): ?GameRank;
 }

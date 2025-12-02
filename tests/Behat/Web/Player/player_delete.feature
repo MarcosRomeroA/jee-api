@@ -9,9 +9,13 @@ Feature: Delete Player
     When I send a PUT request to "/api/player/550e8400-e29b-41d4-a716-446655440400" with body:
       """
       {
-        "gameRoleId": "750e8400-e29b-41d4-a716-446655440001",
-        "gameRankId": "850e8400-e29b-41d4-a716-446655440011",
-        "username": "PlayerToDelete"
+        "gameId": "550e8400-e29b-41d4-a716-446655440080",
+        "gameRoleIds": ["750e8400-e29b-41d4-a716-446655440001"],
+        "accountData": {
+          "region": "las",
+          "username": "RiotPlayer",
+          "tag": "1234"
+        }
       }
       """
     Then the response status code should be 200

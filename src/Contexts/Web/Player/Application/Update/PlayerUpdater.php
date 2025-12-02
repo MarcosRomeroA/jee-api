@@ -5,20 +5,21 @@ declare(strict_types=1);
 namespace App\Contexts\Web\Player\Application\Update;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Game\Domain\GameRank;
+use App\Contexts\Web\Game\Domain\GameAccountRequirementRepository;
 use App\Contexts\Web\Game\Domain\GameRole;
-use App\Contexts\Web\Player\Domain\Exception\GameRankNotFoundException;
+use App\Contexts\Web\Player\Domain\Exception\InvalidGameAccountDataException;
 use App\Contexts\Web\Player\Domain\Exception\GameRoleNotFoundException;
 use App\Contexts\Web\Player\Domain\Exception\PlayerNotFoundException;
 use App\Contexts\Web\Player\Domain\PlayerRepository;
-use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
+use App\Contexts\Web\Player\Domain\ValueObject\GameAccountDataValue;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class PlayerUpdater
 {
     public function __construct(
         private readonly PlayerRepository $repository,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly GameAccountRequirementRepository $gameAccountRequirementRepository,
     ) {
     }
 
@@ -27,9 +28,8 @@ final class PlayerUpdater
      */
     public function update(
         Uuid $id,
-        string $username,
         array $gameRoleIds,
-        ?Uuid $gameRankId
+        GameAccountDataValue $accountData,
     ): void {
         $player = $this->repository->findById($id);
         if ($player === null) {
@@ -45,20 +45,40 @@ final class PlayerUpdater
             $gameRoles[] = $gameRole;
         }
 
-        $gameRank = null;
-        if ($gameRankId !== null) {
-            $gameRank = $this->entityManager->getReference(GameRank::class, $gameRankId->value());
-            if ($gameRank === null) {
-                throw new GameRankNotFoundException($gameRankId->value());
-            }
-        }
+        // Get gameId from player's game (direct relation)
+        $gameId = $player->game()->getId();
+
+        // Validate account data against game requirements
+        $this->validateAccountData($gameId, $accountData);
 
         $player->update(
-            new UsernameValue($username),
             $gameRoles,
-            $gameRank
+            $accountData
         );
 
         $this->repository->save($player);
+    }
+
+    private function validateAccountData(Uuid $gameId, GameAccountDataValue $accountData): void
+    {
+        $requirement = $this->gameAccountRequirementRepository->findByGameId($gameId);
+
+        if ($requirement === null) {
+            return;
+        }
+
+        $requirements = $requirement->getRequirements();
+        $data = $accountData->value() ?? [];
+        $missingFields = [];
+
+        foreach ($requirements as $field => $required) {
+            if ($required === true && (!isset($data[$field]) || $data[$field] === '')) {
+                $missingFields[] = $field;
+            }
+        }
+
+        if (!empty($missingFields)) {
+            throw new InvalidGameAccountDataException($missingFields);
+        }
     }
 }

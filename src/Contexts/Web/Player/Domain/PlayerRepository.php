@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Contexts\Web\Player\Domain;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
 
 interface PlayerRepository
 {
@@ -58,9 +57,10 @@ interface PlayerRepository
 
     public function countSearch(?string $query, ?Uuid $gameId, ?Uuid $teamId, ?Uuid $userId): int;
 
-    public function existsByUserIdAndUsernameAndGameId(
+    public function existsByUserIdAndGameId(
         Uuid $userId,
-        UsernameValue $username,
         Uuid $gameId
     ): bool;
+
+    public function countByUserId(Uuid $userId): int;
 }

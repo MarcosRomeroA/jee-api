@@ -58,4 +58,25 @@ final class MysqlGameRankRepository extends ServiceEntityRepository implements G
     {
         return $this->count(["id" => $id]) > 0;
     }
+
+    public function findByGameAndRankName(Uuid $gameId, string $rankName, ?int $level = null): ?GameRank
+    {
+        $qb = $this->createQueryBuilder("gr")
+            ->join("gr.game", "g")
+            ->join("gr.rank", "r")
+            ->andWhere("g.id = :gameId")
+            ->andWhere("LOWER(r.name) = LOWER(:rankName)")
+            ->setParameter("gameId", $gameId->value())
+            ->setParameter("rankName", $rankName);
+
+        if ($level !== null) {
+            $qb->andWhere("gr.level = :level")
+               ->setParameter("level", $level);
+        } else {
+            $qb->orderBy("gr.level", "ASC")
+               ->setMaxResults(1);
+        }
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
 }

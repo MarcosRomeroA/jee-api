@@ -7,8 +7,9 @@ namespace App\Contexts\Web\Player\Domain;
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Player\Domain\Events\PlayerCreatedDomainEvent;
-use App\Contexts\Web\Player\Domain\ValueObject\UsernameValue;
+use App\Contexts\Web\Player\Domain\ValueObject\GameAccountDataValue;
 use App\Contexts\Web\User\Domain\User;
+use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\Game\Domain\GameRole;
 use App\Contexts\Web\Game\Domain\GameRank;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -34,12 +35,25 @@ class Player extends AggregateRoot
     ]
     private User $user;
 
+    #[ORM\ManyToOne(targetEntity: Game::class)]
+    #[
+        ORM\JoinColumn(
+            name: "game_id",
+            referencedColumnName: "id",
+            nullable: false,
+        ),
+    ]
+    private Game $game;
+
     #[ORM\ManyToMany(targetEntity: GameRole::class)]
     #[ORM\JoinTable(name: "player_game_role")]
     #[ORM\JoinColumn(name: "player_id", referencedColumnName: "id")]
     #[ORM\InverseJoinColumn(name: "game_role_id", referencedColumnName: "id")]
     private Collection $gameRoles;
 
+    /**
+     * @deprecated Use accountData instead. This field will always be null for new players.
+     */
     #[ORM\ManyToOne(targetEntity: GameRank::class)]
     #[
         ORM\JoinColumn(
@@ -50,8 +64,8 @@ class Player extends AggregateRoot
     ]
     private ?GameRank $gameRank;
 
-    #[Embedded(class: UsernameValue::class, columnPrefix: false)]
-    private UsernameValue $username;
+    #[Embedded(class: GameAccountDataValue::class, columnPrefix: false)]
+    private GameAccountDataValue $accountData;
 
     #[ORM\Column(type: "boolean", options: ["default" => false])]
     private bool $verified;
@@ -62,19 +76,20 @@ class Player extends AggregateRoot
     /**
      * @param array<GameRole> $gameRoles
      */
-    public function __construct(
+    private function __construct(
         Uuid $id,
         User $user,
+        Game $game,
         array $gameRoles,
-        ?GameRank $gameRank,
-        UsernameValue $username,
+        GameAccountDataValue $accountData,
         bool $verified = false,
     ) {
         $this->id = $id;
         $this->user = $user;
+        $this->game = $game;
         $this->gameRoles = new ArrayCollection($gameRoles);
-        $this->gameRank = $gameRank;
-        $this->username = $username;
+        $this->gameRank = null;
+        $this->accountData = $accountData;
         $this->verified = $verified;
         $this->createdAt = new \DateTimeImmutable();
     }
@@ -85,17 +100,17 @@ class Player extends AggregateRoot
     public static function create(
         Uuid $id,
         User $user,
+        Game $game,
         array $gameRoles,
-        ?GameRank $gameRank,
-        UsernameValue $username,
+        GameAccountDataValue $accountData,
         bool $verified = false,
     ): self {
         $player = new self(
             $id,
             $user,
+            $game,
             $gameRoles,
-            $gameRank,
-            $username,
+            $accountData,
             $verified,
         );
 
@@ -108,13 +123,11 @@ class Player extends AggregateRoot
      * @param array<GameRole> $gameRoles
      */
     public function update(
-        UsernameValue $username,
         array $gameRoles,
-        ?GameRank $gameRank,
+        GameAccountDataValue $accountData,
     ): void {
-        $this->username = $username;
         $this->gameRoles = new ArrayCollection($gameRoles);
-        $this->gameRank = $gameRank;
+        $this->accountData = $accountData;
     }
 
     public function id(): Uuid
@@ -125,6 +138,11 @@ class Player extends AggregateRoot
     public function user(): User
     {
         return $this->user;
+    }
+
+    public function game(): Game
+    {
+        return $this->game;
     }
 
     /**
@@ -157,9 +175,25 @@ class Player extends AggregateRoot
         $this->gameRank = $gameRank;
     }
 
-    public function username(): UsernameValue
+    /**
+     * Returns the display username from accountData.
+     * For Riot games: returns username field
+     * For Steam games: returns steamId
+     */
+    public function username(): ?string
     {
-        return $this->username;
+        // For Riot games, return the username
+        if ($this->accountData->username() !== null) {
+            return $this->accountData->username();
+        }
+
+        // For Steam games, return the steamId
+        return $this->accountData->steamId();
+    }
+
+    public function accountData(): GameAccountDataValue
+    {
+        return $this->accountData;
     }
 
     public function verified(): bool

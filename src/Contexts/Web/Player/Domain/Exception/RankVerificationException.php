@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Player\Domain\Exception;
 
@@ -50,5 +52,31 @@ final class RankVerificationException extends ApiException
             Response::HTTP_TOO_MANY_REQUESTS
         );
     }
-}
 
+    public static function gameNotSupported(string $game): self
+    {
+        return new self(
+            "Game '$game' is not supported for rank verification",
+            "game_not_supported",
+            Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    public static function invalidAccountFormat(string $message): self
+    {
+        return new self(
+            $message,
+            "invalid_account_format",
+            Response::HTTP_BAD_REQUEST
+        );
+    }
+
+    public static function rankNotFound(string $rankName): self
+    {
+        return new self(
+            "Rank '$rankName' not found in database",
+            "rank_not_found",
+            Response::HTTP_NOT_FOUND
+        );
+    }
+}
