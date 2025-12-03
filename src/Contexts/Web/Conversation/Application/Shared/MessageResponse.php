@@ -13,18 +13,22 @@ final class MessageResponse extends Response
         public readonly string $username,
         public readonly bool $mine,
         public readonly string $createdAt,
+        public readonly ?string $readAt,
     )
     {
     }
 
     public static function fromEntity(Message $message, string $sessionUserId): self
     {
+        $readAtValue = $message->getReadAt()->value();
+
         return new self(
             $message->getId()->value(),
             $message->getContent()->value(),
             $message->getUser()->getUsername()->value(),
             $message->getUser()->getId()->value() === $sessionUserId,
             $message->getCreatedAt()->value()->format('c'),
+            $readAtValue?->format('c'),
         );
     }
 

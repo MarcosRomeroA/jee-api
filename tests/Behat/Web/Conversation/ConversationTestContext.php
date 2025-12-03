@@ -199,6 +199,9 @@ final class ConversationTestContext implements Context
             '550e8400-e29b-41d4-a716-446655440051', // message_create test
             '550e8400-e29b-41d4-a716-446655440052', // message_create test
             '550e8400-e29b-41d4-a716-446655440053', // message_create test
+            '550e8400-e29b-41d4-a716-446655440070', // message_mark_as_read test
+            '550e8400-e29b-41d4-a716-446655440071', // message_mark_as_read test
+            '550e8400-e29b-41d4-a716-446655440072', // message_mark_as_read test
             '950e8400-e29b-41d4-a716-446655440999', // notification_mercure test
         ];
 

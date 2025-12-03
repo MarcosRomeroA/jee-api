@@ -8,6 +8,7 @@ use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Conversation\Application\Shared\ConversationsResponse;
 use App\Contexts\Web\Conversation\Domain\ConversationRepository;
+use App\Contexts\Web\Conversation\Domain\MessageRepository;
 use App\Contexts\Web\User\Domain\UserRepository;
 
 final readonly class ConversationsFinder
@@ -15,6 +16,7 @@ final readonly class ConversationsFinder
     public function __construct(
         private UserRepository $userRepository,
         private ConversationRepository $conversationRepository,
+        private MessageRepository $messageRepository,
         private FileManager $fileManager,
     ) {
     }
@@ -25,6 +27,16 @@ final readonly class ConversationsFinder
 
         $conversations = $this->conversationRepository->searchConversations($sessionUser);
 
-        return new ConversationsResponse($conversations, $sessionUser, $this->fileManager);
+        // Calculate unread counts for each conversation
+        $unreadCounts = [];
+        foreach ($conversations as $conversation) {
+            $conversationId = $conversation->getId()->value();
+            $unreadCounts[$conversationId] = $this->messageRepository->countUnreadMessagesForUser(
+                $conversation,
+                $sessionUser
+            );
+        }
+
+        return new ConversationsResponse($conversations, $sessionUser, $this->fileManager, $unreadCounts);
     }
 }

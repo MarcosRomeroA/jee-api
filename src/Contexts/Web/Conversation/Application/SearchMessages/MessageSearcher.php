@@ -30,6 +30,9 @@ final readonly class MessageSearcher
             throw new UserNotExistsInConversationException();
         }
 
+        // Mark all messages from the other participant as read
+        $this->messageRepository->markMessagesAsReadForUser($conversation, $user);
+
         $messages = $this->messageRepository->searchMessages($conversation);
 
         $mercureToken = MercureJwtGenerator::create($_ENV['APP_URL'].'/conversation/'.$conversationId);

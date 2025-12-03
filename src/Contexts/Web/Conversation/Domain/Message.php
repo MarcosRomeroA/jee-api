@@ -13,6 +13,7 @@ use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
 use App\Contexts\Web\Conversation\Domain\ValueObject\ContentValue;
+use App\Contexts\Web\Conversation\Domain\ValueObject\ReadAtValue;
 use App\Contexts\Web\Conversation\Domain\Events\MessageCreatedEvent;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
@@ -32,6 +33,9 @@ class Message extends AggregateRoot
     #[Embedded(class: ContentValue::class, columnPrefix: false)]
     private ContentValue $content;
 
+    #[Embedded(class: ReadAtValue::class, columnPrefix: false)]
+    private ReadAtValue $readAt;
+
     public function __construct(
         Uuid $id,
         Conversation $conversation,
@@ -42,6 +46,7 @@ class Message extends AggregateRoot
         $this->conversation = $conversation;
         $this->user = $user;
         $this->content = $content;
+        $this->readAt = new ReadAtValue(null);
         $this->createdAt = new CreatedAtValue();
         $this->updatedAt = UpdatedAtValue::now();
     }
@@ -87,5 +92,23 @@ class Message extends AggregateRoot
     public function getContent(): ContentValue
     {
         return $this->content;
+    }
+
+    public function getReadAt(): ReadAtValue
+    {
+        return $this->readAt;
+    }
+
+    public function isRead(): bool
+    {
+        return $this->readAt->isRead();
+    }
+
+    public function markAsRead(): void
+    {
+        if (!$this->readAt->isRead()) {
+            $this->readAt = ReadAtValue::now();
+            $this->updatedAt = UpdatedAtValue::now();
+        }
     }
 }

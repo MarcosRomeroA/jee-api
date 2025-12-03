@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Conversation\Application;
 
+use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Conversation\Application\FindConversations\ConversationsFinder;
 use App\Contexts\Web\Conversation\Domain\ConversationRepository;
+use App\Contexts\Web\Conversation\Domain\MessageRepository;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Tests\Unit\Web\Conversation\Domain\ConversationMother;
 use App\Tests\Unit\Web\Conversation\Domain\UserMother;
@@ -17,16 +19,22 @@ final class ConversationsFinderTest extends TestCase
 {
     private UserRepository|MockObject $userRepository;
     private ConversationRepository|MockObject $conversationRepository;
+    private MessageRepository|MockObject $messageRepository;
+    private FileManager|MockObject $fileManager;
     private ConversationsFinder $finder;
 
     protected function setUp(): void
     {
         $this->userRepository = $this->createMock(UserRepository::class);
         $this->conversationRepository = $this->createMock(ConversationRepository::class);
+        $this->messageRepository = $this->createMock(MessageRepository::class);
+        $this->fileManager = $this->createMock(FileManager::class);
 
         $this->finder = new ConversationsFinder(
             $this->userRepository,
-            $this->conversationRepository
+            $this->conversationRepository,
+            $this->messageRepository,
+            $this->fileManager,
         );
     }
 
@@ -54,6 +62,11 @@ final class ConversationsFinderTest extends TestCase
             ->with($sessionUser)
             ->willReturn($conversations);
 
+        $this->messageRepository
+            ->expects($this->exactly(3))
+            ->method('countUnreadMessagesForUser')
+            ->willReturn(0);
+
         // Act
         $response = ($this->finder)($sessionId);
 
@@ -78,6 +91,10 @@ final class ConversationsFinderTest extends TestCase
             ->method('searchConversations')
             ->with($sessionUser)
             ->willReturn([]);
+
+        $this->messageRepository
+            ->expects($this->never())
+            ->method('countUnreadMessagesForUser');
 
         // Act
         $response = ($this->finder)($sessionId);
@@ -107,6 +124,11 @@ final class ConversationsFinderTest extends TestCase
         $this->conversationRepository
             ->method('searchConversations')
             ->willReturn($conversations);
+
+        $this->messageRepository
+            ->expects($this->exactly(5))
+            ->method('countUnreadMessagesForUser')
+            ->willReturn(0);
 
         // Act
         $response = ($this->finder)($sessionId);

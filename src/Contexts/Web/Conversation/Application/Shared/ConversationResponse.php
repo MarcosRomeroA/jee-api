@@ -20,11 +20,16 @@ final class ConversationResponse extends Response
         public readonly ?string $otherProfileImage = null,
         public readonly ?string $lastMessageText = null,
         public readonly ?string $lastMessageDate = null,
+        public readonly int $unreadCount = 0,
     ) {
     }
 
-    public static function fromEntity(Conversation $conversation, ?User $currentUser = null, ?FileManager $fileManager = null): self
-    {
+    public static function fromEntity(
+        Conversation $conversation,
+        ?User $currentUser = null,
+        ?FileManager $fileManager = null,
+        int $unreadCount = 0,
+    ): self {
         $otherUserId = null;
         $otherUsername = null;
         $otherFirstname = null;
@@ -60,6 +65,7 @@ final class ConversationResponse extends Response
             $otherProfileImage,
             $lastMessageText,
             $lastMessageDate,
+            $unreadCount,
         );
     }
 

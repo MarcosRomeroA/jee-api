@@ -1,23 +1,29 @@
 find_conversation_by_other_user:
-  path: /conversation/by-other-user/{id}
-  controller: App\Apps\Web\Conversation\FindByOtherUser\FindConversationByOtherUserIdController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /conversation/by-other-user/{id}
+    controller: App\Apps\Web\Conversation\FindByOtherUser\FindConversationByOtherUserIdController
+    methods: [GET]
+    defaults: { auth: true }
 
 find_all_active_conversations:
-  path: /conversations
-  controller: App\Apps\Web\Conversation\FindConversations\FindConversationsController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /conversations
+    controller: App\Apps\Web\Conversation\FindConversations\FindConversationsController
+    methods: [GET]
+    defaults: { auth: true }
 
 create_message:
-  path: /conversation/{conversationId}/message/{messageId}
-  controller: App\Apps\Web\Conversation\CreateMessage\CreateMessageController
-  methods: [ PUT ]
-  defaults: { auth: true }
+    path: /conversation/{conversationId}/message/{messageId}
+    controller: App\Apps\Web\Conversation\CreateMessage\CreateMessageController
+    methods: [PUT]
+    defaults: { auth: true }
 
 search_messages:
-  path: /conversation/{conversationId}/messages
-  controller: App\Apps\Web\Conversation\SearchMessages\SearchMessagesController
-  methods: [ GET ]
-  defaults: { auth: true }
+    path: /conversation/{conversationId}/messages
+    controller: App\Apps\Web\Conversation\SearchMessages\SearchMessagesController
+    methods: [GET]
+    defaults: { auth: true }
+
+mark_message_as_read:
+    path: /conversation/{conversationId}/message/{messageId}/mark-as-read
+    controller: App\Apps\Web\Conversation\MarkMessageAsRead\MarkMessageAsReadController
+    methods: [PUT]
+    defaults: { auth: true }
