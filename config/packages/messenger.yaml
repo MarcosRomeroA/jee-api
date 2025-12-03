@@ -68,5 +68,5 @@ framework:
             sync: "sync://"
 
         routing:
-            'App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent': low_priority
+            'App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent': high_priority
             'App\Contexts\Web\Player\Domain\Events\PlayerCreatedDomainEvent': low_priority

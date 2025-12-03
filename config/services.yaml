@@ -133,3 +133,17 @@ services:
 
     # Hashtag Repository
     App\Contexts\Web\Post\Domain\HashtagRepository: '@App\Contexts\Web\Post\Infrastructure\Persistence\MysqlHashtagRepository'
+
+    # Post Moderation - OpenAI Text Moderation
+    App\Contexts\Web\Post\Infrastructure\Moderation\OpenAi\OpenAiTextModerationService:
+        arguments:
+            $apiKey: "%env(OPENAI_API_KEY)%"
+
+    App\Contexts\Web\Post\Domain\Moderation\TextModerationService: '@App\Contexts\Web\Post\Infrastructure\Moderation\OpenAi\OpenAiTextModerationService'
+
+    # Post Moderation - OpenAI Image Moderation
+    App\Contexts\Web\Post\Infrastructure\Moderation\OpenAi\OpenAiImageModerationService:
+        arguments:
+            $apiKey: "%env(OPENAI_API_KEY)%"
+
+    App\Contexts\Web\Post\Domain\Moderation\ImageModerationService: '@App\Contexts\Web\Post\Infrastructure\Moderation\OpenAi\OpenAiImageModerationService'
