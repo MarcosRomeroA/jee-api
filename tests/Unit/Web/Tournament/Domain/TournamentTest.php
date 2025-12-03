@@ -23,6 +23,7 @@ final class TournamentTest extends TestCase
             GameMother::random(),
             TournamentStatusMother::active(),
             UserMother::random(),
+            UserMother::random(),
             $name,
             'Championship description',
             'Championship rules',

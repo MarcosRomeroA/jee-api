@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Notification\Application;
 
+use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\Notification\Application\Search\NotificationSearcher;
 use App\Contexts\Web\Notification\Domain\NotificationRepository;
 use App\Tests\Unit\Web\Notification\Domain\NotificationMother;
@@ -13,12 +14,14 @@ use PHPUnit\Framework\TestCase;
 final class NotificationSearcherTest extends TestCase
 {
     private NotificationRepository|MockObject $repository;
+    private FileManager|MockObject $fileManager;
     private NotificationSearcher $searcher;
 
     protected function setUp(): void
     {
         $this->repository = $this->createMock(NotificationRepository::class);
-        $this->searcher = new NotificationSearcher($this->repository);
+        $this->fileManager = $this->createMock(FileManager::class);
+        $this->searcher = new NotificationSearcher($this->repository, $this->fileManager);
     }
 
     public function testItShouldSearchNotificationsWithCriteria(): void

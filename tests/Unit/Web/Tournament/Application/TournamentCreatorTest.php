@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Tournament\Application;
 
+use App\Contexts\Shared\Domain\FileManager\ImageUploader;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\GameRankRepository;
 use App\Contexts\Web\Game\Domain\GameRepository;
 use App\Contexts\Web\Tournament\Application\Create\TournamentCreator;
-use App\Contexts\Web\Tournament\Application\Shared\TournamentImageUploader;
 use App\Contexts\Web\Tournament\Domain\Exception\GameNotFoundException;
 use App\Contexts\Web\Tournament\Domain\Tournament;
 use App\Contexts\Web\Tournament\Domain\TournamentRepository;
@@ -28,7 +28,7 @@ final class TournamentCreatorTest extends TestCase
     private UserRepository|MockObject $userRepository;
     private TournamentStatusRepository|MockObject $statusRepository;
     private GameRankRepository|MockObject $gameRankRepository;
-    private TournamentImageUploader $imageUploader;
+    private ImageUploader|MockObject $imageUploader;
     private TournamentCreator $creator;
 
     protected function setUp(): void
@@ -44,11 +44,7 @@ final class TournamentCreatorTest extends TestCase
         $this->gameRankRepository = $this->createMock(
             GameRankRepository::class,
         );
-
-        // TournamentImageUploader is final readonly, so we need to create a real instance
-        $fileManager = $this->createMock(\App\Contexts\Shared\Domain\FileManager\FileManager::class);
-        $kernel = $this->createMock(\Symfony\Component\HttpKernel\KernelInterface::class);
-        $this->imageUploader = new TournamentImageUploader($fileManager, $kernel);
+        $this->imageUploader = $this->createMock(ImageUploader::class);
 
         $this->creator = new TournamentCreator(
             $this->tournamentRepository,
@@ -65,6 +61,7 @@ final class TournamentCreatorTest extends TestCase
         $id = Uuid::random();
         $gameId = Uuid::random();
         $responsibleId = Uuid::random();
+        $creatorId = Uuid::random();
         $name = "Championship 2025";
         $maxTeams = 16;
         $startAt = new \DateTimeImmutable("+1 day");
@@ -72,6 +69,7 @@ final class TournamentCreatorTest extends TestCase
 
         $game = GameMother::create($gameId);
         $responsible = UserMother::create($responsibleId);
+        $creator = UserMother::create($creatorId);
         $status = TournamentStatusMother::created();
 
         // First, findById is called to check if tournament exists (upsert logic)
@@ -89,10 +87,17 @@ final class TournamentCreatorTest extends TestCase
             ->willReturn($game);
 
         $this->userRepository
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method("findById")
-            ->with($responsibleId)
-            ->willReturn($responsible);
+            ->willReturnCallback(function (Uuid $id) use ($responsibleId, $creatorId, $responsible, $creator) {
+                if ($id->equals($responsibleId)) {
+                    return $responsible;
+                }
+                if ($id->equals($creatorId)) {
+                    return $creator;
+                }
+                throw new \Exception("User not found");
+            });
 
         $this->statusRepository
             ->expects($this->once())
@@ -121,6 +126,7 @@ final class TournamentCreatorTest extends TestCase
             $name,
             false,
             $responsibleId,
+            $creatorId,
             "Tournament description",
             "Tournament rules",
             $maxTeams,
@@ -137,6 +143,7 @@ final class TournamentCreatorTest extends TestCase
         $id = Uuid::random();
         $gameId = Uuid::random();
         $responsibleId = Uuid::random();
+        $creatorId = Uuid::random();
 
         // First, findById is called to check if tournament exists (upsert logic)
         $this->tournamentRepository
@@ -159,6 +166,7 @@ final class TournamentCreatorTest extends TestCase
             "Tournament Name",
             false,
             $responsibleId,
+            $creatorId,
             null,
             null,
             16,
@@ -175,6 +183,7 @@ final class TournamentCreatorTest extends TestCase
         $id = Uuid::random();
         $gameId = Uuid::random();
         $responsibleId = Uuid::random();
+        $creatorId = Uuid::random();
 
         $game = GameMother::create($gameId);
 
@@ -205,6 +214,7 @@ final class TournamentCreatorTest extends TestCase
             "Tournament Name",
             false,
             $responsibleId,
+            $creatorId,
             null,
             null,
             16,

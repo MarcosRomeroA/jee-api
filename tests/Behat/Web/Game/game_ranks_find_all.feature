@@ -11,6 +11,7 @@ Feature: Find All Game Ranks
     And the response should have a "data" property
     And the "data" property should be an array containing objects with properties "id, rankId, rankName, level"
 
-  Scenario: Try to get ranks without authentication
+  Scenario: Get ranks without authentication (public endpoint)
     When I send a GET request to "/api/game/550e8400-e29b-41d4-a716-446655440080/ranks"
-    Then the response status code should be 401
+    Then the response status code should be 200
+    And the response should have a "data" property
