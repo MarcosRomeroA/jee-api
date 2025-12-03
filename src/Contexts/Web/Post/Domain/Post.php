@@ -67,6 +67,9 @@ class Post extends AggregateRoot
     ]
     private Collection $hashtags;
 
+    #[ORM\OneToMany(targetEntity: PostMention::class, mappedBy: 'post', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $mentions;
+
     #[ORM\Column(type: "boolean", options: ["default" => false])]
     private bool $disabled = false;
 
@@ -100,6 +103,7 @@ class Post extends AggregateRoot
         $this->likes = new ArrayCollection();
         $this->resources = new ArrayCollection();
         $this->hashtags = new ArrayCollection();
+        $this->mentions = new ArrayCollection();
         $this->resourceUrls = [];
     }
 
@@ -277,6 +281,25 @@ class Post extends AggregateRoot
     public function clearHashtags(): void
     {
         $this->hashtags->clear();
+    }
+
+    public function addMention(PostMention $mention): self
+    {
+        if (!$this->mentions->contains($mention)) {
+            $this->mentions[] = $mention;
+        }
+
+        return $this;
+    }
+
+    public function getMentions(): Collection
+    {
+        return $this->mentions;
+    }
+
+    public function clearMentions(): void
+    {
+        $this->mentions->clear();
     }
 
     public function hasBeenSharedByUser(): bool
