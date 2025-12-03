@@ -12,6 +12,14 @@ use App\Contexts\Web\Team\Domain\ValueObject\TeamDescriptionValue;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamImageValue;
 use App\Contexts\Web\Tournament\Domain\Tournament;
 use App\Contexts\Web\Tournament\Domain\TournamentTeam;
+use App\Contexts\Web\Team\Domain\Roster;
+use App\Contexts\Web\Team\Domain\RosterPlayer;
+use App\Contexts\Web\Team\Domain\ValueObject\RosterNameValue;
+use App\Contexts\Web\Team\Domain\ValueObject\RosterDescriptionValue;
+use App\Contexts\Web\Team\Domain\ValueObject\RosterLogoValue;
+use App\Contexts\Web\Player\Domain\Player;
+use App\Contexts\Web\Player\Domain\ValueObject\GameAccountDataValue;
+use App\Contexts\Web\Game\Domain\GameRepository;
 use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\User\Domain\UserRepository;
 use Behat\Behat\Context\Context;
@@ -29,10 +37,13 @@ final class TeamTestContext implements Context
     private array $createdGameIds = [];
     private array $createdPlayerIds = [];
     private array $createdTeamIds = [];
+    private array $createdRosterIds = [];
+    private array $createdRosterPlayerIds = [];
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
+        private readonly GameRepository $gameRepository,
     ) {
     }
 
@@ -43,6 +54,8 @@ final class TeamTestContext implements Context
         $this->createdGameIds = [];
         $this->createdPlayerIds = [];
         $this->createdTeamIds = [];
+        $this->createdRosterIds = [];
+        $this->createdRosterPlayerIds = [];
 
         /** @var Connection $connection */
         $connection = $this->entityManager->getConnection();
@@ -83,8 +96,11 @@ final class TeamTestContext implements Context
 
     private function createPlayers(Connection $connection): void
     {
-        // Usar game_rank de la migración: Valorant Gold 2 (ID: 850e8400-e29b-41d4-a716-446655440011)
-        // Usar game_role de la migración: Valorant Duelist (ID: 750e8400-e29b-41d4-a716-446655440001)
+        // Player schema now uses game_id and account_data JSON instead of username and game_rank_id
+        // Using Valorant game from migration: 550e8400-e29b-41d4-a716-446655440080
+        // Using Valorant Duelist game_role from migration: 750e8400-e29b-41d4-a716-446655440001
+
+        $valorantGameId = "550e8400-e29b-41d4-a716-446655440080";
 
         // Obtener usuarios creados dinámicamente por el test
         $users = $connection->fetchAllAssociative(
@@ -102,14 +118,20 @@ final class TeamTestContext implements Context
             );
 
             if ($playerExists == 0) {
+                $accountData = json_encode([
+                    'username' => $username,
+                    'tag' => 'TEST',
+                    'region' => 'las',
+                ]);
+
                 $connection->executeStatement(
-                    "INSERT INTO player (id, user_id, game_rank_id, username, verified, created_at)
-                     VALUES (:id, :userId, :gameRankId, :username, :verified, NOW())",
+                    "INSERT INTO player (id, user_id, game_id, account_data, verified, created_at)
+                     VALUES (:id, :userId, :gameId, :accountData, :verified, NOW())",
                     [
                         "id" => $userId,
                         "userId" => $userId,
-                        "gameRankId" => "850e8400-e29b-41d4-a716-446655440011", // Valorant Gold 2 (migración)
-                        "username" => $username,
+                        "gameId" => $valorantGameId,
+                        "accountData" => $accountData,
                         "verified" => 0,
                     ],
                 );
@@ -239,6 +261,18 @@ final class TeamTestContext implements Context
         $connection = $this->entityManager->getConnection();
 
         try {
+            // 0. Limpiar roster_player primero (FK a roster)
+            $connection->executeStatement("DELETE FROM roster_player");
+        } catch (\Exception $e) {
+        }
+
+        try {
+            // 0b. Limpiar roster (FK a team)
+            $connection->executeStatement("DELETE FROM roster");
+        } catch (\Exception $e) {
+        }
+
+        try {
             // 1. Limpiar team_requests
             $connection->executeStatement("DELETE FROM team_request");
         } catch (\Exception $e) {
@@ -334,6 +368,8 @@ final class TeamTestContext implements Context
         $this->createdGameIds = [];
         $this->createdPlayerIds = [];
         $this->createdTeamIds = [];
+        $this->createdRosterIds = [];
+        $this->createdRosterPlayerIds = [];
 
         $this->entityManager->clear();
     }
@@ -465,5 +501,291 @@ final class TeamTestContext implements Context
         $team->setLeader($user);
 
         $this->entityManager->flush();
+    }
+
+    /**
+     * @Given team :teamId has game :gameId
+     */
+    public function teamHasGame(string $teamId, string $gameId): void
+    {
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        $team = $this->entityManager->find(Team::class, new Uuid($teamId));
+        if (!$team) {
+            throw new \RuntimeException("Team with id $teamId not found");
+        }
+
+        $game = $this->gameRepository->findById(new Uuid($gameId));
+
+        $team->addGame($game);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @Given a roster :rosterId exists for team :teamId with game :gameId and name :name
+     */
+    public function aRosterExistsForTeamWithGameAndName(string $rosterId, string $teamId, string $gameId, string $name): void
+    {
+        $team = $this->entityManager->find(Team::class, new Uuid($teamId));
+        if (!$team) {
+            throw new \RuntimeException("Team with id $teamId not found");
+        }
+
+        $game = $this->gameRepository->findById(new Uuid($gameId));
+
+        $roster = Roster::create(
+            new Uuid($rosterId),
+            $team,
+            $game,
+            new RosterNameValue($name),
+            new RosterDescriptionValue(null),
+            new RosterLogoValue(null),
+        );
+
+        $this->entityManager->persist($roster);
+        $this->entityManager->flush();
+        $this->createdRosterIds[] = $rosterId;
+    }
+
+    /**
+     * @Given user :email is a member of team :teamId
+     */
+    public function userIsAMemberOfTeam(string $email, string $teamId): void
+    {
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        $userId = $connection->fetchOne(
+            "SELECT id FROM user WHERE email = :email",
+            ["email" => $email]
+        );
+
+        if (!$userId) {
+            throw new \RuntimeException("User with email $email not found");
+        }
+
+        $team = $this->entityManager->find(Team::class, new Uuid($teamId));
+        if (!$team) {
+            throw new \RuntimeException("Team with id $teamId not found");
+        }
+
+        $user = $this->userRepository->findById(new Uuid($userId));
+
+        // Check if already a member
+        if (!$team->isMember(new Uuid($userId))) {
+            $team->addMember($user);
+            $this->entityManager->flush();
+        }
+    }
+
+    /**
+     * @Given a player :playerId exists for user :email with game :gameId
+     */
+    public function aPlayerExistsForUserWithGame(string $playerId, string $email, string $gameId): void
+    {
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        $userId = $connection->fetchOne(
+            "SELECT id FROM user WHERE email = :email",
+            ["email" => $email]
+        );
+
+        if (!$userId) {
+            throw new \RuntimeException("User with email $email not found");
+        }
+
+        $playerExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM player WHERE id = :id",
+            ["id" => $playerId]
+        );
+
+        if (!$playerExists) {
+            $user = $this->userRepository->findById(new Uuid($userId));
+            $game = $this->gameRepository->findById(new Uuid($gameId));
+
+            $player = Player::create(
+                new Uuid($playerId),
+                $user,
+                $game,
+                [],
+                new GameAccountDataValue(['username' => 'TestPlayer', 'tag' => 'TEST', 'region' => 'las']),
+                false,
+            );
+
+            $this->entityManager->persist($player);
+            $this->entityManager->flush();
+            $this->createdPlayerIds[] = $playerId;
+        }
+    }
+
+    /**
+     * @Given player :playerId is in roster :rosterId
+     */
+    public function playerIsInRoster(string $playerId, string $rosterId): void
+    {
+        $roster = $this->entityManager->find(Roster::class, new Uuid($rosterId));
+        if (!$roster) {
+            throw new \RuntimeException("Roster with id $rosterId not found");
+        }
+
+        $player = $this->entityManager->find(Player::class, new Uuid($playerId));
+        if (!$player) {
+            throw new \RuntimeException("Player with id $playerId not found");
+        }
+
+        $rosterPlayer = new RosterPlayer(
+            Uuid::random(),
+            $roster,
+            $player,
+            false,
+            false,
+            null,
+        );
+
+        $this->entityManager->persist($rosterPlayer);
+        $this->entityManager->flush();
+        $this->createdRosterPlayerIds[] = $rosterPlayer->getId()->value();
+    }
+
+    /**
+     * @Given roster :rosterId has 5 starters
+     */
+    public function rosterHas5Starters(string $rosterId): void
+    {
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        $roster = $this->entityManager->find(Roster::class, new Uuid($rosterId));
+        if (!$roster) {
+            throw new \RuntimeException("Roster with id $rosterId not found");
+        }
+
+        $gameId = $roster->getGame()->getId()->value();
+        $teamId = $roster->getTeam()->getId()->value();
+
+        // Get a user who is a member of the team
+        $userId = $connection->fetchOne(
+            "SELECT user_id FROM team_user WHERE team_id = :teamId LIMIT 1",
+            ["teamId" => $teamId]
+        );
+
+        if (!$userId) {
+            throw new \RuntimeException("No team member found for team $teamId");
+        }
+
+        // Create 5 players and add them as starters
+        for ($i = 1; $i <= 5; $i++) {
+            $dummyPlayerId = "c60e8400-e29b-41d4-a716-44665544000$i";
+
+            // Create player
+            $playerExists = $connection->fetchOne(
+                "SELECT COUNT(*) FROM player WHERE id = :id",
+                ["id" => $dummyPlayerId]
+            );
+
+            if (!$playerExists) {
+                $user = $this->userRepository->findById(new Uuid($userId));
+                $game = $this->gameRepository->findById(new Uuid($gameId));
+
+                $player = Player::create(
+                    new Uuid($dummyPlayerId),
+                    $user,
+                    $game,
+                    [],
+                    new GameAccountDataValue(['username' => "Starter$i", 'tag' => "ST$i", 'region' => 'las']),
+                    false,
+                );
+
+                $this->entityManager->persist($player);
+                $this->createdPlayerIds[] = $dummyPlayerId;
+            } else {
+                $player = $this->entityManager->find(Player::class, new Uuid($dummyPlayerId));
+            }
+
+            // Add as roster player (starter)
+            $rosterPlayer = new RosterPlayer(
+                Uuid::random(),
+                $roster,
+                $player,
+                true, // isStarter
+                false,
+                null,
+            );
+
+            $this->entityManager->persist($rosterPlayer);
+            $this->createdRosterPlayerIds[] = $rosterPlayer->getId()->value();
+        }
+
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @Given roster :rosterId has a leader
+     */
+    public function rosterHasALeader(string $rosterId): void
+    {
+        /** @var Connection $connection */
+        $connection = $this->entityManager->getConnection();
+
+        $roster = $this->entityManager->find(Roster::class, new Uuid($rosterId));
+        if (!$roster) {
+            throw new \RuntimeException("Roster with id $rosterId not found");
+        }
+
+        $gameId = $roster->getGame()->getId()->value();
+        $teamId = $roster->getTeam()->getId()->value();
+
+        // Get a user who is a member of the team
+        $userId = $connection->fetchOne(
+            "SELECT user_id FROM team_user WHERE team_id = :teamId LIMIT 1",
+            ["teamId" => $teamId]
+        );
+
+        if (!$userId) {
+            throw new \RuntimeException("No team member found for team $teamId");
+        }
+
+        $leaderPlayerId = "d60e8400-e29b-41d4-a716-446655440099";
+
+        // Create player for leader
+        $playerExists = $connection->fetchOne(
+            "SELECT COUNT(*) FROM player WHERE id = :id",
+            ["id" => $leaderPlayerId]
+        );
+
+        if (!$playerExists) {
+            $user = $this->userRepository->findById(new Uuid($userId));
+            $game = $this->gameRepository->findById(new Uuid($gameId));
+
+            $player = Player::create(
+                new Uuid($leaderPlayerId),
+                $user,
+                $game,
+                [],
+                new GameAccountDataValue(['username' => 'LeaderPlayer', 'tag' => 'LDR', 'region' => 'las']),
+                false,
+            );
+
+            $this->entityManager->persist($player);
+            $this->createdPlayerIds[] = $leaderPlayerId;
+        } else {
+            $player = $this->entityManager->find(Player::class, new Uuid($leaderPlayerId));
+        }
+
+        // Add as roster player (leader)
+        $rosterPlayer = new RosterPlayer(
+            Uuid::random(),
+            $roster,
+            $player,
+            false,
+            true, // isLeader
+            null,
+        );
+
+        $this->entityManager->persist($rosterPlayer);
+        $this->entityManager->flush();
+        $this->createdRosterPlayerIds[] = $rosterPlayer->getId()->value();
     }
 }

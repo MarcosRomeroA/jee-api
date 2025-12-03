@@ -33,6 +33,7 @@ final class TournamentCreator
         string $name,
         bool $isOfficial,
         Uuid $responsibleId,
+        Uuid $creatorId,
         ?string $description = null,
         ?string $rules = null,
         ?int $maxTeams = null,
@@ -73,6 +74,7 @@ final class TournamentCreator
             // Tournament doesn't exist, create new one
             $game = $this->gameRepository->findById($gameId);
             $responsible = $this->userRepository->findById($responsibleId);
+            $creator = $this->userRepository->findById($creatorId);
 
             $status = $this->statusRepository->findById(
                 new Uuid(TournamentStatus::CREATED),
@@ -96,13 +98,12 @@ final class TournamentCreator
             // Process image for create
             $imageFilename = $this->processImage($id->value(), $image);
 
-            // Creator is the same as responsible when creating
             $tournament = new Tournament(
                 $id,
                 $game,
                 $status,
                 $responsible,
-                $responsible, // creator = responsible on creation
+                $creator,
                 $name,
                 $description,
                 $rules,

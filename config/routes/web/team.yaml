@@ -99,3 +99,41 @@ find_team_background_image:
     controller: App\Apps\Web\Team\FindBackgroundImage\FindTeamBackgroundImageController
     methods: [GET]
     defaults: { auth: true }
+
+# Roster routes
+create_roster:
+    path: /team/{teamId}/roster/{rosterId}
+    controller: App\Apps\Web\Team\CreateRoster\CreateRosterController
+    methods: [PUT]
+    defaults: { auth: true }
+
+delete_roster:
+    path: /team/{teamId}/roster/{rosterId}
+    controller: App\Apps\Web\Team\DeleteRoster\DeleteRosterController
+    methods: [DELETE]
+    defaults: { auth: true }
+
+search_rosters:
+    path: /team/{teamId}/rosters
+    controller: App\Apps\Web\Team\SearchRosters\SearchRostersController
+    methods: [GET]
+    defaults: { auth: true }
+
+# Roster Player routes
+add_player_to_roster:
+    path: /team/{teamId}/roster/{rosterId}/player/{rosterPlayerId}
+    controller: App\Apps\Web\Team\AddPlayerToRoster\AddPlayerToRosterController
+    methods: [PUT]
+    defaults: { auth: true }
+
+remove_player_from_roster:
+    path: /team/{teamId}/roster/{rosterId}/player/{playerId}
+    controller: App\Apps\Web\Team\RemovePlayerFromRoster\RemovePlayerFromRosterController
+    methods: [DELETE]
+    defaults: { auth: true }
+
+search_roster_players:
+    path: /team/{teamId}/roster/{rosterId}/players
+    controller: App\Apps\Web\Team\SearchRosterPlayers\SearchRosterPlayersController
+    methods: [GET]
+    defaults: { auth: true }

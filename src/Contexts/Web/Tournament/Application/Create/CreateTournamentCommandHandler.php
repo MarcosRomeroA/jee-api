@@ -21,6 +21,7 @@ final class CreateTournamentCommandHandler implements CommandHandler
             $command->name,
             $command->isOfficial,
             new Uuid($command->responsibleId),
+            new Uuid($command->creatorId),
             $command->description,
             $command->rules,
             $command->maxTeams,

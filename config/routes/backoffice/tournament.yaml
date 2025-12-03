@@ -1,16 +1,22 @@
-search_tournaments:
+backoffice_create_tournament:
+  path: /tournament/{id}
+  controller: App\Apps\Backoffice\Tournament\Create\CreateTournamentController
+  methods: [PUT]
+  defaults: { auth_admin: true }
+
+backoffice_search_tournaments:
   path: /tournaments
   controller: App\Apps\Backoffice\Tournament\Search\SearchTournamentsController
   methods: [GET]
   defaults: { auth_admin: true }
 
-disable_tournament:
+backoffice_disable_tournament:
   path: /tournament/{id}/disable
   controller: App\Apps\Backoffice\Tournament\Disable\DisableTournamentController
   methods: [POST]
   defaults: { auth_admin: true }
 
-enable_tournament:
+backoffice_enable_tournament:
   path: /tournament/{id}/enable
   controller: App\Apps\Backoffice\Tournament\Enable\EnableTournamentController
   methods: [POST]

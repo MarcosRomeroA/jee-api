@@ -14,6 +14,7 @@ final readonly class CreateTournamentCommand implements Command
         public string $name,
         public bool $isOfficial,
         public string $responsibleId,
+        public string $creatorId,
         public ?string $description = null,
         public ?string $rules = null,
         public ?int $maxTeams = null,

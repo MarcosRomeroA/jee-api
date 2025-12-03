@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Apps\Web\Tournament\Create;
+namespace App\Apps\Backoffice\Tournament\Create;
 
 use App\Contexts\Web\Tournament\Application\Create\CreateTournamentCommand;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,17 +14,11 @@ final readonly class CreateTournamentRequest
         #[Assert\NotBlank] #[Assert\Type("string")] public string $id,
         #[Assert\NotBlank] #[Assert\Type("string")] public string $gameId,
         #[Assert\NotBlank] #[Assert\Type("string")] public string $name,
-        #[Assert\Type("bool")] public bool $isOfficial,
-        #[Assert\NotBlank] #[
-            Assert\Type("string"),
-        ]
-        public string $responsibleId,
+        #[Assert\NotBlank] #[Assert\Type("string")] public string $responsibleId,
+        #[Assert\NotBlank] #[Assert\Type("string")] public string $creatorId,
         #[Assert\Type("string")] public ?string $description = null,
         #[Assert\Type("string")] public ?string $rules = null,
-        #[Assert\Type("int")] #[
-            Assert\GreaterThan(0),
-        ]
-        public ?int $maxTeams = null,
+        #[Assert\Type("int")] #[Assert\GreaterThan(0)] public ?int $maxTeams = null,
         #[Assert\Type("string")] public ?string $image = null,
         #[Assert\Type("string")] public ?string $prize = null,
         #[Assert\Type("string")] public ?string $region = null,
@@ -35,19 +29,16 @@ final readonly class CreateTournamentRequest
     ) {
     }
 
-    public static function fromHttp(
-        Request $request,
-        string $id,
-        string $sessionId,
-    ): self {
+    public static function fromHttp(Request $request, string $id): self
+    {
         $data = json_decode($request->getContent(), true);
 
         return new self(
             $id,
             $data["gameId"] ?? "",
             $data["name"] ?? "",
-            filter_var($data["isOfficial"] ?? false, FILTER_VALIDATE_BOOLEAN),
-            $data["responsibleId"] ?? $sessionId,
+            $data["responsibleId"] ?? "",
+            $data["creatorId"] ?? "",
             $data["description"] ?? null,
             $data["rules"] ?? null,
             isset($data["maxTeams"]) ? (int) $data["maxTeams"] : null,
@@ -67,9 +58,9 @@ final readonly class CreateTournamentRequest
             $this->id,
             $this->gameId,
             $this->name,
-            $this->isOfficial,
+            true, // Always official from backoffice
             $this->responsibleId,
-            $this->responsibleId, // creatorId is same as responsibleId in web
+            $this->creatorId,
             $this->description,
             $this->rules,
             $this->maxTeams,
@@ -83,3 +74,4 @@ final readonly class CreateTournamentRequest
         );
     }
 }
+
