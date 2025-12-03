@@ -137,7 +137,8 @@ final class TournamentTestContext implements Context
                 $tournamentId,
                 $game,
                 $status,
-                $user,
+                $user, // responsible
+                $user, // creator
                 "Summer Championship 2025",
                 "Annual summer tournament",
                 "Standard tournament rules apply",

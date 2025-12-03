@@ -9,6 +9,7 @@ use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\GameAccountRequirementRepository;
 use App\Contexts\Web\Game\Domain\GameRepository;
 use App\Contexts\Web\Game\Domain\GameRoleRepository;
+use App\Contexts\Web\Player\Domain\Exception\GameAccountAlreadyInUseException;
 use App\Contexts\Web\Player\Domain\Exception\InvalidGameAccountDataException;
 use App\Contexts\Web\Player\Domain\Exception\MaxPlayersPerUserExceededException;
 use App\Contexts\Web\Player\Domain\Exception\PlayerAlreadyExistsException;
@@ -54,6 +55,10 @@ final readonly class PlayerCreator
         // Check if player exists without throwing exception
         try {
             $player = $this->playerRepository->findById($id);
+
+            // Validate game account is not already used by same user for same game (for updates)
+            $this->validateGameAccountNotInUseByUser($gameId, $userId, $accountData, $id);
+
             $player->update($gameRoles, $accountData);
         } catch (\Exception $e) {
             // Player doesn't exist, create new one
@@ -65,6 +70,9 @@ final readonly class PlayerCreator
             ) {
                 throw new PlayerAlreadyExistsException();
             }
+
+            // Validate game account is not already used by same user for same game (for creates)
+            $this->validateGameAccountNotInUseByUser($gameId, $userId, $accountData, null);
 
             // Check max players per user limit (8)
             $currentPlayerCount = $this->playerRepository->countByUserId($userId);
@@ -110,6 +118,28 @@ final readonly class PlayerCreator
 
         if (!empty($missingFields)) {
             throw new InvalidGameAccountDataException($missingFields);
+        }
+    }
+
+    private function validateGameAccountNotInUseByUser(Uuid $gameId, Uuid $userId, GameAccountDataValue $accountData, ?Uuid $excludePlayerId): void
+    {
+        // Check for Steam ID duplicates within the same user
+        $steamId = $accountData->steamId();
+        if ($steamId !== null && $steamId !== '') {
+            $existingPlayer = $this->playerRepository->findBySteamIdAndGameForUser($steamId, $gameId, $userId, $excludePlayerId);
+            if ($existingPlayer !== null) {
+                throw new GameAccountAlreadyInUseException($steamId);
+            }
+        }
+
+        // Check for Riot account duplicates (username + tag) within the same user
+        $username = $accountData->username();
+        $tag = $accountData->tag();
+        if ($username !== null && $username !== '' && $tag !== null && $tag !== '') {
+            $existingPlayer = $this->playerRepository->findByRiotAccountAndGameForUser($username, $tag, $gameId, $userId, $excludePlayerId);
+            if ($existingPlayer !== null) {
+                throw new GameAccountAlreadyInUseException($username . '#' . $tag);
+            }
         }
     }
 }

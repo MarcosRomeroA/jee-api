@@ -32,6 +32,12 @@ class Notification extends AggregateRoot
     #[ORM\ManyToOne(targetEntity: Message::class)]
     private ?Message $message = null;
 
+    #[ORM\Column(type: 'string', length: 36, nullable: true)]
+    private ?string $teamId = null;
+
+    #[ORM\Column(type: 'string', length: 36, nullable: true)]
+    private ?string $tournamentId = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -44,7 +50,9 @@ class Notification extends AggregateRoot
         User $userToNotify,
         ?User $user,
         ?Post $post,
-        ?Message $message
+        ?Message $message,
+        ?string $teamId = null,
+        ?string $tournamentId = null
     )
     {
         $this->id = $id;
@@ -53,6 +61,8 @@ class Notification extends AggregateRoot
         $this->user = $user;
         $this->post = $post;
         $this->message = $message;
+        $this->teamId = $teamId;
+        $this->tournamentId = $tournamentId;
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -62,18 +72,22 @@ class Notification extends AggregateRoot
         User $userToNotify,
         ?User $user = null,
         ?Post $post = null,
-        ?Message $message = null
+        ?Message $message = null,
+        ?string $teamId = null,
+        ?string $tournamentId = null
     ): self
     {
-        $notification = new self($id, $notificationType, $userToNotify, $user, $post, $message);
-        
+        $notification = new self($id, $notificationType, $userToNotify, $user, $post, $message, $teamId, $tournamentId);
+
         $notification->record(new NotificationCreatedEvent(
             $notification->getId(),
             $notificationType->getName(),
             $userToNotify->getId()->value(),
             $user?->getId()?->value(),
             $post?->getId()?->value(),
-            $message?->getId()?->value()
+            $message?->getId()?->value(),
+            $teamId,
+            $tournamentId
         ));
 
         return $notification;
@@ -129,5 +143,15 @@ class Notification extends AggregateRoot
     public function getUserToNotify(): User
     {
         return $this->userToNotify;
+    }
+
+    public function getTeamId(): ?string
+    {
+        return $this->teamId;
+    }
+
+    public function getTournamentId(): ?string
+    {
+        return $this->tournamentId;
     }
 }

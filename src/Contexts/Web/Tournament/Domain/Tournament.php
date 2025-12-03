@@ -42,6 +42,10 @@ class Tournament extends AggregateRoot
     #[ORM\JoinColumn(name: 'responsible_id', referencedColumnName: 'id', nullable: false)]
     private User $responsible;
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'creator_id', referencedColumnName: 'id', nullable: false)]
+    private User $creator;
+
     #[ORM\Column(type: 'string', length: 200)]
     private string $name;
 
@@ -107,6 +111,7 @@ class Tournament extends AggregateRoot
         Game $game,
         TournamentStatus $status,
         User $responsible,
+        User $creator,
         string $name,
         ?string $description,
         ?string $rules,
@@ -124,6 +129,7 @@ class Tournament extends AggregateRoot
         $this->game = $game;
         $this->status = $status;
         $this->responsible = $responsible;
+        $this->creator = $creator;
         $this->name = $name;
         $this->description = $description;
         $this->rules = $rules;
@@ -168,6 +174,10 @@ class Tournament extends AggregateRoot
     public function getResponsible(): User
     {
         return $this->responsible;
+    }
+    public function getCreator(): User
+    {
+        return $this->creator;
     }
     public function getName(): string
     {

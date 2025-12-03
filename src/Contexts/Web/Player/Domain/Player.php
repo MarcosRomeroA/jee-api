@@ -70,6 +70,15 @@ class Player extends AggregateRoot
     #[ORM\Column(type: "boolean", options: ["default" => false])]
     private bool $verified;
 
+    #[ORM\Column(type: "datetime_immutable", nullable: true)]
+    private ?\DateTimeImmutable $verifiedAt;
+
+    #[ORM\Column(type: "boolean", options: ["default" => false])]
+    private bool $isOwnershipVerified;
+
+    #[ORM\Column(type: "datetime_immutable", nullable: true)]
+    private ?\DateTimeImmutable $ownershipVerifiedAt;
+
     #[ORM\Column(type: "datetime_immutable")]
     private \DateTimeImmutable $createdAt;
 
@@ -91,6 +100,9 @@ class Player extends AggregateRoot
         $this->gameRank = null;
         $this->accountData = $accountData;
         $this->verified = $verified;
+        $this->verifiedAt = null;
+        $this->isOwnershipVerified = false;
+        $this->ownershipVerifiedAt = null;
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -201,6 +213,21 @@ class Player extends AggregateRoot
         return $this->verified;
     }
 
+    public function verifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->verifiedAt;
+    }
+
+    public function isOwnershipVerified(): bool
+    {
+        return $this->isOwnershipVerified;
+    }
+
+    public function ownershipVerifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->ownershipVerifiedAt;
+    }
+
     public function createdAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -209,5 +236,12 @@ class Player extends AggregateRoot
     public function verify(): void
     {
         $this->verified = true;
+        $this->verifiedAt = new \DateTimeImmutable();
+    }
+
+    public function verifyOwnership(): void
+    {
+        $this->isOwnershipVerified = true;
+        $this->ownershipVerifiedAt = new \DateTimeImmutable();
     }
 }

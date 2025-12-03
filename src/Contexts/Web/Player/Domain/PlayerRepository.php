@@ -63,4 +63,16 @@ interface PlayerRepository
     ): bool;
 
     public function countByUserId(Uuid $userId): int;
+
+    /**
+     * Find a player by Steam ID, game and user (excluding a specific player ID)
+     * Used to prevent same user from having duplicate accounts for the same game
+     */
+    public function findBySteamIdAndGameForUser(string $steamId, Uuid $gameId, Uuid $userId, ?Uuid $excludePlayerId = null): ?Player;
+
+    /**
+     * Find a player by Riot username, tag, game and user (excluding a specific player ID)
+     * Used to prevent same user from having duplicate accounts for the same game
+     */
+    public function findByRiotAccountAndGameForUser(string $username, string $tag, Uuid $gameId, Uuid $userId, ?Uuid $excludePlayerId = null): ?Player;
 }

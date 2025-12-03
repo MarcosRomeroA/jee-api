@@ -14,7 +14,7 @@ framework:
                             binding_keys: [high_priority]
                 retry_strategy:
                     max_retries: 3
-                    delay: 1000
+                    delay: 60000
                     multiplier: 2
                     max_delay: 0
                 failure_transport: failed_high_priority
@@ -29,8 +29,8 @@ framework:
                         low_priority:
                             binding_keys: [low_priority]
                 retry_strategy:
-                    max_retries: 3
-                    delay: 1000
+                    max_retries: 1
+                    delay: 300000
                     multiplier: 2
                     max_delay: 0
                 failure_transport: failed_low_priority
@@ -69,3 +69,4 @@ framework:
 
         routing:
             'App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent': low_priority
+            'App\Contexts\Web\Player\Domain\Events\PlayerCreatedDomainEvent': low_priority

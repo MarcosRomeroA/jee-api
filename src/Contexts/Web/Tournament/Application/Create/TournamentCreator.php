@@ -96,11 +96,13 @@ final class TournamentCreator
             // Process image for create
             $imageFilename = $this->processImage($id->value(), $image);
 
+            // Creator is the same as responsible when creating
             $tournament = new Tournament(
                 $id,
                 $game,
                 $status,
                 $responsible,
+                $responsible, // creator = responsible on creation
                 $name,
                 $description,
                 $rules,

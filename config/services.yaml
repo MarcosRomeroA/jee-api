@@ -111,38 +111,25 @@ services:
     # HTTP Client Configuration
     App\Contexts\Shared\Domain\Http\HttpClient: '@App\Contexts\Shared\Infrastructure\Http\SymfonyHttpClient'
 
-    # Riot Games API Configuration
+    # Riot Games API Configuration (League of Legends)
     App\Contexts\Web\Player\Infrastructure\RankVerification\Riot\RiotApiClient:
         arguments:
             $apiKey: "%env(RIOT_API_KEY)%"
-            $defaultRegion: "%env(RIOT_DEFAULT_REGION)%"
 
-    # Steam API Configuration
-    App\Contexts\Web\Player\Infrastructure\RankVerification\Steam\SteamApiClient:
+    # Henrik API Configuration (Valorant)
+    App\Contexts\Web\Player\Infrastructure\RankVerification\Henrik\HenrikApiClient:
         arguments:
-            $apiKey: "%env(STEAM_API_KEY)%"
+            $apiKey: "%env(HENRIK_API_KEY)%"
 
-    # Rank Verifier Configuration
-    # Primero definimos los verificadores específicos
-    App\Contexts\Web\Player\Infrastructure\RankVerification\Riot\RiotRankVerifier: ~
-    App\Contexts\Web\Player\Infrastructure\RankVerification\Steam\SteamRankVerifier: ~
-
-    # Luego el composite que los combina
-    App\Contexts\Web\Player\Infrastructure\RankVerification\CompositeRankVerifier: ~
-
-    # Finalmente el decorador con caché
-    App\Contexts\Web\Player\Infrastructure\RankVerification\Decorator\CachedRankVerifier:
-        decorates: App\Contexts\Web\Player\Infrastructure\RankVerification\CompositeRankVerifier
-        arguments:
-            $inner: "@.inner"
-
-    # Alias para usar en la aplicación
-    App\Contexts\Web\Player\Domain\Service\RankVerifier: '@App\Contexts\Web\Player\Infrastructure\RankVerification\Decorator\CachedRankVerifier'
-
-    # Tracker.gg API Configuration
+    # Tracker.gg API Configuration (CS2)
     App\Contexts\Web\Player\Infrastructure\RankVerification\TrackerGg\TrackerGgApiClient:
         arguments:
             $apiKey: "%env(TRACKER_GG_API_KEY)%"
+
+    # OpenDota API Configuration (Dota 2)
+    App\Contexts\Web\Player\Infrastructure\RankVerification\OpenDota\OpenDotaApiClient:
+        arguments:
+            $apiKey: "%env(OPENDOTA_API_KEY)%"
 
     # Hashtag Repository
     App\Contexts\Web\Post\Domain\HashtagRepository: '@App\Contexts\Web\Post\Infrastructure\Persistence\MysqlHashtagRepository'

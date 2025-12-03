@@ -16,6 +16,8 @@ final class NotificationResponse
         public ?string $profileImage,
         public ?string $postId,
         public ?string $message,
+        public ?string $teamId,
+        public ?string $tournamentId,
         public string $date,
         public bool $read,
     ) {
@@ -31,6 +33,8 @@ final class NotificationResponse
             $profileImage,
             $notification->getPost()?->getId()?->value(),
             $notification->getMessage()?->getContent()->value(),
+            $notification->getTeamId(),
+            $notification->getTournamentId(),
             $notification->getCreatedAt()->format('Y-m-d H:i:s'),
             $notification->getIsRead(),
         );

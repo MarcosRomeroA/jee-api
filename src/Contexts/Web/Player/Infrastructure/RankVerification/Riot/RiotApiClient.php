@@ -1,136 +1,229 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Player\Infrastructure\RankVerification\Riot;
 
-use App\Contexts\Shared\Domain\Http\HttpClient;
 use App\Contexts\Web\Player\Domain\Exception\RankVerificationException;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Cliente para Riot Games API
- * Soporta: League of Legends, Valorant, TFT
+ * Soporta: League of Legends
  *
  * Documentación: https://developer.riotgames.com/
  */
 final class RiotApiClient
 {
-    private const RIOT_API_BASE_URL = 'https://%s.api.riotgames.com';
+    // Platform routing values para LoL
+    private const PLATFORM_ROUTES = [
+        'br' => 'br1',
+        'eune' => 'eun1',
+        'euw' => 'euw1',
+        'jp' => 'jp1',
+        'kr' => 'kr',
+        'lan' => 'la1',
+        'las' => 'la2',
+        'na' => 'na1',
+        'oce' => 'oc1',
+        'tr' => 'tr1',
+        'ru' => 'ru',
+        'ph' => 'ph2',
+        'sg' => 'sg2',
+        'th' => 'th2',
+        'tw' => 'tw2',
+        'vn' => 'vn2',
+    ];
 
-    // Regiones disponibles
-    private const REGIONS = [
-        'americas' => ['NA', 'BR', 'LAN', 'LAS'],
-        'asia' => ['KR', 'JP'],
-        'europe' => ['EUW', 'EUNE', 'TR', 'RU'],
-        'sea' => ['OCE', 'PH', 'SG', 'TH', 'TW', 'VN'],
+    // Regional routing values para Account API
+    private const REGIONAL_ROUTES = [
+        'br' => 'americas',
+        'lan' => 'americas',
+        'las' => 'americas',
+        'na' => 'americas',
+        'oce' => 'americas',
+        'eune' => 'europe',
+        'euw' => 'europe',
+        'tr' => 'europe',
+        'ru' => 'europe',
+        'jp' => 'asia',
+        'kr' => 'asia',
+        'ph' => 'sea',
+        'sg' => 'sea',
+        'th' => 'sea',
+        'tw' => 'sea',
+        'vn' => 'sea',
     ];
 
     public function __construct(
-        private readonly HttpClient $httpClient,
+        private readonly HttpClientInterface $httpClient,
         private readonly string $apiKey,
-        private readonly string $defaultRegion = 'americas'
     ) {
     }
 
     /**
-     * Obtiene información de summoner por nombre (League of Legends)
+     * Obtiene cuenta por Riot ID (username#tag)
      */
-    public function getSummonerByName(string $summonerName, string $region = 'na1'): array
+    public function getAccountByRiotId(string $region, string $username, string $tag): array
     {
+        $regionalRoute = self::REGIONAL_ROUTES[strtolower($region)] ?? 'americas';
+
         $url = sprintf(
-            self::RIOT_API_BASE_URL . '/lol/summoner/v4/summoners/by-name/%s',
-            $region,
-            urlencode($summonerName)
+            'https://%s.api.riotgames.com/riot/account/v1/accounts/by-riot-id/%s/%s',
+            $regionalRoute,
+            rawurlencode($username),
+            rawurlencode($tag)
         );
 
-        $response = $this->httpClient->get($url, [
-            'X-Riot-Token' => $this->apiKey
-        ]);
-
-        if (!$response->isSuccessful()) {
-            $this->handleError($response->statusCode(), $summonerName);
-        }
-
-        return $response->body();
+        return $this->makeRequest($url);
     }
 
     /**
-     * Obtiene entradas de liga por summoner ID (League of Legends)
+     * Obtiene entradas de liga (ranked) por PUUID
      */
-    public function getLeagueEntriesBySummonerId(string $summonerId, string $region = 'na1'): array
+    public function getLeagueEntriesByPuuid(string $region, string $puuid): array
     {
+        $platformRoute = self::PLATFORM_ROUTES[strtolower($region)] ?? 'la2';
+
         $url = sprintf(
-            self::RIOT_API_BASE_URL . '/lol/league/v4/entries/by-summoner/%s',
-            $region,
-            $summonerId
-        );
-
-        $response = $this->httpClient->get($url, [
-            'X-Riot-Token' => $this->apiKey
-        ]);
-
-        if (!$response->isSuccessful()) {
-            throw RankVerificationException::apiNotAvailable('Riot Games - League Entries');
-        }
-
-        return $response->body();
-    }
-
-    /**
-     * Obtiene cuenta por Riot ID (nombre#tag) - Usado para Valorant y TFT
-     */
-    public function getAccountByRiotId(string $gameName, string $tagLine): array
-    {
-        $url = sprintf(
-            self::RIOT_API_BASE_URL . '/riot/account/v1/accounts/by-riot-id/%s/%s',
-            $this->defaultRegion,
-            urlencode($gameName),
-            urlencode($tagLine)
-        );
-
-        $response = $this->httpClient->get($url, [
-            'X-Riot-Token' => $this->apiKey
-        ]);
-
-        if (!$response->isSuccessful()) {
-            $this->handleError($response->statusCode(), $gameName);
-        }
-
-        return $response->body();
-    }
-
-    /**
-     * Obtiene información de ranked de Valorant por PUUID
-     */
-    public function getValorantRankByPuuid(string $puuid, string $region = 'na'): array
-    {
-        // Valorant API está en beta, puede no estar disponible en todas las regiones
-        $url = sprintf(
-            self::RIOT_API_BASE_URL . '/val/ranked/v1/by-puuid/%s',
-            $region,
+            'https://%s.api.riotgames.com/lol/league/v4/entries/by-puuid/%s',
+            $platformRoute,
             $puuid
         );
 
-        $response = $this->httpClient->get($url, [
-            'X-Riot-Token' => $this->apiKey
-        ]);
-
-        if (!$response->isSuccessful()) {
-            throw RankVerificationException::apiNotAvailable('Riot Games - Valorant Ranked');
-        }
-
-        return $response->body();
+        return $this->makeRequest($url);
     }
 
     /**
-     * Maneja errores de la API
+     * Obtiene rango de LoL dado region, username, tag
      */
-    private function handleError(int $statusCode, string $username): void
+    public function getLoLRank(string $region, string $username, string $tag): array
     {
-        match ($statusCode) {
-            401, 403 => throw RankVerificationException::invalidApiKey(),
-            404 => throw RankVerificationException::playerNotFound($username),
-            429 => throw RankVerificationException::rateLimitExceeded(),
-            default => throw RankVerificationException::apiNotAvailable('Riot Games API')
-        };
+        // 1. Obtener cuenta por Riot ID
+        $account = $this->getAccountByRiotId($region, $username, $tag);
+
+        if (empty($account) || !isset($account['puuid'])) {
+            throw RankVerificationException::playerNotFound("$username#$tag");
+        }
+
+        // 2. Obtener entradas de liga directamente por PUUID
+        $leagueEntries = $this->getLeagueEntriesByPuuid($region, $account['puuid']);
+
+        return $this->extractRankFromLeagueEntries($leagueEntries);
+    }
+
+    /**
+     * Extrae información de rango de las entradas de liga
+     */
+    public function extractRankFromLeagueEntries(array $leagueEntries): array
+    {
+        if (empty($leagueEntries)) {
+            return [
+                'rank' => 'Unranked',
+                'tier' => null,
+                'lp' => 0,
+                'wins' => 0,
+                'losses' => 0,
+                'queueType' => null,
+            ];
+        }
+
+        // Prioridad: RANKED_SOLO_5x5 > RANKED_FLEX_SR
+        $soloQueue = null;
+        $flexQueue = null;
+
+        foreach ($leagueEntries as $entry) {
+            if ($entry['queueType'] === 'RANKED_SOLO_5x5') {
+                $soloQueue = $entry;
+                break;
+            }
+            if ($entry['queueType'] === 'RANKED_FLEX_SR') {
+                $flexQueue = $entry;
+            }
+        }
+
+        $rankedEntry = $soloQueue ?? $flexQueue;
+
+        if ($rankedEntry === null) {
+            return [
+                'rank' => 'Unranked',
+                'tier' => null,
+                'lp' => 0,
+                'wins' => 0,
+                'losses' => 0,
+                'queueType' => null,
+            ];
+        }
+
+        // Riot usa tier para el rango (GOLD, PLATINUM, etc.) y rank para la división (I, II, III, IV)
+        return [
+            'rank' => $rankedEntry['tier'] ?? 'Unranked',
+            'tier' => $this->romanToNumber($rankedEntry['rank'] ?? null),
+            'lp' => $rankedEntry['leaguePoints'] ?? 0,
+            'wins' => $rankedEntry['wins'] ?? 0,
+            'losses' => $rankedEntry['losses'] ?? 0,
+            'queueType' => $rankedEntry['queueType'] ?? null,
+        ];
+    }
+
+    /**
+     * Convierte número romano a número
+     */
+    private function romanToNumber(?string $roman): ?string
+    {
+        if ($roman === null) {
+            return null;
+        }
+
+        $map = [
+            'I' => '1',
+            'II' => '2',
+            'III' => '3',
+            'IV' => '4',
+        ];
+
+        return $map[$roman] ?? $roman;
+    }
+
+    private function makeRequest(string $url): array
+    {
+        try {
+            $response = $this->httpClient->request('GET', $url, [
+                'headers' => [
+                    'X-Riot-Token' => $this->apiKey,
+                    'Accept' => 'application/json',
+                ],
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $content = $response->toArray(false);
+
+            if ($statusCode === 404) {
+                throw RankVerificationException::playerNotFound('Player not found on Riot API');
+            }
+
+            if ($statusCode === 401 || $statusCode === 403) {
+                throw RankVerificationException::invalidApiKey();
+            }
+
+            if ($statusCode === 429) {
+                throw RankVerificationException::rateLimitExceeded();
+            }
+
+            if ($statusCode !== 200) {
+                $errorMessage = $content['status']['message'] ?? 'Unknown error';
+                throw new RankVerificationException(
+                    "Riot API error: $errorMessage",
+                    'riot_api_error',
+                    $statusCode
+                );
+            }
+
+            return $content;
+        } catch (RankVerificationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw RankVerificationException::apiNotAvailable('Riot API: ' . $e->getMessage());
+        }
     }
 }
-

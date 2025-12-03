@@ -19,6 +19,9 @@ final class TournamentResponse extends Response
         private readonly string $responsibleId,
         private readonly ?string $responsibleUsername,
         private readonly ?string $responsibleEmail,
+        private readonly string $creatorId,
+        private readonly ?string $creatorUsername,
+        private readonly ?string $creatorEmail,
         private readonly string $status,
         private readonly int $registeredTeams,
         private readonly int $maxTeams,
@@ -37,6 +40,7 @@ final class TournamentResponse extends Response
     public static function fromEntity(Tournament $tournament): self
     {
         $responsible = $tournament->getResponsible();
+        $creator = $tournament->getCreator();
 
         return new self(
             id: $tournament->getId()->value(),
@@ -48,6 +52,9 @@ final class TournamentResponse extends Response
             responsibleId: $responsible->getId()->value(),
             responsibleUsername: $responsible->getUsername()->value(),
             responsibleEmail: $responsible->getEmail()->value(),
+            creatorId: $creator->getId()->value(),
+            creatorUsername: $creator->getUsername()->value(),
+            creatorEmail: $creator->getEmail()->value(),
             status: $tournament->getStatus()->getName(),
             registeredTeams: $tournament->getRegisteredTeams(),
             maxTeams: $tournament->getMaxTeams(),
@@ -75,6 +82,9 @@ final class TournamentResponse extends Response
             'responsibleId' => $this->responsibleId,
             'responsibleUsername' => $this->responsibleUsername,
             'responsibleEmail' => $this->responsibleEmail,
+            'creatorId' => $this->creatorId,
+            'creatorUsername' => $this->creatorUsername,
+            'creatorEmail' => $this->creatorEmail,
             'status' => $this->status,
             'registeredTeams' => $this->registeredTeams,
             'maxTeams' => $this->maxTeams,

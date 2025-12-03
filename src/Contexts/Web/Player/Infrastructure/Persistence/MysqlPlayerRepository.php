@@ -181,4 +181,57 @@ final class MysqlPlayerRepository extends ServiceEntityRepository implements Pla
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function findBySteamIdAndGameForUser(string $steamId, Uuid $gameId, Uuid $userId, ?Uuid $excludePlayerId = null): ?Player
+    {
+        $sql = "SELECT id FROM player WHERE game_id = :gameId AND user_id = :userId AND JSON_UNQUOTE(JSON_EXTRACT(account_data, '$.steamId')) = :steamId";
+        $params = [
+            'gameId' => $gameId->value(),
+            'userId' => $userId->value(),
+            'steamId' => $steamId,
+        ];
+
+        if ($excludePlayerId !== null) {
+            $sql .= " AND id != :excludeId";
+            $params['excludeId'] = $excludePlayerId->value();
+        }
+
+        $sql .= " LIMIT 1";
+
+        $conn = $this->getEntityManager()->getConnection();
+        $result = $conn->executeQuery($sql, $params)->fetchAssociative();
+
+        if ($result === false) {
+            return null;
+        }
+
+        return $this->find($result['id']);
+    }
+
+    public function findByRiotAccountAndGameForUser(string $username, string $tag, Uuid $gameId, Uuid $userId, ?Uuid $excludePlayerId = null): ?Player
+    {
+        $sql = "SELECT id FROM player WHERE game_id = :gameId AND user_id = :userId AND JSON_UNQUOTE(JSON_EXTRACT(account_data, '$.username')) = :username AND JSON_UNQUOTE(JSON_EXTRACT(account_data, '$.tag')) = :tag";
+        $params = [
+            'gameId' => $gameId->value(),
+            'userId' => $userId->value(),
+            'username' => $username,
+            'tag' => $tag,
+        ];
+
+        if ($excludePlayerId !== null) {
+            $sql .= " AND id != :excludeId";
+            $params['excludeId'] = $excludePlayerId->value();
+        }
+
+        $sql .= " LIMIT 1";
+
+        $conn = $this->getEntityManager()->getConnection();
+        $result = $conn->executeQuery($sql, $params)->fetchAssociative();
+
+        if ($result === false) {
+            return null;
+        }
+
+        return $this->find($result['id']);
+    }
 }

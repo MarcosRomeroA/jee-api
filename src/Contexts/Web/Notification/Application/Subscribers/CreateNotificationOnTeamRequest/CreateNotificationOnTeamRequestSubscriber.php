@@ -31,6 +31,7 @@ final readonly class CreateNotificationOnTeamRequestSubscriber implements Domain
     {
         $team = $this->teamRepository->findById($event->teamId());
         $requester = $this->userRepository->findById($event->userId());
+        $teamId = $event->teamId()->value();
 
         $notificationType = $this->notificationTypeRepository->findByName(
             NotificationType::TEAM_REQUEST_RECEIVED,
@@ -39,13 +40,13 @@ final readonly class CreateNotificationOnTeamRequestSubscriber implements Domain
         // Notificar al creador del equipo
         $creator = $team->getCreator();
         if ($creator !== null) {
-            $this->createNotification($notificationType, $creator, $requester);
+            $this->createNotification($notificationType, $creator, $requester, $teamId);
         }
 
         // Notificar al líder si existe y es diferente al creador
         $leader = $team->getLeader();
         if ($leader !== null && ($creator === null || !$leader->getId()->equals($creator->getId()))) {
-            $this->createNotification($notificationType, $leader, $requester);
+            $this->createNotification($notificationType, $leader, $requester, $teamId);
         }
     }
 
@@ -53,12 +54,16 @@ final readonly class CreateNotificationOnTeamRequestSubscriber implements Domain
         NotificationType $notificationType,
         User $userToNotify,
         User $requester,
+        string $teamId,
     ): void {
         $notification = Notification::create(
             Uuid::random(),
             $notificationType,
             $userToNotify,
             $requester,
+            null,
+            null,
+            $teamId,
         );
 
         $this->notificationRepository->save($notification);
