@@ -1,0 +1,12 @@
+# Web routes (public)
+find_event:
+    path: /event/{id}
+    controller: App\Apps\Web\Event\Find\FindEventController
+    methods: [GET]
+    defaults: { auth: false }
+
+search_events:
+    path: /events
+    controller: App\Apps\Web\Event\Search\SearchEventsController
+    methods: [GET]
+    defaults: { auth: false }

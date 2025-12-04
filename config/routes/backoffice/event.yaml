@@ -1,0 +1,11 @@
+backoffice_create_event:
+  path: /event/{id}
+  controller: App\Apps\Backoffice\Event\Create\CreateEventController
+  methods: [PUT]
+  defaults: { auth_admin: true }
+
+backoffice_delete_event:
+  path: /event/{id}
+  controller: App\Apps\Backoffice\Event\Delete\DeleteEventController
+  methods: [DELETE]
+  defaults: { auth_admin: true }
