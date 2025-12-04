@@ -95,15 +95,23 @@ final readonly class ExtractMentionsOnPostCreatedSubscriber implements DomainEve
      */
     private function extractMentions(string $text): array
     {
-        // Match mentions: @ followed by alphanumeric characters and underscores
-        preg_match_all('/@([a-zA-Z0-9_]+)/', $text, $matches);
+        // Match mentions: @ followed by alphanumeric characters, underscores, dots, and hyphens
+        // Note: trim trailing special chars to avoid matching "user." when user meant "@user."
+        preg_match_all('/@([a-zA-Z0-9_.\-]+)/', $text, $matches);
 
         if (empty($matches[1])) {
             return [];
         }
 
-        // Remove duplicates
-        $usernames = array_unique($matches[1]);
+        // Trim trailing dots and hyphens from usernames (e.g., "@user." should match "user")
+        $usernames = array_map(
+            fn (string $username) => rtrim($username, '.-'),
+            $matches[1],
+        );
+
+        // Filter empty usernames and remove duplicates
+        $usernames = array_filter($usernames, fn (string $username) => $username !== '');
+        $usernames = array_unique($usernames);
 
         return array_values($usernames);
     }

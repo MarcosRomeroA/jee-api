@@ -18,6 +18,7 @@ final class DatabaseContext implements Context
     private array $createdAdminIds = [];
     private array $createdPostIds = [];
     private array $createdHashtagIds = [];
+    private array $createdTeamIds = [];
 
     private const USER1_ID = "550e8400-e29b-41d4-a716-446655440001";
     private const USER2_ID = "550e8400-e29b-41d4-a716-446655440002";
@@ -351,6 +352,68 @@ final class DatabaseContext implements Context
     }
 
     /**
+     * @Given the following teams exist:
+     */
+    public function theFollowingTeamsExist(TableNode $table): void
+    {
+        $connection = $this->entityManager->getConnection();
+
+        foreach ($table->getHash() as $row) {
+            $teamId = $row['id'];
+            $name = $row['name'];
+            $creatorId = $row['creator_id'];
+            $description = $row['description'] ?? '';
+            $disabled = isset($row['disabled']) && $row['disabled'] === 'true';
+
+            $moderationReason = null;
+            if (isset($row['moderation_reason']) && $row['moderation_reason'] !== '') {
+                $moderationReason = $row['moderation_reason'];
+            }
+
+            $disabledAt = $disabled ? date('Y-m-d H:i:s') : null;
+
+            // Insert team
+            $connection->executeStatement(
+                "INSERT INTO team (id, name, description, image, background_image, is_disabled, moderation_reason, disabled_at, created_at, updated_at)
+                 VALUES (:id, :name, :description, '', '', :is_disabled, :moderation_reason, :disabled_at, NOW(), NOW())",
+                [
+                    "id" => $teamId,
+                    "name" => $name,
+                    "description" => $description,
+                    "is_disabled" => $disabled ? 1 : 0,
+                    "moderation_reason" => $moderationReason,
+                    "disabled_at" => $disabledAt,
+                ]
+            );
+
+            // Add creator as team_user with creator and leader flags
+            $teamUserId = sprintf(
+                '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                random_int(0, 0xffff),
+                random_int(0, 0xffff),
+                random_int(0, 0xffff),
+                random_int(0, 0x0fff) | 0x4000,
+                random_int(0, 0x3fff) | 0x8000,
+                random_int(0, 0xffff),
+                random_int(0, 0xffff),
+                random_int(0, 0xffff)
+            );
+
+            $connection->executeStatement(
+                "INSERT INTO team_user (id, team_id, user_id, is_creator, is_leader, joined_at)
+                 VALUES (:id, :team_id, :user_id, 1, 1, NOW())",
+                [
+                    "id" => $teamUserId,
+                    "team_id" => $teamId,
+                    "user_id" => $creatorId,
+                ]
+            );
+
+            $this->createdTeamIds[] = $teamId;
+        }
+    }
+
+    /**
      * @Given the following hashtags exist:
      */
     public function theFollowingHashtagsExist(TableNode $table): void
@@ -454,11 +517,50 @@ final class DatabaseContext implements Context
             }
         }
 
+        // Limpiar teams creados por ESTE contexto (ANTES de usuarios por FK)
+        if (!empty($this->createdTeamIds)) {
+            try {
+                $placeholders = implode(',', array_fill(0, count($this->createdTeamIds), '?'));
+
+                // Limpiar team_user
+                $connection->executeStatement(
+                    "DELETE FROM team_user WHERE team_id IN ({$placeholders})",
+                    $this->createdTeamIds
+                );
+
+                // Limpiar team_game
+                $connection->executeStatement(
+                    "DELETE FROM team_game WHERE team_id IN ({$placeholders})",
+                    $this->createdTeamIds
+                );
+
+                // Limpiar team_request
+                $connection->executeStatement(
+                    "DELETE FROM team_request WHERE team_id IN ({$placeholders})",
+                    $this->createdTeamIds
+                );
+
+                // Finalmente eliminar teams
+                $connection->executeStatement(
+                    "DELETE FROM team WHERE id IN ({$placeholders})",
+                    $this->createdTeamIds
+                );
+            } catch (\Exception $e) {
+                // Ignorar errores
+            }
+        }
+
         // Limpiar usuarios creados por ESTE contexto (NO los de migración)
         if (!empty($this->createdUserIds)) {
             try {
                 // Primero limpiar relaciones
                 $placeholders = implode(',', array_fill(0, count($this->createdUserIds), '?'));
+
+                // Limpiar team_user por user_id
+                $connection->executeStatement(
+                    "DELETE FROM team_user WHERE user_id IN ({$placeholders})",
+                    $this->createdUserIds
+                );
 
                 // Limpiar user_follow
                 $connection->executeStatement(
@@ -522,6 +624,7 @@ final class DatabaseContext implements Context
         $this->createdAdminIds = [];
         $this->createdPostIds = [];
         $this->createdHashtagIds = [];
+        $this->createdTeamIds = [];
         $this->entityManager->clear();
     }
 
