@@ -47,7 +47,9 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
         bool $upcoming = false,
         ?Uuid $excludeUserId = null,
     ): array {
-        $qb = $this->createQueryBuilder("t")->andWhere("t.deletedAt IS NULL");
+        $qb = $this->createQueryBuilder("t")
+            ->andWhere("t.deletedAt IS NULL")
+            ->andWhere("t.isDisabled = false");
 
         if ($name !== null) {
             $qb->andWhere("t.name LIKE :name")->setParameter(
@@ -124,7 +126,8 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
     ): int {
         $qb = $this->createQueryBuilder("t")
             ->select("COUNT(DISTINCT t.id)")
-            ->andWhere("t.deletedAt IS NULL");
+            ->andWhere("t.deletedAt IS NULL")
+            ->andWhere("t.isDisabled = false");
 
         if ($name !== null) {
             $qb->andWhere("t.name LIKE :name")->setParameter(

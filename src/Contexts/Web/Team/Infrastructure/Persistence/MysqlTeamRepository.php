@@ -88,7 +88,8 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
         int $limit,
         int $offset,
     ): array {
-        $qb = $this->createQueryBuilder("t");
+        $qb = $this->createQueryBuilder("t")
+            ->andWhere("t.isDisabled = false");
 
         if ($name !== null) {
             $qb->andWhere("t.name.value LIKE :name")->setParameter(
@@ -166,7 +167,9 @@ final class MysqlTeamRepository extends ServiceEntityRepository implements TeamR
         ?Uuid $myCreatorId,
         ?Uuid $myLeaderId,
     ): int {
-        $qb = $this->createQueryBuilder("t")->select("COUNT(DISTINCT t.id)");
+        $qb = $this->createQueryBuilder("t")
+            ->select("COUNT(DISTINCT t.id)")
+            ->andWhere("t.isDisabled = false");
 
         if ($name !== null) {
             $qb->andWhere("t.name.value LIKE :name")->setParameter(
