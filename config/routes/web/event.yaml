@@ -3,10 +3,10 @@ find_event:
     path: /event/{id}
     controller: App\Apps\Web\Event\Find\FindEventController
     methods: [GET]
-    defaults: { auth: false }
+    defaults: { auth: true }
 
 search_events:
     path: /events
     controller: App\Apps\Web\Event\Search\SearchEventsController
     methods: [GET]
-    defaults: { auth: false }
+    defaults: { auth: true }

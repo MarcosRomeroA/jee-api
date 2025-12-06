@@ -20,7 +20,10 @@ final readonly class PostCommentSearcher implements QueryHandler
     {
         $post = $this->repository->findById(new Uuid($id));
 
-        $allComments = $post->getComments()->toArray();
+        $allComments = array_filter(
+            $post->getComments()->toArray(),
+            fn ($comment) => !$comment->isDisabled()
+        );
         $total = count($allComments);
 
         // Apply pagination

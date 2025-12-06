@@ -16,6 +16,7 @@ class NotificationType
     public const POST_LIKED = "post_liked";
     public const POST_SHARED = "post_shared";
     public const POST_MODERATED = "post_moderated";
+    public const COMMENT_MODERATED = "comment_moderated";
     public const USER_MENTIONED = "user_mentioned";
     public const TEAM_REQUEST_RECEIVED = "team_request_received";
     public const TOURNAMENT_REQUEST_RECEIVED = "tournament_request_received";
