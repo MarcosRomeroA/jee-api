@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Contexts\Web\Post\Application\Shared;
 
 use App\Contexts\Shared\Domain\CQRS\Query\Response;
-use App\Contexts\Web\Post\Domain\Comment;
 
 class PostCommentCollectionResponse extends Response
 {
     /**
-     * @param array<Comment> $comments
+     * @param array<PostCommentResponse> $comments
      */
     public function __construct(
         private readonly array $comments,
@@ -22,11 +21,10 @@ class PostCommentCollectionResponse extends Response
 
     public function toArray(): array
     {
-        $data = [];
-
-        foreach ($this->comments as $comment) {
-            $data[] = PostCommentResponse::fromEntity($comment);
-        }
+        $data = array_map(
+            fn (PostCommentResponse $comment) => $comment->toArray(),
+            $this->comments
+        );
 
         return [
             'data' => $data,

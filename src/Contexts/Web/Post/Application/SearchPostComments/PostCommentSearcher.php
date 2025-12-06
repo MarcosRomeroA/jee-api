@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\SearchPostComments;
 
-use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
+use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Application\Shared\PostCommentCollectionResponse;
+use App\Contexts\Web\Post\Application\Shared\PostCommentResponse;
 use App\Contexts\Web\Post\Domain\PostRepository;
 
-final readonly class PostCommentSearcher implements QueryHandler
+final readonly class PostCommentSearcher
 {
     public function __construct(
         private PostRepository $repository,
+        private FileManager $fileManager,
     ) {
     }
 
@@ -29,6 +31,28 @@ final readonly class PostCommentSearcher implements QueryHandler
         // Apply pagination
         $comments = array_slice($allComments, $offset, $limit);
 
-        return new PostCommentCollectionResponse($comments, $limit, $offset, $total);
+        $response = [];
+        foreach ($comments as $comment) {
+            $user = $comment->getUser();
+
+            $urlProfileImage = null;
+            if ($user->getProfileImage()->value() !== null && $user->getProfileImage()->value() !== '') {
+                $urlProfileImage = $this->fileManager->generateTemporaryUrl(
+                    'user/profile',
+                    $user->getProfileImage()->value()
+                );
+            }
+
+            $response[] = new PostCommentResponse(
+                $comment->getId()->value(),
+                $comment->getComment()->value(),
+                $user->getId()->value(),
+                $user->getUsername()->value(),
+                $urlProfileImage,
+                $comment->getCreatedAt()->value()->format('Y-m-d H:i:s'),
+            );
+        }
+
+        return new PostCommentCollectionResponse($response, $limit, $offset, $total);
     }
 }
