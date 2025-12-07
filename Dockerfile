@@ -77,6 +77,10 @@ RUN php bin/console cache:clear --env=prod --no-warmup \
 # Volver a root para el entrypoint
 USER root
 
+# Asegurar permisos de var/ para runtime (cache, logs, etc.)
+RUN chown -R www-data:www-data /var/www/html/var \
+    && chmod -R 775 /var/www/html/var
+
 # Exponer el puerto 80 para Nginx
 EXPOSE 80
 
