@@ -514,6 +514,7 @@ final class MigrateImagesToWebpCommand extends Command
                 // Upload optimized image
                 $this->defaultStorage->write($newPath, $result->imageData, [
                     'ContentType' => 'image/webp',
+                    'CacheControl' => 'public, max-age=31536000',
                 ]);
 
                 // Delete old image

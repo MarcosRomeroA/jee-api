@@ -58,6 +58,7 @@ final readonly class ProfileImageUploader
     {
         $this->defaultStorage->write($path, $content, [
             'ContentType' => 'image/webp',
+            'CacheControl' => 'public, max-age=31536000',
         ]);
     }
 }

@@ -66,6 +66,7 @@ final readonly class Base64ImageUploader implements ImageUploader
 
             $this->defaultStorage->write($path, $result->imageData, [
                 'ContentType' => 'image/webp',
+                'CacheControl' => 'public, max-age=31536000',
             ]);
 
             $this->logger->info('Image uploaded to storage', [

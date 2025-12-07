@@ -33,7 +33,9 @@ final readonly class AwsS3FileManager implements FileManager
         stream_copy_to_stream($sourceStream, $tempStream);
         rewind($tempStream);
 
-        $config = [];
+        $config = [
+            'CacheControl' => 'public, max-age=31536000',
+        ];
         if ($checksum) {
             $config['ContentMD5'] = $checksum;
         }
