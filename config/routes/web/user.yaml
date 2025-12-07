@@ -117,6 +117,12 @@ delete_account:
     methods: [DELETE]
     defaults: { auth: true }
 
+update_user_preference:
+    path: /user/preference
+    controller: App\Apps\Web\User\UpdatePreference\UpdateUserPreferenceController
+    methods: [PUT]
+    defaults: { auth: true }
+
 create_user:
     path: /user/{id}
     controller: App\Apps\Web\User\Create\CreateUserController

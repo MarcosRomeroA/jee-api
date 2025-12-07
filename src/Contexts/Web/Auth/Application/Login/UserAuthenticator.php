@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Contexts\Web\Auth\Application\Login;
 
@@ -9,15 +7,17 @@ use App\Contexts\Shared\Domain\Jwt\JwtGenerator;
 use App\Contexts\Shared\Infrastructure\Jwt\MercureJwtGenerator;
 use App\Contexts\Web\Auth\Application\Shared\LoginUserResponse;
 use App\Contexts\Web\Auth\Domain\Exception\EmailNotVerifiedException;
+use App\Contexts\Web\User\Application\Shared\UserPreferenceResponse;
 use App\Contexts\Web\User\Domain\Exception\UserNotFoundException;
+use App\Contexts\Web\User\Domain\UserPreferenceRepository;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Domain\ValueObject\EmailValue;
-use App\Contexts\Web\User\Domain\ValueObject\PasswordValue;
 
 final readonly class UserAuthenticator
 {
     public function __construct(
         private UserRepository $userRepository,
+        private UserPreferenceRepository $preferenceRepository,
         private JwtGenerator $jwtGenerator,
     ) {
     }
@@ -62,11 +62,17 @@ final readonly class UserAuthenticator
             $_ENV["APP_URL"] . "/notification/" . $user->getId()->value(),
         );
 
+        $preference = $this->preferenceRepository->findByUser($user);
+        $preferenceResponse = $preference !== null
+            ? UserPreferenceResponse::fromEntity($preference)
+            : UserPreferenceResponse::default();
+
         return new LoginUserResponse(
             $user->getId()->value(),
             $notificationToken,
             $token,
             $refreshToken,
+            $preferenceResponse,
         );
     }
 }

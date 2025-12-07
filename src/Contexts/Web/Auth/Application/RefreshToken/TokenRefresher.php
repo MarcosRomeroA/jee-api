@@ -1,18 +1,20 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Contexts\Web\Auth\Application\RefreshToken;
 
 use App\Contexts\Shared\Domain\Exception\UnauthorizedException;
 use App\Contexts\Shared\Domain\Jwt\JwtGenerator;
+use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Infrastructure\Jwt\MercureJwtGenerator;
 use App\Contexts\Web\Auth\Application\Shared\LoginUserResponse;
+use App\Contexts\Web\User\Application\Shared\UserPreferenceResponse;
+use App\Contexts\Web\User\Domain\UserPreferenceRepository;
 
 final readonly class TokenRefresher
 {
     public function __construct(
-        private JwtGenerator $jwtGenerator
+        private JwtGenerator $jwtGenerator,
+        private UserPreferenceRepository $preferenceRepository,
     ) {
     }
 
@@ -69,11 +71,17 @@ final readonly class TokenRefresher
             $_ENV["APP_URL"] . "/notification/" . $userId
         );
 
+        $preference = $this->preferenceRepository->findByUserId(new Uuid($userId));
+        $preferenceResponse = $preference !== null
+            ? UserPreferenceResponse::fromEntity($preference)
+            : UserPreferenceResponse::default();
+
         return new LoginUserResponse(
             $userId,
             $notificationToken,
             $token,
-            $refreshToken
+            $refreshToken,
+            $preferenceResponse,
         );
     }
 }

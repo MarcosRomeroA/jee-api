@@ -2,3 +2,8 @@ backoffice_login:
     path: /login
     controller: App\Apps\Backoffice\Auth\Login\LoginAdminController
     methods: [POST]
+
+backoffice_refresh_token:
+    path: /refresh-token
+    controller: App\Apps\Backoffice\Auth\Refresh\RefreshAdminTokenController
+    methods: [POST]

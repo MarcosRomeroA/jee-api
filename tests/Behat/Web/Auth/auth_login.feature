@@ -17,6 +17,7 @@ Feature: Login User
     And the response should have "token" property
     And the response should have "refreshToken" property
     And the response should have "notificationToken" property
+    And the response should have "preferences" property
 
   Scenario: Login with invalid email
     Given I send a POST request to "/api/login" with body:
