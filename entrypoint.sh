@@ -3,6 +3,17 @@
 set -e
 set -x
 
+# Crear directorios temporales necesarios para la aplicación
+echo "Creando directorios temporales..."
+mkdir -p /var/www/html/var/cache
+mkdir -p /var/www/html/var/log
+mkdir -p /var/www/html/var/tmp/resource
+mkdir -p /var/www/html/var/tmp/webp-migration
+mkdir -p /var/www/html/var/tmp/migration
+mkdir -p /var/www/html/var/tmp/images
+chown -R www-data:www-data /var/www/html/var
+chmod -R 775 /var/www/html/var
+
 # Crear directorio para claves JWT si no existe
 mkdir -p /var/www/html/config/jwt
 

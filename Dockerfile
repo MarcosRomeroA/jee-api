@@ -77,8 +77,20 @@ RUN php bin/console cache:clear --env=prod --no-warmup \
 # Volver a root para el entrypoint
 USER root
 
-# Asegurar permisos de var/ para runtime (cache, logs, etc.)
-RUN chown -R www-data:www-data /var/www/html/var \
+# Crear todos los directorios temporales necesarios y asegurar permisos
+# - var/cache: cache de Symfony
+# - var/log: logs de la aplicación
+# - var/tmp/resource: archivos temporales de posts y profile photos
+# - var/tmp/webp-migration: migración de imágenes a WebP
+# - var/tmp/migration: migración de profile images
+# - var/tmp/images: Base64ImageUploader para backgrounds
+RUN mkdir -p /var/www/html/var/cache \
+    && mkdir -p /var/www/html/var/log \
+    && mkdir -p /var/www/html/var/tmp/resource \
+    && mkdir -p /var/www/html/var/tmp/webp-migration \
+    && mkdir -p /var/www/html/var/tmp/migration \
+    && mkdir -p /var/www/html/var/tmp/images \
+    && chown -R www-data:www-data /var/www/html/var \
     && chmod -R 775 /var/www/html/var
 
 # Exponer el puerto 80 para Nginx

@@ -27,8 +27,8 @@ final class UpdateUserProfilePhotoController extends ApiController
         }
 
         $filename = Uuid::random() . '.' . $profilePhoto->getClientOriginalExtension();
-        $tempFolder = '/var/tmp/resource/'.(new \DateTimeImmutable())->format('Ymd').'/profile';
-        $uploadDir = $this->getParameter('kernel.project_dir') . $tempFolder;
+        $dateFolder = (new \DateTimeImmutable())->format('Ymd');
+        $uploadDir = $this->getParameter('kernel.project_dir') . '/var/tmp/resource/' . $dateFolder . '/profile';
         $profilePhoto->move($uploadDir, $filename);
 
         $command = new UpdateUserProfilePhotoCommand(
