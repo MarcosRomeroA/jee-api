@@ -24,6 +24,7 @@ final readonly class UserBackgroundImageUpdater
         $filename = $this->imageUploader->upload($base64Image, 'user/' . $userId->value() . '/background');
 
         $user->setBackgroundImage(new BackgroundImageValue($filename));
+        $user->setBackgroundImageUpdatedAt(new \DateTimeImmutable());
 
         $this->repository->save($user);
     }

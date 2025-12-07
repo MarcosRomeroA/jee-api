@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Contexts\Web\Post\Application\Create;
 
 use App\Contexts\Shared\Domain\CQRS\Event\DomainEventSubscriber;
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent;
 use App\Contexts\Web\Post\Domain\PostRepository;
@@ -13,6 +12,7 @@ use App\Contexts\Web\Post\Domain\PostResource;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use FilesystemIterator;
+use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -22,7 +22,8 @@ final readonly class PostResourceUploaderSubscriber implements DomainEventSubscr
     public function __construct(
         private LoggerInterface        $logger,
         private KernelInterface        $kernel,
-        private FileManager            $fileManager,
+        private FilesystemOperator     $defaultStorage,
+        private ImageOptimizer         $imageOptimizer,
         private PostRepository         $postRepository,
         private EntityManagerInterface $entityManager
     ) {
@@ -85,13 +86,26 @@ final readonly class PostResourceUploaderSubscriber implements DomainEventSubscr
             try {
                 $this->logger->info('Uploading resource of type '.$type.' for post '.$postId.': '.$filename);
 
-                $md5Checksum = base64_encode(md5_file($tempFile, true));
+                // Optimize image to WebP
+                $result = $this->imageOptimizer->optimize($tempFile);
+                $webpFilename = pathinfo($filename, PATHINFO_FILENAME) . '.webp';
+                $storagePath = "jee/posts/$postId/$type/$webpFilename";
 
-                $this->fileManager->upload($path, "posts/$postId/$type", $filename, $md5Checksum);
+                $this->defaultStorage->write($storagePath, $result->imageData, [
+                    'ContentType' => 'image/webp',
+                    'CacheControl' => 'public, max-age=31536000',
+                ]);
+
+                $this->logger->info('Image optimized and uploaded', [
+                    'path' => $storagePath,
+                    'original_size_kb' => $result->originalSizeKb,
+                    'optimized_size_kb' => $result->optimizedSizeKb,
+                ]);
 
                 $post = $this->postRepository->findById($postId);
                 $fileUuid = new Uuid(pathinfo($filename, PATHINFO_FILENAME));
-                $postResource = new PostResource($fileUuid, $filename, $typeId);
+                $postResource = new PostResource($fileUuid, $webpFilename, $typeId);
+                $postResource->setImageUpdatedAt(new \DateTimeImmutable());
                 $post->addResource($postResource);
 
                 // Delete temp file after successful upload

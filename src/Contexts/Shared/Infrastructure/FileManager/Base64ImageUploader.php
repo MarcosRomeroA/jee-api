@@ -62,7 +62,7 @@ final readonly class Base64ImageUploader implements ImageUploader
             // Optimize image to WebP
             $result = $this->imageOptimizer->optimize($tempFilePath);
             $webpFilename = $result->getFilename($tempFilename);
-            $path = $context . '/' . $webpFilename;
+            $path = 'jee/' . $context . '/' . $webpFilename;
 
             $this->defaultStorage->write($path, $result->imageData, [
                 'ContentType' => 'image/webp',

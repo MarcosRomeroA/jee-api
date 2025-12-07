@@ -28,6 +28,7 @@ final readonly class TournamentBackgroundImageUpdater
         $filename = $this->imageUploader->upload($base64Image, 'tournament/' . $tournamentId->value() . '/background');
 
         $tournament->setBackgroundImage($filename);
+        $tournament->setBackgroundImageUpdatedAt(new \DateTimeImmutable());
 
         $this->repository->save($tournament);
     }

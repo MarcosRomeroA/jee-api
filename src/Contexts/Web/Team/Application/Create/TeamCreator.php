@@ -56,6 +56,10 @@ final class TeamCreator
             $creator,
         );
 
+        if ($imageFilename !== null) {
+            $team->setImageUpdatedAt(new \DateTimeImmutable());
+        }
+
         $this->teamRepository->save($team);
     }
 
@@ -72,13 +76,19 @@ final class TeamCreator
             throw new UnauthorizedException('Only the team creator or leader can update the team');
         }
 
-        $imageFilename = $this->processImage($id->value(), $image, $team->getImage());
+        $oldImage = $team->getImage();
+        $imageFilename = $this->processImage($id->value(), $image, $oldImage);
 
         $team->update(
             new TeamNameValue($name),
             new TeamDescriptionValue($description),
             new TeamImageValue($imageFilename),
         );
+
+        // Set imageUpdatedAt if image changed
+        if ($imageFilename !== $oldImage && $imageFilename !== null) {
+            $team->setImageUpdatedAt(new \DateTimeImmutable());
+        }
 
         $this->teamRepository->save($team);
     }

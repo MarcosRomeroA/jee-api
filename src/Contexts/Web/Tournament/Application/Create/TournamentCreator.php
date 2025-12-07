@@ -55,7 +55,8 @@ final class TournamentCreator
             $tournament = $this->tournamentRepository->findById($id);
 
             // Process image for update
-            $imageFilename = $this->processImage($id->value(), $image, $tournament->getImage());
+            $oldImage = $tournament->getImage();
+            $imageFilename = $this->processImage($id->value(), $image, $oldImage);
 
             // Update existing tournament
             $tournament->update(
@@ -70,6 +71,11 @@ final class TournamentCreator
                 $finalStartAt,
                 $finalEndAt
             );
+
+            // Set imageUpdatedAt if image changed
+            if ($imageFilename !== $oldImage && $imageFilename !== null) {
+                $tournament->setImageUpdatedAt(new \DateTimeImmutable());
+            }
         } catch (\Exception $e) {
             // Tournament doesn't exist, create new one
             $game = $this->gameRepository->findById($gameId);
@@ -117,6 +123,10 @@ final class TournamentCreator
                 $minGameRank,
                 $maxGameRank,
             );
+
+            if ($imageFilename !== null) {
+                $tournament->setImageUpdatedAt(new \DateTimeImmutable());
+            }
         }
 
         $this->tournamentRepository->save($tournament);

@@ -10,6 +10,8 @@ use App\Contexts\Web\Team\Domain\Team;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamBackgroundImageValue;
 use App\Contexts\Web\Team\Domain\ValueObject\TeamImageValue;
 use App\Contexts\Web\Tournament\Domain\Tournament;
+use App\Contexts\Web\User\Domain\User;
+use App\Contexts\Web\User\Domain\ValueObject\BackgroundImageValue;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
@@ -44,7 +46,7 @@ final class MigrateImagesToWebpCommand extends Command
     {
         $this
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Run without making changes')
-            ->addOption('type', 't', InputOption::VALUE_REQUIRED, 'Type to migrate: posts, teams, tournaments, or all', 'all')
+            ->addOption('type', 't', InputOption::VALUE_REQUIRED, 'Type to migrate: posts, teams, tournaments, users, or all', 'all')
             ->addOption('limit', 'l', InputOption::VALUE_REQUIRED, 'Limit the number of items to migrate', null);
     }
 
@@ -89,6 +91,13 @@ final class MigrateImagesToWebpCommand extends Command
 
             if ($type === 'all' || $type === 'tournaments') {
                 $result = $this->migrateTournaments($io, $dryRun, $limit, $tempDir, $filesystem);
+                $totalMigrated += $result['migrated'];
+                $totalErrors += $result['errors'];
+                $totalSkipped += $result['skipped'];
+            }
+
+            if ($type === 'all' || $type === 'users') {
+                $result = $this->migrateUsers($io, $dryRun, $limit, $tempDir, $filesystem);
                 $totalMigrated += $result['migrated'];
                 $totalErrors += $result['errors'];
                 $totalSkipped += $result['skipped'];
@@ -478,6 +487,82 @@ final class MigrateImagesToWebpCommand extends Command
 
             $io->progressFinish();
         }
+
+        return ['migrated' => $migrated, 'errors' => $errors, 'skipped' => $skipped];
+    }
+
+    private function migrateUsers(SymfonyStyle $io, bool $dryRun, ?int $limit, string $tempDir, Filesystem $filesystem): array
+    {
+        $io->section('Migrating User Background Images');
+
+        $qb = $this->entityManager->createQueryBuilder()
+            ->select('u')
+            ->from(User::class, 'u')
+            ->where('u.backgroundImage.value IS NOT NULL')
+            ->andWhere('u.backgroundImage.value != :empty')
+            ->andWhere('u.backgroundImage.value NOT LIKE :webpPattern')
+            ->setParameter('empty', '')
+            ->setParameter('webpPattern', '%.webp');
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
+        }
+
+        $users = $qb->getQuery()->getResult();
+        $total = count($users);
+
+        if ($total === 0) {
+            $io->info('No user background images to migrate.');
+            return ['migrated' => 0, 'errors' => 0, 'skipped' => 0];
+        }
+
+        $io->info(sprintf('Found %d user background images to migrate.', $total));
+        $io->progressStart($total);
+
+        $migrated = 0;
+        $errors = 0;
+        $skipped = 0;
+
+        foreach ($users as $user) {
+            /** @var User $user */
+            $userId = $user->getId()->value();
+            $oldFilename = $user->getBackgroundImage()->value();
+            $oldPath = self::PREFIX . "user/$userId/background/$oldFilename";
+
+            try {
+                $newFilename = $this->migrateImage($oldPath, $tempDir, $filesystem, $dryRun);
+
+                if ($newFilename === null) {
+                    $skipped++;
+                    $io->progressAdvance();
+                    continue;
+                }
+
+                if (!$dryRun) {
+                    $user->setBackgroundImage(new BackgroundImageValue($newFilename));
+                    $user->setBackgroundImageUpdatedAt(new \DateTimeImmutable());
+                    $this->entityManager->flush();
+                }
+
+                $migrated++;
+                $this->logger->info('Migrated user background image', [
+                    'userId' => $userId,
+                    'oldFilename' => $oldFilename,
+                    'newFilename' => $newFilename,
+                ]);
+            } catch (\Throwable $e) {
+                $errors++;
+                $this->logger->error('Failed to migrate user background image', [
+                    'userId' => $userId,
+                    'filename' => $oldFilename,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            $io->progressAdvance();
+        }
+
+        $io->progressFinish();
 
         return ['migrated' => $migrated, 'errors' => $errors, 'skipped' => $skipped];
     }

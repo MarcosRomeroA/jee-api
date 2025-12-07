@@ -29,6 +29,7 @@ final readonly class TeamBackgroundImageUpdater
         $filename = $this->imageUploader->upload($base64Image, 'team/' . $teamId->value() . '/background');
 
         $team->setBackgroundImage(new TeamBackgroundImageValue($filename));
+        $team->setBackgroundImageUpdatedAt(new \DateTimeImmutable());
 
         $this->repository->save($team);
     }
