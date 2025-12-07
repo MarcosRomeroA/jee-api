@@ -91,6 +91,56 @@ Feature: Team Requests
     Then the response status code should be 200
     And the JSON node "requests" should have 0 elements
 
+  Scenario: Team creator cannot request to join own team
+    Given I am authenticated as "tester1@test.com" with password "12345678"
+    When I send a PUT request to "/api/team/750e8400-e29b-41d4-a716-446655440010" with body:
+      """
+      {
+        "name": "My Own Team"
+      }
+      """
+    Then the response status code should be 200
+    # Creator tries to request access to own team
+    When I send a PUT request to "/api/team/750e8400-e29b-41d4-a716-446655440010/request-access" with body:
+      """
+      {}
+      """
+    Then the response status code should be 409
+
+  Scenario: Existing member cannot request to join team
+    Given I am authenticated as "tester1@test.com" with password "12345678"
+    When I send a PUT request to "/api/team/750e8400-e29b-41d4-a716-446655440011" with body:
+      """
+      {
+        "name": "Team For Member Test"
+      }
+      """
+    Then the response status code should be 200
+    # Tester2 requests to join
+    Given I am authenticated as "tester2@test.com" with password "12345678"
+    When I send a PUT request to "/api/team/750e8400-e29b-41d4-a716-446655440011/request-access" with body:
+      """
+      {}
+      """
+    Then the response status code should be 200
+    # Tester1 accepts the request
+    Given I am authenticated as "tester1@test.com" with password "12345678"
+    When I send a GET request to "/api/team/requests?teamId=750e8400-e29b-41d4-a716-446655440011"
+    Then the response status code should be 200
+    And I save the value of JSON node "requests[0].id" as "requestId"
+    When I send a PUT request to "/api/team/request/{requestId}/accept" with body:
+      """
+      {}
+      """
+    Then the response status code should be 200
+    # Tester2 (now a member) tries to request again
+    Given I am authenticated as "tester2@test.com" with password "12345678"
+    When I send a PUT request to "/api/team/750e8400-e29b-41d4-a716-446655440011/request-access" with body:
+      """
+      {}
+      """
+    Then the response status code should be 409
+
   Scenario: Filter pending requests by teamId
     # Los usuarios tester1, tester2, tester3 ya existen en la BD (migración Version20251119000001)
     Given I am authenticated as "tester1@test.com" with password "12345678"

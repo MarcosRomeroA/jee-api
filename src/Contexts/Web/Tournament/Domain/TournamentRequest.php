@@ -7,6 +7,7 @@ namespace App\Contexts\Web\Tournament\Domain;
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\Team;
+use App\Contexts\Web\Tournament\Domain\Events\TournamentRequestAcceptedDomainEvent;
 use App\Contexts\Web\Tournament\Domain\Events\TournamentRequestCreatedDomainEvent;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -83,6 +84,11 @@ class TournamentRequest extends AggregateRoot
     public function accept(): void
     {
         $this->status = 'accepted';
+        $this->record(new TournamentRequestAcceptedDomainEvent(
+            $this->id,
+            $this->tournament->getId(),
+            $this->team->getId(),
+        ));
     }
 
     public function reject(): void

@@ -29,17 +29,22 @@ readonly class CreateNotificationOnPostCommentedSubscriber implements DomainEven
     public function __invoke(PostCommentedDomainEvent $event): void
     {
         $post = $this->postRepository->findById($event->getAggregateId());
+        $userCommenter = $this->userRepository->findById($event->userCommenterId());
+        $postAuthor = $post->getUser();
+
+        // No notificar si el usuario comenta en su propio post
+        if ($postAuthor->getId()->equals($userCommenter->getId())) {
+            return;
+        }
 
         $notificationType = $this->notificationTypeRepository->findByName(
             NotificationType::POST_COMMENTED,
         );
 
-        $userCommenter = $this->userRepository->findById($event->userCommenterId());
-
         $notification = Notification::create(
             Uuid::random(),
             $notificationType,
-            $post->getUser(),
+            $postAuthor,
             $userCommenter,
             $post,
         );

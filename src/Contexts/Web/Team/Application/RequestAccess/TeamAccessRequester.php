@@ -7,6 +7,7 @@ namespace App\Contexts\Web\Team\Application\RequestAccess;
 use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\Exception\RequestAlreadyExistsException;
+use App\Contexts\Web\Team\Domain\Exception\UserAlreadyMemberException;
 use App\Contexts\Web\Team\Domain\TeamRepository;
 use App\Contexts\Web\Team\Domain\TeamRequest;
 use App\Contexts\Web\Team\Domain\TeamRequestRepository;
@@ -29,6 +30,11 @@ final class TeamAccessRequester
 
         // Verificar que existe el usuario
         $user = $this->userRepository->findById($userId);
+
+        // Verificar que el usuario no es ya miembro del equipo
+        if ($team->isMember($userId)) {
+            throw new UserAlreadyMemberException();
+        }
 
         // Verificar que no existe una solicitud pendiente
         $existingRequest = $this->teamRequestRepository->findPendingByTeamAndUser(

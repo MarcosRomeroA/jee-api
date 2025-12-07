@@ -8,6 +8,7 @@ use App\Contexts\Web\User\Domain\Follow;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
+use App\Contexts\Web\User\Domain\Exception\OtherUserIsMeException;
 
 final readonly class UserFollower
 {
@@ -21,6 +22,10 @@ final readonly class UserFollower
         Uuid $userId,
         Uuid $userToFollowId
     ): void {
+        if ($userId->equals($userToFollowId)) {
+            throw new OtherUserIsMeException("You cannot follow yourself");
+        }
+
         $follower = $this->userRepository->findById($userId);
         $followed = $this->userRepository->findById($userToFollowId);
 

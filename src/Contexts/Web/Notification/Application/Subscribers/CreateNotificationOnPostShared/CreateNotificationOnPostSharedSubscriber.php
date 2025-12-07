@@ -38,14 +38,21 @@ readonly class CreateNotificationOnPostSharedSubscriber implements DomainEventSu
         }
 
         $sharedPost = $this->postRepository->findById($post->getSharedPostId());
+        $originalPostAuthor = $sharedPost->getUser();
+        $userWhoShared = $post->getUser();
+
+        // No notificar si el usuario comparte su propio post
+        if ($originalPostAuthor->getId()->equals($userWhoShared->getId())) {
+            return;
+        }
 
         $notificationType = $this->notificationTypeRepository->findByName(NotificationType::POST_SHARED);
 
         $notification = Notification::create(
             Uuid::random(),
             $notificationType,
-            $sharedPost->getUser(),
-            $post->getUser(),
+            $originalPostAuthor,
+            $userWhoShared,
             $post,
         );
 

@@ -1,9 +1,8 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Contexts\Web\Tournament\Application\AcceptRequest;
 
+use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Tournament\Domain\Exception\InvalidTournamentStateException;
 use App\Contexts\Web\Tournament\Domain\Exception\TournamentFullException;
@@ -20,6 +19,7 @@ final readonly class TournamentRequestAcceptor
         private TournamentRequestRepository $requestRepository,
         private TournamentTeamRepository $tournamentTeamRepository,
         private TournamentRepository $tournamentRepository,
+        private EventBus $eventBus,
     ) {
     }
 
@@ -78,5 +78,6 @@ final readonly class TournamentRequestAcceptor
 
         $this->tournamentTeamRepository->save($tournamentTeam);
         $this->tournamentRepository->save($tournament);
+        $this->eventBus->publish($request->pullDomainEvents());
     }
 }

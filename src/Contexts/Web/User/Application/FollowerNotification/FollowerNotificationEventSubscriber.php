@@ -31,6 +31,11 @@ readonly class FollowerNotificationEventSubscriber implements DomainEventSubscri
         $follower = $this->userRepository->findById(new Uuid($event->toPrimitives()['followerId']));
         $followed = $this->userRepository->findById(new Uuid($event->toPrimitives()['followedId']));
 
+        // No notificar si el usuario se sigue a sí mismo
+        if ($followed->getId()->equals($follower->getId())) {
+            return;
+        }
+
         $notificationType = $this->notificationTypeRepository->findByName(NotificationType::NEW_FOLLOWER);
 
         $notification = Notification::create(

@@ -7,6 +7,7 @@ namespace App\Contexts\Web\Team\Domain;
 use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Player\Domain\Player;
+use App\Contexts\Web\Team\Domain\Events\TeamRequestAcceptedDomainEvent;
 use App\Contexts\Web\Team\Domain\Events\TeamRequestCreatedDomainEvent;
 use App\Contexts\Web\User\Domain\User;
 use Doctrine\ORM\Mapping as ORM;
@@ -125,6 +126,11 @@ class TeamRequest extends AggregateRoot
     {
         $this->status = "accepted";
         $this->acceptedAt = new \DateTimeImmutable();
+        $this->record(new TeamRequestAcceptedDomainEvent(
+            $this->id,
+            $this->team->getId(),
+            $this->user->getId(),
+        ));
     }
 
     public function reject(): void

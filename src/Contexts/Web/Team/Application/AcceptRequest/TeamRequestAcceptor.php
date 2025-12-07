@@ -1,9 +1,8 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\AcceptRequest;
 
+use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\Exception\RequestNotFoundException;
 use App\Contexts\Web\Team\Domain\Exception\UnauthorizedException;
@@ -15,7 +14,8 @@ final readonly class TeamRequestAcceptor
 {
     public function __construct(
         private TeamRequestRepository $teamRequestRepository,
-        private TeamUserRepository $teamUserRepository
+        private TeamUserRepository $teamUserRepository,
+        private EventBus $eventBus,
     ) {
     }
 
@@ -51,5 +51,6 @@ final readonly class TeamRequestAcceptor
 
         $this->teamUserRepository->save($teamUser);
         $this->teamRequestRepository->save($request);
+        $this->eventBus->publish($request->pullDomainEvents());
     }
 }

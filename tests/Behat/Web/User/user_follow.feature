@@ -28,3 +28,11 @@ Feature: Follow User
       {}
       """
     Then the response status code should be 400
+
+  Scenario: Cannot follow yourself
+    Given I am authenticated as "tester1@test.com" with password "12345678"
+    When I send a PUT request to "/api/user/550e8400-e29b-41d4-a716-446655440001/follow" with body:
+      """
+      {}
+      """
+    Then the response status code should be 400

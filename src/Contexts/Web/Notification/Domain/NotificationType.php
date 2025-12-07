@@ -19,7 +19,9 @@ class NotificationType
     public const COMMENT_MODERATED = "comment_moderated";
     public const USER_MENTIONED = "user_mentioned";
     public const TEAM_REQUEST_RECEIVED = "team_request_received";
+    public const TEAM_REQUEST_ACCEPTED = "team_request_accepted";
     public const TOURNAMENT_REQUEST_RECEIVED = "tournament_request_received";
+    public const TOURNAMENT_REQUEST_ACCEPTED = "tournament_request_accepted";
 
     #[ORM\Id]
     #[ORM\Column(type: "uuid", length: 36)]

@@ -29,17 +29,22 @@ final readonly class CreateNotificationOnPostLikedSubscriber implements DomainEv
     public function __invoke(PostLikedDomainEvent $event): void
     {
         $post = $this->postRepository->findById($event->getAggregateId());
+        $userLiker = $this->userRepository->findById($event->userLikerId());
+        $postAuthor = $post->getUser();
+
+        // No notificar si el usuario se da like a su propio post
+        if ($postAuthor->getId()->equals($userLiker->getId())) {
+            return;
+        }
 
         $notificationType = $this->notificationTypeRepository->findByName(
             NotificationType::POST_LIKED,
         );
 
-        $userLiker = $this->userRepository->findById($event->userLikerId());
-
         $notification = Notification::create(
             Uuid::random(),
             $notificationType,
-            $post->getUser(),
+            $postAuthor,
             $userLiker,
             $post,
         );
