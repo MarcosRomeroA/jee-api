@@ -2,7 +2,6 @@
 
 namespace App\Contexts\Web\Post\Application\Shared;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\Post\Domain\Post;
 use App\Contexts\Web\Post\Domain\PostResource;
 use Exception;
@@ -10,9 +9,8 @@ use Exception;
 final readonly class GetPostResources
 {
     public function __construct(
-        private FileManager $fileManager
-    )
-    {
+        private string $cdnBaseUrl,
+    ) {
     }
 
     /**
@@ -21,17 +19,13 @@ final readonly class GetPostResources
     public function __invoke(Post $post): array
     {
         $resources = [];
+        $postId = $post->getId()->value();
 
         foreach ($post->getResources() as $postResource) {
             $resources[] = [
                 'id' => $postResource->getId()->value(),
                 'type' => PostResource::getResourceTypeFromId($postResource->getResourceType()),
-                'url' => $this->fileManager->generateTemporaryUrl
-                ('posts/'.$post->getId().'/'.PostResource::getResourceTypeFromId(
-                        $postResource->getResourceType()
-                    ),
-                    $postResource->getFilename()
-                ),
+                'url' => $postResource->getImageUrl($this->cdnBaseUrl, $postId),
             ];
         }
 

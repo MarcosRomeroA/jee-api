@@ -3,7 +3,6 @@
 namespace App\Contexts\Web\Team\Application\Shared;
 
 use App\Contexts\Shared\Domain\CQRS\Query\Response;
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\Team\Domain\RosterPlayer;
 
 final class RosterPlayerResponse extends Response
@@ -26,19 +25,11 @@ final class RosterPlayerResponse extends Response
     ) {
     }
 
-    public static function fromRosterPlayer(RosterPlayer $rosterPlayer, ?FileManager $fileManager = null): self
+    public static function fromRosterPlayer(RosterPlayer $rosterPlayer, string $cdnBaseUrl): self
     {
         $player = $rosterPlayer->getPlayer();
         $user = $player->user();
         $gameRole = $rosterPlayer->getGameRole();
-
-        $profileImage = null;
-        if ($user->getProfileImage()->value() !== null && $fileManager !== null) {
-            $profileImage = $fileManager->generateTemporaryUrl(
-                'user/' . $user->getId()->value(),
-                $user->getProfileImage()->value()
-            );
-        }
 
         return new self(
             $rosterPlayer->getId()->value(),
@@ -48,7 +39,7 @@ final class RosterPlayerResponse extends Response
             $user->getUsername()->value(),
             $user->getFirstname()->value(),
             $user->getLastname()->value(),
-            $profileImage,
+            $user->getAvatarUrl(128, $cdnBaseUrl),
             $rosterPlayer->isStarter(),
             $rosterPlayer->isLeader(),
             $gameRole?->id()->value(),

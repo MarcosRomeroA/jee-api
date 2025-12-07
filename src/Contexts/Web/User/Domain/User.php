@@ -64,6 +64,12 @@ class User extends AggregateRoot
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $disabledAt = null;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $avatarUpdatedAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $backgroundImageUpdatedAt = null;
+
     /**
      * @var ArrayCollection<Follow>
      */
@@ -189,6 +195,40 @@ class User extends AggregateRoot
         $this->profileImage = $profileImage;
     }
 
+    public function updateAvatar(): void
+    {
+        $this->avatarUpdatedAt = new \DateTimeImmutable();
+    }
+
+    public function getAvatarUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->avatarUpdatedAt;
+    }
+
+    /**
+     * Gets the public URL for the user's avatar.
+     *
+     * @param int $size The avatar size (512, 128, or 64)
+     * @param string $cdnBaseUrl The CDN base URL (from R2_PUBLIC_URL env)
+     * @return string|null The full avatar URL with cache-busting version, or null if no avatar
+     */
+    public function getAvatarUrl(int $size, string $cdnBaseUrl): ?string
+    {
+        if ($this->avatarUpdatedAt === null) {
+            return null;
+        }
+
+        $filename = match ($size) {
+            128 => 'avatar_128.webp',
+            64 => 'avatar_64.webp',
+            default => 'avatar.webp',
+        };
+
+        $version = $this->avatarUpdatedAt->getTimestamp();
+
+        return rtrim($cdnBaseUrl, '/') . '/jee/user/profile/' . $this->id->value() . '/' . $filename . '?v=' . $version;
+    }
+
     public function getDescription(): ?string
     {
         return $this->description;
@@ -253,6 +293,39 @@ class User extends AggregateRoot
     public function setBackgroundImage(BackgroundImageValue $backgroundImage): void
     {
         $this->backgroundImage = $backgroundImage;
+    }
+
+    public function getBackgroundImageUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->backgroundImageUpdatedAt;
+    }
+
+    public function setBackgroundImageUpdatedAt(\DateTimeImmutable $backgroundImageUpdatedAt): void
+    {
+        $this->backgroundImageUpdatedAt = $backgroundImageUpdatedAt;
+    }
+
+    /**
+     * Gets the public URL for the user's background image with cache busting.
+     *
+     * @param string $cdnBaseUrl The CDN base URL
+     * @return string|null The full URL with cache-busting version, or null if no background image
+     */
+    public function getBackgroundImageUrl(string $cdnBaseUrl): ?string
+    {
+        $filename = $this->backgroundImage->value();
+        if ($filename === null || $filename === '') {
+            return null;
+        }
+
+        $path = "jee/user/" . $this->id->value() . "/background/" . $filename;
+        $url = rtrim($cdnBaseUrl, '/') . '/' . $path;
+
+        if ($this->backgroundImageUpdatedAt !== null) {
+            $url .= '?v=' . $this->backgroundImageUpdatedAt->getTimestamp();
+        }
+
+        return $url;
     }
 
     public function getUrlBackgroundImage(): ?string

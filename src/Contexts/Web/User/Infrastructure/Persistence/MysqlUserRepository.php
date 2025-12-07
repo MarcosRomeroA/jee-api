@@ -186,4 +186,17 @@ final class MysqlUserRepository extends ServiceEntityRepository implements UserR
         $this->getEntityManager()->remove($user);
         $this->getEntityManager()->flush();
     }
+
+    public function findAllWithProfileImage(?int $limit = null): array
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->where("u.profileImage.value IS NOT NULL")
+            ->andWhere("u.profileImage.value != ''");
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

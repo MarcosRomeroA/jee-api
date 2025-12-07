@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Team\Application\FindBackgroundImage;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Domain\TeamRepository;
 
@@ -12,7 +11,7 @@ final readonly class TeamBackgroundImageFinder
 {
     public function __construct(
         private TeamRepository $repository,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
     ) {
     }
 
@@ -20,15 +19,7 @@ final readonly class TeamBackgroundImageFinder
     {
         $team = $this->repository->findById($teamId);
 
-        $backgroundImageUrl = null;
-        $backgroundImageFilename = $team->getBackgroundImage();
-
-        if ($backgroundImageFilename !== null) {
-            $backgroundImageUrl = $this->fileManager->generateTemporaryUrl(
-                'team/' . $teamId->value() . '/background',
-                $backgroundImageFilename
-            );
-        }
+        $backgroundImageUrl = $team->getBackgroundImageUrl($this->cdnBaseUrl);
 
         return new BackgroundImageResponse($backgroundImageUrl);
     }

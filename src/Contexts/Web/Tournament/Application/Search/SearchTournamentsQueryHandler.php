@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Contexts\Web\Tournament\Application\Search;
 
 use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Tournament\Application\Shared\TournamentCollectionResponse;
 use App\Contexts\Web\Tournament\Application\Shared\TournamentResponse;
@@ -15,7 +14,7 @@ final readonly class SearchTournamentsQueryHandler implements QueryHandler
 {
     public function __construct(
         private TournamentsSearcher $searcher,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
         private TournamentTeamRepository $tournamentTeamRepository,
     ) {
     }
@@ -58,7 +57,7 @@ final readonly class SearchTournamentsQueryHandler implements QueryHandler
             ? array_map(
                 fn ($tournament) => TournamentResponse::fromTournament(
                     $tournament,
-                    $this->fileManager,
+                    $this->cdnBaseUrl,
                     in_array($tournament->getId()->value(), $registeredTournamentIds)
                 ),
                 $tournaments

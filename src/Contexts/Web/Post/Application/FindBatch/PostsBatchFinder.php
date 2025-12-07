@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\FindBatch;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Application\Shared\GetPostResources;
 use App\Contexts\Web\Post\Application\Shared\PostResponse;
@@ -15,7 +14,7 @@ final readonly class PostsBatchFinder
     public function __construct(
         private PostRepository $postRepository,
         private GetPostResources $getPostResources,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
     ) {
     }
 
@@ -30,28 +29,16 @@ final readonly class PostsBatchFinder
 
         foreach ($posts as $post) {
             $post->setResourceUrls($this->getPostResources->__invoke($post));
-
-            if ($post->getUser()->getProfileImage()->value() !== null) {
-                $post->getUser()->setUrlProfileImage(
-                    $this->fileManager->generateTemporaryUrl(
-                        'user/profile',
-                        $post->getUser()->getProfileImage()->value()
-                    )
-                );
-            }
+            $post->getUser()->setUrlProfileImage(
+                $post->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
+            );
 
             if ($post->getSharedPostId() !== null) {
                 $sharedPostEntity = $this->postRepository->findById($post->getSharedPostId());
                 $sharedPostEntity->setResourceUrls($this->getPostResources->__invoke($sharedPostEntity));
-
-                if (!empty($sharedPostEntity->getUser()->getProfileImage()->value())) {
-                    $sharedPostEntity->getUser()->setUrlProfileImage(
-                        $this->fileManager->generateTemporaryUrl(
-                            'user/profile',
-                            $sharedPostEntity->getUser()->getProfileImage()->value()
-                        )
-                    );
-                }
+                $sharedPostEntity->getUser()->setUrlProfileImage(
+                    $sharedPostEntity->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
+                );
 
                 $post->setSharedPost($sharedPostEntity);
             }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Contexts\Web\Post\Application\Moderation;
 
 use App\Contexts\Shared\Domain\CQRS\Event\EventBus;
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Domain\Events\PostModeratedDomainEvent;
 use App\Contexts\Web\Post\Domain\Moderation\ImageModerationService;
@@ -19,7 +18,7 @@ final readonly class PostImageModerator
     public function __construct(
         private PostRepository $postRepository,
         private ImageModerationService $imageModerationService,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
         private EntityManagerInterface $entityManager,
         private EventBus $eventBus,
         private LoggerInterface $logger,
@@ -52,10 +51,7 @@ final readonly class PostImageModerator
                 continue;
             }
 
-            $imageUrl = $this->fileManager->generateTemporaryUrl(
-                'posts/' . $post->getId()->value() . '/image',
-                $resource->getFilename()
-            );
+            $imageUrl = $resource->getImageUrl($this->cdnBaseUrl, $post->getId()->value());
 
             $moderationReason = $this->imageModerationService->moderate($imageUrl);
 

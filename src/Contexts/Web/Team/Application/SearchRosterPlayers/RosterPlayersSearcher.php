@@ -2,7 +2,6 @@
 
 namespace App\Contexts\Web\Team\Application\SearchRosterPlayers;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Team\Application\Shared\RosterPlayerResponse;
 use App\Contexts\Web\Team\Application\Shared\RosterPlayersCollectionResponse;
@@ -12,7 +11,7 @@ final class RosterPlayersSearcher
 {
     public function __construct(
         private readonly RosterPlayerRepository $rosterPlayerRepository,
-        private readonly FileManager $fileManager,
+        private readonly string $cdnBaseUrl,
     ) {
     }
 
@@ -21,7 +20,7 @@ final class RosterPlayersSearcher
         $rosterPlayers = $this->rosterPlayerRepository->findByRosterId($rosterId);
 
         $responses = array_map(
-            fn ($rosterPlayer) => RosterPlayerResponse::fromRosterPlayer($rosterPlayer, $this->fileManager),
+            fn ($rosterPlayer) => RosterPlayerResponse::fromRosterPlayer($rosterPlayer, $this->cdnBaseUrl),
             $rosterPlayers
         );
 

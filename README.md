@@ -992,6 +992,41 @@ App\Contexts\Web\Player\Infrastructure\RankVerification\Decorator\CachedRankVeri
         $inner: "@.inner"
 ```
 
+### Image Processing with Thumbnails
+
+The project includes an image processing system for profile photos that automatically generates optimized thumbnails in WebP format.
+
+**Components:**
+- `ProfileImageOptimizer` - Validates and optimizes images, generates multiple sizes
+- `ProfileImageUploader` - Uploads all versions to R2 storage
+- `ProfileImageResult` - DTO containing all image versions and metadata
+
+**Generated Sizes:**
+| Size | Dimensions | Suffix | Use Case |
+|------|------------|--------|----------|
+| Main | 512x512 | (none) | Profile page, full view |
+| Medium | 128x128 | `_128` | Comments, lists |
+| Small | 64x64 | `_64` | Avatars, thumbnails |
+
+**Image Specifications:**
+- **Format:** WebP (converted from jpg, png, webp)
+- **Quality:** 85%
+- **Max upload size:** 5MB
+- **Crop method:** Cover (center crop to square)
+
+**Storage Path:** `user/profile/{uuid}.webp`, `user/profile/{uuid}_128.webp`, `user/profile/{uuid}_64.webp`
+
+**Usage Example:**
+```php
+// In UserProfilePhotoUpdater
+$result = $this->optimizer->optimize($tempFilePath);
+$filename = $this->uploader->upload($result, $userId);
+```
+
+**Dependencies:**
+- `intervention/image` - Image manipulation library
+- `league/flysystem` - Filesystem abstraction (R2/S3 storage)
+
 ### Adding Real-time Notifications (Mercure)
 
 Domain event subscribers can publish to Mercure:

@@ -4,6 +4,7 @@ namespace App\Contexts\Web\User\Application\UpdateProfilePhoto;
 
 use App\Contexts\Shared\Domain\CQRS\Command\CommandHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use Exception;
 
 final readonly class UpdateUserProfilePhotoCommandHandler implements CommandHandler
 {
@@ -13,6 +14,9 @@ final readonly class UpdateUserProfilePhotoCommandHandler implements CommandHand
     {
     }
 
+    /**
+     * @throws Exception
+     */
     public function __invoke(UpdateUserProfilePhotoCommand $command): void
     {
         $id = new Uuid($command->id);

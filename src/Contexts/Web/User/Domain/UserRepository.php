@@ -49,4 +49,12 @@ interface UserRepository
     public function findByUsername(UsernameValue $username): User;
 
     public function delete(User $user): void;
+
+    /**
+     * Find all users with a non-empty profile image.
+     *
+     * @param int|null $limit Maximum number of users to return
+     * @return array<User>
+     */
+    public function findAllWithProfileImage(?int $limit = null): array;
 }

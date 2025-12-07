@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Event\Application;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Event\Application\Search\EventsSearcher;
 use App\Contexts\Web\Event\Application\Shared\EventCollectionResponse;
@@ -16,15 +15,15 @@ use PHPUnit\Framework\TestCase;
 
 final class EventsSearcherTest extends TestCase
 {
+    private const CDN_BASE_URL = 'https://cdn.example.com';
+
     private EventRepository|MockObject $eventRepository;
-    private FileManager|MockObject $fileManager;
     private EventsSearcher $searcher;
 
     protected function setUp(): void
     {
         $this->eventRepository = $this->createMock(EventRepository::class);
-        $this->fileManager = $this->createMock(FileManager::class);
-        $this->searcher = new EventsSearcher($this->eventRepository, $this->fileManager);
+        $this->searcher = new EventsSearcher($this->eventRepository, self::CDN_BASE_URL);
     }
 
     public function testItShouldSearchUpcomingEvents(): void

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\SearchPostLikes;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Application\Shared\LikeCollectionResponse;
 use App\Contexts\Web\Post\Application\Shared\LikeResponse;
@@ -14,7 +13,7 @@ final readonly class PostLikesSearcher
 {
     public function __construct(
         private PostRepository $postRepository,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
     ) {
     }
 
@@ -32,20 +31,12 @@ final readonly class PostLikesSearcher
         foreach ($likes as $like) {
             $user = $like->getUser();
 
-            $urlProfileImage = null;
-            if ($user->getProfileImage()->value() !== null) {
-                $urlProfileImage = $this->fileManager->generateTemporaryUrl(
-                    'user/profile',
-                    $user->getProfileImage()->value()
-                );
-            }
-
             $response[] = new LikeResponse(
                 $user->getId()->value(),
                 $user->getUsername()->value(),
                 $user->getFirstname()->value(),
                 $user->getLastname()->value(),
-                $urlProfileImage,
+                $user->getAvatarUrl(128, $this->cdnBaseUrl),
                 $like->getCreatedAt()->value()->format('Y-m-d H:i:s'),
             );
         }

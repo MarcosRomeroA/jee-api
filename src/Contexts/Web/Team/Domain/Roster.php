@@ -49,6 +49,9 @@ class Roster extends AggregateRoot
     #[Embedded(class: RosterLogoValue::class, columnPrefix: false)]
     private RosterLogoValue $logo;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $logoUpdatedAt = null;
+
     /**
      * @var Collection<int, RosterPlayer>
      */
@@ -203,5 +206,29 @@ class Roster extends AggregateRoot
             }
         }
         return null;
+    }
+
+    public function getLogoUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->logoUpdatedAt;
+    }
+
+    public function setLogoUpdatedAt(?\DateTimeImmutable $logoUpdatedAt): void
+    {
+        $this->logoUpdatedAt = $logoUpdatedAt;
+    }
+
+    public function getLogoUrl(string $cdnBaseUrl): ?string
+    {
+        $filename = $this->logo->value();
+        if ($filename === null || $filename === '') {
+            return null;
+        }
+        $path = "jee/roster/" . $this->id->value() . "/" . $filename;
+        $url = rtrim($cdnBaseUrl, '/') . '/' . $path;
+        if ($this->logoUpdatedAt !== null) {
+            $url .= '?v=' . $this->logoUpdatedAt->getTimestamp();
+        }
+        return $url;
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Contexts\Web\Event\Application\Shared;
 
 use App\Contexts\Shared\Domain\CQRS\Query\Response;
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\Event\Domain\Event;
 
 final class EventResponse extends Response
@@ -23,14 +22,11 @@ final class EventResponse extends Response
     ) {
     }
 
-    public static function fromEvent(Event $event, ?FileManager $fileManager = null): self
+    public static function fromEvent(Event $event, ?string $cdnBaseUrl = null): self
     {
         $imageUrl = null;
-        if ($event->getImage() !== null && $fileManager !== null) {
-            $imageUrl = $fileManager->generateTemporaryUrl(
-                'event/' . $event->getId()->value(),
-                $event->getImage()
-            );
+        if ($cdnBaseUrl !== null) {
+            $imageUrl = $event->getImageUrl($cdnBaseUrl);
         }
 
         $gameName = $event->getGame()?->getName();

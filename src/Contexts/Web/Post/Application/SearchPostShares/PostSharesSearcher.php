@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\SearchPostShares;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Application\Shared\ShareCollectionResponse;
 use App\Contexts\Web\Post\Application\Shared\ShareResponse;
@@ -14,7 +13,7 @@ final readonly class PostSharesSearcher
 {
     public function __construct(
         private PostRepository $postRepository,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
     ) {
     }
 
@@ -27,20 +26,12 @@ final readonly class PostSharesSearcher
         foreach ($sharedPosts as $sharedPost) {
             $user = $sharedPost->getUser();
 
-            $urlProfileImage = null;
-            if ($user->getProfileImage()->value() !== null) {
-                $urlProfileImage = $this->fileManager->generateTemporaryUrl(
-                    'user/profile',
-                    $user->getProfileImage()->value()
-                );
-            }
-
             $response[] = new ShareResponse(
                 $user->getId()->value(),
                 $user->getUsername()->value(),
                 $user->getFirstname()->value(),
                 $user->getLastname()->value(),
-                $urlProfileImage,
+                $user->getAvatarUrl(128, $this->cdnBaseUrl),
                 $sharedPost->getCreatedAt()->value()->format('Y-m-d H:i:s'),
             );
         }

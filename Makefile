@@ -96,9 +96,8 @@ deploy:
 
 deploy-symfony: ## Deploy solo el contenedor symfony en producción (usar con sudo)
 	@echo "🚀 Deploying symfony container..."
-	@docker compose -f compose.yaml stop symfony
-	@docker compose -f compose.yaml build --no-cache symfony
-	@docker compose -f compose.yaml up -d symfony
+	@docker compose -f compose.yaml build symfony
+	@docker compose -f compose.yaml up -d --no-deps symfony
 	@echo "✅ Symfony deployed successfully!"
 
 messenger-stats: ## Ver estadísticas de colas de RabbitMQ

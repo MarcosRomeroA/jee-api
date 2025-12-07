@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Event\Application;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Event\Application\Find\EventFinder;
 use App\Contexts\Web\Event\Application\Shared\EventResponse;
@@ -16,15 +15,15 @@ use PHPUnit\Framework\TestCase;
 
 final class EventFinderTest extends TestCase
 {
+    private const CDN_BASE_URL = 'https://cdn.example.com';
+
     private EventRepository|MockObject $eventRepository;
-    private FileManager|MockObject $fileManager;
     private EventFinder $finder;
 
     protected function setUp(): void
     {
         $this->eventRepository = $this->createMock(EventRepository::class);
-        $this->fileManager = $this->createMock(FileManager::class);
-        $this->finder = new EventFinder($this->eventRepository, $this->fileManager);
+        $this->finder = new EventFinder($this->eventRepository, self::CDN_BASE_URL);
     }
 
     public function testItShouldFindAnEvent(): void
@@ -64,7 +63,6 @@ final class EventFinderTest extends TestCase
     {
         $id = Uuid::random();
         $event = EventMother::create($id, 'Test Event', image: 'event-image.jpg');
-        $expectedUrl = 'https://storage.example.com/event/' . $id->value() . '/event-image.jpg';
 
         $this->eventRepository
             ->expects($this->once())
@@ -72,14 +70,9 @@ final class EventFinderTest extends TestCase
             ->with($id)
             ->willReturn($event);
 
-        $this->fileManager
-            ->expects($this->once())
-            ->method('generateTemporaryUrl')
-            ->with('event/' . $id->value(), 'event-image.jpg')
-            ->willReturn($expectedUrl);
-
         $response = $this->finder->__invoke($id);
 
+        $expectedUrl = self::CDN_BASE_URL . '/jee/event/' . $id->value() . '/event-image.jpg';
         $this->assertEquals($expectedUrl, $response->image);
     }
 }

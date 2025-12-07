@@ -5,7 +5,6 @@ namespace App\Contexts\Web\User\Application\Followers;
 use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\User\Application\Shared\FollowCollectionResponse;
-use App\Contexts\Web\User\Application\Shared\UserCollectionMinimalResponse;
 
 final readonly class UserFollowersQueryHandler implements QueryHandler
 {
@@ -13,7 +12,7 @@ final readonly class UserFollowersQueryHandler implements QueryHandler
 
     public function __invoke(
         UserFollowersQuery $query,
-    ): UserCollectionMinimalResponse {
+    ): FollowCollectionResponse {
         $id = new Uuid($query->id);
 
         return $this->finder->__invoke($id, $query->limit, $query->offset);

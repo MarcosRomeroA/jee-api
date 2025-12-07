@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Event\Application\Search;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Event\Application\Shared\EventCollectionResponse;
 use App\Contexts\Web\Event\Application\Shared\EventResponse;
@@ -16,7 +15,7 @@ final readonly class EventsSearcher
 {
     public function __construct(
         private EventRepository $eventRepository,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
     ) {
     }
 
@@ -36,7 +35,7 @@ final readonly class EventsSearcher
         $total = $this->eventRepository->countUpcoming($gameId, $type);
 
         $responses = array_map(
-            fn (Event $event) => EventResponse::fromEvent($event, $this->fileManager),
+            fn (Event $event) => EventResponse::fromEvent($event, $this->cdnBaseUrl),
             $events
         );
 

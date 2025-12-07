@@ -147,3 +147,138 @@ services:
             $apiKey: "%env(OPENAI_API_KEY)%"
 
     App\Contexts\Web\Post\Domain\Moderation\ImageModerationService: '@App\Contexts\Web\Post\Infrastructure\Moderation\OpenAi\OpenAiImageModerationService'
+
+    # Console Commands
+    App\Apps\Console\MigrateProfileImagesToNewStructureCommand:
+        arguments:
+            $projectDir: "%kernel.project_dir%"
+
+    App\Apps\Console\CleanupOldR2FolderCommand:
+        arguments:
+            $r2Endpoint: "https://ac9d6074e82dd52cd950e48478da4a54.r2.cloudflarestorage.com"
+            $r2Region: "%env(AWS_S3_REGION)%"
+            $r2AccessKey: "%env(AWS_S3_ACCESS_KEY)%"
+            $r2SecretKey: "%env(AWS_S3_ACCESS_SECRET)%"
+
+    # CDN Base URL for avatar URLs
+    App\Contexts\Web\User\Application\Search\UserSearcher:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\User\Application\Find\UserFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\User\Application\FindUserByUsername\UserByUsernameFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\User\Application\Followers\UserFollowersFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\User\Application\Followings\UserFollowingsFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\User\Application\FindBackgroundImage\UserBackgroundImageFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    # Post Context - CDN Base URL
+    App\Contexts\Web\Post\Application\SearchPostComments\PostCommentSearcher:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Post\Application\Search\PostSearcher:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Post\Application\SearchMyFeed\MyFeedSearcher:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Post\Application\FindBatch\PostsBatchFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Post\Application\Find\PostFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Post\Application\SearchPostShares\PostSharesSearcher:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Post\Application\SearchPostLikes\PostLikesSearcher:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Post\Application\Shared\GetPostResources:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    # Conversation Context - CDN Base URL
+    App\Contexts\Web\Conversation\Application\FindConversations\ConversationsFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    # Team Context - CDN Base URL
+    App\Contexts\Web\Team\Application\FindMembers\TeamMembersFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Team\Application\Find\FindTeamQueryHandler:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Team\Application\Search\SearchTeamsQueryHandler:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Team\Application\FindBackgroundImage\TeamBackgroundImageFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    # Tournament Context - CDN Base URL
+    App\Contexts\Web\Tournament\Application\Find\FindTournamentQueryHandler:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Tournament\Application\Search\SearchTournamentsQueryHandler:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Tournament\Application\FindBackgroundImage\TournamentBackgroundImageFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    # Notification Context - CDN Base URL
+    App\Contexts\Web\Notification\Application\Search\NotificationSearcher:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Team\Application\SearchRosterPlayers\RosterPlayersSearcher:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Team\Application\SearchRosters\RostersSearcher:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Team\Application\FindRoster\RosterFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    # Event Context - CDN Base URL
+    App\Contexts\Web\Event\Application\Find\EventFinder:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Event\Application\Search\EventsSearcher:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    App\Contexts\Web\Post\Application\Moderation\PostImageModerator:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"

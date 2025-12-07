@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Contexts\Web\Tournament\Application\Shared;
 
 use App\Contexts\Shared\Domain\CQRS\Query\Response;
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\Tournament\Domain\Tournament;
 
 final class TournamentResponse extends Response
@@ -39,15 +38,12 @@ final class TournamentResponse extends Response
 
     public static function fromTournament(
         Tournament $tournament,
-        ?FileManager $fileManager = null,
+        ?string $cdnBaseUrl = null,
         bool $isUserRegistered = false,
     ): self {
         $imageUrl = null;
-        if ($tournament->getImage() !== null && $fileManager !== null) {
-            $imageUrl = $fileManager->generateTemporaryUrl(
-                'tournament/' . $tournament->getId()->value(),
-                $tournament->getImage()
-            );
+        if ($cdnBaseUrl !== null) {
+            $imageUrl = $tournament->getImageUrl($cdnBaseUrl);
         }
 
         return new self(
@@ -65,7 +61,7 @@ final class TournamentResponse extends Response
             $tournament->getRegisteredTeams(),
             $tournament->getMaxTeams(),
             $tournament->getIsOfficial(),
-            $imageUrl ?? $tournament->getImage(),
+            $imageUrl,
             $tournament->getPrize(),
             $tournament->getRegion(),
             $tournament->getStartAt()?->format(\DateTimeInterface::ATOM),

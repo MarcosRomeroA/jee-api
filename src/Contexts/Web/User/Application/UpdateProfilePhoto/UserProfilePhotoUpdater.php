@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\User\Application\UpdateProfilePhoto;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\User\Domain\UserRepository;
-use App\Contexts\Web\User\Domain\ValueObject\ProfileImageValue;
+use App\Contexts\Web\User\Infrastructure\Service\Image\ProfileImageOptimizer;
+use App\Contexts\Web\User\Infrastructure\Service\Image\ProfileImageUploader;
 use FilesystemIterator;
 use Symfony\Component\Filesystem\Filesystem;
 
 final readonly class UserProfilePhotoUpdater
 {
     public function __construct(
-        private FileManager $fileManager,
+        private ProfileImageOptimizer $optimizer,
+        private ProfileImageUploader $uploader,
         private UserRepository $repository,
     ) {
     }
@@ -24,41 +25,37 @@ final readonly class UserProfilePhotoUpdater
         $tempFile = $imagePath . '/' . $filename;
         $filesystem = new Filesystem();
 
-        try {
-            $this->fileManager->upload($imagePath, 'user/profile', $filename);
-            $user = $this->repository->findById($userId);
-            $user->setProfileImage(new ProfileImageValue($filename));
-            $this->repository->save($user);
+        // Optimize image: resize, crop, convert to WebP
+        $result = $this->optimizer->optimize($tempFile);
 
-            // Delete temp file after successful upload
-            if ($filesystem->exists($tempFile)) {
-                $filesystem->remove($tempFile);
-            }
+        // Upload all versions to R2 with fixed filenames per user
+        $this->uploader->upload($result, $userId->value());
 
-            // Clean up empty directories
-            $this->removeEmptyDirectories($imagePath, $filesystem);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        // Update user avatar timestamp for cache busting
+        $user = $this->repository->findById($userId);
+        $user->updateAvatar();
+        $this->repository->save($user);
+
+        // Delete temp file after successful upload
+        if ($filesystem->exists($tempFile)) {
+            $filesystem->remove($tempFile);
         }
+
+        // Clean up empty directories
+        $this->removeEmptyDirectories($imagePath, $filesystem);
     }
 
-    /**
-     * Recursively remove empty directories up to the resource base folder
-     */
     private function removeEmptyDirectories(string $directory, Filesystem $filesystem): void
     {
         if (!$filesystem->exists($directory) || !is_dir($directory)) {
             return;
         }
 
-        // Check if directory is empty
         $iterator = new FilesystemIterator($directory, FilesystemIterator::SKIP_DOTS);
         if (!$iterator->valid()) {
             $parentDir = dirname($directory);
             $filesystem->remove($directory);
 
-            // Continue cleaning parent directories if they're empty
-            // Stop at /var/tmp/resource to avoid deleting the base folder
             if (str_contains($parentDir, '/var/tmp/resource') && $parentDir !== '/var/tmp/resource') {
                 $this->removeEmptyDirectories($parentDir, $filesystem);
             }

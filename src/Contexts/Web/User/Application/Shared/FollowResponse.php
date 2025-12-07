@@ -14,11 +14,11 @@ class FollowResponse extends Response
         public readonly string $username,
         public readonly string $firstname,
         public readonly string $lastname,
-        public readonly string $profileImage,
+        public readonly ?string $profileImage,
     ) {
     }
 
-    public static function fromEntity(Follow $follow, bool $isFollower = false): self
+    public static function fromEntity(Follow $follow, string $cdnBaseUrl, bool $isFollower = false): self
     {
         // For followers list, return the follower (person who follows you)
         // For followings list, return the followed (person you follow)
@@ -29,7 +29,7 @@ class FollowResponse extends Response
             $user->getUsername()->value(),
             $user->getFirstname()->value(),
             $user->getLastname()->value(),
-            $user->getProfileImage()->value()
+            $user->getAvatarUrl(128, $cdnBaseUrl),
         );
     }
 

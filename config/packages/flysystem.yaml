@@ -1,18 +1,18 @@
 services:
     Aws\S3\S3Client:
         arguments:
-            - version: 'latest'
-              region: '%env(AWS_S3_REGION)%'
-              endpoint: '%env(AWS_S3_ENDPOINT)%'
+            - version: "latest"
+              region: "%env(AWS_S3_REGION)%"
+              endpoint: "%env(AWS_S3_ENDPOINT)%"
               use_path_style_endpoint: true
               credentials:
-                  key: '%env(AWS_S3_ACCESS_KEY)%'
-                  secret: '%env(AWS_S3_ACCESS_SECRET)%'
+                  key: "%env(AWS_S3_ACCESS_KEY)%"
+                  secret: "%env(AWS_S3_ACCESS_SECRET)%"
 
 flysystem:
     storages:
-      default.storage:
-        adapter: 'aws'
-        options:
-          client: 'Aws\S3\S3Client'
-          bucket: 'jee'
+        default.storage:
+            adapter: "aws"
+            options:
+                client: 'Aws\S3\S3Client'
+                bucket: "api-jee"

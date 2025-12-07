@@ -32,6 +32,9 @@ class PostResource
     #[ORM\ManyToOne(targetEntity: Post::class, inversedBy: 'resources')]
     private ?Post $post;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $imageUpdatedAt = null;
+
     use Timestamps;
 
     private string $url;
@@ -95,9 +98,19 @@ class PostResource
         $this->post = $post;
     }
 
+    public function getPost(): ?Post
+    {
+        return $this->post;
+    }
+
     public function getFilename(): string
     {
         return $this->filename;
+    }
+
+    public function setFilename(string $filename): void
+    {
+        $this->filename = $filename;
     }
 
     public function getId(): Uuid
@@ -108,5 +121,35 @@ class PostResource
     public function getResourceType(): int
     {
         return $this->resourceType;
+    }
+
+    public function getImageUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->imageUpdatedAt;
+    }
+
+    public function setImageUpdatedAt(\DateTimeImmutable $imageUpdatedAt): void
+    {
+        $this->imageUpdatedAt = $imageUpdatedAt;
+    }
+
+    /**
+     * Gets the public URL for this resource with cache busting.
+     *
+     * @param string $cdnBaseUrl The CDN base URL
+     * @param string $postId The post ID
+     * @return string The full URL with cache-busting version
+     */
+    public function getImageUrl(string $cdnBaseUrl, string $postId): string
+    {
+        $type = self::getResourceTypeFromId($this->resourceType);
+        $path = "jee/posts/$postId/$type/" . $this->filename;
+        $url = rtrim($cdnBaseUrl, '/') . '/' . $path;
+
+        if ($this->imageUpdatedAt !== null) {
+            $url .= '?v=' . $this->imageUpdatedAt->getTimestamp();
+        }
+
+        return $url;
     }
 }

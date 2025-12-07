@@ -2,7 +2,6 @@
 
 namespace App\Tests\Unit\Web\User\Application;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\User\Application\Find\UserFinder;
 use App\Contexts\Web\User\Domain\Exception\UserNotFoundException;
@@ -13,15 +12,15 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 final class UserFinderTest extends TestCase
 {
+    private const CDN_BASE_URL = 'https://cdn.example.com';
+
     private UserRepository|MockObject $repository;
-    private FileManager|MockObject $fileManager;
     private UserFinder $finder;
 
     protected function setUp(): void
     {
         $this->repository = $this->createMock(UserRepository::class);
-        $this->fileManager = $this->createMock(FileManager::class);
-        $this->finder = new UserFinder($this->repository, $this->fileManager);
+        $this->finder = new UserFinder($this->repository, self::CDN_BASE_URL);
     }
 
     public function testItShouldFindAUserById(): void
@@ -34,11 +33,6 @@ final class UserFinderTest extends TestCase
             ->method('findById')
             ->with($id)
             ->willReturn($user);
-
-        $this->fileManager
-            ->expects($this->once())
-            ->method('generateTemporaryUrl')
-            ->willReturn('https://example.com/profile.jpg');
 
         $response = $this->finder->__invoke($id);
 
@@ -62,4 +56,3 @@ final class UserFinderTest extends TestCase
         $this->finder->__invoke($id);
     }
 }
-

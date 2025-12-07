@@ -15,13 +15,16 @@ final class UserResponse extends Response
         public readonly string $lastname,
         public readonly string $username,
         public readonly string $email,
-        public readonly string $profileImage,
+        public readonly ?string $profileImage,
         public readonly ?string $description,
         public readonly string $createdAt,
     ) {
     }
 
-    public static function fromEntity(User $user, string $profileImage): self
+    /**
+     * Creates a UserResponse for search/list contexts (uses 128px thumbnail).
+     */
+    public static function fromEntity(User $user, string $cdnBaseUrl): self
     {
         return new self(
             $user->getId()->value(),
@@ -29,7 +32,24 @@ final class UserResponse extends Response
             $user->getLastname()->value(),
             $user->getUsername()->value(),
             $user->getEmail()->value(),
-            $profileImage,
+            $user->getAvatarUrl(128, $cdnBaseUrl),
+            $user->getDescription(),
+            $user->getCreatedAt()->format('Y-m-d\TH:i:s\Z'),
+        );
+    }
+
+    /**
+     * Creates a UserResponse for profile/detail contexts (uses full 512px image).
+     */
+    public static function fromEntityFull(User $user, string $cdnBaseUrl): self
+    {
+        return new self(
+            $user->getId()->value(),
+            $user->getFirstname()->value(),
+            $user->getLastname()->value(),
+            $user->getUsername()->value(),
+            $user->getEmail()->value(),
+            $user->getAvatarUrl(512, $cdnBaseUrl),
             $user->getDescription(),
             $user->getCreatedAt()->format('Y-m-d\TH:i:s\Z'),
         );

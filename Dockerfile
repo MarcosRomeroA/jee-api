@@ -1,6 +1,7 @@
 FROM php:8.3-fpm-alpine
 
 # Instalar Nginx, Supervisor y extensiones PHP necesarias
+# Primero instalamos las librerías runtime de GD (permanentes)
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -11,11 +12,27 @@ RUN apk add --no-cache \
     unzip \
     git \
     bash \
+    # Librerías runtime para GD (permanentes)
+    libpng \
+    libjpeg-turbo \
+    libwebp \
+    freetype
+
+# Instalar dependencias de desarrollo, compilar extensiones y limpiar
+RUN apk add --no-cache --virtual .build-deps \
     $PHPIZE_DEPS \
-    && docker-php-ext-install xml pdo pdo_mysql opcache zip \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    libwebp-dev \
+    freetype-dev \
+    && docker-php-ext-configure gd \
+    --with-jpeg \
+    --with-webp \
+    --with-freetype \
+    && docker-php-ext-install xml pdo pdo_mysql opcache zip gd \
     && pecl install amqp-2.1.2 \
     && docker-php-ext-enable amqp \
-    && apk del $PHPIZE_DEPS
+    && apk del .build-deps
 
 # Establecer la zona horaria
 ENV TZ=${TZ}

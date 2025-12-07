@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Event\Application\Find;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Event\Application\Shared\EventResponse;
 use App\Contexts\Web\Event\Domain\EventRepository;
@@ -14,7 +13,7 @@ final readonly class EventFinder
 {
     public function __construct(
         private EventRepository $eventRepository,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
     ) {
     }
 
@@ -26,6 +25,6 @@ final readonly class EventFinder
             throw new EventNotFoundException($id->value());
         }
 
-        return EventResponse::fromEvent($event, $this->fileManager);
+        return EventResponse::fromEvent($event, $this->cdnBaseUrl);
     }
 }

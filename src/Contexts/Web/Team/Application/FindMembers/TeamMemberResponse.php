@@ -14,14 +14,14 @@ final class TeamMemberResponse extends Response
         public readonly string $firstname,
         public readonly string $lastname,
         public readonly string $username,
-        public readonly string $profileImage,
+        public readonly ?string $profileImage,
         public readonly bool $isCreator,
         public readonly bool $isLeader,
         public readonly string $joinedAt,
     ) {
     }
 
-    public static function fromTeamUser(TeamUser $teamUser, string $profileImage): self
+    public static function fromTeamUser(TeamUser $teamUser, string $cdnBaseUrl): self
     {
         $user = $teamUser->getUser();
 
@@ -30,7 +30,7 @@ final class TeamMemberResponse extends Response
             $user->getFirstname()->value(),
             $user->getLastname()->value(),
             $user->getUsername()->value(),
-            $profileImage,
+            $user->getAvatarUrl(128, $cdnBaseUrl),
             $teamUser->isCreator(),
             $teamUser->isLeader(),
             $teamUser->getJoinedAt()->format('Y-m-d\TH:i:s\Z'),

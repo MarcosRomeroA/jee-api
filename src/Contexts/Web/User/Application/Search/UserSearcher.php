@@ -3,17 +3,15 @@
 namespace App\Contexts\Web\User\Application\Search;
 
 use App\Contexts\Shared\Domain\CQRS\Query\QueryHandler;
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\User\Application\Shared\UserCollectionResponse;
 use App\Contexts\Web\User\Application\Shared\UserResponse;
-use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Web\User\Domain\UserRepository;
 
 final readonly class UserSearcher implements QueryHandler
 {
     public function __construct(
         private UserRepository $repository,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
     )
     {
     }
@@ -25,10 +23,10 @@ final readonly class UserSearcher implements QueryHandler
         $response = [];
 
         foreach ($users as $user){
-            $response[] = UserResponse::fromEntity($user, $this->fileManager->generateTemporaryUrl('user/profile', $user->getProfileImage()->value()));
+            $response[] = UserResponse::fromEntity($user, $this->cdnBaseUrl);
         }
 
-                $total = $this->repository->countByCriteria($criteria);
+        $total = $this->repository->countByCriteria($criteria);
 
         return new UserCollectionResponse($response, $criteria, $total);
     }

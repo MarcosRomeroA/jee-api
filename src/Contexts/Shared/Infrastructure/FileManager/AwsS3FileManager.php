@@ -64,16 +64,4 @@ final readonly class AwsS3FileManager implements FileManager
         }
     }
 
-    public function generateTemporaryUrl(string $context, ?string $filename): string
-    {
-        if (!$filename){
-            return '';
-        }
-
-        $path = $context . '/' . $filename;
-
-        $expiresInSeconds = $_ENV['AWS_EXPIRE_DURATION'];
-
-        return $this->defaultStorage->temporaryUrl($path, (new \DateTime())->modify("+$expiresInSeconds seconds"));
-    }
 }

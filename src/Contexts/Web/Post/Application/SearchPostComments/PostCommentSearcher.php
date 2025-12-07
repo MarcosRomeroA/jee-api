@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Application\SearchPostComments;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Post\Application\Shared\PostCommentCollectionResponse;
 use App\Contexts\Web\Post\Application\Shared\PostCommentResponse;
@@ -14,7 +13,7 @@ final readonly class PostCommentSearcher
 {
     public function __construct(
         private PostRepository $repository,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
     ) {
     }
 
@@ -35,20 +34,12 @@ final readonly class PostCommentSearcher
         foreach ($comments as $comment) {
             $user = $comment->getUser();
 
-            $urlProfileImage = null;
-            if ($user->getProfileImage()->value() !== null && $user->getProfileImage()->value() !== '') {
-                $urlProfileImage = $this->fileManager->generateTemporaryUrl(
-                    'user/profile',
-                    $user->getProfileImage()->value()
-                );
-            }
-
             $response[] = new PostCommentResponse(
                 $comment->getId()->value(),
                 $comment->getComment()->value(),
                 $user->getId()->value(),
                 $user->getUsername()->value(),
-                $urlProfileImage,
+                $user->getAvatarUrl(64, $this->cdnBaseUrl),
                 $comment->getCreatedAt()->value()->format('Y-m-d H:i:s'),
             );
         }

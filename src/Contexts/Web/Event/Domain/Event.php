@@ -52,6 +52,9 @@ class Event extends AggregateRoot
     #[ORM\Column(name: "updated_at", type: "datetime_immutable", nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(type: "datetime_immutable", nullable: true)]
+    private ?\DateTimeImmutable $imageUpdatedAt = null;
+
     private function __construct(
         Uuid $id,
         EventNameValue $name,
@@ -173,5 +176,29 @@ class Event extends AggregateRoot
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function getImageUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->imageUpdatedAt;
+    }
+
+    public function setImageUpdatedAt(?\DateTimeImmutable $imageUpdatedAt): void
+    {
+        $this->imageUpdatedAt = $imageUpdatedAt;
+    }
+
+    public function getImageUrl(string $cdnBaseUrl): ?string
+    {
+        $filename = $this->image->value();
+        if ($filename === null || $filename === '') {
+            return null;
+        }
+        $path = "jee/event/" . $this->id->value() . "/" . $filename;
+        $url = rtrim($cdnBaseUrl, '/') . '/' . $path;
+        if ($this->imageUpdatedAt !== null) {
+            $url .= '?v=' . $this->imageUpdatedAt->getTimestamp();
+        }
+        return $url;
     }
 }

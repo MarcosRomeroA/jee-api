@@ -14,7 +14,11 @@ class FollowCollectionResponse extends Response
      */
     public function __construct(
         private readonly array $follows,
-        private readonly bool $isFollower = false
+        private readonly string $cdnBaseUrl,
+        private readonly bool $isFollower = false,
+        private readonly int $limit = 10,
+        private readonly int $offset = 0,
+        private readonly int $total = 0,
     ) {
     }
 
@@ -23,12 +27,17 @@ class FollowCollectionResponse extends Response
         $data = [];
 
         foreach ($this->follows as $follow) {
-            $data[] = FollowResponse::fromEntity($follow, $this->isFollower)->toArray();
+            $data[] = FollowResponse::fromEntity($follow, $this->cdnBaseUrl, $this->isFollower)->toArray();
         }
 
-        $response["data"] = $data;
-        $response["metadata"]["quantity"] = count($this->follows);
-
-        return $response;
+        return [
+            'data' => $data,
+            'metadata' => [
+                'total' => $this->total,
+                'count' => count($data),
+                'limit' => $this->limit,
+                'offset' => $this->offset,
+            ],
+        ];
     }
 }

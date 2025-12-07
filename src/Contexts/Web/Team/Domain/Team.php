@@ -93,6 +93,12 @@ class Team extends AggregateRoot
     #[ORM\Column(type: "string", length: 50, nullable: true, enumType: ModerationReason::class)]
     private ?ModerationReason $moderationReason = null;
 
+    #[ORM\Column(type: "datetime_immutable", nullable: true)]
+    private ?\DateTimeImmutable $imageUpdatedAt = null;
+
+    #[ORM\Column(type: "datetime_immutable", nullable: true)]
+    private ?\DateTimeImmutable $backgroundImageUpdatedAt = null;
+
     private function __construct(
         Uuid $id,
         TeamNameValue $name,
@@ -181,6 +187,11 @@ class Team extends AggregateRoot
         return $this->image->value();
     }
 
+    public function setImage(TeamImageValue $image): void
+    {
+        $this->image = $image;
+    }
+
     public function getBackgroundImage(): ?string
     {
         return $this->backgroundImage->value();
@@ -189,6 +200,72 @@ class Team extends AggregateRoot
     public function setBackgroundImage(TeamBackgroundImageValue $backgroundImage): void
     {
         $this->backgroundImage = $backgroundImage;
+    }
+
+    public function getImageUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->imageUpdatedAt;
+    }
+
+    public function setImageUpdatedAt(\DateTimeImmutable $imageUpdatedAt): void
+    {
+        $this->imageUpdatedAt = $imageUpdatedAt;
+    }
+
+    /**
+     * Gets the public URL for the team's image with cache busting.
+     *
+     * @param string $cdnBaseUrl The CDN base URL
+     * @return string|null The full URL with cache-busting version, or null if no image
+     */
+    public function getImageUrl(string $cdnBaseUrl): ?string
+    {
+        $filename = $this->image->value();
+        if ($filename === null || $filename === '') {
+            return null;
+        }
+
+        $path = "jee/team/" . $this->id->value() . "/" . $filename;
+        $url = rtrim($cdnBaseUrl, '/') . '/' . $path;
+
+        if ($this->imageUpdatedAt !== null) {
+            $url .= '?v=' . $this->imageUpdatedAt->getTimestamp();
+        }
+
+        return $url;
+    }
+
+    public function getBackgroundImageUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->backgroundImageUpdatedAt;
+    }
+
+    public function setBackgroundImageUpdatedAt(\DateTimeImmutable $backgroundImageUpdatedAt): void
+    {
+        $this->backgroundImageUpdatedAt = $backgroundImageUpdatedAt;
+    }
+
+    /**
+     * Gets the public URL for the team's background image with cache busting.
+     *
+     * @param string $cdnBaseUrl The CDN base URL
+     * @return string|null The full URL with cache-busting version, or null if no background image
+     */
+    public function getBackgroundImageUrl(string $cdnBaseUrl): ?string
+    {
+        $filename = $this->backgroundImage->value();
+        if ($filename === null || $filename === '') {
+            return null;
+        }
+
+        $path = "jee/team/" . $this->id->value() . "/background/" . $filename;
+        $url = rtrim($cdnBaseUrl, '/') . '/' . $path;
+
+        if ($this->backgroundImageUpdatedAt !== null) {
+            $url .= '?v=' . $this->backgroundImageUpdatedAt->getTimestamp();
+        }
+
+        return $url;
     }
 
     /**

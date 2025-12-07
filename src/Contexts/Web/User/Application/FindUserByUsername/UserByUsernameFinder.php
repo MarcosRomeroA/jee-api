@@ -2,8 +2,6 @@
 
 namespace App\Contexts\Web\User\Application\FindUserByUsername;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
-use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\User\Application\Shared\UserResponse;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Domain\ValueObject\UsernameValue;
@@ -12,7 +10,7 @@ final readonly class UserByUsernameFinder
 {
     public function __construct(
         private UserRepository $userRepository,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
     )
     {
     }
@@ -21,6 +19,6 @@ final readonly class UserByUsernameFinder
     {
         $user = $this->userRepository->findByUsername($username);
 
-        return UserResponse::fromEntity($user, $this->fileManager->generateTemporaryUrl('user/profile', $user->getProfileImage()->value()));
+        return UserResponse::fromEntityFull($user, $this->cdnBaseUrl);
     }
 }

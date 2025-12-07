@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Contexts\Web\Notification\Application\Search;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\Notification\Domain\NotificationRepository;
 use App\Contexts\Web\Notification\Application\Shared\NotificationResponse;
 use App\Contexts\Web\Notification\Application\Shared\NotificationCollectionResponse;
@@ -13,7 +12,7 @@ final readonly class NotificationSearcher
 {
     public function __construct(
         private NotificationRepository $repository,
-        private FileManager $fileManager,
+        private string $cdnBaseUrl,
     ) {
     }
 
@@ -25,11 +24,8 @@ final readonly class NotificationSearcher
         foreach ($notifications as $notification) {
             $profileImage = null;
             $user = $notification->getUser();
-            if ($user !== null && $user->getProfileImage()->value() !== '') {
-                $profileImage = $this->fileManager->generateTemporaryUrl(
-                    'user/profile',
-                    $user->getProfileImage()->value()
-                );
+            if ($user !== null) {
+                $profileImage = $user->getAvatarUrl(128, $this->cdnBaseUrl);
             }
 
             $response[] = NotificationResponse::fromEntity($notification, $profileImage);

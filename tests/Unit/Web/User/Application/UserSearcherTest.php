@@ -2,7 +2,6 @@
 
 namespace App\Tests\Unit\Web\User\Application;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\User\Application\Search\UserSearcher;
 use App\Contexts\Web\User\Domain\UserRepository;
 use App\Tests\Unit\Web\User\Domain\UserMother;
@@ -11,15 +10,15 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 final class UserSearcherTest extends TestCase
 {
+    private const CDN_BASE_URL = 'https://cdn.example.com';
+
     private UserRepository|MockObject $repository;
-    private FileManager|MockObject $fileManager;
     private UserSearcher $searcher;
 
     protected function setUp(): void
     {
         $this->repository = $this->createMock(UserRepository::class);
-        $this->fileManager = $this->createMock(FileManager::class);
-        $this->searcher = new UserSearcher($this->repository, $this->fileManager);
+        $this->searcher = new UserSearcher($this->repository, self::CDN_BASE_URL);
     }
 
     public function testItShouldSearchUsersWithoutQuery(): void
@@ -43,11 +42,6 @@ final class UserSearcherTest extends TestCase
             ->method('countByCriteria')
             ->with($criteria)
             ->willReturn(3);
-
-        $this->fileManager
-            ->expects($this->exactly(3))
-            ->method('generateTemporaryUrl')
-            ->willReturn('https://example.com/profile.jpg');
 
         $response = $this->searcher->__invoke($criteria);
 
@@ -77,11 +71,6 @@ final class UserSearcherTest extends TestCase
             ->with($criteria)
             ->willReturn(1);
 
-        $this->fileManager
-            ->expects($this->once())
-            ->method('generateTemporaryUrl')
-            ->willReturn('https://example.com/profile.jpg');
-
         $response = $this->searcher->__invoke($criteria);
 
         $this->assertCount(1, $response->users);
@@ -110,4 +99,3 @@ final class UserSearcherTest extends TestCase
         $this->assertEquals(0, $response->total);
     }
 }
-

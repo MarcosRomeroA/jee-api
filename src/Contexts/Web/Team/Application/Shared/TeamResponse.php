@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Contexts\Web\Team\Application\Shared;
 
 use App\Contexts\Shared\Domain\CQRS\Query\Response;
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\Team\Domain\Team;
 
 final class TeamResponse extends Response
@@ -27,7 +26,7 @@ final class TeamResponse extends Response
     ) {
     }
 
-    public static function fromTeam(Team $team, ?FileManager $fileManager = null): self
+    public static function fromTeam(Team $team, ?string $cdnBaseUrl = null): self
     {
         $games = [];
         foreach ($team->getTeamGames() as $teamGame) {
@@ -38,11 +37,8 @@ final class TeamResponse extends Response
         }
 
         $imageUrl = null;
-        if ($team->getImage() !== null && $fileManager !== null) {
-            $imageUrl = $fileManager->generateTemporaryUrl(
-                'team/' . $team->getId()->value(),
-                $team->getImage()
-            );
+        if ($cdnBaseUrl !== null) {
+            $imageUrl = $team->getImageUrl($cdnBaseUrl);
         }
 
         return new self(

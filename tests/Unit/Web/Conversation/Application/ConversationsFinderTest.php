@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Web\Conversation\Application;
 
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Conversation\Application\FindConversations\ConversationsFinder;
 use App\Contexts\Web\Conversation\Domain\ConversationRepository;
@@ -17,10 +16,11 @@ use PHPUnit\Framework\TestCase;
 
 final class ConversationsFinderTest extends TestCase
 {
+    private const CDN_BASE_URL = 'https://cdn.example.com';
+
     private UserRepository|MockObject $userRepository;
     private ConversationRepository|MockObject $conversationRepository;
     private MessageRepository|MockObject $messageRepository;
-    private FileManager|MockObject $fileManager;
     private ConversationsFinder $finder;
 
     protected function setUp(): void
@@ -28,13 +28,12 @@ final class ConversationsFinderTest extends TestCase
         $this->userRepository = $this->createMock(UserRepository::class);
         $this->conversationRepository = $this->createMock(ConversationRepository::class);
         $this->messageRepository = $this->createMock(MessageRepository::class);
-        $this->fileManager = $this->createMock(FileManager::class);
 
         $this->finder = new ConversationsFinder(
             $this->userRepository,
             $this->conversationRepository,
             $this->messageRepository,
-            $this->fileManager,
+            self::CDN_BASE_URL,
         );
     }
 

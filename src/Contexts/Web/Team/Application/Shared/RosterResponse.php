@@ -3,7 +3,6 @@
 namespace App\Contexts\Web\Team\Application\Shared;
 
 use App\Contexts\Shared\Domain\CQRS\Query\Response;
-use App\Contexts\Shared\Domain\FileManager\FileManager;
 use App\Contexts\Web\Team\Domain\Roster;
 
 final class RosterResponse extends Response
@@ -23,14 +22,11 @@ final class RosterResponse extends Response
     ) {
     }
 
-    public static function fromRoster(Roster $roster, ?FileManager $fileManager = null): self
+    public static function fromRoster(Roster $roster, ?string $cdnBaseUrl = null): self
     {
         $logoUrl = null;
-        if ($roster->getLogo() !== null && $fileManager !== null) {
-            $logoUrl = $fileManager->generateTemporaryUrl(
-                'roster/' . $roster->getId()->value(),
-                $roster->getLogo()
-            );
+        if ($cdnBaseUrl !== null) {
+            $logoUrl = $roster->getLogoUrl($cdnBaseUrl);
         }
 
         return new self(

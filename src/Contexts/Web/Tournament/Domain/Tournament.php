@@ -100,6 +100,12 @@ class Tournament extends AggregateRoot
     #[ORM\Column(type: 'string', length: 50, nullable: true, enumType: ModerationReason::class)]
     private ?ModerationReason $moderationReason = null;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $imageUpdatedAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $backgroundImageUpdatedAt = null;
+
     /**
      * @var Collection<int, TournamentTeam>
      */
@@ -207,6 +213,10 @@ class Tournament extends AggregateRoot
     {
         return $this->image;
     }
+    public function setImage(?string $image): void
+    {
+        $this->image = $image;
+    }
     public function getBackgroundImage(): ?string
     {
         return $this->backgroundImage;
@@ -214,6 +224,64 @@ class Tournament extends AggregateRoot
     public function setBackgroundImage(?string $backgroundImage): void
     {
         $this->backgroundImage = $backgroundImage;
+    }
+    public function getImageUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->imageUpdatedAt;
+    }
+    public function setImageUpdatedAt(\DateTimeImmutable $imageUpdatedAt): void
+    {
+        $this->imageUpdatedAt = $imageUpdatedAt;
+    }
+    /**
+     * Gets the public URL for the tournament's image with cache busting.
+     *
+     * @param string $cdnBaseUrl The CDN base URL
+     * @return string|null The full URL with cache-busting version, or null if no image
+     */
+    public function getImageUrl(string $cdnBaseUrl): ?string
+    {
+        if ($this->image === null || $this->image === '') {
+            return null;
+        }
+
+        $path = "jee/tournament/" . $this->id->value() . "/" . $this->image;
+        $url = rtrim($cdnBaseUrl, '/') . '/' . $path;
+
+        if ($this->imageUpdatedAt !== null) {
+            $url .= '?v=' . $this->imageUpdatedAt->getTimestamp();
+        }
+
+        return $url;
+    }
+    public function getBackgroundImageUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->backgroundImageUpdatedAt;
+    }
+    public function setBackgroundImageUpdatedAt(\DateTimeImmutable $backgroundImageUpdatedAt): void
+    {
+        $this->backgroundImageUpdatedAt = $backgroundImageUpdatedAt;
+    }
+    /**
+     * Gets the public URL for the tournament's background image with cache busting.
+     *
+     * @param string $cdnBaseUrl The CDN base URL
+     * @return string|null The full URL with cache-busting version, or null if no background image
+     */
+    public function getBackgroundImageUrl(string $cdnBaseUrl): ?string
+    {
+        if ($this->backgroundImage === null || $this->backgroundImage === '') {
+            return null;
+        }
+
+        $path = "jee/tournament/" . $this->id->value() . "/background/" . $this->backgroundImage;
+        $url = rtrim($cdnBaseUrl, '/') . '/' . $path;
+
+        if ($this->backgroundImageUpdatedAt !== null) {
+            $url .= '?v=' . $this->backgroundImageUpdatedAt->getTimestamp();
+        }
+
+        return $url;
     }
     public function getPrize(): ?string
     {
