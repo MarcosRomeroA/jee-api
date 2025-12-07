@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Domain;
 
@@ -6,7 +8,6 @@ use App\Contexts\Shared\Domain\Traits\Timestamps;
 use App\Contexts\Shared\Domain\ValueObject\CreatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\UpdatedAtValue;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
-
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
@@ -15,9 +16,9 @@ use Exception;
 #[ORM\Table(name: "post_resource")]
 class PostResource
 {
-    const int RESOURCE_TYPE_IMAGE = 1;
-    const int RESOURCE_TYPE_VIDEO = 2;
-    const int RESOURCE_TYPE_AUDIO = 3;
+    use Timestamps;
+    public const int RESOURCE_TYPE_IMAGE = 1;
+    public const int RESOURCE_TYPE_VIDEO = 2;
 
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', length: 36)]
@@ -34,8 +35,6 @@ class PostResource
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $imageUpdatedAt = null;
-
-    use Timestamps;
 
     private string $url;
 
@@ -54,11 +53,11 @@ class PostResource
     /**
      * @throws Exception
      */
-    public static function getResourceTypeFromId(int $id): string {
+    public static function getResourceTypeFromId(int $id): string
+    {
         return match($id) {
             self::RESOURCE_TYPE_IMAGE => 'image',
             self::RESOURCE_TYPE_VIDEO => 'video',
-            self::RESOURCE_TYPE_AUDIO => 'audio',
             default => throw new Exception('file_type_id_not_supported_exception'),
         };
     }
@@ -66,11 +65,11 @@ class PostResource
     /**
      * @throws Exception
      */
-    public static function getResourceTypeFromName(string $name): int {
+    public static function getResourceTypeFromName(string $name): int
+    {
         return match($name) {
             'image' => self::RESOURCE_TYPE_IMAGE,
             'video' => self::RESOURCE_TYPE_VIDEO,
-            'audio' => self::RESOURCE_TYPE_AUDIO,
             default => throw new Exception('file_type_name_not_supported_exception'),
         };
     }
@@ -78,18 +77,19 @@ class PostResource
     /**
      * @throws Exception
      */
-    public static function checkIsValidResourceType(string $resourceType): bool {
+    public static function checkIsValidResourceType(string $resourceType): bool
+    {
         return match($resourceType) {
-            'image', 'audio', 'video' => true,
+            'image', 'video' => true,
             default => throw new Exception("resource_type_error_exception"),
         };
     }
 
-    public static function getResourceTypes(): array {
+    public static function getResourceTypes(): array
+    {
         return [
             self::RESOURCE_TYPE_IMAGE => 'image',
             self::RESOURCE_TYPE_VIDEO => 'video',
-            self::RESOURCE_TYPE_AUDIO => 'audio',
         ];
     }
 

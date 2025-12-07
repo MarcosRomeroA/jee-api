@@ -85,9 +85,6 @@ class CreatePostController extends ApiController
         if (str_starts_with($mimeType, 'video/')) {
             return 'video';
         }
-        if (str_starts_with($mimeType, 'audio/')) {
-            return 'audio';
-        }
 
         return 'image'; // default
     }
