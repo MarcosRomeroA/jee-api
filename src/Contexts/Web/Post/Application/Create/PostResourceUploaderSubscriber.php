@@ -6,6 +6,7 @@ namespace App\Contexts\Web\Post\Application\Create;
 
 use App\Contexts\Shared\Domain\CQRS\Event\DomainEventSubscriber;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Shared\Infrastructure\Image\ImageOptimizer;
 use App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent;
 use App\Contexts\Web\Post\Domain\PostRepository;
 use App\Contexts\Web\Post\Domain\PostResource;
