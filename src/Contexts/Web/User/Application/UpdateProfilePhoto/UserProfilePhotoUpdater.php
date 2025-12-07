@@ -9,6 +9,7 @@ use App\Contexts\Web\User\Domain\UserRepository;
 use App\Contexts\Web\User\Infrastructure\Service\Image\ProfileImageOptimizer;
 use App\Contexts\Web\User\Infrastructure\Service\Image\ProfileImageUploader;
 use FilesystemIterator;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 final readonly class UserProfilePhotoUpdater
@@ -17,6 +18,7 @@ final readonly class UserProfilePhotoUpdater
         private ProfileImageOptimizer $optimizer,
         private ProfileImageUploader $uploader,
         private UserRepository $repository,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -25,16 +27,36 @@ final readonly class UserProfilePhotoUpdater
         $tempFile = $imagePath . '/' . $filename;
         $filesystem = new Filesystem();
 
-        // Optimize image: resize, crop, convert to WebP
-        $result = $this->optimizer->optimize($tempFile);
+        try {
+            // Optimize image: resize, crop, convert to WebP
+            $this->logger->info('Starting profile photo optimization', [
+                'userId' => $userId->value(),
+                'tempFile' => $tempFile,
+            ]);
+            $result = $this->optimizer->optimize($tempFile);
 
-        // Upload all versions to R2 with fixed filenames per user
-        $this->uploader->upload($result, $userId->value());
+            // Upload all versions to R2 with fixed filenames per user
+            $this->logger->info('Uploading profile photo to R2', [
+                'userId' => $userId->value(),
+            ]);
+            $this->uploader->upload($result, $userId->value());
 
-        // Update user avatar timestamp for cache busting
-        $user = $this->repository->findById($userId);
-        $user->updateAvatar();
-        $this->repository->save($user);
+            // Update user avatar timestamp for cache busting
+            $user = $this->repository->findById($userId);
+            $user->updateAvatar();
+            $this->repository->save($user);
+
+            $this->logger->info('Profile photo updated successfully', [
+                'userId' => $userId->value(),
+            ]);
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to update profile photo', [
+                'userId' => $userId->value(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
 
         // Delete temp file after successful upload
         if ($filesystem->exists($tempFile)) {

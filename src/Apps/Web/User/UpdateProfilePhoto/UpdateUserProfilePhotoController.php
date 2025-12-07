@@ -5,6 +5,7 @@ namespace App\Apps\Web\User\UpdateProfilePhoto;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
 use App\Contexts\Web\User\Application\UpdateProfilePhoto\UpdateUserProfilePhotoCommand;
+use App\Contexts\Web\User\Domain\Exception\InvalidProfileImageException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,8 +15,16 @@ final class UpdateUserProfilePhotoController extends ApiController
 
     public function __invoke(Request $request, string $sessionId): Response
     {
-        /** @var UploadedFile $profilePhoto */
+        /** @var UploadedFile|null $profilePhoto */
         $profilePhoto = $request->files->get('image');
+
+        if ($profilePhoto === null) {
+            throw new InvalidProfileImageException('No image file provided');
+        }
+
+        if (!$profilePhoto->isValid()) {
+            throw new InvalidProfileImageException('Invalid image file: ' . $profilePhoto->getErrorMessage());
+        }
 
         $filename = Uuid::random() . '.' . $profilePhoto->getClientOriginalExtension();
         $tempFolder = '/var/tmp/resource/'.(new \DateTimeImmutable())->format('Ymd').'/profile';
