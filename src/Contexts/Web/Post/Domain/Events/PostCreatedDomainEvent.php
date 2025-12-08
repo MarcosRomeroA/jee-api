@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Contexts\Web\Post\Domain\Events;
 
@@ -10,8 +12,7 @@ class PostCreatedDomainEvent extends DomainEvent
     public function __construct(
         Uuid $id,
         array $resources
-    )
-    {
+    ) {
         $body['resources'] = $resources;
         parent::__construct($id, $body);
     }
@@ -26,15 +27,14 @@ class PostCreatedDomainEvent extends DomainEvent
         ?array $body,
         ?string $eventId,
         ?string $occurredOn
-    ): DomainEvent
-    {
+    ): DomainEvent {
         return new self($aggregateId, $body['resources']);
     }
 
     public function toPrimitives(): array
     {
         return [
-            'id' => $this->getAggregateId(),
+            'id' => $this->getAggregateId()->value(),
             'resources' => $this->body['resources'],
         ];
     }

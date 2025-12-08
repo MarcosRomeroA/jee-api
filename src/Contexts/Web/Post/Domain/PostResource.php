@@ -20,6 +20,10 @@ class PostResource
     public const int RESOURCE_TYPE_IMAGE = 1;
     public const int RESOURCE_TYPE_VIDEO = 2;
 
+    public const int VIDEO_STATUS_PENDING = 0;
+    public const int VIDEO_STATUS_MODERATED = 1;
+    public const int VIDEO_STATUS_TRANSCODED = 2;
+
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', length: 36)]
     private Uuid $id;
@@ -36,6 +40,9 @@ class PostResource
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $imageUpdatedAt = null;
 
+    #[ORM\Column(type: Types::SMALLINT, options: ['default' => 0])]
+    private int $videoStatus = self::VIDEO_STATUS_PENDING;
+
     private string $url;
 
     public function __construct(
@@ -46,6 +53,7 @@ class PostResource
         $this->id = $id;
         $this->filename = $filename;
         $this->resourceType = $resourceType;
+        $this->videoStatus = self::VIDEO_STATUS_PENDING;
         $this->createdAt = new CreatedAtValue();
         $this->updatedAt = new UpdatedAtValue($this->createdAt->value());
     }
@@ -131,6 +139,31 @@ class PostResource
     public function setImageUpdatedAt(\DateTimeImmutable $imageUpdatedAt): void
     {
         $this->imageUpdatedAt = $imageUpdatedAt;
+    }
+
+    public function getVideoStatus(): int
+    {
+        return $this->videoStatus;
+    }
+
+    public function isVideoModerated(): bool
+    {
+        return $this->videoStatus >= self::VIDEO_STATUS_MODERATED;
+    }
+
+    public function isVideoTranscoded(): bool
+    {
+        return $this->videoStatus === self::VIDEO_STATUS_TRANSCODED;
+    }
+
+    public function markAsModerated(): void
+    {
+        $this->videoStatus = self::VIDEO_STATUS_MODERATED;
+    }
+
+    public function markAsTranscoded(): void
+    {
+        $this->videoStatus = self::VIDEO_STATUS_TRANSCODED;
     }
 
     /**

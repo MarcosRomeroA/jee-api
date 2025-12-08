@@ -69,4 +69,6 @@ framework:
 
         routing:
             'App\Contexts\Web\Post\Domain\Events\PostCreatedDomainEvent': high_priority
+            'App\Contexts\Web\Post\Domain\Events\PostVideoUploadedDomainEvent': high_priority
+            'App\Contexts\Web\Post\Domain\Events\PostVideoModerationPassedDomainEvent': low_priority
             'App\Contexts\Web\Player\Domain\Events\PlayerCreatedDomainEvent': low_priority

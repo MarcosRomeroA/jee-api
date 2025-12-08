@@ -282,3 +282,13 @@ services:
     App\Contexts\Web\Post\Application\Moderation\PostImageModerator:
         arguments:
             $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
+    # Video Processing - FFmpeg Services
+    App\Contexts\Web\Post\Domain\Video\VideoValidator: '@App\Contexts\Web\Post\Infrastructure\Video\FFmpegVideoValidator'
+    App\Contexts\Web\Post\Domain\Video\VideoFrameExtractor: '@App\Contexts\Web\Post\Infrastructure\Video\FFmpegFrameExtractor'
+    App\Contexts\Web\Post\Domain\Video\VideoTranscoder: '@App\Contexts\Web\Post\Infrastructure\Video\FFmpegVideoTranscoder'
+
+    # Video Moderation - CDN Base URL
+    App\Contexts\Web\Post\Application\Video\Moderation\PostVideoModerator:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"

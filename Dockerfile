@@ -12,6 +12,7 @@ RUN apk add --no-cache \
     unzip \
     git \
     bash \
+    ffmpeg \
     # Librerías runtime para GD (permanentes)
     libpng \
     libjpeg-turbo \
