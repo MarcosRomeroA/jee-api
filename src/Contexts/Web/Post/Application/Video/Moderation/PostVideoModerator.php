@@ -39,6 +39,16 @@ final readonly class PostVideoModerator
             return;
         }
 
+        // Skip if post is already disabled
+        if ($post->isDisabled()) {
+            $this->logger->info('Post already disabled, skipping video moderation', [
+                'post_id' => $postId->value(),
+                'resource_id' => $resourceId,
+            ]);
+            $this->deleteFrames($postId->value(), $resourceId, $frameFilenames);
+            return;
+        }
+
         // Find the PostResource
         $resource = $this->findResource($post, $resourceId);
         if ($resource === null) {
@@ -59,11 +69,6 @@ final readonly class PostVideoModerator
             return;
         }
 
-        if ($post->isDisabled()) {
-            $this->deleteFrames($postId->value(), $resourceId, $frameFilenames);
-            return;
-        }
-
         $this->logger->info('Starting video moderation', [
             'post_id' => $postId->value(),
             'resource_id' => $resourceId,
@@ -71,10 +76,24 @@ final readonly class PostVideoModerator
         ]);
 
         // Moderate each frame - stop at first failure
-        foreach ($frameFilenames as $frameFilename) {
+        foreach ($frameFilenames as $index => $frameFilename) {
             $frameUrl = rtrim($this->cdnBaseUrl, '/') . "/jee/posts/{$postId->value()}/video/frames/$frameFilename";
 
+            $this->logger->debug('Moderating video frame', [
+                'post_id' => $postId->value(),
+                'resource_id' => $resourceId,
+                'frame_index' => $index,
+                'frame_url' => $frameUrl,
+            ]);
+
             $moderationReason = $this->imageModerationService->moderate($frameUrl);
+
+            $this->logger->debug('Video frame moderation result', [
+                'post_id' => $postId->value(),
+                'resource_id' => $resourceId,
+                'frame_index' => $index,
+                'result' => $moderationReason?->value ?? 'passed',
+            ]);
 
             if ($moderationReason !== null) {
                 $post->disable($moderationReason);

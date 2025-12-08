@@ -135,7 +135,7 @@ final readonly class PostResourceUploaderSubscriber implements DomainEventSubscr
             'optimized_size_kb' => $result->optimizedSizeKb,
         ]);
 
-        $post = $this->postRepository->findById($postId);
+        $post = $this->postRepository->findById(new Uuid($postId));
         $fileUuid = new Uuid(pathinfo($filename, PATHINFO_FILENAME));
         $postResource = new PostResource($fileUuid, $webpFilename, PostResource::RESOURCE_TYPE_IMAGE);
         $postResource->setImageUpdatedAt(new \DateTimeImmutable());

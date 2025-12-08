@@ -36,6 +36,15 @@ final readonly class PostVideoTranscoder
             return;
         }
 
+        // Skip if post is already disabled
+        if ($post->isDisabled()) {
+            $this->logger->info('Post already disabled, skipping video transcoding', [
+                'post_id' => $postId->value(),
+                'resource_id' => $resourceId,
+            ]);
+            return;
+        }
+
         // Find the resource first
         $resource = $this->findResourceById($post, $resourceId);
         if ($resource === null) {
@@ -51,13 +60,6 @@ final readonly class PostVideoTranscoder
             $this->logger->info('Video already transcoded, skipping', [
                 'post_id' => $postId->value(),
                 'resource_id' => $resourceId,
-            ]);
-            return;
-        }
-
-        if ($post->isDisabled()) {
-            $this->logger->info('Skipping transcoding for disabled post', [
-                'post_id' => $postId->value(),
             ]);
             return;
         }

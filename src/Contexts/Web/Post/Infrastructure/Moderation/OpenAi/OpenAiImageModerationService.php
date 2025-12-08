@@ -63,14 +63,28 @@ final readonly class OpenAiImageModerationService implements ImageModerationServ
 
             $content = $data['choices'][0]['message']['content'] ?? '';
 
-            return $this->parseResponse($content);
-        } catch (\Throwable $e) {
-            $this->logger->error('OpenAI Image Moderation API error: ' . $e->getMessage(), [
+            $this->logger->debug('OpenAI Image Moderation response', [
                 'image_url' => $imageUrl,
-                'exception' => $e,
+                'raw_response' => $content,
             ]);
 
-            return null;
+            $result = $this->parseResponse($content);
+
+            $this->logger->info('Image moderation completed', [
+                'image_url' => $imageUrl,
+                'flagged' => $result !== null,
+                'reason' => $result?->value,
+            ]);
+
+            return $result;
+        } catch (\Throwable $e) {
+            $this->logger->error('OpenAI Image Moderation API error', [
+                'image_url' => $imageUrl,
+                'error' => $e->getMessage(),
+            ]);
+
+            // Re-throw to trigger retry - don't silently pass moderation on API errors
+            throw $e;
         }
     }
 
