@@ -258,6 +258,10 @@ services:
         arguments:
             $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
 
+    App\Contexts\Web\Notification\Application\RealtimeNotifications\NotificationRealtimeEventSubscriber:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
     App\Contexts\Web\Team\Application\SearchRosterPlayers\RosterPlayersSearcher:
         arguments:
             $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"

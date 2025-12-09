@@ -31,6 +31,7 @@ final readonly class CreateNotificationOnTournamentRequestSubscriber implements 
     {
         $tournament = $this->tournamentRepository->findById($event->tournamentId());
         $team = $this->teamRepository->findById($event->teamId());
+        $teamId = $event->teamId()->value();
         $tournamentId = $event->tournamentId()->value();
 
         $teamCreator = $team->getCreator();
@@ -44,12 +45,12 @@ final readonly class CreateNotificationOnTournamentRequestSubscriber implements 
 
         // Notificar al creador del torneo
         $tournamentCreator = $tournament->getCreator();
-        $this->createNotification($notificationType, $tournamentCreator, $teamCreator, $tournamentId);
+        $this->createNotification($notificationType, $tournamentCreator, $teamCreator, $teamId, $tournamentId);
 
         // Notificar al responsable si es diferente al creador
         $responsible = $tournament->getResponsible();
         if (!$responsible->getId()->equals($tournamentCreator->getId())) {
-            $this->createNotification($notificationType, $responsible, $teamCreator, $tournamentId);
+            $this->createNotification($notificationType, $responsible, $teamCreator, $teamId, $tournamentId);
         }
     }
 
@@ -57,6 +58,7 @@ final readonly class CreateNotificationOnTournamentRequestSubscriber implements 
         NotificationType $notificationType,
         User $userToNotify,
         User $requester,
+        string $teamId,
         string $tournamentId,
     ): void {
         $notification = Notification::create(
@@ -66,7 +68,7 @@ final readonly class CreateNotificationOnTournamentRequestSubscriber implements 
             $requester,
             null,
             null,
-            null,
+            $teamId,
             $tournamentId,
         );
 

@@ -17,14 +17,20 @@ final class NotificationResponse
         public ?string $postId,
         public ?string $message,
         public ?string $teamId,
+        public ?string $teamName,
         public ?string $tournamentId,
+        public ?string $tournamentName,
         public string $date,
         public bool $read,
     ) {
     }
 
-    public static function fromEntity(Notification $notification, ?string $profileImage = null): self
-    {
+    public static function fromEntity(
+        Notification $notification,
+        ?string $profileImage = null,
+        ?string $teamName = null,
+        ?string $tournamentName = null,
+    ): self {
         return new self(
             $notification->getId()->value(),
             $notification->getNotificationType()->getName(),
@@ -34,7 +40,9 @@ final class NotificationResponse
             $notification->getPost()?->getId()?->value(),
             $notification->getMessage()?->getContent()->value(),
             $notification->getTeamId(),
+            $teamName,
             $notification->getTournamentId(),
+            $tournamentName,
             $notification->getCreatedAt()->format('Y-m-d H:i:s'),
             $notification->getIsRead(),
         );
