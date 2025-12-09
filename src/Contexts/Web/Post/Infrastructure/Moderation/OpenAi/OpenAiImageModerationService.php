@@ -37,14 +37,14 @@ final readonly class OpenAiImageModerationService implements ImageModerationServ
                     'messages' => [
                         [
                             'role' => 'system',
-                            'content' => 'You are a content moderation assistant. Analyze images and respond ONLY with a JSON object. No other text.',
+                            'content' => 'You are a content moderation assistant for an ESPORTS AND GAMING social network. This platform is specifically designed for gamers to share gaming-related content. Analyze images and respond ONLY with a JSON object. No other text.',
                         ],
                         [
                             'role' => 'user',
                             'content' => [
                                 [
                                     'type' => 'text',
-                                    'text' => 'Analyze this image for inappropriate content. Respond with a JSON object with two fields: "flagged" (boolean) and "category" (string, one of: "sexual", "violence", "hate", "harassment", "safe"). Only flag content that is clearly inappropriate.',
+                                    'text' => 'Analyze this image for inappropriate content. This is a gaming/esports social network, so screenshots from video games (like Valorant, League of Legends, Counter-Strike, Call of Duty, etc.) are ALLOWED and should NOT be flagged, even if they contain in-game violence, weapons, or combat. Only flag REAL violence, gore, or content that is clearly inappropriate outside of a gaming context. Respond with a JSON object with two fields: "flagged" (boolean) and "category" (string, one of: "sexual", "violence", "hate", "harassment", "safe"). Only flag content that is clearly inappropriate for a gaming community.',
                                 ],
                                 [
                                     'type' => 'image_url',
