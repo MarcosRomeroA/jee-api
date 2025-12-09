@@ -53,26 +53,26 @@ final readonly class NotificationSearcher
 
     private function findTeam(?string $teamId): ?Team
     {
-        if ($teamId === null) {
+        if ($teamId === null || $teamId === '') {
             return null;
         }
 
         try {
             return $this->teamRepository->findById(new Uuid($teamId));
-        } catch (\Exception) {
+        } catch (\Throwable) {
             return null;
         }
     }
 
     private function findTournament(?string $tournamentId): ?Tournament
     {
-        if ($tournamentId === null) {
+        if ($tournamentId === null || $tournamentId === '') {
             return null;
         }
 
         try {
             return $this->tournamentRepository->findById(new Uuid($tournamentId));
-        } catch (\Exception) {
+        } catch (\Throwable) {
             return null;
         }
     }
@@ -87,8 +87,18 @@ final readonly class NotificationSearcher
         return match ($type) {
             NotificationType::TEAM_REQUEST_ACCEPTED => $team?->getImageUrl($this->cdnBaseUrl),
             NotificationType::TOURNAMENT_REQUEST_RECEIVED => $team?->getImageUrl($this->cdnBaseUrl),
-            NotificationType::TOURNAMENT_REQUEST_ACCEPTED => $tournament?->getImageUrl($this->cdnBaseUrl),
-            default => $notification->getUser()?->getAvatarUrl(128, $this->cdnBaseUrl),
+            NotificationType::TOURNAMENT_REQUEST_ACCEPTED => $tournament?->getBackgroundImageUrl($this->cdnBaseUrl),
+            default => $this->getUserProfileImage($notification),
         };
+    }
+
+    private function getUserProfileImage(Notification $notification): ?string
+    {
+        $user = $notification->getUser();
+        if ($user === null) {
+            return null;
+        }
+
+        return $user->getAvatarUrl(128, $this->cdnBaseUrl);
     }
 }

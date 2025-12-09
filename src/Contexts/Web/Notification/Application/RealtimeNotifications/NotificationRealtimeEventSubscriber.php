@@ -103,9 +103,19 @@ final readonly class NotificationRealtimeEventSubscriber implements DomainEventS
         return match ($type) {
             NotificationType::TEAM_REQUEST_ACCEPTED => $team?->getImageUrl($this->cdnBaseUrl),
             NotificationType::TOURNAMENT_REQUEST_RECEIVED => $team?->getImageUrl($this->cdnBaseUrl),
-            NotificationType::TOURNAMENT_REQUEST_ACCEPTED => $tournament?->getImageUrl($this->cdnBaseUrl),
-            default => $notification->getUser()?->getAvatarUrl(128, $this->cdnBaseUrl),
+            NotificationType::TOURNAMENT_REQUEST_ACCEPTED => $tournament?->getBackgroundImageUrl($this->cdnBaseUrl),
+            default => $this->getUserProfileImage($notification),
         };
+    }
+
+    private function getUserProfileImage(Notification $notification): ?string
+    {
+        $user = $notification->getUser();
+        if ($user === null) {
+            return null;
+        }
+
+        return $user->getAvatarUrl(128, $this->cdnBaseUrl);
     }
 
     public static function subscribedTo(): array
