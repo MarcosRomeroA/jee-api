@@ -8,6 +8,8 @@ use App\Contexts\Shared\Domain\Aggregate\AggregateRoot;
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
 use App\Contexts\Web\Game\Domain\Game;
 use App\Contexts\Web\Game\Domain\GameRank;
+use App\Contexts\Web\Team\Domain\Team;
+use App\Contexts\Web\Tournament\Domain\Events\TournamentFinalizedDomainEvent;
 use App\Contexts\Web\User\Domain\User;
 use App\Contexts\Shared\Domain\Moderation\ModerationReason;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -111,6 +113,18 @@ class Tournament extends AggregateRoot
      */
     #[ORM\OneToMany(targetEntity: TournamentTeam::class, mappedBy: 'tournament', cascade: ['persist', 'remove'])]
     private Collection $tournamentTeams;
+
+    #[ORM\ManyToOne(targetEntity: Team::class)]
+    #[ORM\JoinColumn(name: 'first_place_team_id', referencedColumnName: 'id', nullable: true)]
+    private ?Team $firstPlaceTeam = null;
+
+    #[ORM\ManyToOne(targetEntity: Team::class)]
+    #[ORM\JoinColumn(name: 'second_place_team_id', referencedColumnName: 'id', nullable: true)]
+    private ?Team $secondPlaceTeam = null;
+
+    #[ORM\ManyToOne(targetEntity: Team::class)]
+    #[ORM\JoinColumn(name: 'third_place_team_id', referencedColumnName: 'id', nullable: true)]
+    private ?Team $thirdPlaceTeam = null;
 
     public function __construct(
         Uuid $id,
@@ -316,6 +330,21 @@ class Tournament extends AggregateRoot
         return $this->tournamentTeams;
     }
 
+    public function getFirstPlaceTeam(): ?Team
+    {
+        return $this->firstPlaceTeam;
+    }
+
+    public function getSecondPlaceTeam(): ?Team
+    {
+        return $this->secondPlaceTeam;
+    }
+
+    public function getThirdPlaceTeam(): ?Team
+    {
+        return $this->thirdPlaceTeam;
+    }
+
     // Business logic
     public function update(
         string $name,
@@ -431,5 +460,30 @@ class Tournament extends AggregateRoot
     public function getDisabledAt(): ?\DateTimeImmutable
     {
         return $this->disabledAt;
+    }
+
+    public function setFinalPositions(
+        Team $firstPlace,
+        ?Team $secondPlace,
+        ?Team $thirdPlace,
+        TournamentStatus $finalizedStatus,
+    ): void {
+        $this->firstPlaceTeam = $firstPlace;
+        $this->secondPlaceTeam = $secondPlace;
+        $this->thirdPlaceTeam = $thirdPlace;
+        $this->status = $finalizedStatus;
+        $this->updatedAt = new \DateTimeImmutable();
+
+        $this->record(new TournamentFinalizedDomainEvent(
+            $this->id->value(),
+            $firstPlace->getId()->value(),
+            $secondPlace?->getId()->value(),
+            $thirdPlace?->getId()->value(),
+        ));
+    }
+
+    public function isCreator(Uuid $userId): bool
+    {
+        return $this->creator->getId()->equals($userId);
     }
 }

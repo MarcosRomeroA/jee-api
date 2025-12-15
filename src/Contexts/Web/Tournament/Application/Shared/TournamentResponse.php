@@ -33,6 +33,9 @@ final class TournamentResponse extends Response
         public readonly ?string $updatedAt,
         public readonly ?string $deletedAt,
         public readonly bool $isUserRegistered = false,
+        public readonly ?string $firstPlaceTeamId = null,
+        public readonly ?string $secondPlaceTeamId = null,
+        public readonly ?string $thirdPlaceTeamId = null,
     ) {
     }
 
@@ -70,6 +73,9 @@ final class TournamentResponse extends Response
             $tournament->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
             $tournament->getDeletedAt()?->format(\DateTimeInterface::ATOM),
             $isUserRegistered,
+            $tournament->getFirstPlaceTeam()?->getId()->value(),
+            $tournament->getSecondPlaceTeam()?->getId()->value(),
+            $tournament->getThirdPlaceTeam()?->getId()->value(),
         );
     }
 
@@ -99,6 +105,9 @@ final class TournamentResponse extends Response
             'updatedAt' => $this->updatedAt,
             'deletedAt' => $this->deletedAt,
             'isUserRegistered' => $this->isUserRegistered,
+            'firstPlaceTeamId' => $this->firstPlaceTeamId,
+            'secondPlaceTeamId' => $this->secondPlaceTeamId,
+            'thirdPlaceTeamId' => $this->thirdPlaceTeamId,
         ];
     }
 }

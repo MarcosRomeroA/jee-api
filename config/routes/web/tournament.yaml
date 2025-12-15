@@ -47,6 +47,12 @@ delete_tournament:
     methods: [DELETE]
     defaults: { auth: true }
 
+set_tournament_final_positions:
+    path: /tournament/{tournamentId}/final-positions
+    controller: App\Apps\Web\Tournament\SetFinalPositions\SetFinalPositionsController
+    methods: [PUT]
+    defaults: { auth: true }
+
 tournament_add_team:
     path: /tournament/{tournamentId}/team/{teamId}
     controller: App\Apps\Web\Tournament\AddTeam\TournamentAddTeamController
