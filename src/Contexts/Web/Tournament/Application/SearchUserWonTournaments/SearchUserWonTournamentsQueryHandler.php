@@ -21,6 +21,8 @@ final readonly class SearchUserWonTournamentsQueryHandler implements QueryHandle
             new Uuid($query->userId),
             $query->limit,
             $query->page,
+            $query->teamId ? new Uuid($query->teamId) : null,
+            $query->tournamentId ? new Uuid($query->tournamentId) : null,
         );
     }
 }

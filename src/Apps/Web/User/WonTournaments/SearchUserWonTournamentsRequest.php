@@ -20,6 +20,10 @@ final readonly class SearchUserWonTournamentsRequest
         #[Assert\Type("int")]
         #[Assert\Positive]
         public int $page = 1,
+        #[Assert\Uuid]
+        public ?string $teamId = null,
+        #[Assert\Uuid]
+        public ?string $tournamentId = null,
     ) {
     }
 
@@ -29,6 +33,8 @@ final readonly class SearchUserWonTournamentsRequest
             $userId,
             $request->query->getInt("limit", 10),
             $request->query->getInt("page", 1),
+            $request->query->get("teamId"),
+            $request->query->get("tournamentId"),
         );
     }
 
@@ -38,6 +44,8 @@ final readonly class SearchUserWonTournamentsRequest
             $this->userId,
             $this->limit,
             $this->page,
+            $this->teamId,
+            $this->tournamentId,
         );
     }
 }

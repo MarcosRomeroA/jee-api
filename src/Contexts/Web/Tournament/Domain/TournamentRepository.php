@@ -65,7 +65,17 @@ interface TournamentRepository
     /**
      * @return array<Tournament>
      */
-    public function findWonByUserId(Uuid $userId, int $limit, int $offset): array;
+    public function findWonByUserId(
+        Uuid $userId,
+        int $limit,
+        int $offset,
+        ?Uuid $teamId = null,
+        ?Uuid $tournamentId = null,
+    ): array;
 
-    public function countWonByUserId(Uuid $userId): int;
+    public function countWonByUserId(
+        Uuid $userId,
+        ?Uuid $teamId = null,
+        ?Uuid $tournamentId = null,
+    ): int;
 }

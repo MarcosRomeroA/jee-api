@@ -289,8 +289,13 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
         return (int) $result;
     }
 
-    public function findWonByUserId(Uuid $userId, int $limit, int $offset): array
-    {
+    public function findWonByUserId(
+        Uuid $userId,
+        int $limit,
+        int $offset,
+        ?Uuid $teamId = null,
+        ?Uuid $tournamentId = null,
+    ): array {
         $qb = $this->createQueryBuilder("t")
             ->join("t.firstPlaceTeam", "team")
             ->join("team.teamUsers", "tu")
@@ -302,11 +307,24 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
             ->setMaxResults($limit)
             ->setFirstResult($offset);
 
+        if ($teamId !== null) {
+            $qb->andWhere("team.id = :teamId")
+                ->setParameter("teamId", $teamId->value());
+        }
+
+        if ($tournamentId !== null) {
+            $qb->andWhere("t.id = :tournamentId")
+                ->setParameter("tournamentId", $tournamentId->value());
+        }
+
         return $qb->getQuery()->getResult();
     }
 
-    public function countWonByUserId(Uuid $userId): int
-    {
+    public function countWonByUserId(
+        Uuid $userId,
+        ?Uuid $teamId = null,
+        ?Uuid $tournamentId = null,
+    ): int {
         $qb = $this->createQueryBuilder("t")
             ->select("COUNT(t.id)")
             ->join("t.firstPlaceTeam", "team")
@@ -315,6 +333,16 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
             ->andWhere("u.id = :userId")
             ->andWhere("t.deletedAt IS NULL")
             ->setParameter("userId", $userId->value());
+
+        if ($teamId !== null) {
+            $qb->andWhere("team.id = :teamId")
+                ->setParameter("teamId", $teamId->value());
+        }
+
+        if ($tournamentId !== null) {
+            $qb->andWhere("t.id = :tournamentId")
+                ->setParameter("tournamentId", $tournamentId->value());
+        }
 
         try {
             $result = $qb->getQuery()->getSingleScalarResult();

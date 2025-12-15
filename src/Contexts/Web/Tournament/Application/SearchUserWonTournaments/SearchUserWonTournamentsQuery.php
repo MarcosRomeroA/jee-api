@@ -12,6 +12,8 @@ final readonly class SearchUserWonTournamentsQuery implements Query
         public string $userId,
         public int $limit = 10,
         public int $page = 1,
+        public ?string $teamId = null,
+        public ?string $tournamentId = null,
     ) {
     }
 }
