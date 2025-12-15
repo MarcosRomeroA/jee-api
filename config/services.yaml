@@ -257,6 +257,10 @@ services:
         arguments:
             $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
 
+    App\Contexts\Web\Tournament\Application\SearchUserWonTournaments\UserWonTournamentsSearcher:
+        arguments:
+            $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"
+
     App\Contexts\Web\Tournament\Application\FindBackgroundImage\TournamentBackgroundImageFinder:
         arguments:
             $cdnBaseUrl: "%env(R2_PUBLIC_URL)%"

@@ -288,4 +288,40 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
 
         return (int) $result;
     }
+
+    public function findWonByUserId(Uuid $userId, int $limit, int $offset): array
+    {
+        $qb = $this->createQueryBuilder("t")
+            ->join("t.firstPlaceTeam", "team")
+            ->join("team.teamUsers", "tu")
+            ->join("tu.user", "u")
+            ->andWhere("u.id = :userId")
+            ->andWhere("t.deletedAt IS NULL")
+            ->setParameter("userId", $userId->value())
+            ->orderBy("t.updatedAt", "DESC")
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function countWonByUserId(Uuid $userId): int
+    {
+        $qb = $this->createQueryBuilder("t")
+            ->select("COUNT(t.id)")
+            ->join("t.firstPlaceTeam", "team")
+            ->join("team.teamUsers", "tu")
+            ->join("tu.user", "u")
+            ->andWhere("u.id = :userId")
+            ->andWhere("t.deletedAt IS NULL")
+            ->setParameter("userId", $userId->value());
+
+        try {
+            $result = $qb->getQuery()->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            $result = 0;
+        }
+
+        return (int) $result;
+    }
 }

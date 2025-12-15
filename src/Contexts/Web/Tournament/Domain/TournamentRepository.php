@@ -61,4 +61,11 @@ interface TournamentRepository
     public function searchByCriteria(array $criteria): array;
 
     public function countByCriteria(array $criteria): int;
+
+    /**
+     * @return array<Tournament>
+     */
+    public function findWonByUserId(Uuid $userId, int $limit, int $offset): array;
+
+    public function countWonByUserId(Uuid $userId): int;
 }
