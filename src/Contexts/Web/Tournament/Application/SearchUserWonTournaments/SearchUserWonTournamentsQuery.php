@@ -9,9 +9,9 @@ use App\Contexts\Shared\Domain\CQRS\Query\Query;
 final readonly class SearchUserWonTournamentsQuery implements Query
 {
     public function __construct(
-        public string $userId,
         public int $limit = 10,
         public int $page = 1,
+        public ?string $userId = null,
         public ?string $teamId = null,
         public ?string $tournamentId = null,
     ) {

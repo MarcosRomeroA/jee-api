@@ -17,7 +17,7 @@ find_user_tournaments:
     defaults: { auth: true }
 
 search_user_won_tournaments:
-    path: /user/{userId}/tournaments/won
+    path: /tournaments/won
     controller: App\Apps\Web\User\WonTournaments\SearchUserWonTournamentsController
     methods: [GET]
     defaults: { auth: true }

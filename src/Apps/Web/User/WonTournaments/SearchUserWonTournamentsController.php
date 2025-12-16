@@ -11,10 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 final class SearchUserWonTournamentsController extends ApiController
 {
     public function __invoke(
-        string $userId,
         Request $request,
     ): Response {
-        $input = SearchUserWonTournamentsRequest::fromHttp($userId, $request);
+        $input = SearchUserWonTournamentsRequest::fromHttp($request);
         $this->validateRequest($input);
 
         $query = $input->toQuery();

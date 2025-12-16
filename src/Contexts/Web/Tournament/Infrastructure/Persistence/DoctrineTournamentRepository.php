@@ -289,23 +289,26 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
         return (int) $result;
     }
 
-    public function findWonByUserId(
-        Uuid $userId,
+    public function findWonTournaments(
         int $limit,
         int $offset,
+        ?Uuid $userId = null,
         ?Uuid $teamId = null,
         ?Uuid $tournamentId = null,
     ): array {
         $qb = $this->createQueryBuilder("t")
             ->join("t.firstPlaceTeam", "team")
-            ->join("team.teamUsers", "tu")
-            ->join("tu.user", "u")
-            ->andWhere("u.id = :userId")
             ->andWhere("t.deletedAt IS NULL")
-            ->setParameter("userId", $userId->value())
             ->orderBy("t.updatedAt", "DESC")
             ->setMaxResults($limit)
             ->setFirstResult($offset);
+
+        if ($userId !== null) {
+            $qb->join("team.teamUsers", "tu")
+                ->join("tu.user", "u")
+                ->andWhere("u.id = :userId")
+                ->setParameter("userId", $userId->value());
+        }
 
         if ($teamId !== null) {
             $qb->andWhere("team.id = :teamId")
@@ -320,19 +323,22 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
         return $qb->getQuery()->getResult();
     }
 
-    public function countWonByUserId(
-        Uuid $userId,
+    public function countWonTournaments(
+        ?Uuid $userId = null,
         ?Uuid $teamId = null,
         ?Uuid $tournamentId = null,
     ): int {
         $qb = $this->createQueryBuilder("t")
             ->select("COUNT(t.id)")
             ->join("t.firstPlaceTeam", "team")
-            ->join("team.teamUsers", "tu")
-            ->join("tu.user", "u")
-            ->andWhere("u.id = :userId")
-            ->andWhere("t.deletedAt IS NULL")
-            ->setParameter("userId", $userId->value());
+            ->andWhere("t.deletedAt IS NULL");
+
+        if ($userId !== null) {
+            $qb->join("team.teamUsers", "tu")
+                ->join("tu.user", "u")
+                ->andWhere("u.id = :userId")
+                ->setParameter("userId", $userId->value());
+        }
 
         if ($teamId !== null) {
             $qb->andWhere("team.id = :teamId")

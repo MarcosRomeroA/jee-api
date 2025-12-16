@@ -18,16 +18,16 @@ final readonly class UserWonTournamentsSearcher
     }
 
     public function __invoke(
-        Uuid $userId,
         int $limit,
         int $page,
+        ?Uuid $userId = null,
         ?Uuid $teamId = null,
         ?Uuid $tournamentId = null,
     ): PaginatedResponse {
         $offset = ($page - 1) * $limit;
 
-        $tournaments = $this->repository->findWonByUserId($userId, $limit, $offset, $teamId, $tournamentId);
-        $total = $this->repository->countWonByUserId($userId, $teamId, $tournamentId);
+        $tournaments = $this->repository->findWonTournaments($limit, $offset, $userId, $teamId, $tournamentId);
+        $total = $this->repository->countWonTournaments($userId, $teamId, $tournamentId);
 
         $tournamentsResponse = array_map(
             fn ($tournament) => TournamentResponse::fromTournament($tournament, $this->cdnBaseUrl)->toArray(),

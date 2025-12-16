@@ -18,9 +18,9 @@ final readonly class SearchUserWonTournamentsQueryHandler implements QueryHandle
     public function __invoke(SearchUserWonTournamentsQuery $query): PaginatedResponse
     {
         return $this->searcher->__invoke(
-            new Uuid($query->userId),
             $query->limit,
             $query->page,
+            $query->userId ? new Uuid($query->userId) : null,
             $query->teamId ? new Uuid($query->teamId) : null,
             $query->tournamentId ? new Uuid($query->tournamentId) : null,
         );
