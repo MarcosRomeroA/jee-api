@@ -3,14 +3,13 @@
 namespace App\Apps\Web\Team\SearchRosters;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
-use App\Contexts\Web\Team\Application\SearchRosters\SearchRostersQuery;
 use Symfony\Component\HttpFoundation\Response;
 
 final class SearchRostersController extends ApiController
 {
-    public function __invoke(string $teamId): Response
+    public function __invoke(string $teamId, SearchRostersRequest $request): Response
     {
-        $query = new SearchRostersQuery($teamId);
+        $query = $request->toQuery($teamId);
         $response = $this->queryBus->ask($query);
 
         return $this->collectionResponse($response);

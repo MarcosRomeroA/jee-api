@@ -18,6 +18,13 @@ interface RosterRepository
      */
     public function findByTeamId(Uuid $teamId): array;
 
+    /**
+     * @return array<Roster>
+     */
+    public function findByTeamIdWithPagination(Uuid $teamId, int $limit, int $offset): array;
+
+    public function countByTeamId(Uuid $teamId): int;
+
     public function delete(Roster $roster): void;
 
     public function existsById(Uuid $id): bool;

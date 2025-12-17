@@ -15,15 +15,16 @@ final class RostersSearcher
     ) {
     }
 
-    public function __invoke(Uuid $teamId): RosterCollectionResponse
+    public function __invoke(Uuid $teamId, int $limit = 10, int $offset = 0): RosterCollectionResponse
     {
-        $rosters = $this->rosterRepository->findByTeamId($teamId);
+        $rosters = $this->rosterRepository->findByTeamIdWithPagination($teamId, $limit, $offset);
+        $total = $this->rosterRepository->countByTeamId($teamId);
 
         $responses = array_map(
             fn ($roster) => RosterResponse::fromRoster($roster, $this->cdnBaseUrl),
             $rosters
         );
 
-        return new RosterCollectionResponse($responses, count($responses));
+        return new RosterCollectionResponse($responses, $total);
     }
 }

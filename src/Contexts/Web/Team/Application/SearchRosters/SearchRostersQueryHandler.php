@@ -16,6 +16,8 @@ final readonly class SearchRostersQueryHandler implements QueryHandler
     {
         return $this->searcher->__invoke(
             new Uuid($query->teamId),
+            $query->limit,
+            $query->offset,
         );
     }
 }

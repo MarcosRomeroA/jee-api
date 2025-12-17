@@ -45,18 +45,30 @@ abstract readonly class BaseRequest
 
         try{
             $requestData = $request->toArray();
-            if ($q){
+            // Solo establecer valores por defecto si la clase hijo tiene la propiedad 'q'
+            if ($this->hasQProperty()) {
+                if ($q === null) {
+                    $q = [];
+                }
                 $q['limit'] = isset($q['limit']) ? (int)$q['limit'] : 10;
                 $q['offset'] = isset($q['offset']) ? (int)$q['offset'] : 0;
+                $requestData['q'] = $q;
+            } elseif ($q) {
                 $requestData['q'] = $q;
             }
             return $requestData;
         }
         catch (\Exception){
             $requestData = [];
-            if ($q){
+            // Solo establecer valores por defecto si la clase hijo tiene la propiedad 'q'
+            if ($this->hasQProperty()) {
+                if ($q === null) {
+                    $q = [];
+                }
                 $q['limit'] = isset($q['limit']) ? (int)$q['limit'] : 10;
                 $q['offset'] = isset($q['offset']) ? (int)$q['offset'] : 0;
+                $requestData['q'] = $q;
+            } elseif ($q) {
                 $requestData['q'] = $q;
             }
             return $requestData;
@@ -93,6 +105,18 @@ abstract readonly class BaseRequest
         }
         else{
             return null;
+        }
+    }
+
+    private function hasQProperty(): bool
+    {
+        $reflectionClass = new ReflectionClass($this);
+
+        try {
+            $property = $reflectionClass->getProperty('q');
+            return $property->isPublic() && !$property->isStatic();
+        } catch (\ReflectionException $e) {
+            return false;
         }
     }
 }

@@ -47,6 +47,30 @@ final class MysqlRosterRepository extends ServiceEntityRepository implements Ros
             ->getResult();
     }
 
+    public function findByTeamIdWithPagination(Uuid $teamId, int $limit, int $offset): array
+    {
+        return $this->createQueryBuilder('r')
+            ->join('r.team', 't')
+            ->andWhere('t.id = :teamId')
+            ->setParameter('teamId', $teamId)
+            ->orderBy('r.createdAt.value', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countByTeamId(Uuid $teamId): int
+    {
+        return (int) $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->join('r.team', 't')
+            ->andWhere('t.id = :teamId')
+            ->setParameter('teamId', $teamId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function delete(Roster $roster): void
     {
         $this->getEntityManager()->remove($roster);
