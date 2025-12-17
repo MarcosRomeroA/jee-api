@@ -37,27 +37,57 @@ final readonly class SearchPostsByPopularHashtagQueryHandler implements QueryHan
         );
 
         foreach ($posts as $post) {
-            $post->setResourceUrls($this->getPostResources->__invoke($post));
-            $post->getUser()->setUrlProfileImage(
-                $post->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
-            );
+            try {
+                // Set defaults
+                $post->setResourceUrls([]);
+                $post->setSharesQuantity(0);
+                $post->setSharedPost(null);
 
-            if ($post->getSharedPostId()) {
+                // Try to load resources
                 try {
-                    $sharedPost = $this->repository->findById($post->getSharedPostId());
-                    $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
-                    $sharedPost->getUser()->setUrlProfileImage(
-                        $sharedPost->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
-                    );
-                    $post->setSharedPost($sharedPost);
+                    $post->setResourceUrls($this->getPostResources->__invoke($post));
                 } catch (\Exception $e) {
-                    // If shared post doesn't exist (was deleted), set sharedPost to null
-                    $post->setSharedPost(null);
+                    // Keep empty array
                 }
-            }
 
-            $sharesQuantity = $this->repository->findSharesQuantity($post->getId());
-            $post->setSharesQuantity($sharesQuantity);
+                // Try to load user avatar
+                try {
+                    $post->getUser()->setUrlProfileImage(
+                        $post->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
+                    );
+                } catch (\Exception $e) {
+                    // Continue without avatar
+                }
+
+                // Try to load shared post
+                if ($post->getSharedPostId()) {
+                    try {
+                        $sharedPost = $this->repository->findById($post->getSharedPostId());
+                        $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
+                        $sharedPost->getUser()->setUrlProfileImage(
+                            $sharedPost->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
+                        );
+                        $post->setSharedPost($sharedPost);
+                    } catch (\Exception $e) {
+                        // Keep null
+                    }
+                }
+
+                // Try to load shares quantity
+                try {
+                    $sharesQuantity = $this->repository->findSharesQuantity($post->getId());
+                    $post->setSharesQuantity($sharesQuantity);
+                } catch (\Exception $e) {
+                    // Keep 0
+                }
+            } catch (\Exception $e) {
+                // Log but include post anyway
+                error_log(sprintf(
+                    'Failed to fully process post %s in popular hashtag search: %s',
+                    $post->getId()->value(),
+                    $e->getMessage()
+                ));
+            }
         }
 
         $postsData = array_map(

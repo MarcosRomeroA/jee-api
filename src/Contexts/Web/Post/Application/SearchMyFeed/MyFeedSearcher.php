@@ -27,31 +27,67 @@ final readonly class MyFeedSearcher
         $posts = $this->repository->searchFeed($userId, $criteria);
 
         foreach ($posts as $post) {
-            $post->setResourceUrls($this->getPostResources->__invoke($post));
-            $post->getUser()->setUrlProfileImage(
-                $post->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
-            );
+            try {
+                // Set default values in case of any error
+                $post->setResourceUrls([]);
+                $post->setSharesQuantity(0);
+                $post->setHasShared(false);
+                $post->setSharedPost(null);
 
-            if ($post->getSharedPostId()) {
+                // Try to load resources
                 try {
-                    $sharedPost = $this->repository->findById($post->getSharedPostId());
-                    $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
-                    $sharedPost->getUser()->setUrlProfileImage(
-                        $sharedPost->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
-                    );
-
-                    $post->setSharedPost($sharedPost);
+                    $post->setResourceUrls($this->getPostResources->__invoke($post));
                 } catch (\Exception $e) {
-                    // If shared post doesn't exist (was deleted), set sharedPost to null
-                    $post->setSharedPost(null);
+                    // Keep empty array as default
                 }
+
+                // Try to load user profile image
+                try {
+                    $post->getUser()->setUrlProfileImage(
+                        $post->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
+                    );
+                } catch (\Exception $e) {
+                    // User avatar loading failed, continue without it
+                }
+
+                // Try to load shared post if exists
+                if ($post->getSharedPostId()) {
+                    try {
+                        $sharedPost = $this->repository->findById($post->getSharedPostId());
+                        $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
+                        $sharedPost->getUser()->setUrlProfileImage(
+                            $sharedPost->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
+                        );
+                        $post->setSharedPost($sharedPost);
+                    } catch (\Exception $e) {
+                        // Shared post doesn't exist or failed to load, keep null
+                    }
+                }
+
+                // Try to load shares quantity
+                try {
+                    $sharesQuantity = $this->repository->findSharesQuantity($post->getId());
+                    $post->setSharesQuantity($sharesQuantity);
+                } catch (\Exception $e) {
+                    // Keep 0 as default
+                }
+
+                // Try to check if user has shared
+                try {
+                    $hasShared = $this->repository->hasUserSharedPost($post->getId(), $userId);
+                    $post->setHasShared($hasShared);
+                } catch (\Exception $e) {
+                    // Keep false as default
+                }
+            } catch (\Exception $e) {
+                // Even if everything fails, include the post with minimal data
+                // This ensures the count matches the requested limit
+                error_log(sprintf(
+                    'Failed to fully process post %s in feed: %s',
+                    $post->getId()->value(),
+                    $e->getMessage()
+                ));
             }
-
-            $sharesQuantity = $this->repository->findSharesQuantity($post->getId());
-            $post->setSharesQuantity($sharesQuantity);
-
-            $hasShared = $this->repository->hasUserSharedPost($post->getId(), $userId);
-            $post->setHasShared($hasShared);
         }
 
         $total = $this->repository->countFeed($userId);

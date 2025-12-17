@@ -39,12 +39,22 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
      */
     public function searchAll(): array
     {
-        return $this->findAll();
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.disabled = false')
+            ->orderBy('p.createdAt.value', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 
     public function findByUser(User $user): ?array
     {
-        return $this->findBy(["user" => $user]);
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.user = :user')
+            ->andWhere('p.disabled = false')
+            ->setParameter('user', $user)
+            ->orderBy('p.createdAt.value', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 
     public function findById(Uuid $id): Post
@@ -70,6 +80,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
 
         $qb = $this->createQueryBuilder('p')
             ->where('p.id IN (:ids)')
+            ->andWhere('p.disabled = false')
             ->setParameter('ids', $ids);
 
         return $qb->getQuery()->getResult();
