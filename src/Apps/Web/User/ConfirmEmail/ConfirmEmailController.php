@@ -6,6 +6,7 @@ namespace App\Apps\Web\User\ConfirmEmail;
 
 use App\Contexts\Shared\Infrastructure\Symfony\ApiController;
 use App\Contexts\Web\User\Application\ConfirmEmail\ConfirmEmailCommand;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ConfirmEmailController extends ApiController
@@ -16,6 +17,6 @@ final class ConfirmEmailController extends ApiController
 
         $this->commandBus->dispatch($command);
 
-        return new Response('', Response::HTTP_OK);
+        return new RedirectResponse('https://www.jugaenequipo.com/auth/login?validated=true');
     }
 }

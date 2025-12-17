@@ -358,4 +358,20 @@ final class DoctrineTournamentRepository extends ServiceEntityRepository impleme
 
         return (int) $result;
     }
+
+    public function findActiveTournamentsToFinalize(): array
+    {
+        $qb = $this->createQueryBuilder("t")
+            ->join("t.status", "s")
+            ->andWhere("s.id IN (:statusIds)")
+            ->andWhere("t.endAt < :now")
+            ->andWhere("t.deletedAt IS NULL")
+            ->setParameter("statusIds", [
+                \App\Contexts\Web\Tournament\Domain\TournamentStatus::CREATED,
+                \App\Contexts\Web\Tournament\Domain\TournamentStatus::ACTIVE,
+            ])
+            ->setParameter("now", new \DateTimeImmutable());
+
+        return $qb->getQuery()->getResult();
+    }
 }

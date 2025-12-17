@@ -78,4 +78,11 @@ interface TournamentRepository
         ?Uuid $teamId = null,
         ?Uuid $tournamentId = null,
     ): int;
+
+    /**
+     * Find all active tournaments that have ended and should be finalized.
+     *
+     * @return array<Tournament>
+     */
+    public function findActiveTournamentsToFinalize(): array;
 }

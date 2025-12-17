@@ -482,6 +482,12 @@ class Tournament extends AggregateRoot
         ));
     }
 
+    public function finalize(TournamentStatus $finalizedStatus): void
+    {
+        $this->status = $finalizedStatus;
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
     public function isCreator(Uuid $userId): bool
     {
         return $this->creator->getId()->equals($userId);
