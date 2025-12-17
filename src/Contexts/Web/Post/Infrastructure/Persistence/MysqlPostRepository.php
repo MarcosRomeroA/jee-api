@@ -89,6 +89,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
     public function searchFeed(Uuid $userId, ?array $criteria = null): array
     {
         $qb = $this->createQueryBuilder("p")
+            ->select("DISTINCT p")
             ->innerJoin("p.user", "u")
             ->leftJoin("u.followers", "f")
             ->where("(f.follower = :userId OR u.id = :userId)")
@@ -255,7 +256,7 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
     public function countFeed(Uuid $userId): int
     {
         $qb = $this->createQueryBuilder("p")
-            ->select("COUNT(p.id)")
+            ->select("COUNT(DISTINCT p.id)")
             ->innerJoin("p.user", "u")
             ->leftJoin("u.followers", "f")
             ->where("(f.follower = :userId OR u.id = :userId)")
