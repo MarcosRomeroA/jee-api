@@ -247,7 +247,7 @@ class Post extends AggregateRoot
         $this->sharesQuantity = $sharesQuantity;
     }
 
-    public function setSharedPost(Post $sharedPost): void
+    public function setSharedPost(?Post $sharedPost): void
     {
         $this->sharedPost = $sharedPost;
     }

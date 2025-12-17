@@ -31,13 +31,18 @@ final readonly class PostFinder
         );
 
         if ($post->getSharedPostId()) {
-            $sharedPost = $this->repository->findById($post->getSharedPostId());
-            $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
-            $sharedPost->getUser()->setUrlProfileImage(
-                $sharedPost->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
-            );
+            try {
+                $sharedPost = $this->repository->findById($post->getSharedPostId());
+                $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
+                $sharedPost->getUser()->setUrlProfileImage(
+                    $sharedPost->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
+                );
 
-            $post->setSharedPost($sharedPost);
+                $post->setSharedPost($sharedPost);
+            } catch (\Exception $e) {
+                // If shared post doesn't exist (was deleted), set sharedPost to null
+                $post->setSharedPost(null);
+            }
         }
 
         $sharesQuantity = $this->repository->findSharesQuantity($id);

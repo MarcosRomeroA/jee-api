@@ -37,7 +37,13 @@ readonly class CreateNotificationOnPostSharedSubscriber implements DomainEventSu
             return;
         }
 
-        $sharedPost = $this->postRepository->findById($post->getSharedPostId());
+        try {
+            $sharedPost = $this->postRepository->findById($post->getSharedPostId());
+        } catch (\Exception $e) {
+            // If shared post doesn't exist (was deleted), don't create notification
+            return;
+        }
+
         $originalPostAuthor = $sharedPost->getUser();
         $userWhoShared = $post->getUser();
 

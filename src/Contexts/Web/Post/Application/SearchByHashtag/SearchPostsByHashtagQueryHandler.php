@@ -39,12 +39,17 @@ final readonly class SearchPostsByHashtagQueryHandler implements QueryHandler
             );
 
             if ($post->getSharedPostId()) {
-                $sharedPost = $this->repository->findById($post->getSharedPostId());
-                $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
-                $sharedPost->getUser()->setUrlProfileImage(
-                    $sharedPost->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
-                );
-                $post->setSharedPost($sharedPost);
+                try {
+                    $sharedPost = $this->repository->findById($post->getSharedPostId());
+                    $sharedPost->setResourceUrls($this->getPostResources->__invoke($sharedPost));
+                    $sharedPost->getUser()->setUrlProfileImage(
+                        $sharedPost->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
+                    );
+                    $post->setSharedPost($sharedPost);
+                } catch (\Exception $e) {
+                    // If shared post doesn't exist (was deleted), set sharedPost to null
+                    $post->setSharedPost(null);
+                }
             }
 
             $sharesQuantity = $this->repository->findSharesQuantity($post->getId());

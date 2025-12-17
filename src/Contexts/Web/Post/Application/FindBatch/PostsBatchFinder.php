@@ -34,13 +34,18 @@ final readonly class PostsBatchFinder
             );
 
             if ($post->getSharedPostId() !== null) {
-                $sharedPostEntity = $this->postRepository->findById($post->getSharedPostId());
-                $sharedPostEntity->setResourceUrls($this->getPostResources->__invoke($sharedPostEntity));
-                $sharedPostEntity->getUser()->setUrlProfileImage(
-                    $sharedPostEntity->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
-                );
+                try {
+                    $sharedPostEntity = $this->postRepository->findById($post->getSharedPostId());
+                    $sharedPostEntity->setResourceUrls($this->getPostResources->__invoke($sharedPostEntity));
+                    $sharedPostEntity->getUser()->setUrlProfileImage(
+                        $sharedPostEntity->getUser()->getAvatarUrl(128, $this->cdnBaseUrl)
+                    );
 
-                $post->setSharedPost($sharedPostEntity);
+                    $post->setSharedPost($sharedPostEntity);
+                } catch (\Exception $e) {
+                    // If shared post doesn't exist (was deleted), set sharedPost to null
+                    $post->setSharedPost(null);
+                }
             }
 
             $sharesQuantity = $this->postRepository->findSharesQuantity($post->getId());
