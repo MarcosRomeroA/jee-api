@@ -97,9 +97,18 @@ abstract readonly class BaseRequest
             $parameters = explode(';', $q);
             $criteria = [];
             foreach ($parameters as $parameter){
-                $key = explode(':', $parameter)[0];
-                $value = explode(':', $parameter)[1];
-                $criteria[$key] = $value;
+                $parts = explode(':', $parameter, 2);
+                if (count($parts) === 2) {
+                    $key = $parts[0];
+                    $value = $parts[1];
+
+                    // Convert numeric strings to integers
+                    if (is_numeric($value)) {
+                        $criteria[$key] = (int) $value;
+                    } else {
+                        $criteria[$key] = $value;
+                    }
+                }
             }
             return $criteria;
         }

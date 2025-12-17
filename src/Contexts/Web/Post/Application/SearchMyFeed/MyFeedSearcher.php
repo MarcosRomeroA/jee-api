@@ -51,6 +51,15 @@ final readonly class MyFeedSearcher
 
         $total = $this->repository->countFeed($userId);
 
-        return new PostCollectionResponse($posts, $criteria ?? ["limit" => 0, "offset" => 0], $total, $userId->value());
+        // Ensure criteria has proper default values
+        $responseCriteria = $criteria ?? ["limit" => 10, "offset" => 0];
+        if (!isset($responseCriteria["limit"])) {
+            $responseCriteria["limit"] = 10;
+        }
+        if (!isset($responseCriteria["offset"])) {
+            $responseCriteria["offset"] = 0;
+        }
+
+        return new PostCollectionResponse($posts, $responseCriteria, $total, $userId->value());
     }
 }

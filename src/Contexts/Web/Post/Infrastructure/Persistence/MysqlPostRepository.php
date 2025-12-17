@@ -84,15 +84,21 @@ final class MysqlPostRepository extends ServiceEntityRepository implements PostR
             ->andWhere("p.disabled = false")
             ->setParameter("userId", $userId);
 
+        // Default values
+        $limit = 10;
+        $offset = 0;
+
         if (!is_null($criteria)) {
             if (isset($criteria["limit"]) && (int) $criteria["limit"] > 0) {
-                $qb->setMaxResults((int) $criteria["limit"]);
+                $limit = (int) $criteria["limit"];
             }
             if (isset($criteria["offset"]) && (int) $criteria["offset"] >= 0) {
-                $qb->setFirstResult((int) $criteria["offset"]);
+                $offset = (int) $criteria["offset"];
             }
         }
 
+        $qb->setMaxResults($limit);
+        $qb->setFirstResult($offset);
         $qb->orderBy("p.createdAt.value", "DESC");
 
         return $qb->getQuery()->getResult();
