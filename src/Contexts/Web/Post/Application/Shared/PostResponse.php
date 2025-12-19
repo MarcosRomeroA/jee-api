@@ -54,7 +54,7 @@ final class PostResponse extends Response
             $sharedPostResponse?->toArray(),
             count($post->getLikes()->toArray()),
             $post->getSharesQuantity(),
-            count($post->getComments()->toArray()),
+            count(array_filter($post->getComments()->toArray(), fn($c) => !$c->isDisabled())),
             $hasLiked,
             $hasShared,
         );
