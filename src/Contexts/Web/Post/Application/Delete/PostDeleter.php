@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Contexts\Web\Post\Application\Delete;
 
 use App\Contexts\Shared\Domain\ValueObject\Uuid;
+use App\Contexts\Web\Notification\Domain\NotificationRepository;
 use App\Contexts\Web\Post\Domain\Exception\PostDeletionNotAllowedException;
 use App\Contexts\Web\Post\Domain\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,8 +13,9 @@ use Doctrine\ORM\EntityManagerInterface;
 final readonly class PostDeleter
 {
     public function __construct(
-        private PostRepository         $postRepository,
-        private EntityManagerInterface $entityManager
+        private PostRepository $postRepository,
+        private NotificationRepository $notificationRepository,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -29,6 +31,7 @@ final readonly class PostDeleter
         }
 
         $this->postRepository->nullifySharedPostIdByPostId($postId);
+        $this->notificationRepository->nullifyPostIdByPostId($postId);
 
         $this->entityManager->remove($post);
 

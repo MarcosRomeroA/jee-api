@@ -46,4 +46,6 @@ interface NotificationRepository
      * @return int
      */
     public function countByCriteria(?array $criteria): int;
+
+    public function nullifyPostIdByPostId(Uuid $postId): void;
 }

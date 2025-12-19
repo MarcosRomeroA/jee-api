@@ -121,4 +121,16 @@ class MysqlNotificationRepository implements NotificationRepository
 
         return (int) $queryBuilder->getQuery()->getSingleScalarResult();
     }
+
+    public function nullifyPostIdByPostId(Uuid $postId): void
+    {
+        $this->entityManager->createQueryBuilder()
+            ->update(Notification::class, 'n')
+            ->set('n.post', ':null')
+            ->where('n.post = :postId')
+            ->setParameter('null', null)
+            ->setParameter('postId', $postId->value())
+            ->getQuery()
+            ->execute();
+    }
 }
