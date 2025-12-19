@@ -38,6 +38,9 @@ class Notification extends AggregateRoot
     #[ORM\Column(type: 'string', length: 36, nullable: true)]
     private ?string $tournamentId = null;
 
+    #[ORM\Column(type: 'string', length: 36, nullable: true)]
+    private ?string $commentId = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -52,7 +55,8 @@ class Notification extends AggregateRoot
         ?Post $post,
         ?Message $message,
         ?string $teamId = null,
-        ?string $tournamentId = null
+        ?string $tournamentId = null,
+        ?string $commentId = null
     )
     {
         $this->id = $id;
@@ -63,6 +67,7 @@ class Notification extends AggregateRoot
         $this->message = $message;
         $this->teamId = $teamId;
         $this->tournamentId = $tournamentId;
+        $this->commentId = $commentId;
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -74,10 +79,11 @@ class Notification extends AggregateRoot
         ?Post $post = null,
         ?Message $message = null,
         ?string $teamId = null,
-        ?string $tournamentId = null
+        ?string $tournamentId = null,
+        ?string $commentId = null
     ): self
     {
-        $notification = new self($id, $notificationType, $userToNotify, $user, $post, $message, $teamId, $tournamentId);
+        $notification = new self($id, $notificationType, $userToNotify, $user, $post, $message, $teamId, $tournamentId, $commentId);
 
         $notification->record(new NotificationCreatedEvent(
             $notification->getId(),
@@ -87,7 +93,8 @@ class Notification extends AggregateRoot
             $post?->getId()?->value(),
             $message?->getId()?->value(),
             $teamId,
-            $tournamentId
+            $tournamentId,
+            $commentId
         ));
 
         return $notification;
@@ -153,5 +160,10 @@ class Notification extends AggregateRoot
     public function getTournamentId(): ?string
     {
         return $this->tournamentId;
+    }
+
+    public function getCommentId(): ?string
+    {
+        return $this->commentId;
     }
 }

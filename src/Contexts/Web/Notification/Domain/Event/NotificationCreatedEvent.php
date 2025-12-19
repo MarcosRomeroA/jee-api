@@ -15,7 +15,8 @@ class NotificationCreatedEvent extends DomainEvent
         ?string $postId,
         ?string $messageId,
         ?string $teamId = null,
-        ?string $tournamentId = null
+        ?string $tournamentId = null,
+        ?string $commentId = null
     )
     {
         $body = [
@@ -27,6 +28,7 @@ class NotificationCreatedEvent extends DomainEvent
             'messageId' => $messageId,
             'teamId' => $teamId,
             'tournamentId' => $tournamentId,
+            'commentId' => $commentId,
         ];
 
         parent::__construct($notificationId, $body);
@@ -52,7 +54,8 @@ class NotificationCreatedEvent extends DomainEvent
             $body['postId'],
             $body['messageId'],
             $body['teamId'] ?? null,
-            $body['tournamentId'] ?? null
+            $body['tournamentId'] ?? null,
+            $body['commentId'] ?? null
         );
     }
 
@@ -67,6 +70,7 @@ class NotificationCreatedEvent extends DomainEvent
             'messageId' => $this->body['messageId'],
             'teamId' => $this->body['teamId'],
             'tournamentId' => $this->body['tournamentId'],
+            'commentId' => $this->body['commentId'],
         ];
     }
 }
