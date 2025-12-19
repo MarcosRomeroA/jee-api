@@ -133,3 +133,9 @@ create_user:
     path: /user/{id}
     controller: App\Apps\Web\User\Create\CreateUserController
     methods: [PUT]
+
+update_user:
+    path: /user/{id}/names
+    controller: App\Apps\Web\User\Update\UpdateUserController
+    methods: [PUT]
+    defaults: { auth: true }
